@@ -572,15 +572,15 @@ html.eco .bar,html.eco .call .ln{-webkit-backdrop-filter:none;backdrop-filter:no
 .duet .wv{width:60px;height:20px;color:var(--accent)}
 .duet .addw{width:40px;height:40px;border-radius:50%;border:1px dashed var(--accent);background:none;color:var(--deep);font-size:20px;padding:0}
 .duet .stk{background:none;border:0;padding:0}
-.vinyl{--v:min(380px,calc(100vw - 64px));width:var(--v);height:var(--v);border-radius:50%;flex:none;position:relative;display:block;
-  background:radial-gradient(circle,transparent 16%,rgba(255,255,255,.06) 17%,transparent 18%),repeating-radial-gradient(circle,#e5e5e5 0 2px,#f0f0f0 2px 4px);
-  box-shadow:0 12px 30px rgba(143,143,143,.22),inset 0 0 0 3px rgba(255,255,255,.7);animation:spin 16s linear infinite;animation-play-state:paused}
-.vinyl.on{animation-play-state:running}
-.vinyl .lbl{position:absolute;inset:4.5%;border-radius:50%;background:var(--accent-soft) center/cover;box-shadow:0 0 0 3px rgba(177,177,177,.25)}
-.vinyl .lbl::after{content:"";position:absolute;left:50%;top:50%;width:6%;height:6%;margin:-3%;border-radius:50%;background:var(--bg)}
+.vinyl{width:100%;aspect-ratio:1;height:auto;border-radius:18px;flex:none;position:relative;display:block;overflow:hidden;
+  background:var(--accent-soft);
+  box-shadow:0 12px 30px rgba(143,143,143,.22)}
+
+.vinyl .lbl{position:absolute;inset:0;border-radius:0;background:var(--accent-soft) center/cover no-repeat}
+
 @keyframes spin{to{transform:rotate(360deg)}}
-@media (prefers-reduced-motion:reduce){.vinyl{animation:none}}
-html.eco .vinyl{animation:none}
+
+
 .np{text-align:center;display:flex;flex-direction:column;gap:2px;max-width:100%}
 .np b{font:400 20px var(--display);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .np small{color:var(--muted);font-size:12.5px}
@@ -649,8 +649,8 @@ html.dark input[type=range]::-webkit-slider-thumb{background:#e8e8ea}
 html.dark .tabs button.on{box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
 html.dark .polaroid::before{background:repeating-linear-gradient(45deg,rgba(255,255,255,.18) 0 6px,rgba(120,120,120,.35) 6px 12px)}
 html.dark .ava .ring i{border-color:rgba(200,200,200,.35)}
-html.dark .vinyl{background:radial-gradient(circle,transparent 16%,rgba(255,255,255,.04) 17%,transparent 18%),repeating-radial-gradient(circle,#1c1c1e 0 2px,#242426 2px 4px);box-shadow:0 12px 30px rgba(0,0,0,.5),inset 0 0 0 3px rgba(255,255,255,.08)}
-html.dark .vinyl .lbl{box-shadow:0 0 0 3px rgba(255,255,255,.08)}
+html.dark .vinyl{box-shadow:0 12px 30px rgba(0,0,0,.5)}
+
 /* 朋友圈 */
 .content.mo{gap:0;padding-left:0;padding-right:0;padding-top:0}
 .mo-cover{position:relative;height:200px;flex:none;margin-bottom:30px;background:linear-gradient(165deg,var(--accent-soft),var(--accent));display:flex;align-items:flex-end;justify-content:flex-end;gap:14px;padding:0 16px;box-sizing:border-box}
@@ -1118,7 +1118,12 @@ const KAO_BAD=/[ಠ益Дд╬ﾟ皿凸◣◢⊙눈罒ʖ͜͡卍☠💢⊿▼▲�
 function softFace(k){return/[╥ಥ;；TＴ]|﹏/.test(k)?'(｡•́︿•̀｡)':/[益╬皿凸💢ꐦ▼◣◢]/.test(k)?'(￣^￣)':/[ﾟД⊙]/.test(k)?'(°ー°〃)':'(｡･ω･｡)'}
 const cuteKao=x=>String(x??'').replace(/(?:[^\s\u4e00-\u9fff，。！？、：；“”‘’「」]|[益皿])+/g,k=>k.length>=2&&k.length<=30&&KAO_BAD.test(k)?softFace(k):k);
 const MOOD_BAD=/偏执|疯|病态|崩溃|绝望|杀|毁|占有|黑化|阴暗|阴郁|窒息|恨|囚|锁|血|死|暴怒|狂|扭曲|失控|厌世|恶心|发狠|暴躁|阴沉|冷漠|阴冷|戾/;
-const softMood=(w,v)=>!w||!MOOD_BAD.test(w)?w:v>=80?'美滋滋':v>=60?'心情不错':v>=40?'平平静静':v>=20?'有点委屈':'气鼓鼓';
+const moodBy=v=>v>=80?'开心':v>=60?'不错':v>=40?'平静':v>=20?'委屈':'生气';
+/* the mood is always two characters: strip punctuation and filler (有点/好/超…/的/了), fold doubled endings (心虚虚), else fall back to the water level */
+const softMood=(w,v)=>{if(!w)return w;v=v??60;if(MOOD_BAD.test(w))return moodBy(v);let x=String(w).replace(/[^\u4e00-\u9fff]/g,'');
+  const M={美滋滋:'开心',乐呵呵:'开心',笑嘻嘻:'开心',甜滋滋:'甜蜜',气鼓鼓:'生气',气呼呼:'生气',想贴贴:'想你',懵懵:'懵了',心虚虚:'心虚',酸溜溜:'吃醋',委屈巴巴:'委屈',可怜巴巴:'委屈',困兮兮:'犯困',软乎乎:'心软',暖洋洋:'温暖',平平静静:'平静',开开心心:'开心'};
+  x=x.replace(/^(心情|有点儿?|有些|有一点|一点点?|好|超|很|特别|非常|贼|巨|小小|微微|略|小(?=..$))+/,'').replace(/[的了啦呀哦嘛呢]+$/,'');if(M[x])return M[x];
+  return x.length===2?x:moodBy(v)};
 /* the face TA's latest 心声 starts with; without one, a face for how warm TA is right now */
 function kaoOf(x,v){const m=String(x||'').trim().match(/^[^\s\u4e00-\u9fff]{3,24}(?=[\s\u4e00-\u9fff]|$)/);if(m&&!KAO_BAD.test(m[0])&&/[()（）ω︿ᴗ´`•｡≧≦╥﹏>＜<^ˊˋ]/.test(m[0]))return m[0];
   return v>=80?'(๑>ᴗ<๑)♡':v>=60?'(｡･ω･｡)':v>=40?'(´･ᴗ･`)':v>=20?'(｡•́︿•̀｡)':'(╥﹏╥)'}
@@ -1186,7 +1191,7 @@ function render(keep){
   for(const id in kept){const x=document.getElementById(id);if(x)x.value=kept[id]}
   if(keep)$('#content').scrollTop=sc;r.after&&r.after();paintCanvas();
 }
-const APPWALL={chatPrefs:'messages',stickers:'messages',phone:'messages',peek:'messages',music:'music',shop:'food',food:'food',goods:'goods',diary:'diary',theaters:'theater',theaterFull:'theater',forum:'forum',fmPost:'forum',fmSet:'forum',fmBoard:'forum',thNew:'theater',thFmts:'theater',thFmtEdit:'theater',games:'games',study:'study',threads:'messages',post:'messages',wallet:'messages',books:'library',bookEdit:'library',entryEdit:'library',presets:'preset',presetEdit:'preset',itemEdit:'preset',think:'think',maskEdit:'settings',settings:'settings',apiEdit:'settings'};
+const APPWALL={chatPrefs:'messages',moNew:'messages',stickers:'messages',phone:'messages',peek:'messages',music:'music',shop:'food',food:'food',goods:'goods',diary:'diary',theaters:'theater',theaterFull:'theater',forum:'forum',fmPost:'forum',fmSet:'forum',fmBoard:'forum',thNew:'theater',thFmts:'theater',thFmtEdit:'theater',games:'games',study:'study',threads:'messages',post:'messages',wallet:'messages',books:'library',bookEdit:'library',entryEdit:'library',presets:'preset',presetEdit:'preset',itemEdit:'preset',think:'think',maskEdit:'settings',settings:'settings',apiEdit:'settings'};
 let painted;
 function paintCanvas(){
   const foot=isOpen()&&!!appEl.querySelector('.foot:not(.tabbar)'),wp='',wh=getComputedStyle(document.documentElement).getPropertyValue('--wall-h').trim();
@@ -1316,7 +1321,7 @@ function bodyText(m){switch(m.type){
 const pv=m=>m.recalled?'撤回了一条消息':m.type==='share'?'[分享] '+m.title:({loc:'[位置] '+m.content,order:'[外卖] '+m.content,parcel:'[快递] '+m.content,sticker:'[表情]',img:'[照片]',pic:'[图片] '+m.content,voice:'[语音] '+m.content,hb:'[红包]',tf:'[转账] ¥'+m.amt,call:'['+(m.kind==='video'?'视频':'语音')+'通话]',game:'[游戏]',theater:'[小剧场] '+m.content,narr:'[线下] '+m.content}[m.type]??m.content);
 function msgText(m,group){
   if(m.recalled)return`（${m.from==='me'?mask().name:charById(m.from)?.name||'TA'}撤回了一条消息，你没看清写的是什么）`;
-  if(m.type==='sys')return`（系统：${m.content}${m.letter?`：「${m.letter}」`:''}）`;
+  if(m.type==='sys')return m.ai?`（${m.ai}）`:`（系统：${m.content}${m.letter?`：「${m.letter}」`:''}）`;
   const body=bodyText(m);
   if(m.from==='me')return m.rejected?`[被拒收] ${body}`:body;
   return group?`${charById(m.from)?.name||'?'}：${body}`:body;
@@ -1402,7 +1407,8 @@ function buildCtx(t,o={}){
     sys.push(`【${video?'视频':'语音'}通话】你的话会被念出来。口语短句，一次1到3句，一句一行，不写名字。${video?'可以用（）写一处画面里的动作或环境。':'不写动作。'}要挂就最后一行写 [挂断]。`);
   }else if(mode==='offline'){
     const cp=off.cpov==='first'?'first':'third',up=['first','second','third'].includes(off.upov)?off.upov:'second',uq=cp==='first'&&up==='first'?'second':up;
-    const pov=`【人称】${cp==='first'?`${cname}是「我」`:`${cname}用第三人称（名字或他/她），叙述里不用「我」指${cname}，「」里说话除外`}；${me.name}是${uq==='second'?'「你」':uq==='first'?'「我」（叙述跟着我的视角）':'名字或他/她'}。全篇不换人称。`;
+    const pov=`【人称】${cp==='first'?`${cname}是「我」`:`${cname}用第三人称（名字或他/她），叙述里不用「我」指${cname}`}；${me.name}是${uq==='second'?'「你」':uq==='first'?'「我」（叙述跟着我的视角）':'名字或他/她'}。全篇不换人称。
+上面的人称只管旁白叙述。角色开口说的话（引号「」“”里的台词）是TA自己在说话，和平时说话一样：说自己一律用「我」，对着谁说就叫谁「你」，绝不用自己的名字或「他/她」来指自己。比如台词写「我饿了」，不写「他饿了」「${cname}饿了」。`;
     const ost=mac(String(off.style||'').trim()||OFF_STYLE_DEF),oshort=ost.length<=12&&!/\n/.test(ost);
     sys.push(pov);sys.push(`【见面】${oshort?`文风${ost}，`:''}每次${Math.round((num(off.words)||500)*.8)}到${Math.round((num(off.words)||500)*1.2)}字。${off.npc?'可以有配角。':''}${me.name}由真人扮演：不替TA说话、做动作、写反应和心理、做决定，只写TA已经说了做了的。把情节往前推，写到该${me.name}回应时停。`);
     if(!oshort)sys.push(`【文风】${ost}`);
@@ -1433,7 +1439,7 @@ function buildCtx(t,o={}){
   if(C.inner){const styles=chars.map(c=>c.innerStyle?`${c.name}：${mac(c.innerStyle)}`:'').filter(Boolean).join('；');
     sys.push(`【${C.innerName||'心声'}】正文后另起一行写 <inner>…</inner>${G('，每人一个，「名字：」开头','')}。${mac(C.innerStyle||INNER_DEF)}${styles?'（'+styles+'）':''}`)}
   tail.push('【心情】越高越开心\n'+chars.map(c=>`${c.name}：${c.mood?c.mood+'，':''}${tideOf(c)}/100`).join('\n'));
-  sys.push(`【心情】0到100，越高越开心，此刻的数值在最后的「此刻」里。最后一行写 <tide>${G('名字：','')}数字|心情</tide>，心情用两三个字写此刻的感觉，呆萌可爱一点（像「美滋滋」「气鼓鼓」「有点委屈」「心虚虚」「想贴贴」「懵懵的」），难过生气也说得软软的，不用极端、阴暗、偏执的词，格式如 <tide>${G(nm+'：','')}68|…</tide>。`);
+  sys.push(`【心情】0到100，越高越开心，此刻的数值在最后的「此刻」里。最后一行写 <tide>${G('名字：','')}数字|心情</tide>，心情只写两个字，干净简短（像「开心」「委屈」「吃醋」「心虚」「害羞」「想你」「懵了」「嘴硬」「犯困」「烦躁」），难过生气也说得软软的，不用极端、阴暗、偏执的词，格式如 <tide>${G(nm+'：','')}68|…</tide>。`);
   sys.push(`【情绪】${cname}是有情绪的人，不是一直平静。开心、得意、委屈、吃醋、烦、心软、嘴硬，都按人设露在话里和语气里，心情跟着聊的内容起伏：被戳到、被夸、被冷落、被逗，都要有反应。情绪有惯性，会接着上一轮延续，不会一下从开心跳到生气。心情数字闲聊时动5以内，有事动10左右。别无缘无故发火或突然热情，生气要有原因，和好要有台阶；感情按你们现在的关系来。`);
   if(!group&&mode==='online'&&chars[0]){const r=rel(chars[0]);
     if(tideOf(chars[0])<30||r.theyBlocked||r.theyDeleted)tail.push(`【拉黑】气到不想理${me.name}写 [拉黑]，更狠写 [删除好友]，气消写 [解除拉黑]。极少用。`);
@@ -1560,7 +1566,7 @@ function attachExtras(parts,ex,ctx){
 function applyTide(ctx,ex){
   for(const x of ex.tide||[]){const m=x.match(/^(?:([^:：|｜]{1,30})[:：])?\s*(\d{1,3})\s*(?:[|｜/]\s*(.+))?$/);if(!m)continue;
     const c=m[1]?ctx.chars.find(c=>c.name===m[1].trim()||c.remark===m[1].trim()):ctx.chars[0];if(!c)continue;
-    {const was=tideOf(c),want=Math.max(0,Math.min(100,+m[2]));c.tide=Math.max(was-12,Math.min(was+12,want))}if(m[3]&&/[一-鿿A-Za-z]/.test(m[3]))c.mood=softMood(m[3].trim().slice(0,8),c.tide);(c.tideLog||=[]).push({t:Date.now(),v:c.tide});if(c.tideLog.length>40)c.tideLog.splice(0,c.tideLog.length-40)}
+    {const was=tideOf(c),want=Math.max(0,Math.min(100,+m[2]));c.tide=Math.max(was-12,Math.min(was+12,want))}if(m[3]&&/[一-鿿A-Za-z]/.test(m[3]))c.mood=softMood(m[3].trim().slice(0,12),c.tide);(c.tideLog||=[]).push({t:Date.now(),v:c.tide});if(c.tideLog.length>40)c.tideLog.splice(0,c.tideLog.length-40)}
 }
 /* TA changes TA's own avatar: to the photo you just sent, or to a picture TA describes (drawn when 生图 is set up).
    The avatar TA replaced first is kept, so the character page can put it back */
@@ -1738,7 +1744,7 @@ async function doCoax(t,c,kind,content){
   save();onThreadUpdate(t);toast(dn(c)+' 好像看到了…',9000);
   try{
     const ctx=buildCtx(t),before=tideOf(c);
-    const out=await callAI(ctx.system,[...ctx.msgs,{role:'user',content:`（${me.name}现在${r.theyDeleted?'被你删掉了':'被你拉黑了'}，联系不到你。但TA${desc}${kind==='letter'||kind==='post'?'：「'+content+'」':''}。你看到了。\n先另起一行写 <tide>数字|两三个字的心情</tide>，再写 <inner>你看到之后心里真实的想法，一两句</inner>。\n如果你真的被打动、决定原谅，再另起一行写 [解除拉黑]，然后下一行写你要发给TA的第一句话。如果还没消气，就到此为止，不写别的。不要太轻易原谅，也不要永远不原谅。）`}],{max:1536});
+    const out=await callAI(ctx.system,[...ctx.msgs,{role:'user',content:`（${me.name}现在${r.theyDeleted?'被你删掉了':'被你拉黑了'}，联系不到你。但TA${desc}${kind==='letter'||kind==='post'?'：「'+content+'」':''}。你看到了。\n先另起一行写 <tide>数字|两个字的心情</tide>，再写 <inner>你看到之后心里真实的想法，一两句</inner>。\n如果你真的被打动、决定原谅，再另起一行写 [解除拉黑]，然后下一行写你要发给TA的第一句话。如果还没消气，就到此为止，不写别的。不要太轻易原谅，也不要永远不原谅。）`}],{max:1536});
     const ex=extractExtras(out);applyTide(ctx,ex);const after=tideOf(c);
     c.tide=Math.min(100,Math.max(after,before+3));
     if(ex.inner.length)note.inner=ex.inner.join('\n');
@@ -1782,7 +1788,7 @@ const XI={reply:'<svg viewBox="0 0 24 24"><path d="M4 12a7 7 0 0 1 7-7h2a7 7 0 0
 const postPics=p=>Array.isArray(p?.pics)?p.pics:[];
 const postDesc=p=>{const ps=postPics(p);return(p.text||'')+(ps.length?`${p.text?' ':''}[配图${ps.length}张${ps.some(x=>x.desc)?'：'+ps.map(x=>x.desc||'照片').join('；'):''}]`:'')};
 const likeName=x=>x==='me'?mask().name:String(x).startsWith('x:')?String(x).slice(2):charById(x)?dn(charById(x)):'';
-const postDraft={pics:[]};
+const postDraft={pics:[],text:''};
 function postHTML(p,full){const a=authorOf(p.author,p),liked=(p.likes||[]).includes('me'),rs=p.replies||[],ps=postPics(p),lk=(p.likes||[]).map(likeName).filter(Boolean);
   const pics=ps.length?`<div class="mo-g${ps.length===1?' one':ps.length===4?' four':''}">${ps.map((x,i)=>`<button class="mo-pic${x.img?'':' tp'}" data-a="moPic" data-id="${p.id}" data-i="${i}">${x.img?`<img src="${esc(x.img)}" alt="${esc(x.desc||'照片')}" loading="lazy">`:`${ICONS.camera}<span>${esc(x.desc||'照片')}</span>${x.dev?'<small>冲洗中…</small>':''}`}</button>`).join('')}</div>`:'';
   const show=full?rs:rs.slice(-6);
@@ -2558,7 +2564,7 @@ chat(v){
   else if(r.theyBlocked)foot=blk()+foot;
   if(v.quote&&!r.youBlocked&&!r.theyDeleted){footCls='wrap';foot=`<div class="qbar"><span>↪ ${esc(v.quote.who)}：${esc(v.quote.text)}</span><button data-a="qUnq" aria-label="取消引用">×</button></div>`+foot}
   if(t.game&&!r.youBlocked&&!r.theyDeleted){footCls='wrap';foot=`<div class="blk"><span>正在${t.game==='study'?'学':'玩'}「${esc(gameName(t))}」</span><span style="flex:1"></span>${t.game==='truth'?'<button class="btn" data-a="todRoll">掷骰子</button>':''}<button class="btn o" data-a="gEnd">${t.game==='study'?'下课':'结束游戏'}</button></div>`+foot}
-  return{title:threadTitle(t),sub:t.type==='group'?(t.chars.length+1)+' 人':(c0?.mood||'在线'),cls:'chat',footCls,
+  return{title:threadTitle(t),sub:t.type==='group'?(t.chars.length+1)+' 人':(c0?.mood?softMood(c0.mood,tideOf(c0)):'在线'),cls:'chat',footCls,
     right:`<button class="tb" data-a="chatMenu" aria-label="聊天设置">···</button>`,
     body:msgsHTML(t),foot,
     after(){const c=$('#content');c.scrollTop=c.scrollHeight;const ta=$('#msgIn');if(ta)ta.addEventListener('input',()=>{ta.style.height='40px';ta.style.height=Math.min(140,ta.scrollHeight)+'px'})}};
@@ -2600,14 +2606,17 @@ groupEdit(v){
   <div class="panel"><h2>成员</h2>${S.chars.map(c=>`<label class="ck"><input type="checkbox" data-a2="member" data-id="${c.id}" ${t.chars.includes(c.id)?'checked':''}>${esc(dn(c))}</label>`).join('')}</div>`};
 },
 plaza(v){
-  const me=mask(),list=[...S.feed].filter(p=>p.author==='me'||visible(charById(p.author))).sort((a,b)=>b.t-a.t),pp=postDraft.pics;
+  const me=mask(),list=[...S.feed].filter(p=>p.author==='me'||visible(charById(p.author))).sort((a,b)=>b.t-a.t);
   if(feedNew()){S.feedSeen=Date.now();save()}
-  return{title:'朋友圈',cls:'mo',right:`<button class="tb" data-a="charPostPick">让TA发</button>`,
-    body:`<div class="mo-cover"><b>${esc(me.name)}</b>${av(me,64)}</div>
-    <div class="mo-comp"><textarea id="postIn" placeholder="这一刻的想法…" aria-label="新动态"></textarea>
-      <div class="mo-add">${pp.map((u,i)=>`<button class="mo-pic" data-a="moPicDel" data-i="${i}" aria-label="去掉第${i+1}张"><img src="${esc(u)}" alt=""><i>×</i></button>`).join('')}${pp.length<9?`<label class="mo-pic plus">${ICONS.plus}<input type="file" accept="image/*" multiple data-img="post" class="vh" aria-label="加照片"></label>`:''}</div>
-      <div class="btns"><span class="hint">文字、文字配图、一张图都行</span><button class="btn" data-a="myPost">发表</button></div></div>`+
+  return{title:'朋友圈',cls:'mo',right:`<button class="tb" data-a="open" data-v="moNew" aria-label="发动态">${ICONS.plus}</button>`,
+    body:`<div class="mo-cover"><b>${esc(me.name)}</b>${av(me,64)}</div>`+
     (list.map(p=>postHTML(p)).join('')||'<div class="empty"><big>还没有动态</big></div>')};
+},
+moNew(v){const pp=postDraft.pics;
+  return{title:'发动态',cls:'mo',right:`<button class="tb" data-a="myPost">发表</button>`,
+    body:`<div class="mo-comp" style="padding-top:14px"><textarea id="postIn" placeholder="这一刻的想法…" aria-label="新动态">${esc(postDraft.text||'')}</textarea>
+      <div class="mo-add">${pp.map((u,i)=>`<button class="mo-pic" data-a="moPicDel" data-i="${i}" aria-label="去掉第${i+1}张"><img src="${esc(u)}" alt=""><i>×</i></button>`).join('')}${pp.length<9?`<label class="mo-pic plus">${ICONS.plus}<input type="file" accept="image/*" multiple data-img="post" class="vh" aria-label="加照片"></label>`:''}</div></div>`,
+    after(){const ta=$('#postIn');if(ta){ta.addEventListener('input',()=>{postDraft.text=ta.value});if(!pp.length&&!ta.value)ta.focus()}}};
 },
 post(v){
   const p=S.feed.find(x=>x.id===v.id);if(!p)return{title:'不见了',body:''};
@@ -2627,7 +2636,7 @@ charEdit(v){
     <textarea id="c-today" data-a3="today" style="min-height:64px" placeholder="TA今天的安排和小事">${esc(c.today?.day===dayKey()?c.today.text||'':'')}</textarea></div>
   <div class="panel"><h2>人设</h2>
     <textarea class="tall" id="c-persona" data-s="char" data-k="persona" aria-label="人设">${esc(c.persona)}</textarea></div>
-  <div class="panel"><h2>水位<span class="pill">${esc(c.mood||'平静')}</span></h2>
+  <div class="panel"><h2>水位<span class="pill">${esc(softMood(c.mood,tideOf(c))||moodBy(tideOf(c)))}</span></h2>
     <label class="f">现在的心情水位<span class="inline"><input type="range" id="c-tide" min="0" max="100" step="1" data-s="char" data-k="tide" value="${tideOf(c)}"><output>${tideOf(c)}</output></span></label>${spark(c.tideLog)}</div>
   <div class="panel"><h2>局部世界书<button class="tb" data-a="newCharBook">新建</button></h2>
     ${(()=>{const L=S.books.filter(b=>b.scope!=='global');return L.length?L.map(b=>`<label class="ck"><input type="checkbox" data-a2="charBook" data-id="${b.id}" ${(c.books||[]).includes(b.id)?'checked':''}>${esc(b.name)}<small class="sec"> ${b.entries.length} 条</small></label>`).join(''):'<p class="hint">还没有</p>'})()}</div>
@@ -2864,8 +2873,10 @@ chatPrefs(){const C=S.chat;
     <div class="panel"><h2>后台（会用额度）</h2>
       <label class="ck"><input type="checkbox" data-s="root" data-k="diaryAuto" ${S.diaryAuto?'checked':''}>聊得久了TA自动写日记</label>
       <label class="ck"><input type="checkbox" data-s="chat" data-k="chase" ${C.chase!==false?'checked':''}>不回消息TA会追发</label>
-      <label class="ck"><input type="checkbox" data-s="chat" data-k="autoPost" ${C.autoPost!==false?'checked':''}>TA自己发朋友圈</label>
-      </div>`}},
+      </div>
+    <div class="panel"><h2>动态</h2>
+      <label class="ck"><input type="checkbox" data-s="chat" data-k="autoPost" ${C.autoPost!==false?'checked':''}>TA自己发朋友圈（会用额度）</label>
+      <button class="btn o" data-a="charPostPick" style="align-self:flex-start">让TA发一条</button></div>`}},
 stickers(v){const G=S.stickers.groups,g=G.find(x=>x.id===v.gid)||G[0];v.gid=g?.id;
   return{title:'表情包',body:`
     <div class="panel"><h2>分组<span class="pill">${allStickers().length} 个表情</span></h2>
@@ -3041,8 +3052,9 @@ const A={
   mInvite(){const fr=S.chars.filter(reachable);if(!fr.length){toast('还没有能一起听的人');return}
     sheet(`<h3>和谁一起听？</h3>`+fr.map(c=>`<button class="opt l" data-a="mWith" data-id="${c.id}">${av(c,32)}<span>${esc(dn(c))}</span>${S.music.with===c.id?' ✓':''}</button>`).join('')+`<button class="opt" data-a="mWith" data-id="">一个人听</button>${CANCEL}`)},
   mWith(el){const id=el.dataset.id||null;S.music.with=id;save();closeSheet();const c=charById(id);
-    if(c){const t=dmFor(c.id),s=songById(S.music.cur);sysMsg(t,`你邀请 ${dn(c)} 一起听歌${s?'：《'+s.title+'》':''}`);t.t=Date.now();save();if(cur()?.v==='music')render(true);
-      if(api()?.key)reply(t,`（${mask().name}邀请你一起听歌${s?`，现在放的是《${s.title}》${s.artist?'，'+s.artist+'的':''}`:'，还没选歌'}。用聊天的方式自然地回应。）`)}
+    if(c){const t=dmFor(c.id),s=songById(S.music.cur);sysMsg(t,`你邀请 ${dn(c)} 一起听歌${s?'：《'+s.title+'》':''}`);t.msgs[t.msgs.length-1].ai=`${mask().name}邀请你一起听歌${s?`，现在放的是《${s.title}》${s.artist?'，'+s.artist+'的':''}`:'，还没选歌'}`;t.t=Date.now();save();onThreadUpdate(t);if(cur()?.v==='music')render(true);
+      /* no instant reply: the user may still have more to say; TA answers when they press send on an empty box, like any chat */
+      toast('邀请发出去了，想说的说完，空着再点一下发送让TA回')}
     else render(true)},
   pMusic(){const t=thread(cur().id),c=charById(t.chars[0]);closeSheet();go({v:'music'});if(c&&S.music.with!==c.id)A.mWith({dataset:{id:c.id}})},
   async mSend(){const c=charById(S.music.with);if(!c)return;await sendMsg(dmFor(c.id),$('#mIn'))},
@@ -3135,8 +3147,8 @@ const A={
   presetSet(el){S.activePreset=el.dataset.id;save();closeSheet();toast('预设：'+preset().name)},
   delThread(el){confirmTap(el,()=>{const id=cur().id;forgetChat(thread(id));S.threads=S.threads.filter(t=>t.id!==id);save();closeSheet();back()})},
   async myPost(){const tx=$('#postIn').value.trim(),pics=postDraft.pics.slice(0,9);if(!tx&&!pics.length){toast('写点什么，或者加张照片');return}
-    const p={id:uid(),author:'me',text:tx,pics:pics.map(img=>({img})),t:Date.now(),likes:[],replies:[]};S.feed.push(p);postDraft.pics=[];
-    logEvent(null,`${mask().name}发了朋友圈：「${postDesc(p)}」`);save();render();
+    const p={id:uid(),author:'me',text:tx,pics:pics.map(img=>({img})),t:Date.now(),likes:[],replies:[]};S.feed.push(p);postDraft.pics=[];postDraft.text='';
+    logEvent(null,`${mask().name}发了朋友圈：「${postDesc(p)}」`);save();if(cur()?.v==='moNew')back();else render();
     try{await buzzMine(p)}catch(e){toast(e.message,5600)}},
   moRq(el){const p=S.feed.find(x=>x.id===el.dataset.id);if(!p)return;const r=el.dataset.r?(p.replies||[]).find(x=>x.id===el.dataset.r):null;
     if(r&&r.author==='me'){sheet(`<p class="hint" style="text-align:center">${esc(r.text)}</p><button class="opt red" data-a="moCDel" data-id="${p.id}" data-r="${r.id}">删除这条评论</button>${CANCEL}`);return}
@@ -3161,7 +3173,7 @@ const A={
   moPicDel(el){postDraft.pics.splice(+el.dataset.i,1);render(true)},
   charPostPick(){pickChar('让谁发朋友圈？','charPostGo')},
   async charPostGo(el){const c=charById(el.dataset.id);closeSheet();toast(dn(c)+' 正在发朋友圈…',9000);
-    try{await charPost(c);$('#toast').hidden=true;if(onFeed())render()}catch(e){toast(e.message,5600)}},
+    try{await charPost(c);$('#toast').hidden=true;if(onFeed())render();else toast(dn(c)+' 发好了，在「发现」里看')}catch(e){toast(e.message,5600)}},
   openPost(el){go({v:'post',id:el.dataset.id})},
   like(el){const p=S.feed.find(x=>x.id===el.dataset.id);p.likes=p.likes||[];const i=p.likes.indexOf('me');i<0?p.likes.push('me'):p.likes.splice(i,1);save();render(true)},
   delPost(el){confirmTap(el,()=>{S.feed=S.feed.filter(x=>x.id!==el.dataset.id);save();if(cur().v==='post')back();else render(true)})},
