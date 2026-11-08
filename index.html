@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.07.25';
+window.BYJ_VER='2026.11.08.1';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -767,8 +767,8 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const stkName=n=>String(n??'').replace(/\s*HYPER(LINK)?\b[\s\S]*$|\s*HYPERL?I?N?K?\s*$/i,'').replace(/\\[a-z]\b.*$/i,'').replace(/\s+/g,' ').trim().slice(0,24);
 const pad=n=>String(n).padStart(2,'0');
 const WK='日一二三四五六';
-function ago(t){const s=(Date.now()-t)/1000;if(s<60)return'刚刚';if(s<3600)return Math.floor(s/60)+'分钟前';if(s<86400)return Math.floor(s/3600)+'小时前';const d=new Date(t);return(d.getMonth()+1)+'/'+d.getDate()}
-function hm(t){const d=new Date(t);return pad(d.getHours())+':'+pad(d.getMinutes())}
+function ago(t){const s=(Date.now()-t)/1000;if(s<60)return'刚刚';if(s<3600)return Math.floor(s/60)+'分钟前';if(s<86400)return Math.floor(s/3600)+'小时前';const d=locDate(t);return(d.getMonth()+1)+'/'+d.getDate()}
+function hm(t){const d=locDate(t);return pad(d.getHours())+':'+pad(d.getMinutes())}
 const UPD_SRC=['https://raw.githubusercontent.com/iceledrain/bingyu/main/index.html','https://cdn.jsdelivr.net/gh/iceledrain/bingyu@main/index.html','https://fastly.jsdelivr.net/gh/iceledrain/bingyu@main/index.html'];
 let updNew=null;
 async function updFetch(){const one=async url=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),20000);
@@ -1064,8 +1064,15 @@ function appIcon(a){const img=0;const n=a.id==='messages'?S.threads.reduce((s,t)
 const WX={0:'晴',1:'晴间多云',2:'多云',3:'阴',45:'有雾',48:'雾凇',51:'毛毛雨',53:'毛毛雨',55:'毛毛雨',56:'冻雨',57:'冻雨',61:'小雨',63:'中雨',65:'大雨',66:'冻雨',67:'冻雨',71:'小雪',73:'中雪',75:'大雪',77:'雪粒',80:'阵雨',81:'阵雨',82:'暴雨',85:'阵雪',86:'大雪',95:'雷阵雨',96:'雷阵雨',99:'雷暴'};
 const wxKey=l=>l&&l.lat!==undefined?(+l.lat).toFixed(2)+','+(+l.lon).toFixed(2):'';
 // 时区跟着选的城市走（天气接口按城市给时差）；没选城市、天气还没拉到时用手机自己的时间
-const tzOff=l=>{const d=l&&(S.wx||{})[wxKey(l)]?.d;return d&&typeof d.utc_offset_seconds==='number'?d.utc_offset_seconds:null};
-function locNow(l=S.loc){const o=tzOff(l),n=new Date();return o===null?n:new Date(n.getTime()+n.getTimezoneOffset()*60e3+o*1e3)}
+const tzName=l=>l&&(l.tz||(S.wx||{})[wxKey(l)]?.d?.timezone)||'';
+const tzFmt={};
+function tzOff(l,at=Date.now()){const z=tzName(l);
+  if(z)try{const f=tzFmt[z]||=new Intl.DateTimeFormat('en-US',{timeZone:z,hourCycle:'h23',year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric'});
+    const p={};f.formatToParts(new Date(at)).forEach(x=>p[x.type]=+x.value);return Math.round((Date.UTC(p.year,p.month-1,p.day,p.hour%24,p.minute)-Math.floor(at/60e3)*60e3)/60e3)*60}catch(e){}
+  const d=l&&(S.wx||{})[wxKey(l)]?.d;return d&&typeof d.utc_offset_seconds==='number'?d.utc_offset_seconds:null}
+// 把某个时刻换成城市当地的「墙上时间」（只读 getHours/getDate 这些）
+function locDate(t=Date.now(),l=S.loc){const o=tzOff(l,t),n=new Date(t);return o===null?n:new Date(t+n.getTimezoneOffset()*60e3+o*1e3)}
+const locNow=(l=S.loc)=>locDate(Date.now(),l);
 const locTime=l=>{const o=tzOff(l),m=tzOff(S.loc)??-new Date().getTimezoneOffset()*60;if(o===null||o===m)return'';const d=locNow(l);return`，当地时间${pad(d.getHours())}:${pad(d.getMinutes())}`};
 const wxJobs={};
 function wxNow(l){const k=wxKey(l),x=k&&(S.wx||{})[k];if(!x||!x.d?.current)return null;const c=x.d.current,dl=x.d.daily||{},g=(a,i)=>a&&a[i]!==undefined?Math.round(a[i]):'';
@@ -1105,7 +1112,7 @@ function ensureWx(l){const k=wxKey(l);if(!k)return Promise.resolve();const x=(S.
   wxJobs[k]=(async()=>{try{const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),5000);
     const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${l.lat}&longitude=${l.lon}&current=temperature_2m,apparent_temperature,weather_code,relative_humidity_2m,wind_speed_10m&hourly=temperature_2m,weather_code,precipitation_probability&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max,sunset&timezone=auto&forecast_days=2`,{signal:ctl.signal});clearTimeout(tm);
     if(r.ok){const d=await r.json();if(d.current){S.wx[k]={t:Date.now(),d};save()}}}catch(e){}finally{delete wxJobs[k]}})();return wxJobs[k]}
-async function geoSearch(q){const r=await fetch('https://geocoding-api.open-meteo.com/v1/search?count=6&language=zh&name='+encodeURIComponent(q));if(!r.ok)throw new Error('查不到，检查一下网络');const d=await r.json();return(d.results||[]).map(x=>({name:x.name,admin:[x.admin1,x.country].filter(Boolean).join(' · '),lat:x.latitude,lon:x.longitude}))}
+async function geoSearch(q){const r=await fetch('https://geocoding-api.open-meteo.com/v1/search?count=6&language=zh&name='+encodeURIComponent(q));if(!r.ok)throw new Error('查不到，检查一下网络');const d=await r.json();return(d.results||[]).map(x=>({name:x.name,admin:[x.admin1,x.country].filter(Boolean).join(' · '),lat:x.latitude,lon:x.longitude,tz:x.timezone||''}))}
 let lunarFmt=null;
 function lunarMD(d){try{lunarFmt=lunarFmt||new Intl.DateTimeFormat('en-u-ca-chinese',{month:'numeric',day:'numeric'});const p=lunarFmt.formatToParts(d);const mo=p.find(x=>x.type==='month')?.value||'',da=p.find(x=>x.type==='day')?.value||'';return{m:parseInt(mo),d:parseInt(da),leap:/\D/.test(mo)}}catch(e){return null}}
 function lunarText(d){const l=lunarMD(d);if(!l||!l.m)return'';const M=['正','二','三','四','五','六','七','八','九','十','冬','腊'],N='一二三四五六七八九十';
@@ -3534,7 +3541,7 @@ const A={
       try{const r=await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=zh`);const d=await r.json();name=d.city||d.locality||d.principalSubdivision||name}catch(e){}
       S.loc={name,lat,lon};save();closeSheet();toast('城市：'+name);ensureWx(S.loc).then(()=>{if(cur())render(true);else renderHome()})},
       ()=>{toast('没拿到位置，搜一下城市吧');el.disabled=false;el.textContent='用我现在的位置'},{timeout:10000,maximumAge:3600e3})},
-  cityPick(el){const i=+el.dataset.i,x=i>=0?cityTmp[i]:null,loc=x?{name:x.name,lat:x.lat,lon:x.lon}:null,id=el.dataset.for;
+  cityPick(el){const i=+el.dataset.i,x=i>=0?cityTmp[i]:null,loc=x?{name:x.name,lat:x.lat,lon:x.lon,...(x.tz?{tz:x.tz}:{})}:null,id=el.dataset.for;
     if(id){const c=charById(id);if(c)c.loc=loc}else S.loc=loc;save();closeSheet();
     if(loc)ensureWx(loc).then(()=>{if(isOpen())render(true);else renderHome()});if(isOpen())render(true);else renderHome()},
   develop(el){const t=thread(cur().id),m=t.msgs[+el.dataset.i];if(m)developMsg(t,m)},
