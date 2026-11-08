@@ -2149,7 +2149,7 @@ function musicView(v={}){
   const modeIc={all:['all','列表循环'],one:['one','单曲循环'],shuffle:['shuffle','随机']}[S.music.mode]||['all','列表循环'];
   return{title:'音乐',sub:c?'和 '+dn(c)+' 一起听':'',body:head+`
   <div class="panel">
-    <div class="inline" style="flex-wrap:nowrap"><input type="text" id="mQ" value="${esc(mState.q)}" placeholder="在网易云搜歌名、歌手" enterkeyhint="search" aria-label="搜歌"><button class="btn" data-a="mFind">${mState.busy?'搜索中…':'搜索'}</button></div>
+    <div class="inline" style="flex-wrap:nowrap"><input type="text" id="mQ" value="${esc(mState.q)}" placeholder="搜歌" enterkeyhint="search" aria-label="搜歌"><button class="btn" data-a="mFind">${mState.busy?'搜索中…':'搜索'}</button></div>
     ${mState.res.length?`<div class="mlist">${mState.res.map((x,i)=>`<button class="opt l" data-a="mPick" data-i="${i}"><span><b>${esc(x.title)}</b><small class="sec"> ${esc(x.artist)}</small></span><i>▶</i></button>`).join('')}</div><button class="tb" data-a="mClear" style="align-self:flex-start">收起结果</button>`:''}</div>
   <div class="player">
     <div class="duet">${av(me,40)}<svg class="wv" viewBox="0 0 60 20" aria-hidden="true"><path d="M0 10 Q 7.5 2 15 10 T 30 10 T 45 10 T 60 10" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>${c?`<button class="stk" data-a="mInvite" aria-label="换一起听的人">${av(c,40)}</button>`:`<button class="addw" data-a="mInvite" aria-label="邀请 TA 一起听">+</button>`}</div>
@@ -2583,7 +2583,7 @@ chat(v){
   if(v.off==null)v.off=t.mode==='offline'?1:0;
   talkMode(t,v.off?'offline':'online');
   if(v.off)return{title:threadTitle(t),sub:'见面中',cls:'chat offv',right:HEART+`<button class="tb" data-a="openOffline" aria-label="见面设置">···</button>`,body:msgsHTML(t),
-    foot:`<textarea id="msgIn" rows="1" placeholder="你的动作和话（不想写就直接点发送，TA接着写）" aria-label="你的动作和话"></textarea><button class="sq go" data-a="send" aria-label="发送">${ICONS.send}</button>`,
+    foot:`<textarea id="msgIn" rows="1" placeholder="你的动作和话" aria-label="你的动作和话"></textarea><button class="sq go" data-a="send" aria-label="发送">${ICONS.send}</button>`,
     after(){const c=$('#content');c.scrollTop=c.scrollHeight;const ta=$('#msgIn');if(ta)ta.addEventListener('input',()=>{ta.style.height='40px';ta.style.height=Math.min(140,ta.scrollHeight)+'px'})}};
   const c0=t.type==='dm'?charById(t.chars[0]):null,r=c0?rel(c0):{};
   let foot=`<button class="sq" data-a="plus" aria-label="更多">${ICONS.plus}</button><button class="sq" data-a="stickerPicker" aria-label="表情包">${ICONS.smile}</button><textarea id="msgIn" rows="1" placeholder="发消息" enterkeyhint="send" aria-label="消息"></textarea><button class="sq go" data-a="send" aria-label="发送">${ICONS.send}</button>`;
@@ -2621,7 +2621,6 @@ offline(v){
     <button class="tb" data-a="offStyleDef" style="align-self:flex-start">恢复默认</button>
     <div class="f">谁推剧情<div class="seg">${[['char','TA带着走'],['both','一起推'],['me','我来推']].map(([k,l])=>`<button class="${(o.lead||'char')===k?'on':''}" data-a="offSet" data-k="lead" data-v="${k}">${l}</button>`).join('')}</div></div>
     <label class="f">随机事件<span class="inline"><input type="range" id="o-ev" min="0" max="100" step="5" data-s="off" data-k="evRate" value="${o.evRate??30}"><output>${o.evRate??30}</output></span></label>
-    <p class="hint">见面时每轮发生意外的概率（%），好事坏事都有，拉到 0 就关掉</p>
     <label class="ck"><input type="checkbox" id="o-npc" data-s="off" data-k="npc" ${o.npc?'checked':''}>配角</label></div>
     <div class="btns"><button class="btn o" data-a="offDefault">设为默认</button></div></div>
     ${t.mode==='offline'?`<div class="panel"><h2>结束见面</h2><button class="btn" data-a="meetEnd" style="align-self:flex-start">结束见面，回到线上</button></div>`:''}`};
@@ -2790,30 +2789,27 @@ theaterFull(v){const x=S.theaters.find(x=>x.id===v.id);if(!x)return{title:'不�
 novels(){const L=[...S.novels].sort((a,b)=>b.t-a.t);
   return{title:'小说',right:`<button class="tb" data-a="open" data-v="novelNew">新建</button>`,body:L.map(b=>{const a=nvAuthor(b),r=b.author==='ai'&&charById(b.reader),j=nvJobs[b.id];
     return`<button class="row" data-a="nvOpen" data-id="${b.id}"><span class="nvcv">${esc((b.title||'?')[0])}</span><span class="meta"><b>${esc(b.title||'未命名')}</b><small>${esc([a?dn(a)+' 写':'AI 写',r?'和'+dn(r)+'一起看':'',b.genre].filter(Boolean).join(' · '))}</small></span><span class="side"><span>${j&&!j.err?'在写…':b.chs.length+' 章'}</span><span>${ago(b.t)}</span></span></button>`}).join('')
-    ||`<div class="empty"><big>还没有小说</big><p class="hint">题材、关键词、主角都由你定，AI 或者你选的角色来写，你们都能看</p><button class="btn" data-a="open" data-v="novelNew">写一本</button></div>`}},
-novelNew(v){const d=v.d||=({gs:[],genre:'',tags:'',leads:'',brief:'',style:'',author:'ai',reader:'',pov:'third',words:2500}),cs=S.chars.filter(visible);
-  if(d.author!=='ai'&&!cs.some(c=>c.id===d.author))d.author='ai';const me=mask(d.author!=='ai'?d.author:d.reader||null);
+    ||`<div class="empty"><big>还没有小说</big><button class="btn" data-a="open" data-v="novelNew">写一本</button></div>`}},
+novelNew(v){const d=v.d||=({gs:[],genre:'',tags:'',leads:'',brief:'',style:'',author:'',reader:'',pov:'third',words:2500}),cs=S.chars.filter(visible);
+  if(!cs.some(c=>c.id===d.author))d.author=cs[0]?.id||'';const me=mask(d.author||null);
   const ch=(k,val,lab,on)=>`<button class="${on?'on':''}" data-a="nvPick" data-k="${k}" data-v="${esc(val)}">${esc(lab)}</button>`;
   return{title:'写一本小说',body:`
-  <div class="panel"><h2>题材<span class="pill">可多选</span></h2><div class="chips">${NV_GENRES.map(g=>ch('gs',g,g,d.gs.includes(g))).join('')}</div>
-    <input type="text" id="nv-genre" data-s="nvd" data-k="genre" value="${esc(d.genre)}" placeholder="别的题材，自己写" autocomplete="off" aria-label="别的题材"></div>
-  <div class="panel"><h2>关键词</h2><input type="text" id="nv-tags" data-s="nvd" data-k="tags" value="${esc(d.tags)}" placeholder="比如：先婚后爱、双向暗恋、雨夜、破镜重圆" autocomplete="off" aria-label="关键词"></div>
+  <div class="panel"><h2>题材</h2><input type="text" id="nv-genre" data-s="nvd" data-k="genre" value="${esc(d.genre)}" autocomplete="off" aria-label="题材"></div>
+  <div class="panel"><h2>关键词</h2><input type="text" id="nv-tags" data-s="nvd" data-k="tags" value="${esc(d.tags)}" autocomplete="off" aria-label="关键词"></div>
   <div class="panel"><h2>主角</h2><div class="chips">${[me.name,...cs.map(c=>c.name)].filter((x,i,a)=>x&&a.indexOf(x)===i).map(n=>ch('lead',n,(d.leads.includes(n)?'✓ ':'+ ')+n,d.leads.includes(n))).join('')}</div>
-    <textarea id="nv-leads" data-s="nvd" data-k="leads" placeholder="点上面把自己和角色加进来；也可以写原创人物：名字、性别、年龄、身份、性格" aria-label="主角">${esc(d.leads)}</textarea></div>
-  <div class="panel"><h2>想看的故事<span class="pill">可不填</span></h2><textarea id="nv-brief" data-s="nvd" data-k="brief" placeholder="简介、大纲、想要的梗；什么都不写就让作者自己发挥" aria-label="想看的故事">${esc(d.brief)}</textarea>
+    <textarea id="nv-leads" data-s="nvd" data-k="leads" aria-label="主角">${esc(d.leads)}</textarea></div>
+  <div class="panel"><h2>想看的故事</h2><textarea id="nv-brief" data-s="nvd" data-k="brief" aria-label="想看的故事">${esc(d.brief)}</textarea>
     <label class="f">文风<input type="text" id="nv-style" data-s="nvd" data-k="style" value="${esc(d.style)}" placeholder="默认" autocomplete="off"></label></div>
-  <div class="panel"><h2>谁来写</h2><div class="chips">${ch('author','ai','AI',d.author==='ai')}${cs.map(c=>ch('author',c.id,dn(c),d.author===c.id)).join('')}</div>
-    ${d.author==='ai'?`<p class="hint">找个角色一起看：TA会在每章下面评论，你评论TA也会回，聊天时也知道你们在看什么</p><div class="chips">${ch('reader','','不要',!d.reader)}${cs.map(c=>ch('reader',c.id,dn(c),d.reader===c.id)).join('')}</div>`
-      :`<p class="hint">${esc(dn(charById(d.author)))}按自己的性子来写，每章末尾留「作者的话」；你评论TA会回，聊天时也会提起</p>`}</div>
+  <div class="panel"><h2>谁来写</h2>${cs.length?`<div class="chips">${cs.map(c=>ch('author',c.id,dn(c),d.author===c.id)).join('')}</div>`:'<p class="hint">还没有角色</p>'}</div>
   <div class="panel"><h2>写法</h2><div class="seg">${[['third','第三人称'],['first','第一人称']].map(([k,l])=>`<button class="${d.pov===k?'on':''}" data-a="nvPick" data-k="pov" data-v="${k}">${l}</button>`).join('')}</div>
     <label class="f">每章字数<span class="inline"><input type="range" id="nv-words" min="1000" max="8000" step="500" data-s="nvd" data-k="words" value="${d.words}"><output>${d.words}</output></span></label></div>
-  <button class="btn" data-a="nvCreate" style="align-self:flex-start">开写第一章</button>`}},
+  <button class="btn" data-a="nvCreate" style="align-self:flex-start" ${d.author?'':'disabled'}>开写第一章</button>`}},
 novel(v){const b=nvBook(v.id);if(!b)return{title:'不见了',body:''};const a=nvAuthor(b),r=b.author==='ai'?charById(b.reader):null,j=nvJobs[b.id],n=b.chs.length;
   return{title:b.title||'未命名',sub:a?dn(a)+' 写':r?'AI 写 · 和'+dn(r)+'一起看':'AI 写',right:`<button class="tb" data-a="nvSet" data-id="${b.id}">设置</button>`,body:`
-  <div class="panel"><p class="hint">${esc([b.genre,b.tags].filter(Boolean).join(' · ')||'题材由作者发挥')}</p>${b.leads?`<p class="hint">主角：${esc(b.leads)}</p>`:''}${b.brief?`<p class="hint">${esc(b.brief)}</p>`:''}</div>
+  ${b.genre||b.tags||b.leads||b.brief?`<div class="panel">${b.genre||b.tags?`<p class="hint">${esc([b.genre,b.tags].filter(Boolean).join(' · '))}</p>`:''}${b.leads?`<p class="hint">主角：${esc(b.leads)}</p>`:''}${b.brief?`<p class="hint">${esc(b.brief)}</p>`:''}</div>`:''}
   ${n?`<div class="panel"><h2>目录<span class="pill">${n} 章</span></h2>${b.chs.map((c,i)=>`<button class="nvrow" data-a="nvRead" data-i="${i}"><b>第${i+1}章 ${esc(c.title)}</b><small>${ago(c.t)}${c.cm?.length?' · '+c.cm.length+' 条评论':''}</small></button>`).join('')}</div>`:''}
-  <div class="panel"><h2>第${n+1}章</h2>${j&&!j.err?`<p class="hint"><span class="dots"><i></i><i></i><i></i></span> ${a?esc(dn(a)):'AI'} 正在写，长一点的要一两分钟</p>`
-    :`${j?.err?`<p class="hint">没写出来：${esc(j.err)}</p>`:''}<textarea id="nvIn" placeholder="这章想看什么（不填就让作者自由发挥）" aria-label="这章想看什么"></textarea><button class="btn" data-a="nvNext" style="align-self:flex-start">${j?.err?'再试一次':n?'写下一章':'开写'}</button>`}</div>`}},
+  <div class="panel"><h2>第${n+1}章</h2>${j&&!j.err?`<p class="hint"><span class="dots"><i></i><i></i><i></i></span> ${a?esc(dn(a)):'AI'} 正在写</p>`
+    :`${j?.err?`<p class="hint">没写出来：${esc(j.err)}</p>`:''}<textarea id="nvIn" placeholder="这章想看什么" aria-label="这章想看什么"></textarea><button class="btn" data-a="nvNext" style="align-self:flex-start">${j?.err?'再试一次':n?'写下一章':'开写'}</button>`}</div>`}},
 novelCh(v){const b=nvBook(v.id),ch=b?.chs[v.i];if(!ch)return{title:'不见了',body:''};const sr=nvSeer(b),me=mask(sr),last=v.i===b.chs.length-1,j=nvJobs[b.id];
   const who=x=>x.by==='me'?me:charById(x.by)||{name:'?'};
   return{title:`第${v.i+1}章`,sub:b.title||'',body:`<article class="nvch"><h2>${esc(ch.title)}</h2><div class="nvtxt">${ch.text.split(/\n+/).map(p=>p.trim()).filter(Boolean).map(p=>`<p>${esc(p)}</p>`).join('')}</div>
@@ -2822,7 +2818,7 @@ novelCh(v){const b=nvBook(v.id),ch=b?.chs[v.i];if(!ch)return{title:'不见了',b
   <div class="panel"><h2>评论<span class="pill">${ch.cm?.length||0}</span></h2>
     ${(ch.cm||[]).map(x=>`<div class="nvcm">${av(who(x),30)}<span class="nvct"><b>${esc(x.by==='me'?me.name:dn(who(x)))}</b><p>${esc(x.text)}</p></span></div>`).join('')||'<p class="hint">还没有评论</p>'}
     ${nvCmBusy.has(ch.id)&&sr?`<p class="hint">${esc(dn(sr))} 在写评论…</p>`:''}
-    <div class="inline" style="flex-wrap:nowrap"><input type="text" id="nvCm" placeholder="${sr?'说点什么，'+esc(dn(sr))+'会看到':'写点评论'}" enterkeyhint="send" aria-label="评论" style="flex:1;min-width:0"><button class="btn" data-a="nvCmSend">发</button></div></div>`,
+    <div class="inline" style="flex-wrap:nowrap"><input type="text" id="nvCm" placeholder="写点评论" enterkeyhint="send" aria-label="评论" style="flex:1;min-width:0"><button class="btn" data-a="nvCmSend">发</button></div></div>`,
   after(){const i=$('#nvCm');if(i)i.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();A.nvCmSend()}})}}},
 novelSet(v){const b=nvBook(v.id);if(!b)return{title:'不见了',body:''};const cs=S.chars.filter(visible);
   const ch=(k,val,lab,on)=>`<button class="${on?'on':''}" data-a="nvPick" data-k="${k}" data-v="${esc(val)}">${esc(lab)}</button>`;
@@ -2830,8 +2826,8 @@ novelSet(v){const b=nvBook(v.id);if(!b)return{title:'不见了',body:''};const c
   return{title:'设置',sub:b.title||'',body:`<div class="panel">${f('title','书名')}${f('genre','题材')}${f('tags','关键词')}${f('leads','主角',1)}${f('brief','想看的故事',1)}${f('style','文风')}
     <label class="f">每章字数<span class="inline"><input type="range" id="ns-words" min="1000" max="8000" step="500" data-s="novel" data-k="words" value="${num(b.words)||2500}"><output>${num(b.words)||2500}</output></span></label>
     <div class="seg">${[['third','第三人称'],['first','第一人称']].map(([k,l])=>`<button class="${(b.pov||'third')===k?'on':''}" data-a="nvPick" data-k="pov" data-v="${k}">${l}</button>`).join('')}</div>
-    <p class="hint">改了从下一章开始算</p></div>
-  <div class="panel"><h2>谁来写</h2><div class="chips">${ch('author','ai','AI',b.author==='ai')}${cs.map(c=>ch('author',c.id,dn(c),b.author===c.id)).join('')}</div>
+    </div>
+  <div class="panel"><h2>谁来写</h2><div class="chips">${b.author==='ai'?ch('author','ai','AI',true):''}${cs.map(c=>ch('author',c.id,dn(c),b.author===c.id)).join('')}</div>
     ${b.author==='ai'?`<p class="hint">一起看的人</p><div class="chips">${ch('reader','','不要',!b.reader)}${cs.map(c=>ch('reader',c.id,dn(c),b.reader===c.id)).join('')}</div>`:''}</div>
   <button class="btn red" data-a="nvDel" style="align-self:flex-start">删掉这本</button>`}},
 forum(v){const F=S.forum,B=F.boards;if(v.tab!=='mine'&&!fmB(v.tab))v.tab=B[0]?.id||'mine';const tab=v.tab,b=fmB(tab);
@@ -3067,7 +3063,7 @@ const A={
   async fmRefresh(){const v=cur(),b=fmB(v.tab);if(!b||v.busy)return;if(!api()?.key){toast('先在「设置 · 聊天」填好接口');return}
     v.busy=1;render(true);try{await fmGen(b)}catch(e){toast(e.message,5000)}v.busy=0;if(cur()===v)render(true)},
   fmNew(){const b=fmB(cur()?.tab)||S.forum.boards[0];if(!b){toast('先在论坛设置里加一个版块');return}
-    sheet(`<h3>发帖</h3><select id="fnB" aria-label="版块">${S.forum.boards.map(x=>`<option value="${x.id}" ${x.id===b.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select><input type="text" id="fnT" placeholder="标题（可以不写）" aria-label="标题"><textarea id="fnX" placeholder="想说点什么" aria-label="正文"></textarea><input type="text" id="fnP" placeholder="配图：图里是什么（可以不写）" aria-label="配图"><button class="btn" data-a="fmNewGo">发出去</button>${CANCEL}`)},
+    sheet(`<h3>发帖</h3><select id="fnB" aria-label="版块">${S.forum.boards.map(x=>`<option value="${x.id}" ${x.id===b.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select><input type="text" id="fnT" placeholder="标题" aria-label="标题"><textarea id="fnX" placeholder="想说点什么" aria-label="正文"></textarea><input type="text" id="fnP" placeholder="配图" aria-label="配图"><button class="btn" data-a="fmNewGo">发出去</button>${CANCEL}`)},
   async fmNewGo(){const b=fmB($('#fnB').value),ti=$('#fnT').value.trim(),tx=$('#fnX').value.trim(),pic=$('#fnP').value.trim();if(!b)return;if(!tx&&!ti){toast('写点什么');return}
     const p={id:uid(),b:b.id,author:'me',nick:mask().name,title:ti,text:tx,pic,likes:rnd(20),t:Date.now(),cm:[]};S.forum.posts.unshift(p);logEvent(null,`${mask().name}在论坛「${b.name}」发了帖：${ti||tx}`);save();closeSheet();
     const v={v:'fmPost',id:p.id,busy:1};go(v);try{await fmReply(p,3+rnd(3))}catch(e){toast(e.message,5000)}v.busy=0;if(cur()===v)render(true)},
@@ -3095,7 +3091,7 @@ const A={
   fmClear(el){confirmTap(el,()=>{S.forum.posts=[];save();render(true)})},
   diaryPick(){pickChar('谁来写日记？','diaryGo')},
   diaryWrite(el){const d=el.dataset.id&&S.diary.find(x=>x.id===el.dataset.id);
-    sheet(`<h3>${d?'改日记':'写日记'}</h3><input type="text" id="dyT" placeholder="标题（可以不写）" value="${esc(d?.title||'')}" aria-label="标题"><textarea id="dyX" class="tall" placeholder="今天…" aria-label="日记">${esc(d?.text||'')}</textarea>
+    sheet(`<h3>${d?'改日记':'写日记'}</h3><input type="text" id="dyT" placeholder="标题" value="${esc(d?.title||'')}" aria-label="标题"><textarea id="dyX" class="tall" placeholder="今天…" aria-label="日记">${esc(d?.text||'')}</textarea>
     <label class="ck"><input type="checkbox" id="dyS" ${d&&d.share===false?'':'checked'}>让TA们看到</label><button class="btn" data-a="diaryWriteGo" data-id="${d?.id||''}">保存</button>${CANCEL}`)},
   async diaryWriteGo(el){const tx=$('#dyX').value.trim(),ti=$('#dyT').value.trim(),sh=$('#dyS').checked;if(!tx){toast('写点什么');return}
     let d=el.dataset.id&&S.diary.find(x=>x.id===el.dataset.id);
@@ -3253,7 +3249,7 @@ const A={
     else if(k==='lead'){const s=String(o.leads||'');o.leads=s.includes(x)?s.replace(x,'').replace(/[、，,\s]*([、，,])[、，,\s]*/g,'$1').replace(/^[、，,\s]+|[、，,\s]+$/g,''):(s.trim()?s.trim()+'、'+x:x)}
     else{o[k]=x;if(k==='author'&&x!=='ai')o.reader=''}
     if(v.v!=='novelNew')save();render(true)},
-  nvCreate(){const d=cur().d;if(!d)return;if(!api()?.key){toast('先在「设置 · 聊天」填好接口');return}
+  nvCreate(){const d=cur().d;if(!d||!charById(d.author))return;if(!api()?.key){toast('先在「设置 · 聊天」填好接口');return}
     const tr=x=>String(x||'').trim(),b={id:uid(),title:'',genre:[...d.gs,tr(d.genre)].filter(Boolean).join('、'),tags:tr(d.tags),leads:tr(d.leads),brief:tr(d.brief),style:tr(d.style),
       author:d.author,reader:d.author==='ai'?d.reader:'',pov:d.pov,words:num(d.words)||2500,chs:[],t:Date.now()};
     S.novels.push(b);save();stack.pop();go({v:'novel',id:b.id});nvWrite(b,'')},
@@ -3301,7 +3297,7 @@ const A={
       <label class="pi"><span class="ic">${ICONS.image}</span>照片<input type="file" accept="image/*" data-img="chatimg" class="vh" aria-label="发照片"></label>${it('pPic','camera','文字图片')}${it('pVoice','mic','语音')}
       ${it('pLoc','pin','位置')}${it('meetGo','contacts','见面')}${dm?it('pMoney','gift','红包','data-k="hb"')+it('pMoney','yen','转账','data-k="tf"')+it('cardAdd','wallet','亲属卡',`data-to="${t.chars[0]}"`)+it('pCall','phone','语音通话','data-k="voice"')+it('pCall','video','视频通话','data-k="video"')+it('pPhone','search','查TA手机')+it('pPeek','eye','让TA查我'):''}
     </div><button class="opt" data-a="closeSheet">关闭</button>`)},
-  pLoc(){sheet(`<h3>发送位置</h3><input type="text" id="locIn" placeholder="在哪" aria-label="地点"><input type="text" id="locSub" placeholder="备注（可不填）" aria-label="备注">
+  pLoc(){sheet(`<h3>发送位置</h3><input type="text" id="locIn" placeholder="在哪" aria-label="地点"><input type="text" id="locSub" placeholder="备注" aria-label="备注">
     <div class="btns"><button class="btn o" data-a="pLocHere">定位当前位置</button>${S.loc?`<button class="btn o" data-a="pLocCity">${esc(S.loc.name)}</button>`:''}<button class="btn" data-a="pLocGo">发送</button></div>${CANCEL}`)},
   pLocCity(){const i=$('#locIn');if(i&&S.loc)i.value=S.loc.name},
   pLocHere(el){if(!navigator.geolocation){toast('这个浏览器不能定位');return}el.disabled=true;el.textContent='定位中…';
@@ -3426,11 +3422,11 @@ const A={
   delMask(el){confirmTap(el,()=>{const id=cur().id;S.masks=S.masks.filter(m=>m.id!==id);S.chars.forEach(c=>{if(c.mask===id)delete c.mask});if(S.activeMask===id)S.activeMask=S.masks[0].id;save();back()})},
   editWallet(){sheet(`<h3>钱包</h3><input type="number" id="walletIn" value="${S.wallet}" step="0.01" aria-label="余额"><button class="btn" data-a="saveWallet">保存</button>`)},
   cardAdd(el){const to=el?.dataset?.to,chars=to?[charById(to)]:S.chars.filter(visible);if(!chars[0]){toast('先添加一个角色');return}
-    sheet(`<h3>${to?'送'+esc(dn(chars[0]))+'一张亲属卡':'TA给我的亲属卡'}</h3>${to?'':`<select id="cdC" aria-label="谁给的">${chars.map(c=>`<option value="${c.id}">${esc(dn(c))}</option>`).join('')}</select>`}<input type="number" id="cdL" placeholder="每月额度（空着＝不限）" inputmode="decimal" aria-label="额度"><button class="btn" data-a="cardGo" data-to="${to||''}">开通</button>${CANCEL}`)},
+    sheet(`<h3>${to?'送'+esc(dn(chars[0]))+'一张亲属卡':'TA给我的亲属卡'}</h3>${to?'':`<select id="cdC" aria-label="谁给的">${chars.map(c=>`<option value="${c.id}">${esc(dn(c))}</option>`).join('')}</select>`}<input type="number" id="cdL" placeholder="每月额度" inputmode="decimal" aria-label="额度"><button class="btn" data-a="cardGo" data-to="${to||''}">开通</button>${CANCEL}`)},
   cardGo(el){const to=el.dataset.to,c=charById(to||$('#cdC').value),l=Math.max(0,Math.round((+$('#cdL').value||0)*100)/100);if(!c)return;
     giveCard(c,to?'out':'in',l,'');closeSheet();if(to)refreshChat();else render(true)},
   cardEdit(el){const k=S.cards.find(x=>x.id===el.dataset.id);if(!k)return;
-    sheet(`<h3>${esc(k.name||'亲属卡')}</h3><input type="text" id="cdN" value="${esc(k.name||'')}" placeholder="卡的名字" aria-label="名字"><input type="number" id="cdL" value="${k.limit||''}" placeholder="每月额度（空着＝不限）" inputmode="decimal" aria-label="额度"><input type="number" id="cdU" value="${k.used}" placeholder="本月已用" inputmode="decimal" aria-label="已用"><button class="btn" data-a="cardSave" data-id="${k.id}">保存</button><button class="opt red" data-a="cardDel" data-id="${k.id}">解绑</button>${CANCEL}`)},
+    sheet(`<h3>${esc(k.name||'亲属卡')}</h3><input type="text" id="cdN" value="${esc(k.name||'')}" placeholder="卡的名字" aria-label="名字"><input type="number" id="cdL" value="${k.limit||''}" placeholder="每月额度" inputmode="decimal" aria-label="额度"><input type="number" id="cdU" value="${k.used}" placeholder="本月已用" inputmode="decimal" aria-label="已用"><button class="btn" data-a="cardSave" data-id="${k.id}">保存</button><button class="opt red" data-a="cardDel" data-id="${k.id}">解绑</button>${CANCEL}`)},
   cardSave(el){const k=S.cards.find(x=>x.id===el.dataset.id);k.name=$('#cdN').value.trim();k.limit=Math.max(0,+$('#cdL').value||0);k.used=Math.max(0,+$('#cdU').value||0);save();closeSheet();render(true)},
   cardDel(el){confirmTap(el,()=>{S.cards=S.cards.filter(k=>k.id!==el.dataset.id);save();closeSheet();render(true)})},
   walletDel(el){const id=el.dataset.id;for(const x of S.threads.flatMap(t=>t.msgs))if(x.id===id)x.wh=1;save();render(true)},
