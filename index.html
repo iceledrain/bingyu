@@ -835,7 +835,7 @@ const THINK_OLD4='站在{{char}}的位置想：{{user}}这句话什么意思、�
 const THINK_OLD5='想清楚：{{user}}什么意思、想要什么，{{char}}真实的反应，接下来怎么回、怎么做。60字内。';
 const THINK_OLD6='用{{char}}的心思盘算：{{user}}什么意思、想要什么，接下来怎么回、怎么做。60字内。';
 const THINK_DEF='用{{char}}的心思盘算：{{user}}什么意思，{{char}}自己想怎么做，接下来怎么回。60字内。';
-const CHAT_DEF=()=>({lean:true,onMax:3,onLen:10,casual:true,ctx:80,sumEvery:30,inner:true,innerOpen:false,innerName:'心声',innerStyle:INNER_DEF,think:false,thinkName:'思维链',thinkSrc:'char',thinkStyle:THINK_DEF,effort:'',scan:8});
+const CHAT_DEF=()=>({lean:true,onMax:3,onLen:10,casual:true,ctx:80,sumEvery:30,inner:true,innerOpen:false,innerName:'心声',innerStyle:INNER_DEF,think:true,thinkName:'思维链',thinkSrc:'char',thinkStyle:THINK_DEF,effort:'',scan:8});
 const PERSONA_TPL='姓名：\n年龄：\n性别：\n身份/职业：\n外貌：\n性格：\n说话方式：\n喜欢：\n讨厌：\n背景经历：\n和{{user}}的关系：';
 const TH_FMTS=()=>[
   {id:'tp_memo',name:'备忘录',prompt:'做成手机备忘录的样子：{{char}}手机里一条关于{{user}}的备忘录，有标题、日期、几条清单或碎碎念，有删掉又改的痕迹。'},
@@ -926,7 +926,7 @@ function mergeState(d){
   {const A=s.api;
     if(A.profiles.some(isOldExample)){A.profiles=A.profiles.filter(p=>!isOldExample(p));if(!A.profiles.length)A.profiles=[API_BLANK(uid())];if(!A.profiles.some(p=>p.id===A.active))A.active=A.profiles[0].id;if(A.side&&!A.profiles.some(p=>p.id===A.side))A.side=''}
     A.profiles.forEach(p=>{if(/anthropic\.com|generativelanguage/.test(p.base||'')&&(+p.maxTokens||0)<=8192)p.maxTokens=64000;if(/anthropic\.com/.test(p.base||''))p.stream=true})}
-  s.feed.forEach(p=>(Array.isArray(p.pics)?p.pics:[]).forEach(x=>delete x.dev));s.chars.forEach(c=>{if(c.mood)c.mood=softMood(c.mood,num(c.tide)??60)});s.chat.thinkSrc='char';s.api.side='';s.threads.forEach(t=>delete t.clock);
+  s.feed.forEach(p=>(Array.isArray(p.pics)?p.pics:[]).forEach(x=>delete x.dev));s.chars.forEach(c=>{if(c.mood)c.mood=softMood(c.mood,num(c.tide)??60)});s.chat.thinkSrc='char';if(!s.thinkOnV){s.chat.think=true;s.thinkOnV=1}s.api.side='';s.threads.forEach(t=>delete t.clock);
   s.chars.forEach(c=>{delete c.routine;delete c.sched;delete c.sign});s.masks.forEach(m=>{delete m.handle;delete m.bio;delete m.follow;delete m.fans;delete m.likes});
   s.stickers.groups.forEach(g=>(g.items||[]).forEach(x=>{x.name=stkName(x.name)||x.name}));
   delete s.lock;delete s.bubble;delete s.cycle;s.look.icons={};s.look.homeIcon='';delete s.look.order;delete s.look.caption;s.v=4;
@@ -1039,7 +1039,7 @@ const ICONS={
 const APPS=[
   {id:'messages',name:'聊天',v:'threads'},{id:'forum',name:'论坛',v:'forum'},{id:'theater',name:'小剧场',v:'theaters'},{id:'diary',name:'日记',v:'diary'},
   {id:'music',name:'音乐',v:'music'},{id:'weather',name:'天气',v:'weather'},{id:'novel',name:'小说',v:'novels'},{id:'shop',name:'购物',v:'shop'},
-  {id:'library',name:'世界书',v:'books'},{id:'preset',name:'预设',v:'presets'},{id:'think',name:'思维链',v:'think',ic:'brain'},{id:'settings',name:'设置',v:'settings'}];
+  {id:'library',name:'世界书',v:'books'},{id:'preset',name:'预设',v:'presets'},{id:'settings',name:'设置',v:'settings'}];
 const appsOrdered=()=>APPS;
 function appIcon(a){const img=0;const n=a.id==='messages'?S.threads.reduce((s,t)=>s+(t.unread||0),0):0;
   return`<button class="ic-app" data-a="open" data-v="${a.v}"${a.t?` data-t="${a.t}"`:''} aria-label="${a.name}"><span class="ic-g">${img?`<img src="${esc(img)}" alt="">`:ICONS[a.ic||a.id]}${n?`<span class="badge">${n>99?'99+':n}</span>`:''}</span><span class="ic-n">${a.name}</span></button>`}
@@ -1202,7 +1202,7 @@ function render(keep){$('#mpop')?.remove();
   for(const id in kept){const x=document.getElementById(id);if(x)x.value=kept[id]}
   if(keep)$('#content').scrollTop=sc;r.after&&r.after();paintCanvas();
 }
-const APPWALL={chatPrefs:'messages',moNew:'messages',stickers:'messages',phone:'messages',peek:'messages',music:'music',shop:'food',food:'food',goods:'goods',diary:'diary',theaters:'theater',theaterFull:'theater',forum:'forum',fmPost:'forum',fmSet:'forum',fmBoard:'forum',thNew:'theater',thFmts:'theater',thFmtEdit:'theater',games:'games',study:'study',threads:'messages',post:'messages',wallet:'messages',books:'library',bookEdit:'library',entryEdit:'library',presets:'preset',presetEdit:'preset',itemEdit:'preset',think:'think',maskEdit:'settings',settings:'settings',apiEdit:'settings'};
+const APPWALL={chatPrefs:'messages',moNew:'messages',stickers:'messages',phone:'messages',peek:'messages',music:'music',shop:'food',food:'food',goods:'goods',diary:'diary',theaters:'theater',theaterFull:'theater',forum:'forum',fmPost:'forum',fmSet:'forum',fmBoard:'forum',thNew:'theater',thFmts:'theater',thFmtEdit:'theater',games:'games',study:'study',threads:'messages',post:'messages',wallet:'messages',books:'library',bookEdit:'library',entryEdit:'library',presets:'preset',presetEdit:'preset',itemEdit:'preset',think:'messages',maskEdit:'settings',settings:'settings',apiEdit:'settings'};
 let painted;
 function paintCanvas(){
   const foot=isOpen()&&!!appEl.querySelector('.foot:not(.tabbar)'),wp='',wh=getComputedStyle(document.documentElement).getPropertyValue('--wall-h').trim();
@@ -2920,7 +2920,7 @@ settings(v){
   if(tab==='chat'){
     const card=p=>`<div class="row apic${p.id===S.api.active?' on':''}"><span class="pv">${esc((p.name||'?')[0])}</span><button class="meta" data-a="editApi" data-id="${p.id}"><b>${esc(p.name)}</b><small>${esc(p.model||'没填模型')}${hostOf(p.base)?' · '+esc(hostOf(p.base)):''}${p.key?'':' · 没填 Key'}</small></button><span class="side h">${p.id===S.api.active?'<span class="pill fill">使用中</span>':`<button class="tb" data-a="useApiId" data-id="${p.id}">切换</button>`}</span></div>`;
     return{title:'设置',body:head+`
-    <div class="sec apih"><b>聊天模型</b><button class="tb" data-a="newApi">＋ 新预设</button></div>
+    <div class="sec apih"><b>聊天模型</b><button class="tb" data-a="newApi">＋ 新接口</button></div>
     <div class="grp">${S.api.profiles.map(card).join('')}</div>`}}
   if(tab==='img'){const I=S.media.img,L=imgSync();
     return{title:'设置',body:head+`
@@ -2957,7 +2957,7 @@ chatPrefs(){const C=S.chat;
     <div class="panel"><h2>记忆</h2>
       <label class="f">读最近几条<span class="inline"><input type="range" id="ch-ctx" min="6" max="200" step="2" data-s="chat" data-k="ctx" value="${C.ctx}"><output>${C.ctx}</output></span></label>
       <label class="f">每几条总结一次<span class="inline"><input type="range" id="ch-every" min="10" max="100" step="5" data-s="chat" data-k="sumEvery" value="${C.sumEvery}"><output>${C.sumEvery}</output></span></label></div>
-    <div class="panel"><h2>思维链<button class="tb" data-a="goThink">${C.think||C.inner?'开着':'关着'} ›</button></h2></div>
+    <div class="panel"><h2>思维链<button class="tb" data-a="goThink">${C.think?'开着':'关着'} ›</button></h2></div>
     <div class="panel"><h2>后台</h2>
       <label class="ck"><input type="checkbox" data-s="root" data-k="diaryAuto" ${S.diaryAuto?'checked':''}>聊得久了TA自动写日记</label>
       <label class="ck"><input type="checkbox" data-s="chat" data-k="chase" ${C.chase!==false?'checked':''}>不回消息TA会追发</label>
@@ -2990,7 +2990,7 @@ apiEdit(v){
     <div class="grid2"><label class="f">Top P<input type="number" id="a-topp" min="0" max="1" step="0.01" data-s="api" data-k="topP" data-null="1" value="${p.topP??''}" placeholder="默认"></label>
     <label class="f">Top K<input type="number" id="a-topk" min="0" max="500" step="1" data-s="api" data-k="topK" data-null="1" value="${p.topK??''}" placeholder="默认"></label></div>`}
     <label class="f">最大长度<input type="number" id="a-max" min="64" max="128000" data-s="api" data-k="maxTokens" value="${p.maxTokens}"></label></div>`:''}
-  <div class="btns">${p.id===S.api.active?'<span class="pill fill">使用中</span>':'<button class="btn" data-a="useApi">用这个</button>'}<button class="btn o" data-a="testApi">测试连接</button><button class="btn o" data-a="dupApi">存为新预设</button><button class="btn o" data-a="sameBaseApi" data-id="${p.id}">同地址加 Key</button><button class="btn red" data-a="delApi">删除</button></div>`};
+  <div class="btns">${p.id===S.api.active?'<span class="pill fill">使用中</span>':'<button class="btn" data-a="useApi">用这个</button>'}<button class="btn o" data-a="testApi">测试连接</button><button class="btn o" data-a="dupApi">复制一份</button><button class="btn o" data-a="sameBaseApi" data-id="${p.id}">同地址加 Key</button><button class="btn red" data-a="delApi">删除</button></div>`};
 }
 };
 
@@ -3300,7 +3300,7 @@ const A={
   plus(){const t=thread(cur().id),dm=t.type==='dm';const it=(a,ic,l,ex='')=>`<button class="pi" data-a="${a}" ${ex}><span class="ic">${ICONS[ic]}</span>${l}</button>`;
     sheet(`<div class="pgrid">
       <label class="pi"><span class="ic">${ICONS.image}</span>照片<input type="file" accept="image/*" data-img="chatimg" class="vh" aria-label="发照片"></label>${it('pPic','camera','文字图片')}${it('pVoice','mic','语音')}
-      ${it('pLoc','pin','位置')}${it('meetGo','contacts','见面')}${dm?it('pMoney','gift','红包','data-k="hb"')+it('pMoney','yen','转账','data-k="tf"')+it('cardAdd','wallet','亲属卡',`data-to="${t.chars[0]}"`)+it('pCall','phone','语音通话','data-k="voice"')+it('pCall','video','视频通话','data-k="video"')+it('pPhone','search','查TA手机')+it('pPeek','eye','让TA查我')+it('pFood','bowl','点外卖','data-k="food"')+it('pFood','shop','网购','data-k="goods"')+it('pMusic','music','一起听歌')+it('thFromChat','theater','小剧场'):''}
+      ${it('pLoc','pin','位置')}${it('meetGo','contacts','见面')}${dm?it('pMoney','gift','红包','data-k="hb"')+it('pMoney','yen','转账','data-k="tf"')+it('cardAdd','wallet','亲属卡',`data-to="${t.chars[0]}"`)+it('pCall','phone','语音通话','data-k="voice"')+it('pCall','video','视频通话','data-k="video"')+it('pPhone','search','查TA手机')+it('pPeek','eye','让TA查我'):''}
     </div><button class="opt" data-a="closeSheet">关闭</button>`)},
   pLoc(){sheet(`<h3>发送位置</h3><input type="text" id="locIn" placeholder="在哪" aria-label="地点"><input type="text" id="locSub" placeholder="备注（可不填）" aria-label="备注">
     <div class="btns"><button class="btn o" data-a="pLocHere">定位当前位置</button>${S.loc?`<button class="btn o" data-a="pLocCity">${esc(S.loc.name)}</button>`:''}<button class="btn" data-a="pLocGo">发送</button></div>${CANCEL}`)},
@@ -3395,7 +3395,7 @@ const A={
   apiManage(){closeSheet();$('#mpop')?.remove();go({v:'settings',tab:'chat'})},
   sameBaseApi(el){const s=apiById(el.dataset.id)||api();if(!s)return;const n={...s,id:uid(),name:s.name+' 新Key',key:'',model:''};delete n.fix;
     closeSheet();S.api.profiles.push(n);save();go({v:'apiEdit',id:n.id});toast('地址填好了，填上新 Key 和模型就行')},
-  dupApi(){sheet(`<h3>存为新预设</h3><input type="text" id="apiNm" value="${esc(apiById(cur().id).name)} 副本" aria-label="预设名"><button class="btn" data-a="dupApiGo">保存</button>`)},
+  dupApi(){sheet(`<h3>复制接口</h3><input type="text" id="apiNm" value="${esc(apiById(cur().id).name)} 副本" aria-label="接口名"><button class="btn" data-a="dupApiGo">保存</button>`)},
   dupApiGo(){const p=apiById(cur().id);const n={...p,id:uid(),name:$('#apiNm').value.trim()||p.name+' 副本'};closeSheet();S.api.profiles.push(n);save();stack[stack.length-1]={v:'apiEdit',id:n.id};render();toast('存好了')},
   async fetchModels(el){const tg=el.dataset.t||'api',I=S.media.img,T=S.media.tts;const lbl=el.textContent;
     const p=tg==='img'?{provider:'openai',key:I.key,base:I.base}:tg==='tts'?{provider:'openai',key:T.key,base:ttsBase()}:apiById(el.dataset.id||cur().id);el.disabled=true;el.textContent='拉取中…';
