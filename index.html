@@ -1063,13 +1063,17 @@ function appIcon(a){const img=0;const n=a.id==='messages'?S.threads.reduce((s,t)
 
 const WX={0:'晴',1:'晴间多云',2:'多云',3:'阴',45:'有雾',48:'雾凇',51:'毛毛雨',53:'毛毛雨',55:'毛毛雨',56:'冻雨',57:'冻雨',61:'小雨',63:'中雨',65:'大雨',66:'冻雨',67:'冻雨',71:'小雪',73:'中雪',75:'大雪',77:'雪粒',80:'阵雨',81:'阵雨',82:'暴雨',85:'阵雪',86:'大雪',95:'雷阵雨',96:'雷阵雨',99:'雷暴'};
 const wxKey=l=>l&&l.lat!==undefined?(+l.lat).toFixed(2)+','+(+l.lon).toFixed(2):'';
+// 时区跟着选的城市走（天气接口按城市给时差）；没选城市、天气还没拉到时用手机自己的时间
+const tzOff=l=>{const d=l&&(S.wx||{})[wxKey(l)]?.d;return d&&typeof d.utc_offset_seconds==='number'?d.utc_offset_seconds:null};
+function locNow(l=S.loc){const o=tzOff(l),n=new Date();return o===null?n:new Date(n.getTime()+n.getTimezoneOffset()*60e3+o*1e3)}
+const locTime=l=>{const o=tzOff(l),m=tzOff(S.loc)??-new Date().getTimezoneOffset()*60;if(o===null||o===m)return'';const d=locNow(l);return`，当地时间${pad(d.getHours())}:${pad(d.getMinutes())}`};
 const wxJobs={};
 function wxNow(l){const k=wxKey(l),x=k&&(S.wx||{})[k];if(!x||!x.d?.current)return null;const c=x.d.current,dl=x.d.daily||{},g=(a,i)=>a&&a[i]!==undefined?Math.round(a[i]):'';
   return{temp:Math.round(c.temperature_2m),feel:Math.round(c.apparent_temperature),desc:WX[c.weather_code]||'—',min:g(dl.temperature_2m_min,0),max:g(dl.temperature_2m_max,0),tm:WX[(dl.weather_code||[])[1]]||'',tmin:g(dl.temperature_2m_min,1),tmax:g(dl.temperature_2m_max,1),
     hum:c.relative_humidity_2m,wind:c.wind_speed_10m,uv:(dl.uv_index_max||[])[0],next:wxNext(x.d)}}
 const WXE=d=>/雷/.test(d)?'⛈️':/雪|冻/.test(d)?'❄️':/雨/.test(d)?'🌧️':/雾|凇/.test(d)?'🌫️':/阴/.test(d)?'☁️':/晴间|多云/.test(d)?(/晴/.test(d)?'🌤️':'⛅'):/晴/.test(d)?'☀️':'🌡️';
 function wxHours(l,n=12){const x=(S.wx||{})[wxKey(l)],H=x?.d?.hourly;if(!H?.time)return[];const off=(x.d.utc_offset_seconds||0)*1000,now=Date.now(),out=[];
-  H.time.forEach((t,k)=>{const at=Date.parse(t+'Z')-off;if(at>now-3600e3&&out.length<n)out.push({h:new Date(at).getHours(),d:WX[H.weather_code[k]]||'',t:Math.round(H.temperature_2m[k]),p:(H.precipitation_probability||[])[k]})});return out}
+  H.time.forEach((t,k)=>{const at=Date.parse(t+'Z')-off;if(at>now-3600e3&&out.length<n)out.push({h:new Date(at+off).getUTCHours(),d:WX[H.weather_code[k]]||'',t:Math.round(H.temperature_2m[k]),p:(H.precipitation_probability||[])[k]})});return out}
 const planDay=(k=dayKey())=>(S.plan.days[k]||={items:[]});
 // 「计划」已经从主屏换成了「小说」：监督功能先关掉（数据还留着，想恢复把 PLAN_ON 改成 true、APPS 里加回去就行）
 const PLAN_ON=false;
@@ -1092,7 +1096,7 @@ async function planSuggest(){const c=planSup(),me=mask(c).name;if(!c)throw new E
 function wxNext(d){const H=d.hourly;if(!H?.time?.length)return'';const off=(d.utc_offset_seconds||0)*1000,now=Date.now();
   const at=H.time.map(t=>Date.parse(t+'Z')-off),i0=at.findIndex(t=>t>now-3600e3);if(i0<0)return'';
   const wet=k=>/雨|雪|雷/.test(WX[H.weather_code[k]]||''),L=[];let was=WX[H.weather_code[i0]],lo=null,loAt=0;
-  for(let k=i0+1;k<Math.min(at.length,i0+13);k++){const w=WX[H.weather_code[k]]||'',hh=new Date(at[k]).getHours(),p=(H.precipitation_probability||[])[k];
+  for(let k=i0+1;k<Math.min(at.length,i0+13);k++){const w=WX[H.weather_code[k]]||'',hh=new Date(at[k]+off).getUTCHours(),p=(H.precipitation_probability||[])[k];
     if(w&&w!==was&&(wet(k)||/雨|雪|雷/.test(was||'')||L.length<2)){L.push(`${hh}点${wet(k)?'起':'转'}${w}${wet(k)&&p!=null?`（降水概率${p}%）`:''}`);was=w}
     const t=H.temperature_2m[k];if(lo===null||t<lo){lo=t;loAt=hh}}
   if(lo!==null&&lo<=Math.round(d.current.temperature_2m)-4)L.push(`${loAt}点前后降到${Math.round(lo)}°C`);
@@ -1117,7 +1121,7 @@ function myDays(me=mask()){const L=[];if(me.bday)L.push({name:me.name+'的生日
 function worldFor(chars){const me=mask(chars.length===1?chars[0]:null),L=[];
   const more=x=>[x.next&&'接下来'+x.next,x.wind>=30&&'风很大',x.hum>=90&&!/雨|雪|雾/.test(x.desc)&&'很闷',x.uv>=7&&'紫外线强'].filter(Boolean).join('，');
   const w=wxNow(S.loc);if(w)L.push(`${me.name}在${S.loc.name}：现在${w.desc}，${w.temp}°C（体感${w.feel}°C），今天${w.min}~${w.max}°C${more(w)?'，'+more(w):''}${w.tm?`；明天${w.tm} ${w.tmin}~${w.tmax}°C`:''}`);
-  chars.forEach(c=>{if(!c.loc||c.ai)return;if(S.loc&&wxKey(c.loc)===wxKey(S.loc)){L.push(`${c.name}也在${c.loc.name}`);return}const x=wxNow(c.loc);L.push(x?`${c.name}在${c.loc.name}：现在${x.desc}，${x.temp}°C，今天${x.min}~${x.max}°C${more(x)?'，'+more(x):''}`:`${c.name}在${c.loc.name}`)});
+  chars.forEach(c=>{if(!c.loc||c.ai)return;if(S.loc&&wxKey(c.loc)===wxKey(S.loc)){L.push(`${c.name}也在${c.loc.name}`);return}const x=wxNow(c.loc);L.push(x?`${c.name}在${c.loc.name}${locTime(c.loc)}：现在${x.desc}，${x.temp}°C，今天${x.min}~${x.max}°C${more(x)?'，'+more(x):''}`:`${c.name}在${c.loc.name}${locTime(c.loc)}`)});
   if(w||chars.some(c=>c.loc&&wxNow(c.loc)))L.push('（天气和日子只是背景，大多数时候不用提。真碰上下雨、降温、特别热或者节假日，偶尔顺口带一句就好，像随手关心，不要专门聊天气）');
   for(let i=1;i<=7;i++){const d=new Date();d.setDate(d.getDate()+i);const o=dayOff(d),pv=new Date(d);pv.setDate(pv.getDate()-1);const po=dayOff(pv),w=i===1?'明天':i===2?'后天':i+'天后';
     if(o?.off&&!po?.off)L.push(`${w}开始放假${o.name?'（'+o.name+'）':''}`);else if(o&&!o.off)L.push(`${w}要补班`)}
@@ -1153,7 +1157,12 @@ const softMood=(w,v)=>{if(!w)return w;v=v??60;if(MOOD_BAD.test(w))return moodBy(
   const M={美滋滋:'开心',乐呵呵:'开心',笑嘻嘻:'开心',甜滋滋:'甜蜜',气鼓鼓:'生气',气呼呼:'生气',想贴贴:'想你',懵懵:'懵了',心虚虚:'心虚',酸溜溜:'吃醋',委屈巴巴:'委屈',可怜巴巴:'委屈',困兮兮:'犯困',软乎乎:'心软',暖洋洋:'温暖',平平静静:'平静',开开心心:'开心'};
   x=x.replace(/^(心情|有点儿?|有些|有一点|一点点?|好|超|很|特别|非常|贼|巨|小小|微微|略|小(?=..$))+/,'').replace(/[的了啦呀哦嘛呢]+$/,'');if(M[x])return M[x];
   return x.length===2?x:moodBy(v)};
-function kaoOf(x,v){const m=String(x||'').trim().match(/^[^\s\u4e00-\u9fff]{3,24}(?=[\s\u4e00-\u9fff]|$)/);if(m&&!KAO_BAD.test(m[0])&&/[()（）ω︿ᴗ´`•｡≧≦╥﹏>＜<^ˊˋ]/.test(m[0]))return m[0];
+// 心声里的颜文字：写在开头结尾都认；主屏头像下面显示的就是这一个
+const KAO_CH=/[()（）ω︿ᴗ´`•｡≧≦╥﹏>＜<^ˊˋ]/;
+const kaoIn=x=>(String(x||'').match(/[^\s\u4e00-\u9fff，。！？、：；“”‘’「」]{3,24}/g)||[]).find(k=>KAO_CH.test(k)&&!KAO_BAD.test(k))||'';
+// 模型没写颜文字时按心情补一个放开头，心声和头像下面的对得上
+const withKao=(x,v)=>{x=String(x||'').trim();return!x||kaoIn(x)?x:kaoOf('',v)+' '+x};
+function kaoOf(x,v){const k=kaoIn(x);if(k)return k;
   return v>=80?'(๑>ᴗ<๑)♡':v>=60?'(｡･ω･｡)':v>=40?'(´･ᴗ･`)':v>=20?'(｡•́︿•̀｡)':'(╥﹏╥)'}
 let sfxAC;
 function sfx(k){if(!k||k==='off')return;try{sfxAC=sfxAC||new (window.AudioContext||window.webkitAudioContext)();if(sfxAC.state==='suspended')sfxAC.resume()}catch(e){return}
@@ -1187,7 +1196,7 @@ setAppH();
  addEventListener('visibilitychange',()=>{if(!document.hidden)refit()});[60,300,1000].forEach(d=>setTimeout(refit,d));
  try{visualViewport.addEventListener('resize',refit);visualViewport.addEventListener('scroll',refit)}catch(e){}}
 function renderHome(){
-  const d=new Date(),L=S.look,sc=$('#hm')?.scrollTop||0;
+  const d=locNow(),L=S.look,sc=$('#hm')?.scrollTop||0;
   homeEl.innerHTML=`<div class="hm" id="hm">
   <div class="hclock"><div class="hc-t">${pad(d.getHours())}:${pad(d.getMinutes())}</div><div class="hc-d"><span>${d.getMonth()+1}月${d.getDate()}日 周${WK[d.getDay()]}</span><i></i><span>${lunarText(d)}</span></div></div>
   <div class="hrow">
@@ -1197,7 +1206,7 @@ function renderHome(){
   <nav class="icons" aria-label="应用">${appsOrdered().map(appIcon).join('')}</nav></div>`;
   const hmEl=$('#hm');if(hmEl)hmEl.scrollTop=sc;fitHome();paintCanvas();
 }
-function tickHome(){if(document.documentElement.classList.contains('dark')!==isNight())applyLook();if(isOpen())return;const t=$('.hc-t');if(!t){renderHome();return}const d=new Date(),hm=pad(d.getHours())+':'+pad(d.getMinutes());
+function tickHome(){if(document.documentElement.classList.contains('dark')!==isNight())applyLook();if(isOpen())return;const t=$('.hc-t');if(!t){renderHome();return}const d=locNow(),hm=pad(d.getHours())+':'+pad(d.getMinutes());
   if(t.textContent===hm)return;if(hm==='00:00'){renderHome();return}t.textContent=hm}
 setInterval(tickHome,20000);
 
@@ -1353,7 +1362,7 @@ function msgText(m,group){
   if(m.from==='me')return m.rejected?`[被拒收] ${body}`:body;
   return group?`${charById(m.from)?.name||'?'}：${body}`:body;
 }
-function nowText(){const d=new Date(),h=d.getHours();const per=h<5?'深夜':h<8?'清晨':h<11?'上午':h<13?'中午':h<17?'下午':h<19?'傍晚':h<23?'晚上':'深夜';return`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 星期${WK[d.getDay()]} ${pad(h)}:${pad(d.getMinutes())}（${per}）${(o=>o?o.off?`，今天放假${o.name?'（'+o.name+'）':''}`:`，今天${o.name?o.name+'调休':''}补班`:'')(dayOff(d))}`}
+function nowText(){const d=locNow(),h=d.getHours();const per=h<5?'深夜':h<8?'清晨':h<11?'上午':h<13?'中午':h<17?'下午':h<19?'傍晚':h<23?'晚上':'深夜';return`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 星期${WK[d.getDay()]} ${pad(h)}:${pad(d.getMinutes())}（${per}）${(o=>o?o.off?`，今天放假${o.name?'（'+o.name+'）':''}`:`，今天${o.name?o.name+'调休':''}补班`:'')(dayOff(d))}`}
 const dayKey=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
 function logEvent(who,text){text=String(text).replace(/\s+/g,' ').trim();(S.events||=[]).push({id:uid(),t:Date.now(),who,me:mask(who).id,text:wholeText(text,120)});if(S.events.length>1000)S.events.splice(0,S.events.length-1000)}
 // 近事清空/删除是永久的：记在 evWipe（清空时间）、memWipe（删很久以前的记忆）、evGone（单条删掉的），恢复备份后会再套一遍
@@ -1598,8 +1607,8 @@ function attachExtras(parts,ex,ctx){
   if(ex.think)parts[0].think=ex.think;
   if(!ex.inner.length)return;
   if(ctx.group){for(const x of ex.inner){const m=x.match(/^([^:：]{1,30})[:：]\s*([\s\S]*)$/);const c=m&&ctx.chars.find(c=>c.name===m[1].trim()||c.remark===m[1].trim());
-      const target=c?[...parts].reverse().find(p=>p.from===c.id):parts[parts.length-1];if(target)target.inner=(target.inner?target.inner+'\n':'')+(c?m[2].trim():x)}}
-  else parts[parts.length-1].inner=ex.inner.join('\n');
+      const target=c?[...parts].reverse().find(p=>p.from===c.id):parts[parts.length-1];if(target)target.inner=(target.inner?target.inner+'\n':'')+(c?withKao(m[2],tideOf(c)):x)}}
+  else{const c=ctx.chars&&ctx.chars[0];parts[parts.length-1].inner=withKao(ex.inner.join('\n'),c?tideOf(c):60)}
 }
 function applyTide(ctx,ex){
   for(const x of ex.tide||[]){const m=x.match(/^(?:([^:：|｜]{1,30})[:：])?\s*(\d{1,3})\s*(?:[|｜/]\s*(.+))?$/);if(!m)continue;
@@ -1756,7 +1765,7 @@ async function backfill(t,ctx,posted,lack){const C=S.chat,last=posted[posted.len
   try{const txt=String(await callAI(sysFor(c,''),[{role:'user',content:`${recent?`最近的对话：\n${recent}\n\n`:''}${c.name}刚刚回的是：\n${said}\n\n按${c.name}的人设，用${c.name}自己的口吻、第一人称，输出${ask.length}行，别的都不要：\n${ask.join('\n')}`}],{max:512,side:true,temp:.8}));
     const pick=k=>(txt.match(new RegExp(k+'[:：]\\s*([^\\n]+)'))||[])[1]?.trim()||'';
     if(lack.think){const x=pick('思考');if(x)posted[0].think=x}
-    if(lack.inner){const x=cuteKao(pick('心声'));if(x){const m=[...posted].reverse().find(p=>p.from===c.id)||last;m.inner=x}}
+    if(lack.inner){const x=withKao(cuteKao(pick('心声')),tideOf(c));if(x){const m=[...posted].reverse().find(p=>p.from===c.id)||last;m.inner=x}}
     save();onThreadUpdate(t);if(cur()?.v==='chat'&&cur().id===t.id)render(true)}catch(e){}}
 
 const COAX=[['letter','写一封信','托人带给TA'],['gift','送个小礼物','托人送到TA手上'],['song','点一首歌','托朋友转给TA'],['post','发一条动态','只有TA看得到']];
@@ -2830,8 +2839,6 @@ maskEdit(v){
     <label class="f">人设<textarea class="tall" id="m-persona" data-s="mask" data-k="persona">${esc(m.persona)}</textarea></label></div>
   <div class="panel"><h2>绑定的角色</h2>
     ${S.chars.length?S.chars.map(c=>{const o=c.mask&&c.mask!==m.id?maskById(c.mask):null;return`<label class="ck"><input type="checkbox" data-a2="maskChar" data-id="${c.id}" ${c.mask===m.id?'checked':''}>${esc(dn(c))}${o?`<small class="sec"> 现在绑着「${esc(o.name)}」</small>`:''}</label>`}).join(''):'<p class="hint">还没有角色</p>'}</div>
-  <div class="panel"><h2>朋友圈封面</h2><label class="mo-cover sm${m.mocover?' img':''}" style="${m.mocover?`background-image:url(${esc(m.mocover)})`:''}"><input type="file" accept="image/*" data-img="mocover" class="vh" aria-label="换朋友圈封面"></label>
-    ${m.mocover?'<div class="btns"><button class="btn o" data-a="moCoverDel">换回默认</button></div>':''}</div>
     <div class="btns">${m.id===S.activeMask?'<span class="pill fill">正戴着</span>':`<button class="btn" data-a="useMask" data-id="${m.id}">戴上</button>`}${S.masks.length>1?'<button class="btn red" data-a="delMask">删除</button>':''}</div>`};
 },
 presets(){
@@ -3108,7 +3115,7 @@ settings(v){
   const D=VIEWS.data(v);
   return{title:'设置',body:head+D.body+`
     <div class="panel"><h2>恢复</h2>
-      ${fileBtn('恢复数据','accept=".json,application/json,text/plain" id="impFile"')}</div>
+      <div class="btns">${fileBtn('恢复数据','accept=".json,application/json,text/plain" id="impFile"')}</div></div>
     <div class="panel"><h2>清空</h2><button class="btn red" data-a="resetAll" style="align-self:flex-start">清空全部数据</button></div>`,after:D.after};
 },
 chatPrefs(){const C=S.chat;
