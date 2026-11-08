@@ -1039,7 +1039,7 @@ const ICONS={
 const APPS=[
   {id:'messages',name:'聊天',v:'threads'},{id:'forum',name:'论坛',v:'forum'},{id:'theater',name:'小剧场',v:'theaters'},{id:'diary',name:'日记',v:'diary'},
   {id:'music',name:'音乐',v:'music'},{id:'weather',name:'天气',v:'weather'},{id:'novel',name:'小说',v:'novels'},{id:'shop',name:'购物',v:'shop'},
-  {id:'library',name:'世界书',v:'books'},{id:'preset',name:'预设',v:'presets'},{id:'settings',name:'设置',v:'settings'}];
+  {id:'library',name:'世界书',v:'books'},{id:'preset',name:'预设',v:'presets'},{id:'think',name:'思维链',v:'think',ic:'brain'},{id:'settings',name:'设置',v:'settings'}];
 const appsOrdered=()=>APPS;
 function appIcon(a){const img=0;const n=a.id==='messages'?S.threads.reduce((s,t)=>s+(t.unread||0),0):0;
   return`<button class="ic-app" data-a="open" data-v="${a.v}"${a.t?` data-t="${a.t}"`:''} aria-label="${a.name}"><span class="ic-g">${img?`<img src="${esc(img)}" alt="">`:ICONS[a.ic||a.id]}${n?`<span class="badge">${n>99?'99+':n}</span>`:''}</span><span class="ic-n">${a.name}</span></button>`}
@@ -1202,7 +1202,7 @@ function render(keep){$('#mpop')?.remove();
   for(const id in kept){const x=document.getElementById(id);if(x)x.value=kept[id]}
   if(keep)$('#content').scrollTop=sc;r.after&&r.after();paintCanvas();
 }
-const APPWALL={chatPrefs:'messages',moNew:'messages',stickers:'messages',phone:'messages',peek:'messages',music:'music',shop:'food',food:'food',goods:'goods',diary:'diary',theaters:'theater',theaterFull:'theater',forum:'forum',fmPost:'forum',fmSet:'forum',fmBoard:'forum',thNew:'theater',thFmts:'theater',thFmtEdit:'theater',games:'games',study:'study',threads:'messages',post:'messages',wallet:'messages',books:'library',bookEdit:'library',entryEdit:'library',presets:'preset',presetEdit:'preset',itemEdit:'preset',think:'messages',maskEdit:'settings',settings:'settings',apiEdit:'settings'};
+const APPWALL={chatPrefs:'messages',moNew:'messages',stickers:'messages',phone:'messages',peek:'messages',music:'music',shop:'food',food:'food',goods:'goods',diary:'diary',theaters:'theater',theaterFull:'theater',forum:'forum',fmPost:'forum',fmSet:'forum',fmBoard:'forum',thNew:'theater',thFmts:'theater',thFmtEdit:'theater',games:'games',study:'study',threads:'messages',post:'messages',wallet:'messages',books:'library',bookEdit:'library',entryEdit:'library',presets:'preset',presetEdit:'preset',itemEdit:'preset',think:'think',maskEdit:'settings',settings:'settings',apiEdit:'settings'};
 let painted;
 function paintCanvas(){
   const foot=isOpen()&&!!appEl.querySelector('.foot:not(.tabbar)'),wp='',wh=getComputedStyle(document.documentElement).getPropertyValue('--wall-h').trim();
@@ -2957,7 +2957,6 @@ chatPrefs(){const C=S.chat;
     <div class="panel"><h2>记忆</h2>
       <label class="f">读最近几条<span class="inline"><input type="range" id="ch-ctx" min="6" max="200" step="2" data-s="chat" data-k="ctx" value="${C.ctx}"><output>${C.ctx}</output></span></label>
       <label class="f">每几条总结一次<span class="inline"><input type="range" id="ch-every" min="10" max="100" step="5" data-s="chat" data-k="sumEvery" value="${C.sumEvery}"><output>${C.sumEvery}</output></span></label></div>
-    <div class="panel"><h2>思维链<button class="tb" data-a="goThink">${C.think?'开着':'关着'} ›</button></h2></div>
     <div class="panel"><h2>后台</h2>
       <label class="ck"><input type="checkbox" data-s="root" data-k="diaryAuto" ${S.diaryAuto?'checked':''}>聊得久了TA自动写日记</label>
       <label class="ck"><input type="checkbox" data-s="chat" data-k="chase" ${C.chase!==false?'checked':''}>不回消息TA会追发</label>
