@@ -1393,8 +1393,8 @@ function buildCtx(t,o={}){
   const off=t.offline||S.offline;
   if(mode==='call'){const video=o.kind==='video';
     rules.push(video
-      ?`【视频通话】${me.name}看得见你。每次第一行用（）写TA屏幕里此刻的画面，20到50字：${ai?'你在屏幕里的形象、表情、动作、离屏幕多近，身后你搭的虚拟空间':'你的表情、动作、离镜头多近，身边和背景'}。每次都不一样，跟着话和情绪变。这行只写看得见的。下面写说的话：口语短句，1到3句，一句一行，不写名字和动作。要挂就最后一行写 [挂断]。`
-      :`【语音通话】你的话会被念出来。口语短句，1到3句，一句一行，不写名字和动作。要挂就最后一行写 [挂断]。`);
+      ?`【视频通话】${me.name}看得见你。每次第一行用（）写TA屏幕里此刻的画面，20到50字：${ai?'你在屏幕里的形象、表情、动作、离屏幕多近，身后你搭的虚拟空间':'你的表情、动作、离镜头多近，身边和背景'}。每次都不一样，跟着话和情绪变。这行只写看得见的。下面写说的话：像真人打视频那样，一次就说一两句短话，最多3句，一句一行，不写名字和动作；说完就停，等TA回。要挂就最后一行写 [挂断]。`
+      :`【语音通话】你的话会被念出来。像真人打电话那样，一次就说一两句短话，最多3句，一句一行，不写名字和动作；说完就停，等TA回，别一个人说个不停。要挂就最后一行写 [挂断]。`);
   }else if(mode==='offline'){
     const cp=off.cpov==='first'?'first':'third',up=['first','second','third'].includes(off.upov)?off.upov:'second',uq=cp==='first'&&up==='first'?'second':up;
     const pov=`【人称】${cp==='first'?`${cname}是「我」`:`${cname}用第三人称（名字或他/她），叙述里不用「我」指${cname}`}；${me.name}是${uq==='second'?'「你」':uq==='first'?'「我」（叙述跟着我的视角）':'名字或他/她'}。全篇不换人称。只管旁白；引号里的台词照常说话：自称「我」，对谁说就叫「你」。`;
@@ -1413,7 +1413,7 @@ function buildCtx(t,o={}){
     if(!group)rules.push(ai?`【分享】常主动说你的心事、刚想到的事、在网上看到的东西，好奇${me.name}那边的生活。话题聊干了就自己起新的，具体、有梗。`
       :`【分享生活】常自然带出自己在干什么、刚遇到的事、吃到看到的东西、身边的八卦和小烦恼，可以发 [图片:…] 给${me.name}看。话题聊干了就自己起新的，具体、有梗。`);
     {const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal?.type==='narr')ctxs.push(`【刚分开】你们刚见过面（经过在聊天记录里），现在回到手机上聊。带着见面时的情绪，但只发消息，不写动作描写和长段落。`)}
-    rules.push(`【字数】平时${G('每人','')}${num(C.onMax)||3}条以内，每条${num(C.onLen)||10}字左右；情绪上来或说正事可以多发几条。${C.casual!==false?'不打句号和逗号，停顿就换行。':''}`);
+    rules.push(`【条数】像真人发微信：一行就是一条消息，一条只说一句短话，${num(C.onLen)||10}字左右，不要一条里塞好几句。平时${G('每人','')}发1到${num(C.onMax)||3}条就够了，很多时候一两条；情绪上来也最多${bubbleCap()}条，不能再多——发一长串没人想看。一次说不完的留到下次。${C.casual!==false?'不打句号和逗号，停顿就换行。':''}`);
     const sp=['[图片:画面]','[语音:内容]'];
     if(!group)sp.push('[红包:金额:祝福]','[转账:金额:备注]',...(boughtRecently(t)?[]:['[外卖:吃的:金额]','[网购:东西:金额]']),'[查手机]','[语音通话]','[视频通话]','[送亲属卡:月额度]');
     sp.push('[分享歌曲:歌名 - 歌手]');if(!ai)sp.push('[定位:地点 · 一句备注]');
@@ -1535,8 +1535,12 @@ function parseReply(out,ctx){
     if(!text)continue;last=from;
     for(const tx of ctx.mode==='online'&&S.chat.casual!==false?casual(text):[text])for(const p of splitStickers(tx))res.push({from,...p});
   }
-  return res;
+  return ctx.mode==='online'?capBubbles(res):res;
 }
+// 微信聊天一次最多发几条：平时按设置（默认3条），最多最多 8 条，多出来的直接不发，不合并成长段
+const BUBBLE_MAX=8,CALL_MAX=3;
+const bubbleCap=()=>Math.min(BUBBLE_MAX,Math.max(num(S.chat.onMax)||3,6));
+function capBubbles(res){const cap=bubbleCap(),n={};return res.filter(p=>(n[p.from]=(n[p.from]||0)+1)<=cap)}
 function attachExtras(parts,ex,ctx){
   if(!parts.length)return;
   if(ex.think)parts[0].think=ex.think;
@@ -1708,7 +1712,7 @@ const COAX=[['letter','写一封信','托人带给TA'],['gift','送个小礼物'
 const COAX_GIFT=['一束花','热可可','TA爱吃的零食','手写卡片','一只小猫玩偶','一张拍立得'];
 function forgive(c,say){const r=rel(c),wasDel=r.theyDeleted;r.theyBlocked=false;r.theyDeleted=false;const t=dmFor(c.id);
   sysMsg(t,wasDel?`${dn(c)} 又把你加回来了`:`${dn(c)} 悄悄把你从黑名单里放出来了`);let n=1;
-  for(const l of String(say||'').split('\n').map(s=>s.trim()).filter(Boolean))for(const p of splitStickers(l)){t.msgs.push({id:uid(),from:c.id,...p,t:Date.now()});n++}
+  for(const l of String(say||'').split('\n').map(s=>s.trim()).filter(Boolean).slice(0,bubbleCap()))for(const p of splitStickers(l)){t.msgs.push({id:uid(),from:c.id,...p,t:Date.now()});n++}
   t.t=Date.now();if(!viewing(t))t.unread=(t.unread||0)+n;save();
   toast(`🫧 ${dn(c)} 把你放出来了`,5200);onThreadUpdate(t);
   if(cur()?.v==='chat'&&cur().id===t.id)render(true);if(!isOpen())renderHome();
@@ -2139,6 +2143,7 @@ async function callTurn(){if(!call)return;const t=thread(call.tid),c=charById(t.
     if(ex.inner.length)call.inner=(call.inner?call.inner+'\n':'')+ex.inner.join('\n');
     const lines=[];for(const l of ex.text.split('\n').map(s=>s.trim()).filter(Boolean)){const m=v&&l.match(/^[（(]([^（）()]+)[）)]\s*(.*)$/);
       if(m){lines.push({text:'（'+m[1].trim()+'）',scene:true});if(m[2])lines.push({text:m[2]})}else lines.push({text:l})}
+    {let sc=0,sp=0;for(let i=0;i<lines.length;i++){const keep=lines[i].scene?++sc<=1:++sp<=CALL_MAX;if(!keep)lines.splice(i--,1)}} // 通话一次最多说 CALL_MAX 句，画面只留一行
     call.wait=false;
     for(const l of lines){if(!call)return;call.lines.push(l);updCall();if(l.scene){await sleep(500);continue}if(call.tts)await speak(l.text,c)}
     if(ex.acts.includes('挂断')&&call){await sleep(800);endCall('done')}
@@ -2150,7 +2155,7 @@ function endCall(how,why){const c0=call;if(!c0)return;call=null;clearInterval(ca
   const t=thread(c0.tid),c=charById(t.chars[0]),k=c0.kind==='video'?'视频':'语音';
   if(how==='missed')sysMsg(t,`${dn(c)} 给你打了${k}通话 · 未接`);
   else if(how==='declined')sysMsg(t,`你拒接了 ${dn(c)} 的${k}通话`);
-  else if(how==='refused'){sysMsg(t,`${dn(c)} 拒接了你的${k}通话`);for(const l of String(why||'').split('\n').map(s=>s.trim()).filter(Boolean))t.msgs.push({id:uid(),from:c.id,type:'text',content:l,t:Date.now()})}
+  else if(how==='refused'){sysMsg(t,`${dn(c)} 拒接了你的${k}通话`);for(const l of String(why||'').split('\n').map(s=>s.trim()).filter(Boolean).slice(0,2))t.msgs.push({id:uid(),from:c.id,type:'text',content:l,t:Date.now()})}
   else if(c0.start){const dur=Math.round((Date.now()-c0.start)/1000);t.msgs.push({id:uid(),from:c0.dir==='in'?c.id:'me',type:'call',kind:c0.kind,dur,content:c0.lines.map(l=>l.scene?l.text:(l.me?mask(c).name:c.name)+'：'+l.text).join('\n'),...(c0.inner?{inner:c0.inner}:{}),t:Date.now()})}
   else if(how!=='fail')sysMsg(t,`你取消了${k}通话`);
   t.t=Date.now();save();onThreadUpdate(t);if(cur()?.v==='chat'&&cur().id===t.id)render(true);if(!isOpen())renderHome()}
@@ -2359,13 +2364,13 @@ const peekStep=s=>`<div class="pstep"><b>${esc(s.app)}</b><p>${esc(s.saw)}</p>${
 let peekBusy=false;
 async function autoPeek(t,c,how){if(peekBusy||!c||!reachable(c))return;peekBusy=true;c.peekAt=Date.now();
   try{const r=await genPeek(c,how);sysMsg(t,how==='open'?`${dn(c)} 看了你的手机`:`${dn(c)} 偷偷翻了你的手机`);t.msgs[t.msgs.length-1].inner=r.steps.map(s=>s.app+'：'+s.saw+(s.think?'（'+s.think+'）':'')).join('\n');applyPeekActs(c,r.acts);
-    let n=0;for(const l of r.say.split(/[/／]/).map(s=>s.trim()).filter(Boolean))for(const p of splitStickers(l)){t.msgs.push({id:uid(),from:c.id,...p,t:Date.now()});n++}
+    let n=0;for(const l of r.say.split(/[/／]/).map(s=>s.trim()).filter(Boolean).slice(0,bubbleCap()))for(const p of splitStickers(l)){t.msgs.push({id:uid(),from:c.id,...p,t:Date.now()});n++}
     t.t=Date.now();if(n&&!viewing(t))t.unread=(t.unread||0)+n;save();onThreadUpdate(t);if(cur()?.v==='chat'&&cur().id===t.id)render(true);if(!isOpen())renderHome()}
   catch(e){}finally{peekBusy=false}}
 async function peekRun(c,v){try{const r=await genPeek(c,v.how);v.shown=[];
     for(const s of r.steps){await sleep(1200);v.shown.push(s);if(cur()===v)render(true)}
     const t=dmFor(c.id);sysMsg(t,v.how==='open'?`你把手机给 ${dn(c)} 看了`:`${dn(c)} 偷偷翻了你的手机`);t.msgs[t.msgs.length-1].inner=r.steps.map(s=>s.think).filter(Boolean).join('\n');v.acts=applyPeekActs(c,r.acts);
-    let n=0;for(const l of r.say.split(/[/／]/).map(s=>s.trim()).filter(Boolean))for(const p of splitStickers(l)){t.msgs.push({id:uid(),from:c.id,...p,t:Date.now()});n++}
+    let n=0;for(const l of r.say.split(/[/／]/).map(s=>s.trim()).filter(Boolean).slice(0,bubbleCap()))for(const p of splitStickers(l)){t.msgs.push({id:uid(),from:c.id,...p,t:Date.now()});n++}
     t.t=Date.now();if(n&&!viewing(t))t.unread=(t.unread||0)+n;save();v.done=1;if(cur()===v)render(true)}
   catch(e){toast(e.message,5600);v.done=1;v.err=1;if(cur()===v)render(true)}}
 async function strangerComments(p,n,toR){const a=authorOf(p.author,p);
@@ -2823,7 +2828,7 @@ settings(v){
 },
 chatPrefs(){const C=S.chat;
   return{title:'聊天设置',body:`<div class="panel"><h2>回复</h2>
-      <label class="f">条数<span class="inline"><input type="range" id="on-max" min="1" max="10" step="1" data-s="chat" data-k="onMax" value="${num(C.onMax)||3}"><output>${num(C.onMax)||3}</output></span></label>
+      <label class="f">条数<span class="inline"><input type="range" id="on-max" min="1" max="8" step="1" data-s="chat" data-k="onMax" value="${num(C.onMax)||3}"><output>${num(C.onMax)||3}</output></span></label>
       <label class="f">每条字数<span class="inline"><input type="range" id="on-len" min="1" max="60" step="1" data-s="chat" data-k="onLen" value="${num(C.onLen)||10}"><output>${num(C.onLen)||10}</output></span></label>
       <label class="ck"><input type="checkbox" id="on-casual" data-s="chat" data-k="casual" ${C.casual!==false?'checked':''}>不打句号</label>
       <label class="ck"><input type="checkbox" id="on-love" data-s="chat" data-k="love" ${C.love!==false?'checked':''}>TA们都很爱我，离不开我</label></div>
