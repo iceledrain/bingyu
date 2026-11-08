@@ -2645,8 +2645,6 @@ function kidKnow(c){const k=(S.raise?.kids||[]).find(x=>x.charId===c.id&&x.share
   return`【养成】${me}在手机上的「养成」里养着小时候的你${k.name&&k.name!==c.name?`（小名${k.name}）`:''}，现在养到${ageText(k.age)}，${bondText(k.bond||0).replace('TA',me)}。${L.length?'最近：'+L.join('；')+'。':''}（你知道这件事，偶尔可以提一句，比如被问起、或者聊到小时候，别老提）`}
 // 剧情：一起出去玩、逛街……用小说的写法写一段一段的剧情
 const kidMd=k=>kidOn(k)?'on':k.mode==='story'?'story':'off';
-const KID_GO=[['推着婴儿车去公园','去打疫苗','抱着TA晒太阳','去拍百天照'],['去公园玩滑梯','去动物园','去超市','去游乐场','去打疫苗'],
-  ['去游乐园','逛街买衣服','去动物园','去海边','看电影','去开家长会','去游泳','去书店'],['逛街','看电影','去游乐园','去吃好吃的','去开家长会','陪TA买文具','去旅行'],['一起逛街','去吃饭','去旅行','看展','回老家','帮TA搬家']];
 async function kidStory(k,mine,how){const c=kidChar(k);if(!c||kidBusy.has(k.id))return;
   if(!api(c)?.key){toast('剧情要先在「设置 · 聊天」填好接口');return}
   const me=mask(c),nm=kidName(k),sc=k.scene?.place||'';kidBusy.add(k.id);kidRe(k);
@@ -2882,7 +2880,7 @@ kid(v){const k=kidById(v.id),c=k&&kidChar(k);if(!k||!c)return{title:'不见了',
   ${k.ev&&!asleep?`<div class="panel kev"><h2>TA${esc(k.ev.text)}</h2></div>`:''}
   ${kidMd(k)==='off'?`<div class="panel"><h2>照顾TA</h2>${acts}</div>`:''}
   <div class="panel"><h2>和TA<span class="seg" style="flex:none;padding:2px">${[['off','当面'],['story','剧情'],['on','发消息']].map(([m,n])=>`<button class="${kidMd(k)===m?'on':''}" data-a="kidMode" data-m="${m}" style="padding:4px 10px;white-space:nowrap"${m==='on'&&k.age<36?' disabled':''}>${n}</button>`).join('')}</span></h2>
-    ${kidOn(k)&&asleep?'<p class="hint">TA睡着了</p>':''}${kidMd(k)==='story'?(k.scene?`<div class="inline" style="justify-content:space-between"><span class="pill">${esc(k.scene.place||'在一起')}</span><button class="tb" data-a="kidHome"${busy?' disabled':''}>回家</button></div>`:asleep?'<p class="hint">TA睡着了</p>':`<div class="kacts">${KID_GO[i].map(x=>`<button data-a="kidOut" data-p="${esc(x)}"${busy?' disabled':''}>${esc(x.replace(/^去/,''))}</button>`).join('')}</div>`):''}<div class="klog${kidMd(k)==='story'?' story':''}" id="klog">${log}</div>
+    ${kidOn(k)&&asleep?'<p class="hint">TA睡着了</p>':''}${kidMd(k)==='story'?(k.scene?`<div class="inline" style="justify-content:space-between"><span class="pill">${esc(k.scene.place||'在一起')}</span><button class="tb" data-a="kidHome"${busy?' disabled':''}>回家</button></div>`:asleep?'<p class="hint">TA睡着了</p>':''):''}<div class="klog${kidMd(k)==='story'?' story':''}" id="klog">${log}</div>
     <div class="inline" style="flex-wrap:nowrap"><input type="text" id="rsIn" placeholder="${asleep?'TA睡着了':''}" enterkeyhint="send" aria-label="跟TA说话" style="flex:1;min-width:0"${asleep?' disabled':''}><button class="btn" data-a="kidSay"${busy||asleep?' disabled':''}>${kidOn(k)?'发':kidMd(k)==='story'?(k.scene?'继续':'出发'):'说'}</button></div></div>`,
   after(){const l=$('#klog');if(l)l.scrollTop=l.scrollHeight;const inp=$('#rsIn');if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();A.kidSay()}});
     kidMaybeEv(k);clearTimeout(kidT);kidT=setTimeout(()=>{if(cur()===v&&isOpen()&&document.activeElement?.id!=='rsIn')render(true)},asleep?Math.max(1e3,k.sleep-Date.now()+500):60e3)}}},
@@ -3580,7 +3578,6 @@ const A={
     kidLog(k,'sys',age?`${ageText(k.age)}的${k.name}来到你身边了`:`${k.name}出生了，小小的一团，被放进你怀里`);S.raise.kids.push(k);save();closeSheet();go({v:'kid',id:k.id})},
   kidGo(el){go({v:'kid',id:el.dataset.id})},
   kidMode(el){const k=kidById(cur()?.id);if(!k)return;const m=el.dataset.m;if(m==='on'&&k.age<36){toast('TA还太小，不会用手机');return}if(kidMd(k)===m)return;if(k.scene){toast('你们还在外面，先点「回家」');return}const was=kidMd(k);k.mode=m;if(m==='on')kidLog(k,'sys','你们不在一起，开始在手机上聊');else if(was==='on')kidLog(k,'sys','你回到TA身边了');save();render(true)},
-  kidOut(el){const k=kidById(cur()?.id);if(!k||kidBusy.has(k.id))return;kidTick(k);if(k.sleep>Date.now()){toast('TA睡着了');return}const p=el.dataset.p;k.scene={place:p,t:Date.now(),n:0};kidSettle(k);kidLog(k,'act',p);save();render(true);kidStory(k,'','start')},
   kidHome(){const k=kidById(cur()?.id);if(!k||!k.scene||kidBusy.has(k.id))return;kidStory(k,'','end')},
   kidAct(el){const k=kidById(cur()?.id);if(k)kidDo(k,el.dataset.k)},
   kidWake(){const k=kidById(cur()?.id);if(!k||!(k.sleep>Date.now()))return;kidTick(k);k.sleep=0;k.st.joy=Math.max(0,k.st.joy-12);kidLog(k,'act','叫醒TA');save();render(true);kidAsk(k,`${mask(kidChar(k)).name}把正在睡觉的TA叫醒了。`,'wake',['刚被吵醒'])},
