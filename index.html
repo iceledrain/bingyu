@@ -523,7 +523,7 @@ html.dark .timg{color:#d1d1d1;background:linear-gradient(150deg,#303030,#212121 
 .hm{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;justify-content:space-between;gap:22px;scrollbar-width:none;
   padding:0 max(22px,env(safe-area-inset-right,0px)) 8px max(22px,env(safe-area-inset-left,0px))}
 .hm::-webkit-scrollbar{display:none}
-.hclock{margin-top:18px;text-align:center;color:rgba(93,93,93,.62);text-shadow:0 0 18px rgba(255,255,255,.9),0 2px 14px rgba(173,173,173,.35)}
+.hclock{margin-top:max(18px,calc(64px - var(--sat)));text-align:center;color:rgba(93,93,93,.62);text-shadow:0 0 18px rgba(255,255,255,.9),0 2px 14px rgba(173,173,173,.35)}
 .hc-t{font:200 80px/1 var(--body);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 .hc-d{margin-top:10px;font-size:14px;letter-spacing:.08em;display:flex;align-items:center;justify-content:center;gap:10px}
 .hc-d i{width:22px;height:1px;background:currentColor;opacity:.6}
@@ -2868,22 +2868,22 @@ weather(v){const L=S.loc;
 raise(v){const K=S.raise.kids;K.forEach(kidTick);
   return{title:'养成',right:`<button class="tb" data-a="kidNew" aria-label="养一个">${ICONS.plus}</button>`,
     body:K.length?K.map(k=>`<button class="row" data-a="kidGo" data-id="${k.id}">${av(kidChar(k),44)}<span class="meta"><b>${esc(kidName(k))}</b><small>${ageText(k.age)} · ${esc(kidNeeds(k).join('、'))}</small></span></button>`).join('')
-      :`<div class="empty"><big>还没有小孩</big><p class="hint">选一个角色，从TA刚出生开始养，一点点长成现在的样子</p><button class="btn" data-a="kidNew">养一个</button></div>`}},
+      :`<div class="empty"><big>还没有小孩</big><button class="btn" data-a="kidNew">养一个</button></div>`}},
 kid(v){const k=kidById(v.id),c=k&&kidChar(k);if(!k||!c)return{title:'不见了',body:''};kidTick(k);save();
   const now=Date.now(),asleep=k.sleep>now,busy=kidBusy.has(k.id),i=kidSi(k.age),grown=kidGrown(k),g=grown?100:Math.round((k.grow||0)/60*100);
   const bars=KID_ST.filter(([x])=>x!=='clean'||i<3).map(([x,n])=>`<span>${n}</span><span class="kbar${k.st[x]<30?' low':''}"><i style="width:${Math.round(k.st[x])}%"></i></span><em>${Math.round(k.st[x])}</em>`).join('');
-  const acts=asleep?`<button class="btn o" data-a="kidWake" style="align-self:flex-start">叫醒TA</button><p class="hint">TA睡着了，一会儿就醒</p>`
+  const acts=asleep?`<button class="btn o" data-a="kidWake" style="align-self:flex-start">叫醒TA</button><p class="hint">TA睡着了</p>`
     :`<div class="kacts">${kidActs(k).map(([x,a])=>`<button data-a="kidAct" data-k="${x}"${busy?' disabled':''}>${a.n[i]}</button>`).join('')}</div>`;
   const log=(k.log||[]).slice(-40).map(x=>x.from==='sys'?`<div class="s">${esc(x.text)} · ${ago(x.t)}</div>`:x.from==='ev'?`<div class="s e">${esc(x.text)} · ${ago(x.t)}</div>`:x.from==='act'?`<div class="s a">— ${esc(x.text)} —</div>`:x.nar?`<div class="kn">${esc(x.text)}</div>`:x.sc?`<div class="kn me">${esc(x.text)}</div>`:`<div class="${x.from==='me'?'m':'k'}${x.on?' on':''}">${esc(x.text)}</div>`).join('')+(busy?'<div class="k"><span class="dots"><i></i><i></i><i></i></span></div>':'');
   return{title:kidName(k),sub:ageText(k.age)+' · '+kidStage(k.age)+(k.pause?' · 不长大了':''),right:`<button class="tb" data-a="kidSet" aria-label="设置">···</button>`,body:`
-  <div class="panel"><div class="kidh">${av(c,58)}<span><b>${esc(kidName(k))}</b><small>${grown?'长成了现在的':'小时候的'}${esc(dn(c))} · ${bondText(k.bond||0)}</small><span class="btns">${kidNeeds(k).map(x=>`<span class="pill">${esc(x)}</span>`).join('')}</span></span></div>
+  <div class="panel"><div class="kidh">${av(c,58)}<span><b>${esc(kidName(k))}</b><small>${grown?'长成了现在的':'小时候的'}${esc(dn(c))} · ${bondText(k.bond||0).replace('TA','你')}</small><span class="btns">${kidNeeds(k).map(x=>`<span class="pill">${esc(x)}</span>`).join('')}</span></span></div>
     <div class="kbars">${bars}<span>长大</span><span class="kbar"><i style="width:${g}%"></i></span><em>${grown?'满':k.pause?'停':g}</em></div>
     ${k.skills?.length?`<p class="hint">学过：${esc(k.skills.join('、'))}</p>`:''}</div>
-  ${k.ev&&!asleep?`<div class="panel kev"><h2>TA${esc(k.ev.text)}</h2><p class="hint">跟TA说点什么，或者用下面的照顾，这件事就算过去了</p></div>`:''}
+  ${k.ev&&!asleep?`<div class="panel kev"><h2>TA${esc(k.ev.text)}</h2></div>`:''}
   ${kidMd(k)==='off'?`<div class="panel"><h2>照顾TA</h2>${acts}</div>`:''}
   <div class="panel"><h2>和TA<span class="seg" style="flex:none;padding:2px">${[['off','当面'],['story','剧情'],['on','发消息']].map(([m,n])=>`<button class="${kidMd(k)===m?'on':''}" data-a="kidMode" data-m="${m}" style="padding:4px 10px;white-space:nowrap"${m==='on'&&k.age<36?' disabled':''}>${n}</button>`).join('')}</span></h2>
-    ${kidOn(k)?`<p class="hint">TA不在身边，照顾不了，只能发消息${asleep?'。TA睡着了，醒了才会回':''}</p>`:''}${kidMd(k)==='story'?(k.scene?`<div class="inline" style="justify-content:space-between"><span class="pill">${esc(k.scene.place||'在一起')}</span><button class="tb" data-a="kidHome"${busy?' disabled':''}>回家</button></div>`:asleep?'<p class="hint">TA睡着了，醒了再一起出去</p>':`<p class="hint">想带TA去哪？点一个，或者在下面自己写想做什么</p><div class="kacts">${KID_GO[i].map(x=>`<button data-a="kidOut" data-p="${esc(x)}"${busy?' disabled':''}>${esc(x.replace(/^去/,''))}</button>`).join('')}</div>`):''}<div class="klog${kidMd(k)==='story'?' story':''}" id="klog">${log||'<p class="hint">刚来到你身边</p>'}</div>
-    <div class="inline" style="flex-wrap:nowrap"><input type="text" id="rsIn" placeholder="${asleep?'TA睡着了':kidOn(k)?'发消息':kidMd(k)==='story'?(k.scene?'你做什么、说什么':'想和TA一起做什么'):i?'跟TA说话':'跟TA说话（TA还听不懂）'}" enterkeyhint="send" aria-label="跟TA说话" style="flex:1;min-width:0"${asleep?' disabled':''}><button class="btn" data-a="kidSay"${busy||asleep?' disabled':''}>${kidOn(k)?'发':kidMd(k)==='story'?(k.scene?'继续':'出发'):'说'}</button></div></div>`,
+    ${kidOn(k)&&asleep?'<p class="hint">TA睡着了</p>':''}${kidMd(k)==='story'?(k.scene?`<div class="inline" style="justify-content:space-between"><span class="pill">${esc(k.scene.place||'在一起')}</span><button class="tb" data-a="kidHome"${busy?' disabled':''}>回家</button></div>`:asleep?'<p class="hint">TA睡着了</p>':`<div class="kacts">${KID_GO[i].map(x=>`<button data-a="kidOut" data-p="${esc(x)}"${busy?' disabled':''}>${esc(x.replace(/^去/,''))}</button>`).join('')}</div>`):''}<div class="klog${kidMd(k)==='story'?' story':''}" id="klog">${log}</div>
+    <div class="inline" style="flex-wrap:nowrap"><input type="text" id="rsIn" placeholder="${asleep?'TA睡着了':''}" enterkeyhint="send" aria-label="跟TA说话" style="flex:1;min-width:0"${asleep?' disabled':''}><button class="btn" data-a="kidSay"${busy||asleep?' disabled':''}>${kidOn(k)?'发':kidMd(k)==='story'?(k.scene?'继续':'出发'):'说'}</button></div></div>`,
   after(){const l=$('#klog');if(l)l.scrollTop=l.scrollHeight;const inp=$('#rsIn');if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();A.kidSay()}});
     kidMaybeEv(k);clearTimeout(kidT);kidT=setTimeout(()=>{if(cur()===v&&isOpen()&&document.activeElement?.id!=='rsIn')render(true)},asleep?Math.max(1e3,k.sleep-Date.now()+500):60e3)}}},
 plan(v){const P=S.plan,d=planDay(),L=d.items,n=L.filter(x=>x.done).length,sup=charById(P.sup),cs=S.chars.filter(visible),now=new Date();
@@ -3291,7 +3291,7 @@ const A={
   newThread(){sheet(`<h3>新建</h3><button class="opt" data-a="newDm">单聊</button><button class="opt" data-a="newGroupChat">群聊</button>${CANCEL}`)},
   dataMore(){const v=stack[stack.length-1];v.more=!v.more;render(true)},
   goThink(){go({v:'think'})},
-  chatSet(){go({v:'chatPrefs'})},
+  chatSet(){closeSheet();go({v:'chatPrefs'})},
   newDm(){pickChar('和谁聊？','dmGo')},
   dmGo(el){const t=dmFor(el.dataset.id);closeSheet();go({v:'chat',id:t.id})},
   newGroupChat(){if(S.chars.length<2){toast('群聊至少要 2 个角色');return}
@@ -3325,7 +3325,7 @@ const A={
   chatMenu(){const t=thread(cur().id);
     const o=(a,l,x='')=>`<button class="opt l${x}" data-a="${a}"><span>${l}</span><i>›</i></button>`,dm=t.type==='dm',c=charById(t.chars[0]);
     sheet(`<h3>${esc(threadTitle(t))}</h3>
-    ${cur().off?`<div class="grp">${o('openOffline','见面设置')}</div>`:''}
+    <div class="grp">${o('chatSet','聊天设置')}${cur().off?o('openOffline','见面设置'):''}</div>
     <div class="grp">${o('ctxPeek','记忆')}${o('openSummary','总结')}${dm?o('openCharFromChat','资料'):o('openGroupEdit','成员')}</div>
     <div class="grp">${dm?(rel(c).youBlocked?o('unblock','解除拉黑'):o('block','拉黑',' red'))+`<button class="opt l red" data-a="delChar" data-id="${c.id}"><span>删除</span></button>`:''}
     ${o('delThread',dm?'清空':'删除',' red')}</div>
@@ -3571,9 +3571,9 @@ const A={
   kidPick(el){const c=charById(el.dataset.id);if(!c)return;const to=kidAgeOf(c)/12;
     sheet(`<h3>${esc(dn(c))}</h3><label class="f">小名<input type="text" id="kdName" value="${esc(c.name)}"></label>
       <label class="f">从哪开始<select id="kdAge"><option value="0" selected>刚出生</option><option value="12">一岁</option><option value="36">三岁</option><option value="72">六岁</option><option value="144">十二岁</option></select></label>
-      <label class="f">一直长到几岁（就是现在的TA）<input type="number" id="kdTo" min="16" max="60" value="${to}"></label>
+      <label class="f">一直长到几岁<input type="number" id="kdTo" min="16" max="60" value="${to}"></label>
       <label class="f">长大的速度<select id="kdSpd"><option value="0.5">慢慢长</option><option value="1" selected>正常</option><option value="2">快一点</option></select></label>
-      <label class="f">TA叫你<input type="text" id="kdCall" placeholder="妈妈 / 爸爸 / 哥哥 / 姐姐…不填TA自己叫"></label>
+      <label class="f">TA叫你<input type="text" id="kdCall"></label>
       <button class="opt" data-a="kidMake" data-id="${c.id}">开始养</button>${CANCEL}`)},
   kidMake(el){const c=charById(el.dataset.id);if(!c)return;const age=+$('#kdAge')?.value||0,to=Math.max(16,Math.min(60,+$('#kdTo')?.value||24))*12;
     const k={id:uid(),charId:c.id,name:$('#kdName')?.value.trim()||c.name,age:Math.min(age,to),to,speed:+$('#kdSpd')?.value||1,call:$('#kdCall')?.value.trim()||'',st:{food:70,clean:80,joy:60,energy:80,health:90},bond:age?10:30,grow:0,born:Date.now(),t:Date.now(),log:[],skills:[]};
@@ -3594,7 +3594,7 @@ const A={
       <label class="ck"><input type="checkbox" id="kdPause" ${k.pause?'checked':''}>不长大了，一直停在这个年纪</label>
       <label class="f">一直长到几岁<input type="number" id="kdTo" min="16" max="60" value="${Math.floor(kidTo(k)/12)}"></label>
       <label class="f">长大的速度<select id="kdSpd">${[[0.5,'慢慢长'],[1,'正常'],[2,'快一点']].map(([x,n])=>`<option value="${x}"${(+k.speed||1)===x?' selected':''}>${n}</option>`).join('')}</select></label>
-      <label class="f">TA叫你<input type="text" id="kdCall" value="${esc(k.call||'')}" placeholder="不填TA自己叫"></label><label class="ck"><input type="checkbox" id="kdShare" ${k.share!==false?'checked':''}>让现在的${esc(dn(kidChar(k)))}知道你在养TA</label><button class="opt" data-a="kidSave">保存</button><button class="opt red" data-a="kidDel">不养了</button>${CANCEL}`)},
+      <label class="f">TA叫你<input type="text" id="kdCall" value="${esc(k.call||'')}"></label><label class="ck"><input type="checkbox" id="kdShare" ${k.share!==false?'checked':''}>让现在的${esc(dn(kidChar(k)))}知道你在养TA</label><button class="opt" data-a="kidSave">保存</button><button class="opt red" data-a="kidDel">不养了</button>${CANCEL}`)},
   kidSave(){const k=kidById(cur()?.id);if(!k)return;k.name=$('#kdName')?.value.trim()||kidChar(k)?.name||k.name;k.call=$('#kdCall')?.value.trim()||'';
     k.to=Math.max(16,Math.min(60,+$('#kdTo')?.value||24))*12;{const a=Math.max(0,(+$('#kdY')?.value||0)*12+Math.min(11,Math.max(0,+$('#kdM')?.value||0)));if(a!==k.age){k.age=Math.min(a,k.to);k.grow=0;kidLog(k,'sys',`TA现在${ageText(k.age)}`)}}k.pause=!!$('#kdPause')?.checked;if(k.age<36)k.mode='off';if(k.age>k.to)k.age=k.to;k.speed=+$('#kdSpd')?.value||1;k.share=!!$('#kdShare')?.checked;save();closeSheet();render(true)},
   kidDel(el){confirmTap(el,()=>{const id=cur()?.id;S.raise.kids=S.raise.kids.filter(k=>k.id!==id);save();closeSheet();back()})},
