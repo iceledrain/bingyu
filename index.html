@@ -835,7 +835,7 @@ const THINK_OLD4='站在{{char}}的位置想：{{user}}这句话什么意思、�
 const THINK_OLD5='想清楚：{{user}}什么意思、想要什么，{{char}}真实的反应，接下来怎么回、怎么做。60字内。';
 const THINK_OLD6='用{{char}}的心思盘算：{{user}}什么意思、想要什么，接下来怎么回、怎么做。60字内。';
 const THINK_DEF='用{{char}}的心思盘算：{{user}}什么意思，{{char}}自己想怎么做，接下来怎么回。60字内。';
-const CHAT_DEF=()=>({lean:true,onMax:3,onLen:10,casual:true,ctx:80,sumEvery:30,inner:true,innerOpen:false,innerName:'心声',innerStyle:INNER_DEF,think:false,thinkName:'思维链',thinkSrc:'char',thinkStyle:THINK_DEF,effort:'',scan:8});
+const CHAT_DEF=()=>({lean:true,onMax:3,onLen:10,casual:true,ctx:80,sumEvery:30,inner:true,innerOpen:false,innerName:'心声',innerStyle:INNER_DEF,think:true,thinkName:'思维链',thinkSrc:'char',thinkStyle:THINK_DEF,effort:'',scan:8});
 const PERSONA_TPL='姓名：\n年龄：\n性别：\n身份/职业：\n外貌：\n性格：\n说话方式：\n喜欢：\n讨厌：\n背景经历：\n和{{user}}的关系：';
 const TH_FMTS=()=>[
   {id:'tp_memo',name:'备忘录',prompt:'做成手机备忘录的样子：{{char}}手机里一条关于{{user}}的备忘录，有标题、日期、几条清单或碎碎念，有删掉又改的痕迹。'},
@@ -926,7 +926,7 @@ function mergeState(d){
   {const A=s.api;
     if(A.profiles.some(isOldExample)){A.profiles=A.profiles.filter(p=>!isOldExample(p));if(!A.profiles.length)A.profiles=[API_BLANK(uid())];if(!A.profiles.some(p=>p.id===A.active))A.active=A.profiles[0].id;if(A.side&&!A.profiles.some(p=>p.id===A.side))A.side=''}
     A.profiles.forEach(p=>{if(/anthropic\.com|generativelanguage/.test(p.base||'')&&(+p.maxTokens||0)<=8192)p.maxTokens=64000;if(/anthropic\.com/.test(p.base||''))p.stream=true})}
-  s.feed.forEach(p=>(Array.isArray(p.pics)?p.pics:[]).forEach(x=>delete x.dev));s.chars.forEach(c=>{if(c.mood)c.mood=softMood(c.mood,num(c.tide)??60)});s.chat.thinkSrc='char';s.api.side='';s.threads.forEach(t=>delete t.clock);
+  s.feed.forEach(p=>(Array.isArray(p.pics)?p.pics:[]).forEach(x=>delete x.dev));s.chars.forEach(c=>{if(c.mood)c.mood=softMood(c.mood,num(c.tide)??60)});s.chat.thinkSrc='char';if(!s.thinkOnV){s.chat.think=true;s.thinkOnV=1}s.api.side='';s.threads.forEach(t=>delete t.clock);
   s.chars.forEach(c=>{delete c.routine;delete c.sched;delete c.sign});s.masks.forEach(m=>{delete m.handle;delete m.bio;delete m.follow;delete m.fans;delete m.likes});
   s.stickers.groups.forEach(g=>(g.items||[]).forEach(x=>{x.name=stkName(x.name)||x.name}));
   delete s.lock;delete s.bubble;delete s.cycle;s.look.icons={};s.look.homeIcon='';delete s.look.order;delete s.look.caption;s.v=4;
@@ -2957,7 +2957,6 @@ chatPrefs(){const C=S.chat;
     <div class="panel"><h2>记忆</h2>
       <label class="f">读最近几条<span class="inline"><input type="range" id="ch-ctx" min="6" max="200" step="2" data-s="chat" data-k="ctx" value="${C.ctx}"><output>${C.ctx}</output></span></label>
       <label class="f">每几条总结一次<span class="inline"><input type="range" id="ch-every" min="10" max="100" step="5" data-s="chat" data-k="sumEvery" value="${C.sumEvery}"><output>${C.sumEvery}</output></span></label></div>
-    <div class="panel"><h2>思维链<button class="tb" data-a="goThink">${C.think||C.inner?'开着':'关着'} ›</button></h2></div>
     <div class="panel"><h2>后台</h2>
       <label class="ck"><input type="checkbox" data-s="root" data-k="diaryAuto" ${S.diaryAuto?'checked':''}>聊得久了TA自动写日记</label>
       <label class="ck"><input type="checkbox" data-s="chat" data-k="chase" ${C.chase!==false?'checked':''}>不回消息TA会追发</label>
@@ -3300,7 +3299,7 @@ const A={
   plus(){const t=thread(cur().id),dm=t.type==='dm';const it=(a,ic,l,ex='')=>`<button class="pi" data-a="${a}" ${ex}><span class="ic">${ICONS[ic]}</span>${l}</button>`;
     sheet(`<div class="pgrid">
       <label class="pi"><span class="ic">${ICONS.image}</span>照片<input type="file" accept="image/*" data-img="chatimg" class="vh" aria-label="发照片"></label>${it('pPic','camera','文字图片')}${it('pVoice','mic','语音')}
-      ${it('pLoc','pin','位置')}${it('meetGo','contacts','见面')}${dm?it('pMoney','gift','红包','data-k="hb"')+it('pMoney','yen','转账','data-k="tf"')+it('cardAdd','wallet','亲属卡',`data-to="${t.chars[0]}"`)+it('pCall','phone','语音通话','data-k="voice"')+it('pCall','video','视频通话','data-k="video"')+it('pPhone','search','查TA手机')+it('pPeek','eye','让TA查我')+it('pFood','bowl','点外卖','data-k="food"')+it('pFood','shop','网购','data-k="goods"')+it('pMusic','music','一起听歌')+it('thFromChat','theater','小剧场'):''}
+      ${it('pLoc','pin','位置')}${it('meetGo','contacts','见面')}${dm?it('pMoney','gift','红包','data-k="hb"')+it('pMoney','yen','转账','data-k="tf"')+it('cardAdd','wallet','亲属卡',`data-to="${t.chars[0]}"`)+it('pCall','phone','语音通话','data-k="voice"')+it('pCall','video','视频通话','data-k="video"')+it('pPhone','search','查TA手机')+it('pPeek','eye','让TA查我'):''}
     </div><button class="opt" data-a="closeSheet">关闭</button>`)},
   pLoc(){sheet(`<h3>发送位置</h3><input type="text" id="locIn" placeholder="在哪" aria-label="地点"><input type="text" id="locSub" placeholder="备注（可不填）" aria-label="备注">
     <div class="btns"><button class="btn o" data-a="pLocHere">定位当前位置</button>${S.loc?`<button class="btn o" data-a="pLocCity">${esc(S.loc.name)}</button>`:''}<button class="btn" data-a="pLocGo">发送</button></div>${CANCEL}`)},
