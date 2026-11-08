@@ -1413,7 +1413,7 @@ function buildCtx(t,o={}){
     if(!group)rules.push(ai?`【分享】常主动说你的心事、刚想到的事、在网上看到的东西，好奇${me.name}那边的生活。话题聊干了就自己起新的，具体、有梗。`
       :`【分享生活】常自然带出自己在干什么、刚遇到的事、吃到看到的东西、身边的八卦和小烦恼，可以发 [图片:…] 给${me.name}看。话题聊干了就自己起新的，具体、有梗。`);
     {const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal?.type==='narr')ctxs.push(`【刚分开】你们刚见过面（经过在聊天记录里），现在回到手机上聊。带着见面时的情绪，但只发消息，不写动作描写和长段落。`)}
-    rules.push(`【字数】平时${G('每人','')}${num(C.onMax)||3}条以内，每条${num(C.onLen)||10}字左右；情绪上来或说正事可以多发几条。${C.casual!==false?'不打句号和逗号，停顿就换行。':''}`);
+    rules.push(`【字数】平时${G('每人','')}${num(C.onMax)||3}条以内，每条${num(C.onLen)||10}字左右；情绪上来或说正事可以多一两条，但无论如何${G('每人','')}不超过${(num(C.onMax)||3)+2}条，宁可一条多说几句也别刷屏。${C.casual!==false?'不打句号和逗号，停顿就换行。':''}`);
     const sp=['[图片:画面]','[语音:内容]'];
     if(!group)sp.push('[红包:金额:祝福]','[转账:金额:备注]',...(boughtRecently(t)?[]:['[外卖:吃的:金额]','[网购:东西:金额]']),'[查手机]','[语音通话]','[视频通话]','[送亲属卡:月额度]');
     sp.push('[分享歌曲:歌名 - 歌手]');if(!ai)sp.push('[定位:地点 · 一句备注]');
@@ -1535,8 +1535,16 @@ function parseReply(out,ctx){
     if(!text)continue;last=from;
     for(const tx of ctx.mode==='online'&&S.chat.casual!==false?casual(text):[text])for(const p of splitStickers(tx))res.push({from,...p});
   }
-  return res;
+  return ctx.mode==='online'?capBubbles(res):res;
 }
+// 一次回复每人最多 onMax+2 条，多出来的把相邻的短文字气泡并起来，内容不丢
+const bubbleCap=()=>(num(S.chat.onMax)||3)+2;
+function capBubbles(res){const cap=bubbleCap(),glue=S.chat.casual!==false?' ':'，';
+  for(const who of [...new Set(res.map(p=>p.from))]){
+    for(;;){const idx=res.map((p,i)=>p.from===who?i:-1).filter(i=>i>=0);if(idx.length<=cap)break;
+      let best=-1,bl=1e9;for(let k=0;k+1<idx.length;k++){const a=res[idx[k]],b=res[idx[k+1]];if(idx[k+1]!==idx[k]+1||a.type!=='text'||b.type!=='text')continue;const l=String(a.content).length+String(b.content).length;if(l<bl){bl=l;best=idx[k]}}
+      if(best<0)break;res[best].content=res[best].content+glue+res[best+1].content;res.splice(best+1,1)}}
+  return res}
 function attachExtras(parts,ex,ctx){
   if(!parts.length)return;
   if(ex.think)parts[0].think=ex.think;
