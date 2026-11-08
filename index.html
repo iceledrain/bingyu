@@ -526,6 +526,7 @@ html.dark .timg{color:#d1d1d1;background:linear-gradient(150deg,#303030,#212121 
 .hclock{margin-top:max(18px,calc(64px - var(--sat)));text-align:center;color:rgba(93,93,93,.62);text-shadow:0 0 18px rgba(255,255,255,.9),0 2px 14px rgba(173,173,173,.35)}
 .hc-t{font:200 80px/1 var(--body);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 .hc-d{margin-top:10px;font-size:14px;letter-spacing:.08em;display:flex;align-items:center;justify-content:center;gap:10px}
+.kmr{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line);font-size:14px;line-height:1.55}.kmr>span{flex:1;min-width:0}.kmr small{color:var(--muted);font-size:12px;margin-right:6px}
 .hc-d i{width:22px;height:1px;background:currentColor;opacity:.6}
 .hrow{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);align-items:center;gap:8px}
 .polaroid{position:relative;display:flex;flex-direction:column;padding:10px 10px 30px;margin:8px 0 0 4px;border-radius:6px;transform:rotate(-2.5deg);cursor:pointer;
@@ -1425,7 +1426,7 @@ function buildCtx(t,o={}){
     tail.push('【现在】'+nowText()+(g>2*3600e3?`，距上次说话${gapText(g)}`:''));
     const wd=worldFor(chars);if(wd)tail.push(wd);
     const d0=new Date().setHours(0,0,0,0);if(myDays(me).some(x=>x.in===0&&chars.some(c=>c.id===x.who))&&t.msgs.some(m=>m.from==='me'&&m.t>=d0&&/生日快乐|happy birthday/i.test(m.content||'')))tail.push(`【生日】${me.name}今天说过生日快乐了。`);
-    if(mode!=='offline')chars.forEach(c=>{const x=kidKnow(c);if(x)tail.push(x)});
+    chars.forEach(c=>{const x=kidKnow(c);if(x)tail.push(x)});
     if(mode!=='offline')chars.forEach(c=>{if(c.today?.day===dayKey()&&c.today.text)tail.push(`【${c.name}的今天】${c.today.text}\n（这是背景，不是话题。不要主动汇报今天发生了什么，也别每次都提；对方问起、或者正好聊到相关的事，再自然地带一句。）`)})}
   {const dy=[...new Set(chars.map(myDiaryFor).filter(Boolean))];if(dy.length)tail.push(dy.join('\n'))}
   const el=[...new Set(chars.flatMap(c=>elsewhere(c,t.id)))];if(el.length)tail.push('【别处的事】\n'+el.join('\n'));
@@ -2607,22 +2608,52 @@ const bondText=b=>b<20?'跟TA还有点认生':b<50?'跟TA挺亲的':b<80?'很黏
 const kidActs=k=>{const i=kidSi(k.age);return Object.entries(KID_ACT).filter(([x,a])=>a.n[i]&&(x!=='doctor'||k.sick||k.st.health<70))};
 const kidRe=k=>{const v=cur();if(v?.v==='kid'&&v.id===k.id&&isOpen())render(true)};
 const kidOn=k=>k.mode==='on'&&k.age>=36;
+// TA心里的委屈：被冷落、没人管、被吵醒、说话伤人都会攒起来，好好照顾会慢慢消
+const hurtText=h=>h<15?'':h<40?'，心里有点委屈':h<70?'，心里有点怨TA':'，心里对TA有很多怨气';
+const kidFeel=k=>bondText(k.bond||0)+hurtText(k.hurt||0);
+function kidHurt(k,h,b=0){k.hurt=Math.max(0,Math.min(100,(k.hurt||0)+h));if(b)k.bond=Math.max(0,Math.min(100,(k.bond||0)-b))}
+// 成长记忆：从小到大记得的事，单独存，不会被聊天记录冲掉。「我」是TA自己，「你」是把TA带大的人
+const memLine=x=>(x.age!=null?ageText(x.age)+'：':'')+x.text;
+function kidMem(k,text,o={}){(k.mem||=[]).push({id:uid(),t:o.t||Date.now(),age:k.age,text:String(text).slice(0,120),...(o.m?{m:1}:{})});if(k.mem.length>80)kidMemFold(k)}
+function kidMemInit(k){k.mem=(k.log||[]).filter(x=>x.from==='ev'||(x.from==='sys'&&!/睡醒了|手机上聊|回到TA身边|长大了一点|^TA现在/.test(x.text))).map(x=>({id:uid(),t:x.t,age:null,text:x.text.replace(/TA/g,'我')}))}
+function kidMemText(k,n=30){return[...(k.memOld||[]).slice(-6),...(k.mem||[]).slice(-n).map(memLine)].join('\n')}
+const kidFolding=new Set();
+async function kidMemFold(k){if(kidFolding.has(k.id))return;const c=kidChar(k),old=(k.mem||[]).slice(0,30),drop=()=>{k.mem=k.mem.filter(x=>!old.includes(x)||x.m)};
+  if(!c||!api(c)?.key){drop();return}
+  kidFolding.add(k.id);
+  try{const nm=kidName(k),me=mask(c).name,a=old.find(x=>x.age!=null)?.age,b=[...old].reverse().find(x=>x.age!=null)?.age;
+    const out=String(await callAI(kidSys(k,c),[{role:'user',content:`这是你（${nm}）${a!=null&&b!=null?ageText(a)+'到'+ageText(b)+'之间':'小时候'}记得的事（「我」是你自己，「你」是${me}）：\n${old.map(memLine).join('\n')}\n\n把这些压成一段150字以内的回忆，还是用「我」指自己、「你」指${me}。留下印象最深的事，好的坏的都要留，尤其是${me}对你好不好、有没有陪着你。只输出这段回忆。`}],{max:500,side:true,tag:'other',who:c.id})||'').replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
+    if(out){(k.memOld||=[]).push((a!=null&&b!=null?(a===b?ageText(a):ageText(a)+'到'+ageText(b))+'：':'')+out.slice(0,300));k.memOld=k.memOld.slice(-12);k.mem=k.mem.filter(x=>!old.includes(x))}else drop()}
+  catch(e){drop()}
+  finally{kidFolding.delete(k.id);save()}}
+const kidRecent=(k,n,me)=>(k.log||[]).slice(-n).map(x=>x.from==='me'?`${x.on?'（手机上）':''}${me}：${x.text}`:x.from==='act'?`（${me}${x.text}）`:x.from==='kid'?(x.nar?`（剧情）${x.text.slice(-200)}`:`${x.on?'（手机上）':''}${kidName(k)}：${x.text}`):`（${x.text}）`).join('\n');
+// 每聊一阵，TA在心里记一笔：记住哪些事、你对TA怎么样
+const kidRefBusy=new Set();
+async function kidReflect(k){if((k.refN||0)<10||kidRefBusy.has(k.id))return;const c=kidChar(k);if(!c||!api(c)?.key)return;k.refN=0;kidRefBusy.add(k.id);
+  try{const me=mask(c).name,nm=kidName(k);
+    const out=String(await callAI(kidSys(k,c)+'\n\n现在不是在演，是你在心里记事。',[{role:'user',content:`【刚才这段时间】\n${kidRecent(k,40,me)}\n\n站在${nm}自己的角度，从这段里挑出你会一直记得的事，0到2条，每条一句话（「我」是你自己，「你」是${me}），写清楚发生了什么、${me}对你怎么样。平常的小事不用记。\n再判断这段时间${me}对你怎么样：很好+2，挺好+1，一般0，不太好-1，很糟-2（凶你、骂你、冷落你、说伤人的话、敷衍你都算）。\n只按这个格式输出：\n记得：……\n对我：+1`}],{max:400,side:true,tag:'other',who:c.id})||'').replace(/<think>[\s\S]*?<\/think>/gi,'');
+    for(const l of out.split('\n')){const m=l.match(/^\s*记得[：:]\s*(.+)/);if(m&&!/^(无|没有)/.test(m[1].trim()))kidMem(k,m[1].trim())}
+    const d=+((out.match(/对我[：:]\s*([+-＋－]?\s*\d)/)||[])[1]||'0').replace(/[＋\s]/g,'').replace('－','-');
+    if(d<0)kidHurt(k,-d*6,-d*2);else if(d>0){k.hurt=Math.max(0,(k.hurt||0)-d*4);k.bond=Math.min(100,(k.bond||0)+d)}}
+  catch(e){}
+  finally{kidRefBusy.delete(k.id);save();kidRe(k)}}
 function kidLog(k,from,text,t=Date.now(),on=0){(k.log||=[]).push({id:uid(),t,from,text,...(on?{on:1}:{})});if(k.log.length>150)k.log.splice(0,k.log.length-150)}
-function kidTick(k){const now=Date.now(),last=k.t||now;k.t=now;const h=Math.min(36,(now-last)/36e5);if(h<=0)return;
+function kidTick(k){if(!k.mem)kidMemInit(k);const now=Date.now(),last=k.t||now;k.t=now;const raw=(now-last)/36e5,h=Math.min(36,raw);if(h<=0)return;
+  if(raw>=24){const d=Math.floor(raw/24);kidMem(k,`你有${d>1?d+'天':'一整天'}没来看我`);kidHurt(k,Math.min(20,d*5),Math.min(10,d*2))}
   const i=kidSi(k.age),s=k.st,end=k.sleep||0,sl=end>last?Math.min(h,(Math.min(end,now)-last)/36e5):0,aw=h-sl,cl=x=>Math.max(0,Math.min(100,x));
   const fm=[1.4,1.2,1,.8,.5][i],cm=[1.4,1.2,1,0,0][i],jm=[1,1,1,.8,.6][i],em=[3.5,3,3,2.5,2][i];
   s.energy=cl(s.energy+sl*80-aw*em);s.food=cl(s.food-(aw*5+sl*2)*fm);s.clean=cm?cl(s.clean-h*2.5*cm):100;s.joy=cl(s.joy-aw*3*jm);
   s.health=cl(s.health+(s.food<20||s.clean<20?-3*h:s.food>50&&s.clean>50&&s.joy>40?h:0));
   if(end&&end<=now){k.sleep=0;kidLog(k,'sys','TA睡醒了',end)}
-  if(k.ev&&now-k.ev.t>8*36e5){kidLog(k,'sys',`TA${k.ev.text}——你没顾上，TA自己扛过去了`);s.joy=cl(s.joy-10);k.ev=null}
-  if(s.health<30&&!k.sick){k.sick=true;kidLog(k,'sys','TA生病了，蔫蔫的')}}
+  if(k.ev&&now-k.ev.t>8*36e5){kidLog(k,'sys',`TA${k.ev.text}——你没顾上，TA自己扛过去了`);kidMem(k,`我${k.ev.text}——你没顾上，我自己扛过去了`);kidHurt(k,8,5);s.joy=cl(s.joy-10);k.ev=null}
+  if(s.health<30&&!k.sick){k.sick=true;kidLog(k,'sys','TA生病了，蔫蔫的');const ng=s.food<20||s.clean<20;kidMem(k,ng?'我饿着肚子、没人管，病倒了':'我生病了');if(ng)kidHurt(k,6,3)}}
 function kidNeeds(k){const s=k.st,L=[],hr=new Date().getHours(),i=kidSi(k.age);if(k.sleep>Date.now())return['睡着了'];
   if(k.ev)L.push('有事');if(k.sick)L.push('生病了');if(s.food<30)L.push(i?'饿了':'饿得哭');if(s.energy<25)L.push('困了');else if(i<4&&(hr>=22||hr<6)&&!(Date.now()-(k.slept||0)<8*36e5))L.push('该睡觉了');if(i<3&&s.clean<30)L.push(i?'脏兮兮的':'尿布该换了');if(s.joy<30)L.push('不太开心');
   if(!L.length)L.push(s.joy>=75?'心情很好':'还不错');return L}
 function kidGrow(k,g){if(kidGrown(k)||k.pause)return;k.grow=(k.grow||0)+g*(+k.speed||1);
   while(!kidGrown(k)&&k.grow>=60){k.grow-=60;k.age=Math.min(kidTo(k),k.age+kidStep(k.age));
-    if(kidGrown(k)){kidLog(k,'sys',`TA${ageText(k.age)}了，长成了现在的样子`);k.grow=0}
-    else kidLog(k,'sys',KID_MILE[k.age]?`TA${KID_MILE[k.age]}`:`TA长大了一点，${ageText(k.age)}了`)}}
+    if(kidGrown(k)){kidLog(k,'sys',`TA${ageText(k.age)}了，长成了现在的样子`);kidMem(k,`我${ageText(k.age)}了，长成了现在的样子`,{m:1});k.grow=0}
+    else{kidLog(k,'sys',KID_MILE[k.age]?`TA${KID_MILE[k.age]}`:`TA长大了一点，${ageText(k.age)}了`);if(KID_MILE[k.age])kidMem(k,'我'+KID_MILE[k.age],{m:1})}}}
 function kidMaybeEv(k){const now=Date.now();if(k.ev||k.sleep>now||kidBusy.has(k.id)||now-(k.evChk||0)<3600e3)return;k.evChk=now;
   if(now-(k.evAt||k.born||0)<4*36e5||Math.random()>.5)return;
   const L=KID_EV[kidSi(k.age)],last=k.evLast||[];let x,n=0;do x=kpick(L);while(last.includes(x[0])&&++n<9);
@@ -2634,15 +2665,14 @@ function kidSys(k,c){const me=mask(c),P=String(c.persona||'').replaceAll('{{user
 async function kidAsk(k,what,fb,st){const c=kidChar(k);if(!c)return;
   if(!api(c)?.key){kidLog(k,'kid',kpick(KID_FALL[fb]||KID_FALL.say));save();kidRe(k);return}
   kidBusy.add(k.id);kidRe(k);
-  try{const me=mask(c),w=wxNow(S.loc),on=kidOn(k),recent=(k.log||[]).slice(-14).map(x=>x.from==='me'?`${x.on?'（手机上）':''}${me.name}：${x.text}`:x.from==='act'?`（${me.name}${x.text}）`:x.from==='kid'?(x.nar?`（剧情）${x.text.slice(-200)}`:`${x.on?'（手机上）':''}${kidName(k)}：${x.text}`):`（${x.text}）`).join('\n');
-    const out=String(await callAI(kidSys(k,c),[{role:'user',content:`【现在】${nowText()}${w?`，${w.desc} ${w.temp}°C（只是背景，不用提）`:''}\n【你现在】${(st||kidNeeds(k)).join('、')}；${bondText(k.bond||0)}${k.skills?.length?`；学过${k.skills.slice(-6).join('、')}`:''}\n${k.ev?`【还没过去的事】${kidName(k)}${k.ev.text}\n`:''}${recent?`【刚才】\n${recent}\n`:''}\n${what}\n\n${on?`你们现在不在一起，是在手机上聊（${k.age<84?'你用的是电话手表，还不太会打字，大多发语音，写成「[语音] 说的话」':k.age<144?'你用的是家里给的旧手机，打字慢，有错别字也正常':'你用自己的手机'}）。只写${kidName(k)}发过去的消息：一行一条，一到三条，像这个年纪的孩子发消息的样子，不写动作、不写（）、不写旁白。只输出消息。`:`写${kidName(k)}这时候的反应：动作和神态写在（）里，${kidSi(k.age)?'说的话直接写，':'还不会说话，'}一到三句，像真的${ageText(k.age)}的孩子。只输出反应本身。`}`}],{max:600,side:true,tag:'other',who:c.id})||'').replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
+  try{const me=mask(c),w=wxNow(S.loc),on=kidOn(k),recent=kidRecent(k,14,me.name),mt=kidMemText(k);
+    const out=String(await callAI(kidSys(k,c),[{role:'user',content:`【现在】${nowText()}${w?`，${w.desc} ${w.temp}°C（只是背景，不用提）`:''}\n【你现在】${(st||kidNeeds(k)).join('、')}；${kidFeel(k)}${k.skills?.length?`；学过${k.skills.slice(-6).join('、')}`:''}\n${mt?`【你从小到大记得的事】（「我」是你自己，「你」是${me.name}；这些会影响你对TA的态度）\n${mt}\n`:''}${k.ev?`【还没过去的事】${kidName(k)}${k.ev.text}\n`:''}${recent?`【刚才】\n${recent}\n`:''}\n${what}\n\n${on?`你们现在不在一起，是在手机上聊（${k.age<84?'你用的是电话手表，还不太会打字，大多发语音，写成「[语音] 说的话」':k.age<144?'你用的是家里给的旧手机，打字慢，有错别字也正常':'你用自己的手机'}）。只写${kidName(k)}发过去的消息：一行一条，一到三条，像这个年纪的孩子发消息的样子，不写动作、不写（）、不写旁白。只输出消息。`:`写${kidName(k)}这时候的反应：动作和神态写在（）里，${kidSi(k.age)?'说的话直接写，':'还不会说话，'}一到三句，像真的${ageText(k.age)}的孩子。只输出反应本身。`}`}],{max:600,side:true,tag:'other',who:c.id})||'').replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
     if(on){const L=out.split('\n').map(x=>x.replace(/[（(][^）)]*[）)]/g,'').trim()).filter(Boolean).slice(0,4);if(L.length)L.forEach(x=>kidLog(k,'kid',wholeText(x,200),Date.now(),1));else kidLog(k,'kid','[语音] 嗯',Date.now(),1)}
     else kidLog(k,'kid',wholeText(out,300)||kpick(KID_FALL[fb]||KID_FALL.say))}
   catch(e){toast(e.message||'TA没反应过来',4000)}
   finally{kidBusy.delete(k.id);save();kidRe(k)}}
-function kidKnow(c){const k=(S.raise?.kids||[]).find(x=>x.charId===c.id&&x.share!==false);if(!k)return'';const me=mask(c).name,wk=Date.now()-7*864e5;
-  const L=(k.log||[]).filter(x=>x.t>wk&&(x.from==='ev'||(x.from==='sys'&&!/睡醒了/.test(x.text)))).slice(-3).map(x=>x.text.replace(/你/g,me).replace(/^TA/,'小时候的你'));
-  return`【养成】${me}在手机上的「养成」里养着小时候的你${k.name&&k.name!==c.name?`（小名${k.name}）`:''}，现在养到${ageText(k.age)}，${bondText(k.bond||0).replace('TA',me)}。${L.length?'最近：'+L.join('；')+'。':''}（你知道这件事，偶尔可以提一句，比如被问起、或者聊到小时候，别老提）`}
+function kidKnow(c){const k=(S.raise?.kids||[]).find(x=>x.charId===c.id&&x.share!==false);if(!k)return'';const me=mask(c).name;if(!k.mem)kidMemInit(k);const mt=kidMemText(k,25);
+  return`【养成】${me}在手机上的「养成」里把小时候的你一点点带大${k.name&&k.name!==c.name?`（小名${k.name}）`:''}，现在养到${ageText(k.age)}，小时候的你${kidFeel(k).replaceAll('TA',me)}。${mt?`\n你记得小时候的这些事（「我」是你自己，「你」是${me}）：\n${mt}\n`:''}（这些你都知道、都记得，也会影响你现在对${me}的感觉。被问起、聊到小时候、或者正好相关的时候自然带出来，别老提）`}
 // 剧情：一起出去玩、逛街……用小说的写法写一段一段的剧情
 const kidMd=k=>kidOn(k)?'on':k.mode==='story'?'story':'off';
 async function kidStory(k,mine,how){const c=kidChar(k);if(!c||kidBusy.has(k.id))return;
@@ -2652,14 +2682,14 @@ async function kidStory(k,mine,how){const c=kidChar(k);if(!c||kidBusy.has(k.id))
     const mis=how==='go'&&Math.random()<.25?`\n这一段里发生一件小插曲（${kpick(['好事','不太顺的事','意想不到的事'])}），按地点和${nm}的年纪来，自然写进去，是小事。`:'';
     const ask=how==='start'?`${me.name}和${nm}${sc}。从出发或者刚到写起。`:how==='end'?`${me.name}说该回家了。写回家路上和到家，给今天收个尾，150字以内。`:mine?`${me.name}：${mine}`:'（接着往下写）';
     const sys=kidSys(k,c)+`\n\n【剧情】现在是线下的剧情，${me.name}和${nm}在一起${sc?'，'+sc:''}。用小说的写法往下写：第三人称写${nm}（动作、神态、说的话放在「」里），用「你」指${me.name}。写环境、路人和这一路上的小事，${nm}的样子和说话都要像${ageText(k.age)}的孩子${kidSi(k.age)?'':'（还不会说话）'}。${me.name}只写TA自己已经说了、做了的，不替TA说话、不替TA做决定。${how==='end'?'':'约300字，分几段写，不要小标题，结尾停在可以接着往下的地方。'}`;
-    const out=String(await callAI(sys,[{role:'user',content:`【现在】${nowText()}${(w=>w?`，${w.desc} ${w.temp}°C`:'')(wxNow(S.loc))}\n【${nm}现在】${kidNeeds(k).join('、')}；${bondText(k.bond||0)}\n${prev?`【前面的剧情】\n${prev}\n\n`:''}【这一段】${ask}${mis}`}],{max:1800,tag:'other',who:c.id})||'').replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
+    const out=String(await callAI(sys,[{role:'user',content:`【现在】${nowText()}${(w=>w?`，${w.desc} ${w.temp}°C`:'')(wxNow(S.loc))}\n【${nm}现在】${kidNeeds(k).join('、')}；${kidFeel(k)}\n${(mt=>mt?`【${nm}从小到大记得的事】（「我」是${nm}，「你」是${me.name}）\n${mt}\n`:'')(kidMemText(k,20))}${prev?`【前面的剧情】\n${prev}\n\n`:''}【这一段】${ask}${mis}`}],{max:1800,tag:'other',who:c.id})||'').replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
     if(out){const e={id:uid(),t:Date.now(),from:'kid',nar:1,text:out.slice(0,2000)};(k.log||=[]).push(e)}
     if(how==='end'){const s=k.st,cl=x=>Math.max(0,Math.min(100,x));s.joy=cl(s.joy+25);s.energy=cl(s.energy-25);s.food=cl(s.food-15);if(kidSi(k.age)<3)s.clean=cl(s.clean-15);
-      k.bond=Math.min(100,(k.bond||0)+4);kidGrow(k,15);kidLog(k,'sys',`TA跟着你${sc||'出去玩了一趟'}，玩完回家了`);k.scene=null;k.mode='off'}
+      k.bond=Math.min(100,(k.bond||0)+4);kidGrow(k,15);kidLog(k,'sys',`TA跟着你${sc||'出去玩了一趟'}，玩完回家了`);kidMem(k,`你带我出去玩了一趟${k.scene?.what?'：'+k.scene.what:sc?'：'+sc:''}`);k.scene=null;k.mode='off'}
     else if(k.scene)k.scene.n=(k.scene.n||0)+1}
   catch(e){toast(e.message||'没写出来',5000)}
   finally{kidBusy.delete(k.id);save();kidRe(k)}}
-function kidSettle(k){if(!k.ev)return'';const t=k.ev.text;k.ev=null;k.bond=Math.min(100,(k.bond||0)+3);kidGrow(k,5);return t}
+function kidSettle(k,how){if(!k.ev)return'';const t=k.ev.text;k.ev=null;k.bond=Math.min(100,(k.bond||0)+3);k.hurt=Math.max(0,(k.hurt||0)-3);kidMem(k,`我${t}，${how||'你来管我了'}`);kidGrow(k,5);return t}
 function kidDo(k,key){const a=KID_ACT[key],s=k.st,now=Date.now(),hr=new Date().getHours(),i=kidSi(k.age);if(!a||!a.n[i]||kidBusy.has(k.id))return;kidTick(k);
   if(k.sleep>now){toast('TA睡着了，轻一点');return}
   if(a.tired&&s.energy<15){toast('TA累了，先让TA歇一歇');return}
@@ -2670,10 +2700,10 @@ function kidDo(k,key){const a=KID_ACT[key],s=k.st,now=Date.now(),hr=new Date().g
   else if(key==='sleep'&&s.energy>80&&hr>=6&&hr<20&&i){extra='，可TA一点都不困'}
   else for(const[x,d]of Object.entries(a.f))s[x]=Math.max(0,Math.min(100,s[x]+(d>0?d*m:d)));
   if(key==='sleep'&&!extra){k.sleep=now+60e3;k.slept=now;s.energy=100}
-  if(key==='doctor')k.sick=false;
+  if(key==='doctor'){if(k.sick)kidMem(k,'我生病的时候，'+('你'+what.slice(me.length)).replace(/TA/g,'我'));k.sick=false}
   if(key==='teach'&&KID_TEACH[i].length){const L=KID_TEACH[i].filter((x,n)=>i!==2||(k.age<72?n<8:n>=8)),t=kpick(L.length?L:KID_TEACH[i]);what+=t;note+='：'+t;k.skills||=[];if(!k.skills.includes(t)){k.skills.push(t);if(k.skills.length>30)k.skills.shift()}}
   if(rep)extra+=`（刚刚才${a.n[i]}过）`;
-  const ev=kidSettle(k);if(ev)extra+=`（是为了TA${ev}这件事）`;
+  const ev=kidSettle(k,('你'+what.slice(me.length)).replace(/TA/g,'我'));if(ev)extra+=`（是为了TA${ev}这件事）`;
   if(!rep)k.bond=Math.min(100,(k.bond||0)+(a.b||0));kidGrow(k,(a.g||0)*m);
   kidLog(k,'act',note);save();render(true);kidAsk(k,what+extra+'。',key,st)}
 const VIEWS={
@@ -2874,14 +2904,15 @@ kid(v){const k=kidById(v.id),c=k&&kidChar(k);if(!k||!c)return{title:'不见了',
     :`<div class="kacts">${kidActs(k).map(([x,a])=>`<button data-a="kidAct" data-k="${x}"${busy?' disabled':''}>${a.n[i]}</button>`).join('')}</div>`;
   const log=(k.log||[]).slice(-40).map(x=>x.from==='sys'?`<div class="s">${esc(x.text)} · ${ago(x.t)}</div>`:x.from==='ev'?`<div class="s e">${esc(x.text)} · ${ago(x.t)}</div>`:x.from==='act'?`<div class="s a">— ${esc(x.text)} —</div>`:x.nar?`<div class="kn">${esc(x.text)}</div>`:x.sc?`<div class="kn me">${esc(x.text)}</div>`:`<div class="${x.from==='me'?'m':'k'}${x.on?' on':''}">${esc(x.text)}</div>`).join('')+(busy?'<div class="k"><span class="dots"><i></i><i></i><i></i></span></div>':'');
   return{title:kidName(k),sub:ageText(k.age)+' · '+kidStage(k.age)+(k.pause?' · 不长大了':''),right:`<button class="tb" data-a="kidSet" aria-label="设置">···</button>`,body:`
-  <div class="panel"><div class="kidh">${av(c,58)}<span><b>${esc(kidName(k))}</b><small>${grown?'长成了现在的':'小时候的'}${esc(dn(c))} · ${bondText(k.bond||0).replace('TA','你')}</small><span class="btns">${kidNeeds(k).map(x=>`<span class="pill">${esc(x)}</span>`).join('')}</span></span></div>
+  <div class="panel"><div class="kidh">${av(c,58)}<span><b>${esc(kidName(k))}</b><small>${grown?'长成了现在的':'小时候的'}${esc(dn(c))} · ${kidFeel(k).replaceAll('TA','你')}</small><span class="btns">${kidNeeds(k).map(x=>`<span class="pill">${esc(x)}</span>`).join('')}</span></span></div>
     <div class="kbars">${bars}<span>长大</span><span class="kbar"><i style="width:${g}%"></i></span><em>${grown?'满':k.pause?'停':g}</em></div>
     ${k.skills?.length?`<p class="hint">学过：${esc(k.skills.join('、'))}</p>`:''}</div>
   ${k.ev&&!asleep?`<div class="panel kev"><h2>TA${esc(k.ev.text)}</h2></div>`:''}
   ${kidMd(k)==='off'?`<div class="panel"><h2>照顾TA</h2>${acts}</div>`:''}
   <div class="panel"><h2>和TA<span class="seg" style="flex:none;padding:2px">${[['off','当面'],['story','剧情'],['on','发消息']].map(([m,n])=>`<button class="${kidMd(k)===m?'on':''}" data-a="kidMode" data-m="${m}" style="padding:4px 10px;white-space:nowrap"${m==='on'&&k.age<36?' disabled':''}>${n}</button>`).join('')}</span></h2>
-    ${kidOn(k)&&asleep?'<p class="hint">TA睡着了</p>':''}${kidMd(k)==='story'?(k.scene?`<div class="inline" style="justify-content:space-between"><span class="pill">${esc(k.scene.place||'在一起')}</span><button class="tb" data-a="kidHome"${busy?' disabled':''}>回家</button></div>`:asleep?'<p class="hint">TA睡着了</p>':''):''}<div class="klog${kidMd(k)==='story'?' story':''}" id="klog">${log}</div>
-    <div class="inline" style="flex-wrap:nowrap"><input type="text" id="rsIn" placeholder="${asleep?'TA睡着了':''}" enterkeyhint="send" aria-label="跟TA说话" style="flex:1;min-width:0"${asleep?' disabled':''}><button class="btn" data-a="kidSay"${busy||asleep?' disabled':''}>${kidOn(k)?'发':kidMd(k)==='story'?(k.scene?'继续':'出发'):'说'}</button></div></div>`,
+    ${kidOn(k)&&asleep?'<p class="hint">TA睡着了</p>':''}${kidMd(k)==='story'?(k.scene?`<div class="inline" style="justify-content:space-between"><span class="pill">${esc((k.scene.place||k.scene.what||'在一起').slice(0,16))}</span><button class="tb" data-a="kidHome"${busy?' disabled':''}>回家</button></div>`:asleep?'<p class="hint">TA睡着了</p>':''):''}<div class="klog${kidMd(k)==='story'?' story':''}" id="klog">${log}</div>
+    <div class="inline" style="flex-wrap:nowrap"><input type="text" id="rsIn" placeholder="${asleep?'TA睡着了':''}" enterkeyhint="send" aria-label="跟TA说话" style="flex:1;min-width:0"${asleep?' disabled':''}><button class="btn" data-a="kidSay"${busy||asleep?' disabled':''}>${kidOn(k)?'发':kidMd(k)==='story'?(k.scene?'继续':'出发'):'说'}</button></div></div>
+  ${k.mem?.length||k.memOld?.length?`<div class="panel"><h2>TA记得的事<button class="tb" data-a="kidMemTog">${v.mo?'收起':'展开'}</button></h2>${v.mo?[...(k.mem||[]).map(x=>[x.age!=null?ageText(x.age):'',x.text,`data-id="${x.id}"`]).reverse(),...(k.memOld||[]).map((x,n)=>['',x,`data-o="${n}"`]).reverse()].map(([a,t,d])=>`<div class="kmr"><span>${a?`<small>${a}</small>`:''}${esc(t)}</span><button class="tb" data-a="kidMemDel" ${d} aria-label="删掉">×</button></div>`).join(''):''}</div>`:''}`,
   after(){const l=$('#klog');if(l)l.scrollTop=l.scrollHeight;const inp=$('#rsIn');if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();A.kidSay()}});
     kidMaybeEv(k);clearTimeout(kidT);kidT=setTimeout(()=>{if(cur()===v&&isOpen()&&document.activeElement?.id!=='rsIn')render(true)},asleep?Math.max(1e3,k.sleep-Date.now()+500):60e3)}}},
 plan(v){const P=S.plan,d=planDay(),L=d.items,n=L.filter(x=>x.done).length,sup=charById(P.sup),cs=S.chars.filter(visible),now=new Date();
@@ -3574,17 +3605,19 @@ const A={
       <label class="f">TA叫你<input type="text" id="kdCall"></label>
       <button class="opt" data-a="kidMake" data-id="${c.id}">开始养</button>${CANCEL}`)},
   kidMake(el){const c=charById(el.dataset.id);if(!c)return;const age=+$('#kdAge')?.value||0,to=Math.max(16,Math.min(60,+$('#kdTo')?.value||24))*12;
-    const k={id:uid(),charId:c.id,name:$('#kdName')?.value.trim()||c.name,age:Math.min(age,to),to,speed:+$('#kdSpd')?.value||1,call:$('#kdCall')?.value.trim()||'',st:{food:70,clean:80,joy:60,energy:80,health:90},bond:age?10:30,grow:0,born:Date.now(),t:Date.now(),log:[],skills:[]};
-    kidLog(k,'sys',age?`${ageText(k.age)}的${k.name}来到你身边了`:`${k.name}出生了，小小的一团，被放进你怀里`);S.raise.kids.push(k);save();closeSheet();go({v:'kid',id:k.id})},
+    const k={id:uid(),charId:c.id,name:$('#kdName')?.value.trim()||c.name,age:Math.min(age,to),to,speed:+$('#kdSpd')?.value||1,call:$('#kdCall')?.value.trim()||'',st:{food:70,clean:80,joy:60,energy:80,health:90},bond:age?10:30,grow:0,born:Date.now(),t:Date.now(),log:[],skills:[],mem:[]};
+    kidLog(k,'sys',age?`${ageText(k.age)}的${k.name}来到你身边了`:`${k.name}出生了，小小的一团，被放进你怀里`);kidMem(k,age?'我来到你身边':'我出生了，被放进你怀里',{m:1});S.raise.kids.push(k);save();closeSheet();go({v:'kid',id:k.id})},
   kidGo(el){go({v:'kid',id:el.dataset.id})},
   kidMode(el){const k=kidById(cur()?.id);if(!k)return;const m=el.dataset.m;if(m==='on'&&k.age<36){toast('TA还太小，不会用手机');return}if(kidMd(k)===m)return;if(k.scene){toast('你们还在外面，先点「回家」');return}const was=kidMd(k);k.mode=m;if(m==='on')kidLog(k,'sys','你们不在一起，开始在手机上聊');else if(was==='on')kidLog(k,'sys','你回到TA身边了');save();render(true)},
   kidHome(){const k=kidById(cur()?.id);if(!k||!k.scene||kidBusy.has(k.id))return;kidStory(k,'','end')},
+  kidMemTog(){const v=cur();v.mo=!v.mo;render(true)},
+  kidMemDel(el){const k=kidById(cur()?.id);if(!k)return;if(el.dataset.id)k.mem=(k.mem||[]).filter(x=>x.id!==el.dataset.id);else k.memOld?.splice(+el.dataset.o,1);save();render(true)},
   kidAct(el){const k=kidById(cur()?.id);if(k)kidDo(k,el.dataset.k)},
-  kidWake(){const k=kidById(cur()?.id);if(!k||!(k.sleep>Date.now()))return;kidTick(k);k.sleep=0;k.st.joy=Math.max(0,k.st.joy-12);kidLog(k,'act','叫醒TA');save();render(true);kidAsk(k,`${mask(kidChar(k)).name}把正在睡觉的TA叫醒了。`,'wake',['刚被吵醒'])},
-  kidSay(){const k=kidById(cur()?.id),inp=$('#rsIn'),x=(inp?.value||'').trim();if(!k||kidBusy.has(k.id))return;if(kidMd(k)==='story'){kidTick(k);if(!k.scene&&!x)return;if(k.sleep>Date.now()&&!k.scene){toast('TA睡着了');return}const first=!k.scene;if(first)k.scene={place:'',t:Date.now(),n:0};kidSettle(k);if(x)(k.log||=[]).push({id:uid(),t:Date.now(),from:'me',sc:1,text:x});inp.value='';save();render(true);kidStory(k,x,first?'first':'go');return}
+  kidWake(){const k=kidById(cur()?.id);if(!k||!(k.sleep>Date.now()))return;kidTick(k);k.sleep=0;k.st.joy=Math.max(0,k.st.joy-12);kidLog(k,'act','叫醒TA');kidMem(k,'我睡得正香，你把我叫醒了');kidHurt(k,2,1);save();render(true);kidAsk(k,`${mask(kidChar(k)).name}把正在睡觉的TA叫醒了。`,'wake',['刚被吵醒'])},
+  kidSay(){const k=kidById(cur()?.id),inp=$('#rsIn'),x=(inp?.value||'').trim();if(!k||kidBusy.has(k.id))return;if(kidMd(k)==='story'){kidTick(k);if(!k.scene&&!x)return;if(k.sleep>Date.now()&&!k.scene){toast('TA睡着了');return}const first=!k.scene;if(first)k.scene={place:'',what:x.slice(0,40),t:Date.now(),n:0};kidSettle(k,'你陪着我');if(x)(k.log||=[]).push({id:uid(),t:Date.now(),from:'me',sc:1,text:x});k.refN=(k.refN||0)+1;inp.value='';save();render(true);kidStory(k,x,first?'first':'go').then(()=>kidReflect(k));return}
     if(!x)return;kidTick(k);if(k.sleep>Date.now()){toast('TA睡着了');return}
     const now=Date.now();if(now-(k.sayAt||0)>10*60e3){k.st.joy=Math.min(100,k.st.joy+3);k.bond=Math.min(100,(k.bond||0)+1);k.sayAt=now}
-    const st=kidNeeds(k),ev=kidSettle(k),on=kidOn(k);inp.value='';kidLog(k,'me',x,Date.now(),on);save();render(true);kidAsk(k,`${mask(kidChar(k)).name}${on?'在手机上给TA发消息':'对TA说'}：「${x}」${ev?`（是关于TA${ev}这件事）`:''}`,'say',st)},
+    const on=kidOn(k),st=kidNeeds(k),ev=kidSettle(k,`你${on?'在手机上':''}跟我说「${x.slice(0,40)}」`);inp.value='';kidLog(k,'me',x,Date.now(),on);k.refN=(k.refN||0)+1;save();render(true);kidAsk(k,`${mask(kidChar(k)).name}${on?'在手机上给TA发消息':'对TA说'}：「${x}」${ev?`（是关于TA${ev}这件事）`:''}`,'say',st).then(()=>kidReflect(k))},
   kidSet(){const k=kidById(cur()?.id);if(!k)return;
     sheet(`<h3>${esc(kidName(k))}</h3><label class="f">小名<input type="text" id="kdName" value="${esc(kidName(k))}"></label>
       <label class="f">现在几岁<span class="inline"><input type="number" id="kdY" min="0" max="60" value="${Math.floor(k.age/12)}" style="flex:1">岁<input type="number" id="kdM" min="0" max="11" value="${k.age%12}" style="flex:1">个月</span></label>
