@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.09.1';
+window.BYJ_VER='2026.11.09.2';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -192,23 +192,12 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .fold.inner div{background:linear-gradient(135deg,var(--accent-soft),transparent);border:1px dashed var(--accent);font-family:var(--cute);color:var(--deep)}
 .fold.think div{background:var(--bg2);border:1px solid var(--line);color:var(--muted);font-size:12.5px}
 .msg.me .fold{align-self:flex-end}
-.mind{align-self:flex-start;max-width:100%;font-size:13px}
-.mind summary{list-style:none;cursor:pointer;position:relative;display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:18px;padding:0 6px;margin:6px 0 4px 10px;border-radius:10px;background:var(--accent-soft);color:var(--deep);font:600 11px/1 var(--cute,inherit);box-shadow:0 0 0 1px var(--accent) inset;-webkit-tap-highlight-color:transparent}
-.mind summary::-webkit-details-marker{display:none}
-.mind summary::before,.mind summary::after{content:'';position:absolute;border-radius:50%;background:var(--accent-soft);box-shadow:0 0 0 1px var(--accent) inset}
-.mind summary::before{width:6px;height:6px;left:-3px;top:-4px}
-.mind summary::after{width:3px;height:3px;left:-7px;top:-8px}
-.mind[open] summary{background:var(--accent);color:#fff}
-.mind-card{margin-top:2px;padding:9px 12px;border-radius:14px;background:linear-gradient(135deg,var(--accent-soft),transparent);border:1px dashed var(--accent);display:flex;flex-direction:column;gap:4px;width:fit-content;max-width:100%;box-sizing:border-box}
-.mind-card .mh{font-size:11px;color:var(--muted);font-weight:400}
-.mi-in{margin:0;font-family:var(--cute);color:var(--deep);white-space:pre-wrap;word-break:break-word;line-height:1.55}
-.mi-th{margin:0;color:var(--muted);font-size:12px;white-space:pre-wrap;word-break:break-word;line-height:1.5;max-height:7.5em;overflow:auto}
-.mi-none{margin:0;font-size:12px;color:var(--muted)}
-.mind ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px}
-.mind li{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--deep)}
-.mind li span::before{content:'○ ';color:var(--accent)}
-.mind li button{margin-left:auto;border:0;background:none;color:var(--muted);font-size:12px;padding:2px 4px}
-.msg.me .mind{align-self:flex-end}
+.fold.todo div{background:var(--bg2);border:1px solid var(--line);color:var(--deep);font-size:12.5px;display:flex;flex-direction:column;gap:3px}
+.fold .td{margin:0;display:flex;align-items:center;gap:10px}
+.fold .td button{margin-left:auto;border:0;background:none;color:var(--muted);font-size:11.5px;padding:2px 4px}
+.fold .td.done,.fold .td.gone{color:var(--muted)}
+.fold .td.gone{text-decoration:line-through}
+.fold.think div{max-height:7.5em;overflow:auto}
 .dots{display:inline-flex;gap:5px;padding:5px 2px}
 .dots i{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:bl 1.2s infinite}
 .dots i:nth-child(2){animation-delay:.2s}.dots i:nth-child(3){animation-delay:.4s}
@@ -734,7 +723,8 @@ html.dark .mo-pic.tp{background:linear-gradient(150deg,#303030,#212121 60%,#2929
 .klog .k,.klog .m{max-width:86%;border-radius:16px;padding:7px 12px;font-size:14px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
 .klog .k{align-self:flex-start;background:var(--bub);border:1px solid var(--line);border-bottom-left-radius:6px}
 .klog .m{align-self:flex-end;background:var(--accent-soft);border-bottom-right-radius:6px}
-.klog .s{align-self:center;font-size:11.5px;color:var(--muted);text-align:center}.klog .kn{align-self:stretch;font-size:14.5px;line-height:1.85;white-space:pre-wrap;padding:2px 2px 6px;border-bottom:1px solid var(--line)}.klog .kn.me{font-style:italic;color:var(--deep);border:0;border-left:2px solid rgba(var(--accent-rgb),.45);padding:2px 0 2px 12px}.klog.story{max-height:60vh}.klog .k.on{border-style:dashed}.klog .m.on{border:1px dashed var(--line)}.klog .s.a{font-size:12.5px;color:var(--deep)}.klog .s.e{font-size:13px;color:var(--ink);background:var(--accent-soft);border-radius:12px;padding:4px 12px}.kev h2{font-size:15px}
+.klog .s{align-self:center;font-size:11.5px;color:var(--muted);text-align:center}.klog .kn{align-self:stretch;font-size:14.5px;line-height:1.85;white-space:pre-wrap;padding:2px 2px 6px;border-bottom:1px solid var(--line)}.klog .kn.me{font-style:italic;color:var(--deep);border:0;border-left:2px solid rgba(var(--accent-rgb),.45);padding:2px 0 2px 12px}.klog.story{max-height:60vh}.klog .k.on{border-style:dashed}
+.klog>[data-a=kidMsg]{cursor:pointer;-webkit-touch-callout:none}.klog .m.on{border:1px dashed var(--line)}.klog .s.a{font-size:12.5px;color:var(--deep)}.klog .s.e{font-size:13px;color:var(--ink);background:var(--accent-soft);border-radius:12px;padding:4px 12px}.kev h2{font-size:15px}
 .plr{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
 .plr>span{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.plr b{font-weight:400;font-size:15px;line-height:1.45;word-break:break-word}.plr small{font-size:11.5px;color:var(--muted)}
 .plr.done b{text-decoration:line-through;color:var(--muted)}
@@ -852,7 +842,8 @@ const INNER_OLD4='颜文字加一句没说出口的真心话，可以和嘴上�
 const INNER_OLD5='颜文字加一句没说出口的真心话，按人设和此刻的心情，可以和嘴上相反，20字内。';
 const INNER_OLD6='颜文字加一句没说出口的真心话，带着此刻的小情绪（得意、委屈、心虚、嫌弃、偷着乐都行），可以和嘴上相反，20字内。';
 const INNER_OLD7='一个软萌的颜文字（生气也是鼓着脸那种）加一句没说出口的真心话，带着此刻的小情绪（得意、委屈、心虚、嫌弃、偷着乐都行），可以和嘴上相反，20字内。';
-const INNER_DEF='一个软萌的颜文字加半句没说出口的真心话，带点小情绪，可以和嘴上相反，15字内。';
+const INNER_OLD8='一个软萌的颜文字加半句没说出口的真心话，带点小情绪，可以和嘴上相反，15字内。';
+const INNER_DEF='一句没说出口的真心话，带点小情绪，可以和嘴上相反，15字内，不用颜文字。';
 const OFF_STYLE_OLD='细腻，有画面感',OFF_STYLE_DEF='清爽干净';
 const THINK_OLD='用{{char}}自己的口吻、第一人称在心里过一遍：此刻的情绪、对{{user}}这句话的真实反应、打算怎么回。像内心独白，不要分析、不要列条目，120字以内。';
 const THINK_OLD2='用{{char}}自己的口吻在心里过一句：此刻真实的情绪和打算怎么回。一两句话，40字以内，不分析、不列条目。';
@@ -924,7 +915,7 @@ function mergeState(d){
   if(!s.presetV){const old=new Set([OLD_MAIN,ONLINE_OLD,ONLINE_DEF,OFFLINE_OLD,OFFLINE_DEF]);
     s.presets.forEach(p=>{const n=(p.items||[]).length;p.items=(p.items||[]).filter(i=>!old.has(i.content));if(p.items.length<n)BASE_ITEMS().slice(1).forEach(x=>p.items.push(x))});s.presetV=2}
   s.presets.forEach(p=>{(p.items||[]).forEach(i=>{if(i.content===ONLINE_OLD)i.content=ONLINE_DEF;if(i.content===OFFLINE_OLD)i.content=OFFLINE_DEF});p.items=(p.items||[]).filter(i=>i.content!==MAN_OLD)});
-  if([INNER_OLD,INNER_OLD2,INNER_OLD3,INNER_OLD4,INNER_OLD5,INNER_OLD6,INNER_OLD7].includes(s.chat.innerStyle))s.chat.innerStyle=INNER_DEF;
+  if([INNER_OLD,INNER_OLD2,INNER_OLD3,INNER_OLD4,INNER_OLD5,INNER_OLD6,INNER_OLD7,INNER_OLD8].includes(s.chat.innerStyle))s.chat.innerStyle=INNER_DEF;
   s.threads.forEach(t=>{delete t.face});delete s.chat.face;delete s.chat.faceLen;delete s.chat.faceStyle;
   if(!s.evV2){s.evV2=1;for(const o of [s.offline,...s.threads.map(t=>t.offline).filter(Boolean)])if(+o.evRate===30)o.evRate=10}
   if(!s.raise||typeof s.raise!=='object'||!Array.isArray(s.raise.kids))s.raise={kids:[]};s.raise.kids=s.raise.kids.filter(k=>k&&k.id&&k.st);
@@ -1036,6 +1027,7 @@ const ICONS={
   send:SV('<path d="M4 12l16-8-6 16-2.5-6.5z"/>'),
   smile:SV('<circle cx="12" cy="12" r="9"/><path d="M9 10h.01M15 10h.01M8.5 14.5c2 1.8 5 1.8 7 0"/>'),
   drop:SV('<path d="M12 3c3 4 6 7 6 10.5a6 6 0 0 1-12 0C6 10 9 7 12 3z"/>'),
+  todo:SV('<path d="M4 7l2 2 3-3M4 15l2 2 3-3M13 8h7M13 16h7"/>'),
   bubble:SV('<circle cx="10" cy="13" r="6"/><circle cx="18" cy="6" r="2.5"/><path d="M8 11a2.5 2.5 0 0 1 2.5-2"/>'),
   brain:SV('<path d="M9 4a3 3 0 0 0-3 3 3 3 0 0 0-2 5 3 3 0 0 0 2 5 3 3 0 0 0 6 0V5a2 2 0 0 0-3-1zM15 4a3 3 0 0 1 3 3 3 3 0 0 1 2 5 3 3 0 0 1-2 5 3 3 0 0 1-6 0"/>'),
   music:SV('<path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/>'),
@@ -1187,8 +1179,9 @@ const softMood=(w,v)=>{if(!w)return w;v=v??60;if(MOOD_BAD.test(w))return moodBy(
 // 心声里的颜文字：写在开头结尾都认；主屏头像下面显示的就是这一个
 const KAO_CH=/[()（）ω︿ᴗ´`•｡≧≦╥﹏>＜<^ˊˋ]/;
 const kaoIn=x=>(String(x||'').match(/[^\s\u4e00-\u9fff，。！？、：；“”‘’「」]{3,24}/g)||[]).find(k=>KAO_CH.test(k)&&!KAO_BAD.test(k))||'';
-// 模型没写颜文字时按心情补一个放开头，心声和头像下面的对得上
-const withKao=(x,v)=>{x=String(x||'').trim();return!x||kaoIn(x)?x:kaoOf('',v)+' '+x};
+// 心声不带颜文字了：写了也去掉（主屏头像下面的颜文字照旧按心情来）
+const noKao=x=>String(x||'').replace(/[^\s\u4e00-\u9fff，。！？、：；“”‘’「」…~～]{2,30}/g,k=>KAO_CH.test(k)||KAO_BAD.test(k)||/[✧♡♥☆★ﾉ و∀ᐛ]/.test(k)?'':k).replace(/[ \t]{2,}/g,' ').trim();
+const withKao=(x,v)=>noKao(x);
 function kaoOf(x,v){const k=kaoIn(x);if(k)return k;
   return v>=80?'(๑>ᴗ<๑)♡':v>=60?'(｡･ω･｡)':v>=40?'(´･ᴗ･`)':v>=20?'(｡•́︿•̀｡)':'(╥﹏╥)'}
 let sfxAC;
@@ -1644,7 +1637,8 @@ const bubbleCap=()=>Math.min(BUBBLE_MAX,Math.max(num(S.chat.onMax)||3,6));
 function capBubbles(res){const cap=bubbleCap(),n={};return res.filter(p=>(n[p.from]=(n[p.from]||0)+1)<=cap)}
 function attachExtras(parts,ex,ctx){
   if(!parts.length)return;
-  if(ex.think)parts[parts.length-1].think=ex.think;
+  if(ex.think)parts[0].think=ex.think;
+  for(const r of ex.todoRec||[]){const p=[...parts].reverse().find(p=>p.from===r.cid)||parts[parts.length-1];(p.todo||=[]).push({id:r.id,text:r.text,done:r.done?1:0})}
   if(!ex.inner.length)return;
   if(ctx.group){for(const x of ex.inner){const m=x.match(/^([^:：]{1,30})[:：]\s*([\s\S]*)$/);const c=m&&ctx.chars.find(c=>c.name===m[1].trim()||c.remark===m[1].trim());
       const target=c?[...parts].reverse().find(p=>p.from===c.id):parts[parts.length-1];if(target)target.inner=(target.inner?target.inner+'\n':'')+(c?withKao(m[2],tideOf(c)):x)}}
@@ -1654,15 +1648,15 @@ function attachExtras(parts,ex,ctx){
 const TODO_DAYS=7;
 const todosOf=c=>{const L=(c.todos||[]).filter(x=>Date.now()-x.t<TODO_DAYS*864e5);if(c.todos&&L.length!==c.todos.length)c.todos=L;return L};
 const todoNorm=x=>String(x).replace(/[\s，,。.!！？?~～、]/g,'');
-function applyTodo(ctx,ex){
+function applyTodo(ctx,ex){const rec=ex.todoRec=[];
   for(let x of ex.todo||[]){x=x.replace(/^[-·•*\d.、]+\s*/,'');let c=ctx.chars[0];
     const m=ctx.group&&x.match(/^([^:：]{1,30})[:：]\s*([\s\S]*)$/);if(m){const w=ctx.chars.find(c=>c.name===m[1].trim()||c.remark===m[1].trim());if(w){c=w;x=m[2]}}
     if(!c||!x||/^(无|没有|暂无|none)[。.]?$/i.test(x))continue;
     const L=todosOf(c),dn_=x.match(/^(?:完成|做完了?|已完成|搞定|不用了|取消|done|✓|✔)\s*[:：]?\s*(.*)$/i);
     if(dn_){const k=todoNorm(dn_[1]);if(!k)continue;const hit=L.find(y=>{const n=todoNorm(y.text);return n.includes(k)||k.includes(n)})||L.map(y=>({y,n:[...k].filter(ch=>todoNorm(y.text).includes(ch)).length})).sort((a,b)=>b.n-a.n).find(z=>z.n>=Math.min(4,[...k].length*.6))?.y;
-      if(hit)c.todos=L.filter(y=>y!==hit);continue}
+      if(hit){c.todos=L.filter(y=>y!==hit);rec.push({cid:c.id,id:hit.id,text:hit.text,done:1})}continue}
     x=x.slice(0,60);if(L.some(y=>todoNorm(y.text)===todoNorm(x)))continue;
-    L.push({id:uid(),text:x,t:Date.now()});c.todos=L.slice(-6)}}
+    const it={id:uid(),text:x,t:Date.now()};L.push(it);c.todos=L.slice(-6);rec.push({cid:c.id,id:it.id,text:x})}}
 function applyTide(ctx,ex){
   for(const x of ex.tide||[]){const m=x.match(/^(?:([^:：|｜]{1,30})[:：])?\s*(\d{1,3})\s*(?:[|｜/]\s*(.+))?$/);if(!m)continue;
     const c=m[1]?ctx.chars.find(c=>c.name===m[1].trim()||c.remark===m[1].trim()):ctx.chars[0];if(!c)continue;
@@ -1697,23 +1691,25 @@ function dmFor(cid){let t=S.threads.find(x=>x.type==='dm'&&x.chars[0]===cid);if(
   save()}return t}
 function threadTitle(t){return t.type==='dm'?dn(charById(t.chars[0])):(t.title||t.chars.map(id=>dn(charById(id))).join('、'))}
 function lastPreview(t){const m=t.msgs[t.msgs.length-1];if(!m)return'还没有消息';if(m.type==='sys')return m.content;const who=t.type==='group'&&m.from!=='me'?dn(charById(m.from))+'：':m.from==='me'?'我：':'';return who+pv(m)}
-// 心声 + 思维链收成一个小💭，点开是「想法」和「待办」
+// 每条回复：思维链（在消息前）→ 消息 → 想法（心声）→ 待办，都是文字小标签，点开看
 const mindSt={};
-function folds(m){const C=S.chat;if(!m.think&&!m.inner)return'';
-  const c=charById(m.from),L=c?todosOf(c):[],open=m.id in mindSt?mindSt[m.id]:!!C.innerOpen;
-  return`<details class="mind" data-id="${esc(m.id||'')}"${open?' open':''}><summary aria-label="${esc(C.innerName||'心声')}">?</summary><div class="mind-card">
-    <b class="mh">想法</b>${m.inner?`<p class="mi-in">${esc(cuteKao(m.inner))}</p>`:''}${m.think?`<p class="mi-th">${esc(m.think)}</p>`:''}
-    ${c&&C.inner?`<b class="mh">待办</b>${L.length?`<ul>${L.map(x=>`<li><span>${esc(x.text)}</span><button data-a="todoDone" data-c="${c.id}" data-id="${x.id}" aria-label="划掉">✓</button></li>`).join('')}</ul>`:'<p class="mi-none">还没有记着的事</p>'}`:''}</div></details>`}
-document.addEventListener('toggle',e=>{const d=e.target;if(d.classList?.contains('mind')&&d.dataset.id)mindSt[d.dataset.id]=d.open},true);
+const fOpen=(m,k,d)=>{const id=m.id+':'+k;return`data-fid="${esc(id)}"${(id in mindSt?mindSt[id]:d)?' open':''}`};
+function thinkFold(m){return m.think?`<details class="fold think" ${fOpen(m,'t',false)}><summary>${ICONS.brain}${esc(S.chat.thinkName||'思维链')}</summary><div>${esc(m.think)}</div></details>`:''}
+function folds(m){const C=S.chat;let h='';
+  if(m.inner)h+=`<details class="fold inner" ${fOpen(m,'i',!!C.innerOpen)}><summary>${ICONS.bubble}${esc(C.innerName&&C.innerName!=='心声'?C.innerName:'想法')}</summary><div>${esc(noKao(cuteKao(m.inner)))}</div></details>`;
+  if(m.todo?.length){const c=charById(m.from),L=c?todosOf(c):[];
+    h+=`<details class="fold todo" ${fOpen(m,'d',false)}><summary>${ICONS.todo}待办</summary><div>${m.todo.map(x=>x.done?`<p class="td done">✓ ${esc(x.text)}</p>`:L.some(y=>y.id===x.id)?`<p class="td">○ ${esc(x.text)}<button data-a="todoDone" data-c="${c.id}" data-id="${x.id}" aria-label="划掉">划掉</button></p>`:`<p class="td gone">${esc(x.text)}</p>`).join('')}</div></details>`}
+  return h}
+document.addEventListener('toggle',e=>{const d=e.target;if(d.dataset?.fid)mindSt[d.dataset.fid]=d.open},true);
 function bubble(t,m,i){
   if(m.recalled)return`<div class="stamp" data-mi="${i}" data-a="msg" data-i="${i}">${m.from==='me'?'你':esc(dn(charById(m.from))||'TA')}撤回了一条消息</div>`;
   if(m.type==='sys')return`<div class="stamp" data-mi="${i}">${esc(m.content)}</div>${m.letter?`<div class="letter">${esc(m.letter)}</div>`:''}${m.inner&&S.chat.inner?`<div class="msg ai"><div class="col" style="max-width:100%">${folds(m)}</div></div>`:''}`;
   const mine=m.from==='me',c=mine?null:charById(m.from),grp=t.type==='group';
-  if(m.type==='narr')return`<button class="narr${mine?' me':''}" data-mi="${i}" data-a="msg" data-i="${i}">${esc(m.content)}</button>${folds(m)?`<div class="msg ai"><div class="col" style="max-width:100%">${folds(m)}</div></div>`:''}`;
+  if(m.type==='narr')return`${!mine&&m.think?`<div class="msg ai"><div class="col" style="max-width:100%">${thinkFold(m)}</div></div>`:''}<button class="narr${mine?' me':''}" data-mi="${i}" data-a="msg" data-i="${i}">${esc(m.content)}</button>${folds(m)?`<div class="msg ai"><div class="col" style="max-width:100%">${folds(m)}</div></div>`:''}`;
   if(m.type==='theater'){const x=S.theaters.find(x=>x.id===m.thId);return x?`<div class="thmsg" data-mi="${i}">${thCard(x)}</div>`:`<div class="stamp" data-mi="${i}">小剧场《${esc(m.content||'')}》已经撕掉了</div>`}
   const inner=m.type==='sticker'?(()=>{const s=findSticker(m.content);return`<button class="stk" data-a="msg" data-i="${i}">${s?`<img src="${esc(s.src)}" alt="${esc(m.content)}">`:`<span class="bub">[${esc(m.content)}]</span>`}</button>`})()
     :richBody(t,m,i,mine,c);
-  return`<div class="msg ${mine?'me':'ai'}" data-mi="${i}">${mine?'':av(c||{name:'?'},40)}<div class="col">${grp&&!mine?`<span class="who">${esc(dn(c))}</span>`:''}${inner}${mine?(m.rejected?'<span class="rej"><i>!</i>被拒收</span>':'')+(m.by?`<span class="qt">${esc(dn(charById(m.by)))} 用你的手机发的</span>`:''):folds(m)}</div>${mine?av(mask(t),40):''}</div>`;
+  return`<div class="msg ${mine?'me':'ai'}" data-mi="${i}">${mine?'':av(c||{name:'?'},40)}<div class="col">${grp&&!mine?`<span class="who">${esc(dn(c))}</span>`:''}${mine?'':thinkFold(m)}${inner}${mine?(m.rejected?'<span class="rej"><i>!</i>被拒收</span>':'')+(m.by?`<span class="qt">${esc(dn(charById(m.by)))} 用你的手机发的</span>`:''):folds(m)}</div>${mine?av(mask(t),40):''}</div>`;
 }
 function richBody(t,m,i,mine,c){const tap=`data-a="msg" data-i="${i}"`;
   switch(m.type){
@@ -1821,7 +1817,7 @@ async function backfill(t,ctx,posted,lack){const C=S.chat,last=posted[posted.len
   const ask=[lack.think&&`思考：${mac(C.thinkStyle||THINK_DEF)}`,lack.inner&&`心声：${mac(c.innerStyle||C.innerStyle||INNER_DEF)}`].filter(Boolean);
   try{const txt=String(await callAI(sysFor(c,''),[{role:'user',content:`${recent?`最近的对话：\n${recent}\n\n`:''}${c.name}刚刚回的是：\n${said}\n\n按${c.name}的人设，用${c.name}自己的口吻、第一人称，输出${ask.length}行，别的都不要：\n${ask.join('\n')}`}],{max:512,side:true,temp:.8}));
     const pick=k=>(txt.match(new RegExp(k+'[:：]\\s*([^\\n]+)'))||[])[1]?.trim()||'';
-    if(lack.think){const x=brief(pick('思考'));if(x)([...posted].reverse().find(p=>p.from===c.id)||last).think=x}
+    if(lack.think){const x=brief(pick('思考'));if(x)posted[0].think=x}
     if(lack.inner){const x=withKao(cuteKao(pick('心声')),tideOf(c));if(x){const m=[...posted].reverse().find(p=>p.from===c.id)||last;m.inner=x}}
     save();onThreadUpdate(t);if(cur()?.v==='chat'&&cur().id===t.id)render(true)}catch(e){}}
 
@@ -2966,7 +2962,8 @@ kid(v){const k=kidById(v.id),c=k&&kidChar(k);if(!k||!c)return{title:'不见了',
   const bars=KID_ST.filter(([x])=>x!=='clean'||i<3).map(([x,n])=>`<span>${n}</span><span class="kbar${k.st[x]<30?' low':''}"><i style="width:${Math.round(k.st[x])}%"></i></span><em>${Math.round(k.st[x])}</em>`).join('');
   const acts=asleep?`<button class="btn o" data-a="kidWake" style="align-self:flex-start">叫醒TA</button><p class="hint">TA睡着了</p>`
     :`<div class="kacts">${kidActs(k).map(([x,a])=>`<button data-a="kidAct" data-k="${x}"${busy?' disabled':''}>${a.n[i]}</button>`).join('')}</div>`;
-  const log=(k.log||[]).slice(-40).map(x=>x.from==='sys'?`<div class="s">${esc(x.text)} · ${ago(x.t)}</div>`:x.from==='ev'?`<div class="s e">${esc(x.text)} · ${ago(x.t)}</div>`:x.from==='act'?`<div class="s a">— ${esc(x.text)} —</div>`:x.nar?`<div class="kn">${esc(x.text)}</div>`:x.sc?`<div class="kn me">${esc(x.text)}</div>`:`<div class="${x.from==='me'?'m':'k'}${x.on?' on':''}">${esc(x.text)}</div>`).join('')+(busy?'<div class="k"><span class="dots"><i></i><i></i><i></i></span></div>':'');
+  (k.log||[]).forEach(x=>{if(!x.id)x.id=uid()});
+  const log=(k.log||[]).slice(-40).map(x=>x.from==='sys'?`<div data-a="kidMsg" data-id="${x.id}" class="s">${esc(x.text)} · ${ago(x.t)}</div>`:x.from==='ev'?`<div data-a="kidMsg" data-id="${x.id}" class="s e">${esc(x.text)} · ${ago(x.t)}</div>`:x.from==='act'?`<div data-a="kidMsg" data-id="${x.id}" class="s a">— ${esc(x.text)} —</div>`:x.nar?`<div data-a="kidMsg" data-id="${x.id}" class="kn">${esc(x.text)}</div>`:x.sc?`<div data-a="kidMsg" data-id="${x.id}" class="kn me">${esc(x.text)}</div>`:`<div data-a="kidMsg" data-id="${x.id}" class="${x.from==='me'?'m':'k'}${x.on?' on':''}">${esc(x.text)}</div>`).join('')+(busy?'<div class="k"><span class="dots"><i></i><i></i><i></i></span></div>':'');
   return{title:kidName(k),sub:ageText(k.age)+' · '+kidStage(k.age)+(k.pause?' · 不长大了':''),right:HEART+`<button class="tb" data-a="kidSet" aria-label="设置">···</button>`,body:`
   <div class="panel"><div class="kidh">${av(c,58)}<span><b>${esc(kidName(k))}</b><small>${grown?'长成了现在的':'小时候的'}${esc(dn(c))} · ${kidFeel(k).replaceAll('TA','你')}</small><span class="btns">${kidNeeds(k).map(x=>`<span class="pill">${esc(x)}</span>`).join('')}</span></span></div>
     <div class="kbars">${bars}<span>长大</span><span class="kbar"><i style="width:${g}%"></i></span><em>${grown?'满':k.pause?'停':g}</em></div>
@@ -3602,6 +3599,10 @@ const A={
     m.innerHTML=(tk?`<i class="mp-h" style="border-top:0">只换${esc(v.v==='kid'?'养成里的'+kidName(tk):tk.type==='group'?'这个群':dn(charById(tk.chars[0])))}</i>`:'')+S.api.profiles.map(p=>`<button class="${p.id===a?.id?'on':''}" data-a="mpPick" data-id="${p.id}"><b>${esc(p.name)}</b><small>${esc(p.model||'')}${tk&&!pin&&p.id===a?.id?' · 默认':''}</small></button>`).join('')+(tk&&pin?`<button data-a="mpPick" data-id=""><b>跟默认走</b><small>${esc(v.v==='kid'?api(kidChar(tk)?.id)?.name||'':apiById(S.api.active)?.name||'')}${v.v==='kid'?' · 跟'+esc(dn(kidChar(tk))):''}</small></button>`:'')+(()=>{const L=imgSync();return L.length>1?'<i class="mp-h">生图</i>'+L.map(p=>`<button class="${p.id===S.media.img.pid?'on':''}" data-a="mpImg" data-id="${p.id}"><b>${esc(p.name||'生图')}</b><small>${esc(p.model||'')}</small></button>`).join(''):''})()+'<button class="mp-set" data-a="apiManage">设置</button>';
     document.body.appendChild(m);const r=el.getBoundingClientRect();m.style.top=(r.bottom+6)+'px';m.style.right=Math.max(8,innerWidth-r.right-6)+'px';
     const off=e=>{if(!e.target.closest('#mpop,[data-a=apiSwitch]')){m.remove();document.removeEventListener('pointerdown',off,true)}};document.addEventListener('pointerdown',off,true)},
+  kidMsg(el){const k=kidById(cur()?.id),x=k&&(k.log||[]).find(x=>x.id===el.dataset.id);if(!x)return;
+    sheet(`<p class="hint" style="margin:0 4px 6px;max-height:5.4em;overflow:hidden">${esc(x.text)}</p><button class="opt" data-a="kidMsgCopy" data-id="${x.id}">复制</button><button class="opt red" data-a="kidMsgDel" data-id="${x.id}">删除这条</button>${CANCEL}`)},
+  kidMsgCopy(el){const k=kidById(cur()?.id),x=k&&(k.log||[]).find(x=>x.id===el.dataset.id);closeSheet();if(x)copy(x.text,'复制好了')},
+  kidMsgDel(el){const k=kidById(cur()?.id);if(!k)return;k.log=(k.log||[]).filter(x=>x.id!==el.dataset.id);save();closeSheet();render(true)},
   todoDone(el){const c=charById(el.dataset.c);if(!c)return;c.todos=todosOf(c).filter(x=>x.id!==el.dataset.id);save();render(true)},
   mpPick(el){$('#mpop')?.remove();const id=el.dataset.id,v=cur(),t=v?.v==='chat'?thread(v.id):null;
     if(v?.v==='kid'){const k=kidById(v.id);if(!k||(k.api||'')===id)return;if(id)k.api=id;else delete k.api;save();render(true);toast('♡ 养成 · '+kidName(k)+'：'+api(k).name+(id?'':'（跟'+dn(kidChar(k))+'）'));return}
