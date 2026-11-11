@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.08.1';
+window.BYJ_VER='2026.11.09.3';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -192,6 +192,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .fold.inner div{background:linear-gradient(135deg,var(--accent-soft),transparent);border:1px dashed var(--accent);font-family:var(--cute);color:var(--deep)}
 .fold.think div{background:var(--bg2);border:1px solid var(--line);color:var(--muted);font-size:12.5px}
 .msg.me .fold{align-self:flex-end}
+.fold.think div{max-height:7.5em;overflow:auto}
 .dots{display:inline-flex;gap:5px;padding:5px 2px}
 .dots i{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:bl 1.2s infinite}
 .dots i:nth-child(2){animation-delay:.2s}.dots i:nth-child(3){animation-delay:.4s}
@@ -717,7 +718,8 @@ html.dark .mo-pic.tp{background:linear-gradient(150deg,#303030,#212121 60%,#2929
 .klog .k,.klog .m{max-width:86%;border-radius:16px;padding:7px 12px;font-size:14px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
 .klog .k{align-self:flex-start;background:var(--bub);border:1px solid var(--line);border-bottom-left-radius:6px}
 .klog .m{align-self:flex-end;background:var(--accent-soft);border-bottom-right-radius:6px}
-.klog .s{align-self:center;font-size:11.5px;color:var(--muted);text-align:center}.klog .kn{align-self:stretch;font-size:14.5px;line-height:1.85;white-space:pre-wrap;padding:2px 2px 6px;border-bottom:1px solid var(--line)}.klog .kn.me{font-style:italic;color:var(--deep);border:0;border-left:2px solid rgba(var(--accent-rgb),.45);padding:2px 0 2px 12px}.klog.story{max-height:60vh}.klog .k.on{border-style:dashed}.klog .m.on{border:1px dashed var(--line)}.klog .s.a{font-size:12.5px;color:var(--deep)}.klog .s.e{font-size:13px;color:var(--ink);background:var(--accent-soft);border-radius:12px;padding:4px 12px}.kev h2{font-size:15px}
+.klog .s{align-self:center;font-size:11.5px;color:var(--muted);text-align:center}.klog .kn{align-self:stretch;font-size:14.5px;line-height:1.85;white-space:pre-wrap;padding:2px 2px 6px;border-bottom:1px solid var(--line)}.klog .kn.me{font-style:italic;color:var(--deep);border:0;border-left:2px solid rgba(var(--accent-rgb),.45);padding:2px 0 2px 12px}.klog.story{max-height:60vh}.klog .k.on{border-style:dashed}
+.klog>[data-a=kidMsg]{cursor:pointer;-webkit-touch-callout:none}.klog .m.on{border:1px dashed var(--line)}.klog .s.a{font-size:12.5px;color:var(--deep)}.klog .s.e{font-size:13px;color:var(--ink);background:var(--accent-soft);border-radius:12px;padding:4px 12px}.kev h2{font-size:15px}
 .plr{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
 .plr>span{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.plr b{font-weight:400;font-size:15px;line-height:1.45;word-break:break-word}.plr small{font-size:11.5px;color:var(--muted)}
 .plr.done b{text-decoration:line-through;color:var(--muted)}
@@ -834,7 +836,9 @@ const INNER_OLD3='一个萌萌的颜文字加一句话，写{{char}}此刻没说
 const INNER_OLD4='颜文字加一句没说出口的真心话，可以和嘴上相反，20字内。如「(｡•́︿•̀｡) 其实有点想你」';
 const INNER_OLD5='颜文字加一句没说出口的真心话，按人设和此刻的心情，可以和嘴上相反，20字内。';
 const INNER_OLD6='颜文字加一句没说出口的真心话，带着此刻的小情绪（得意、委屈、心虚、嫌弃、偷着乐都行），可以和嘴上相反，20字内。';
-const INNER_DEF='一个软萌的颜文字（生气也是鼓着脸那种）加一句没说出口的真心话，带着此刻的小情绪（得意、委屈、心虚、嫌弃、偷着乐都行），可以和嘴上相反，20字内。';
+const INNER_OLD7='一个软萌的颜文字（生气也是鼓着脸那种）加一句没说出口的真心话，带着此刻的小情绪（得意、委屈、心虚、嫌弃、偷着乐都行），可以和嘴上相反，20字内。';
+const INNER_OLD8='一个软萌的颜文字加半句没说出口的真心话，带点小情绪，可以和嘴上相反，15字内。';
+const INNER_DEF='一句没说出口的真心话，带点小情绪，可以和嘴上相反，15字内，不用颜文字。';
 const OFF_STYLE_OLD='细腻，有画面感',OFF_STYLE_DEF='清爽干净';
 const THINK_OLD='用{{char}}自己的口吻、第一人称在心里过一遍：此刻的情绪、对{{user}}这句话的真实反应、打算怎么回。像内心独白，不要分析、不要列条目，120字以内。';
 const THINK_OLD2='用{{char}}自己的口吻在心里过一句：此刻真实的情绪和打算怎么回。一两句话，40字以内，不分析、不列条目。';
@@ -842,7 +846,8 @@ const THINK_OLD3='想{{user}}刚才的话和举动：TA什么意思、想要什�
 const THINK_OLD4='站在{{char}}的位置想：{{user}}这句话什么意思、想要什么；{{char}}真实的反应；接下来怎么回、怎么做。60字以内，不列条目。';
 const THINK_OLD5='想清楚：{{user}}什么意思、想要什么，{{char}}真实的反应，接下来怎么回、怎么做。60字内。';
 const THINK_OLD6='用{{char}}的心思盘算：{{user}}什么意思、想要什么，接下来怎么回、怎么做。60字内。';
-const THINK_DEF='用{{char}}的心思盘算：{{user}}什么意思，{{char}}自己想怎么做，接下来怎么回。60字内。';
+const THINK_OLD7='用{{char}}的心思盘算：{{user}}什么意思，{{char}}自己想怎么做，接下来怎么回。60字内。';
+const THINK_DEF='一两句话，{{char}}心里打算怎么回。30字内，不分析不列条目。';
 const CHAT_DEF=()=>({lean:true,onMax:3,onLen:10,casual:true,ctx:80,sumEvery:30,inner:true,innerOpen:false,innerName:'心声',innerStyle:INNER_DEF,think:true,thinkName:'思维链',thinkSrc:'char',thinkStyle:THINK_DEF,effort:'',scan:8});
 const PERSONA_TPL='姓名：\n年龄：\n性别：\n身份/职业：\n外貌：\n性格：\n说话方式：\n喜欢：\n讨厌：\n背景经历：\n和{{user}}的关系：';
 const TH_FMTS=()=>[
@@ -901,11 +906,11 @@ function mergeState(d){
   s.wx=s.wx&&typeof s.wx==='object'?s.wx:{};s.hol=s.hol&&typeof s.hol==='object'?s.hol:{};
   if(!Array.isArray(s.cards))s.cards=[];if(!Array.isArray(s.personaTpls))s.personaTpls=def().personaTpls;delete s.notes;delete s.caps;delete s.health;
   s.presets.forEach(p=>(p.items||[]).forEach(i=>{if(i.content===LANG_OLD)i.content=LANG_DEF}));
-  if([THINK_OLD,THINK_OLD2,THINK_OLD3,THINK_OLD4,THINK_OLD5,THINK_OLD6].includes(s.chat.thinkStyle))s.chat.thinkStyle=THINK_DEF;
+  if([THINK_OLD,THINK_OLD2,THINK_OLD3,THINK_OLD4,THINK_OLD5,THINK_OLD6,THINK_OLD7].includes(s.chat.thinkStyle))s.chat.thinkStyle=THINK_DEF;
   if(!s.presetV){const old=new Set([OLD_MAIN,ONLINE_OLD,ONLINE_DEF,OFFLINE_OLD,OFFLINE_DEF]);
     s.presets.forEach(p=>{const n=(p.items||[]).length;p.items=(p.items||[]).filter(i=>!old.has(i.content));if(p.items.length<n)BASE_ITEMS().slice(1).forEach(x=>p.items.push(x))});s.presetV=2}
   s.presets.forEach(p=>{(p.items||[]).forEach(i=>{if(i.content===ONLINE_OLD)i.content=ONLINE_DEF;if(i.content===OFFLINE_OLD)i.content=OFFLINE_DEF});p.items=(p.items||[]).filter(i=>i.content!==MAN_OLD)});
-  if([INNER_OLD,INNER_OLD2,INNER_OLD3,INNER_OLD4,INNER_OLD5,INNER_OLD6].includes(s.chat.innerStyle))s.chat.innerStyle=INNER_DEF;
+  if([INNER_OLD,INNER_OLD2,INNER_OLD3,INNER_OLD4,INNER_OLD5,INNER_OLD6,INNER_OLD7,INNER_OLD8].includes(s.chat.innerStyle))s.chat.innerStyle=INNER_DEF;
   s.threads.forEach(t=>{delete t.face});delete s.chat.face;delete s.chat.faceLen;delete s.chat.faceStyle;
   if(!s.evV2){s.evV2=1;for(const o of [s.offline,...s.threads.map(t=>t.offline).filter(Boolean)])if(+o.evRate===30)o.evRate=10}
   if(!s.raise||typeof s.raise!=='object'||!Array.isArray(s.raise.kids))s.raise={kids:[]};s.raise.kids=s.raise.kids.filter(k=>k&&k.id&&k.st);
@@ -950,8 +955,9 @@ const boundMask=x=>{if(!x)return null;if(typeof x==='string')x=charById(x);else 
   return x&&x.mask?S.masks.find(m=>m.id===x.mask)||null:null};
 const mask=x=>boundMask(x)||S.masks.find(m=>m.id===S.activeMask)||S.masks[0];
 const preset=()=>S.presets.find(p=>p.id===S.activePreset)||S.presets[0];
-// 每个角色（群聊按群）可以单独选接口：c.api / t.api；没选就跟默认（S.api.active）
-const apiPin=k=>{if(!k)return'';const x=typeof k==='string'?(S.chars.find(c=>c.id===k)||S.threads.find(t=>t.id===k)):k;if(!x)return'';
+// 每个角色（群聊按群）可以单独选接口：c.api / t.api；养成里的小孩 k.api（没选就跟 TA 本人）；都没选就跟默认（S.api.active）
+const apiPin=k=>{if(!k)return'';const x=typeof k==='string'?(S.chars.find(c=>c.id===k)||S.threads.find(t=>t.id===k)||kidById(k)):k;if(!x)return'';
+  if(x.charId&&x.st)return x.api||apiPin(x.charId);
   if(Array.isArray(x.chars))return x.api||(x.type!=='group'?S.chars.find(c=>c.id===x.chars[0])?.api||'':'');return x.api||''};
 const api=k=>{const id=apiPin(k);return(id&&S.api.profiles.find(p=>p.id===id))||S.api.profiles.find(p=>p.id===S.api.active)||S.api.profiles[0]};
 const WHO=new Map();const whoTag=(sys,k)=>{if(k&&sys){WHO.delete(sys);WHO.set(sys,k);if(WHO.size>60)WHO.delete(WHO.keys().next().value)}return sys};
@@ -1167,8 +1173,9 @@ const softMood=(w,v)=>{if(!w)return w;v=v??60;if(MOOD_BAD.test(w))return moodBy(
 // 心声里的颜文字：写在开头结尾都认；主屏头像下面显示的就是这一个
 const KAO_CH=/[()（）ω︿ᴗ´`•｡≧≦╥﹏>＜<^ˊˋ]/;
 const kaoIn=x=>(String(x||'').match(/[^\s\u4e00-\u9fff，。！？、：；“”‘’「」]{3,24}/g)||[]).find(k=>KAO_CH.test(k)&&!KAO_BAD.test(k))||'';
-// 模型没写颜文字时按心情补一个放开头，心声和头像下面的对得上
-const withKao=(x,v)=>{x=String(x||'').trim();return!x||kaoIn(x)?x:kaoOf('',v)+' '+x};
+// 心声不带颜文字了：写了也去掉（主屏头像下面的颜文字照旧按心情来）
+const noKao=x=>String(x||'').replace(/[^\s\u4e00-\u9fff，。！？、：；“”‘’「」…~～]{2,30}/g,k=>KAO_CH.test(k)||KAO_BAD.test(k)||/[✧♡♥☆★ﾉ و∀ᐛ]/.test(k)?'':k).replace(/[ \t]{2,}/g,' ').trim();
+const withKao=(x,v)=>noKao(x);
 function kaoOf(x,v){const k=kaoIn(x);if(k)return k;
   return v>=80?'(๑>ᴗ<๑)♡':v>=60?'(｡･ω･｡)':v>=40?'(´･ᴗ･`)':v>=20?'(｡•́︿•̀｡)':'(╥﹏╥)'}
 let sfxAC;
@@ -1370,6 +1377,10 @@ function msgText(m,group){
   return group?`${charById(m.from)?.name||'?'}：${body}`:body;
 }
 function nowText(){const d=locNow(),h=d.getHours();const per=h<5?'深夜':h<8?'清晨':h<11?'上午':h<13?'中午':h<17?'下午':h<19?'傍晚':h<23?'晚上':'深夜';return`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 星期${WK[d.getDay()]} ${pad(h)}:${pad(d.getMinutes())}（${per}）${(o=>o?o.off?`，今天放假${o.name?'（'+o.name+'）':''}`:`，今天${o.name?o.name+'调休':''}补班`:'')(dayOff(d))}`}
+// 按 S.loc 的时区：某个时间点离今天差几天、写成「11月8日 星期日」
+const dayDiff=t=>Math.round((locNow().setHours(0,0,0,0)-locDate(t).setHours(0,0,0,0))/864e5);
+const dayLabel=t=>{const d=locDate(t);return`${d.getMonth()+1}月${d.getDate()}日 星期${WK[d.getDay()]}`};
+const dayWord=n=>n===1?'昨天':n===2?'前天':n+'天前';
 const dayKey=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
 function logEvent(who,text){text=String(text).replace(/\s+/g,' ').trim();(S.events||=[]).push({id:uid(),t:Date.now(),who,me:mask(who).id,text:wholeText(text,120)});if(S.events.length>1000)S.events.splice(0,S.events.length-1000)}
 // 近事清空/删除是永久的：记在 evWipe（清空时间）、memWipe（删很久以前的记忆）、evGone（单条删掉的），恢复备份后会再套一遍
@@ -1439,7 +1450,8 @@ function buildCtx(t,o={}){
     const md=new Date(lastMeet[0].t);
     ctxs.push(`【上次见面】（${md.getMonth()+1}月${md.getDate()}日 ${pad(md.getHours())}:${pad(md.getMinutes())}，已结束）\n${txt.length>3000?'…'+txt.slice(-3000):txt}`)}
   {const ms=t.msgs.filter(m=>m.type!=='sys'),g=ms.length>1?ms[ms.length-1].t-ms[ms.length-2].t:0;
-    tail.push('【现在】'+nowText()+(g>2*3600e3?`，距上次说话${gapText(g)}`:''));
+    let j=ms.length-1;while(j>0&&ms[j].from==='me')j--;const dd=ms[j]?dayDiff(ms[j].t):0;
+    tail.push('【现在】'+nowText()+(g>2*3600e3?`，距上次说话${gapText(g)}`:'')+(dd>0?`\n上次聊是${dayWord(dd)}（${dayLabel(ms[j].t)}），现在已经是新的一天。记录里那时说的「今天」「今晚」「明天」都是按那天说的，别当成今天；现在说今天就是指${dayLabel(Date.now())}。`:''));
     const wd=worldFor(chars);if(wd)tail.push(wd);
     const d0=new Date().setHours(0,0,0,0);if(myDays(me).some(x=>x.in===0&&chars.some(c=>c.id===x.who))&&t.msgs.some(m=>m.from==='me'&&m.t>=d0&&/生日快乐|happy birthday/i.test(m.content||'')))tail.push(`【生日】${me.name}今天说过生日快乐了。`);
     chars.forEach(c=>{const x=kidKnow(c);if(x)tail.push(x)});
@@ -1504,8 +1516,10 @@ function buildCtx(t,o={}){
   const pre=items.filter(i=>i.role!=='system'&&!inChat(i)).map(i=>({role:i.role,content:mac(i.content)}));
   const nameOf=m=>m.from==='me'?me.name:charById(m.from)?.name||cname;
   const imgIdx=new Set(hist.map((m,i)=>m.type==='img'&&m.img?i:-1).filter(i=>i>=0).slice(-3));
-  const rows=[];let run=null;
+  const rows=[];let run=null,dk0='';
   hist.forEach((m,i)=>{
+    // 换天的地方插一行日期，模型才分得清「今天」说的是哪天（写死日期，不会让缓存失效）
+    if(mode!=='offline'&&m.t){const k=dayLabel(m.t);if(k!==dk0){dk0=k;rows.push({role:'user',content:`（—— ${k} ——）`});run=null}}
     if(mode==='offline'){if(m.type==='narr')rows.push({role:m.from==='me'?'user':'assistant',content:m.content});return}
     if(m.type==='narr'){if(!run){run={role:'user',content:'（下面是你们见面时的经过，已经结束了，只是记忆）'};rows.push(run)}run.content+='\n'+nameOf(m)+'：'+(lastMeet.includes(m)?wholeText(m.content,4000):wholeText(m.content,800));return}
     if(!isMark(m))run=null;
@@ -1554,6 +1568,8 @@ function stripPlan(out,thinkOn){const me=mask().name,lines=out.split('\n'),cut=[
     if(/你|您|[\[<？?]/.test(l))break;
     if(!(who.test(l)&&PLAN_CUE.test(l))&&mulls(l)<(thinkOn?2:3))break;cut.push(l);lines.shift()}
   const rest=lines.join('\n').trim();return rest?{out:rest,plan:cut.join('\n')}:{out,plan:''}}
+// 思维链只留一两句
+function brief(x){x=String(x||'').trim();if(!x)return'';const ss=(x.match(/[^。！？!?…~～\n]+[。！？!?…~～]*/g)||[]).map(z=>z.trim()).filter(Boolean);let o=ss.slice(0,2).join('');if([...o].length>70)o=[...o].slice(0,68).join('')+'…';return o}
 function extractExtras(out,chat=true){
   let think='',inner=[];
   out=out.replace(new RegExp(`<(${THINK_TAG})>([\\s\\S]*?)<\\/\\1>`,'gi'),(_,t,x)=>{think+=x.trim()+'\n';return''});
@@ -1561,7 +1577,8 @@ function extractExtras(out,chat=true){
   out=out.replace(new RegExp(`^\\s*<(?:${THINK_TAG})>([\\s\\S]*?)(\\n\\s*\\n|\\n|$)`,'i'),(_,x)=>{think+=x.trim();return''});
   out=out.replace(new RegExp(`^\\s*[【\\[](?:${THINK_TAG})[】\\]]\\s*[:：]?([^\\n]*)\\n`,'i'),(_,x)=>{think+=x.trim();return''});
   out=out.replace(/<(inner|心声)>([\s\S]*?)<\/\1>/gi,(_,t,x)=>{inner.push(cuteKao(x.trim()));return''});
-  out=out.replace(/<(inner|心声)>([\s\S]*?)(?=<reply>|<tide>|$)/i,(_,t,x)=>{inner.push(cuteKao(x.trim()));return''});
+  out=out.replace(/<(todo|待办)>[\s\S]*?<\/\1>/gi,'');
+  out=out.replace(/<(inner|心声)>([\s\S]*?)(?=<reply>|<tide>|<todo>|$)/i,(_,t,x)=>{inner.push(cuteKao(x.trim()));return''});
   let fmt=false;
   if(/<reply>/i.test(out)){fmt=true;const body=[];
     const rest=out.replace(/<reply>([\s\S]*?)(?:<\/reply>|(?=<tide>|<profile>)|$)/gi,(_,x)=>{body.push(x.trim());return'\n'}).replace(/<\/reply>/gi,'').replace(/<(tide|profile)>[\s\S]*?<\/\1>/gi,'');
@@ -1574,6 +1591,7 @@ function extractExtras(out,chat=true){
   out=out.replace(/<profile>([\s\S]*?)<\/profile>/gi,(_,x)=>{prof.push(x.trim());return''});
   const cards=[];out=out.replace(/\[送亲属卡[:：]\s*([\d.]*)[^\]]*\]/g,(_,a)=>{cards.push({give:1,amt:Math.max(0,+a||0)});return''}).replace(/\[刷亲属卡[:：]([^:：\]]+)[:：]\s*([\d.]+)[^\]]*\]/g,(_,w,a)=>{cards.push({what:w.trim(),amt:+a||0});return''});
   out=out.replace(/\[(拉黑|解除拉黑|删除好友|沉默|收下|退回|语音通话|视频通话|拒接|挂断|查手机)\]/g,(_,x)=>{acts.push(x);return''});
+  if(!(S.chat.think&&S.chat.thinkSrc==='model'))think=brief(think);
   return{text:out.trim(),think:think.trim(),inner,tide,acts,prof,cards,fmt};
 }
 async function sortLeak(ex,ctx){const lines=ex.text.split('\n').map(l=>l.trim()).filter(Boolean),mark=l=>/^\[[^\]]+\]$/.test(l);
@@ -1651,19 +1669,23 @@ function dmFor(cid){let t=S.threads.find(x=>x.type==='dm'&&x.chars[0]===cid);if(
   save()}return t}
 function threadTitle(t){return t.type==='dm'?dn(charById(t.chars[0])):(t.title||t.chars.map(id=>dn(charById(id))).join('、'))}
 function lastPreview(t){const m=t.msgs[t.msgs.length-1];if(!m)return'还没有消息';if(m.type==='sys')return m.content;const who=t.type==='group'&&m.from!=='me'?dn(charById(m.from))+'：':m.from==='me'?'我：':'';return who+pv(m)}
+// 每条回复：思维链（在消息前）→ 消息 → 想法（心声），都是文字小标签，点开看
+const mindSt={};
+const fOpen=(m,k,d)=>{const id=m.id+':'+k;return`data-fid="${esc(id)}"${(id in mindSt?mindSt[id]:d)?' open':''}`};
+function thinkFold(m){return m.think?`<details class="fold think" ${fOpen(m,'t',false)}><summary>${ICONS.brain}${esc(S.chat.thinkName||'思维链')}</summary><div>${esc(m.think)}</div></details>`:''}
 function folds(m){const C=S.chat;let h='';
-  if(m.think)h+=`<details class="fold think"><summary>${ICONS.brain}${esc(C.thinkName||'思维链')}</summary><div>${esc(m.think)}</div></details>`;
-  if(m.inner)h+=`<details class="fold inner" ${C.innerOpen?'open':''}><summary>${ICONS.bubble}${esc(C.innerName||'心声')}</summary><div>${esc(cuteKao(m.inner))}</div></details>`;
+  if(m.inner)h+=`<details class="fold inner" ${fOpen(m,'i',!!C.innerOpen)}><summary>${ICONS.bubble}${esc(C.innerName&&C.innerName!=='心声'?C.innerName:'想法')}</summary><div>${esc(noKao(cuteKao(m.inner)))}</div></details>`;
   return h}
+document.addEventListener('toggle',e=>{const d=e.target;if(d.dataset?.fid)mindSt[d.dataset.fid]=d.open},true);
 function bubble(t,m,i){
   if(m.recalled)return`<div class="stamp" data-mi="${i}" data-a="msg" data-i="${i}">${m.from==='me'?'你':esc(dn(charById(m.from))||'TA')}撤回了一条消息</div>`;
   if(m.type==='sys')return`<div class="stamp" data-mi="${i}">${esc(m.content)}</div>${m.letter?`<div class="letter">${esc(m.letter)}</div>`:''}${m.inner&&S.chat.inner?`<div class="msg ai"><div class="col" style="max-width:100%">${folds(m)}</div></div>`:''}`;
   const mine=m.from==='me',c=mine?null:charById(m.from),grp=t.type==='group';
-  if(m.type==='narr')return`<button class="narr${mine?' me':''}" data-mi="${i}" data-a="msg" data-i="${i}">${esc(m.content)}</button>${folds(m)?`<div class="msg ai"><div class="col" style="max-width:100%">${folds(m)}</div></div>`:''}`;
+  if(m.type==='narr')return`${!mine&&m.think?`<div class="msg ai"><div class="col" style="max-width:100%">${thinkFold(m)}</div></div>`:''}<button class="narr${mine?' me':''}" data-mi="${i}" data-a="msg" data-i="${i}">${esc(m.content)}</button>${folds(m)?`<div class="msg ai"><div class="col" style="max-width:100%">${folds(m)}</div></div>`:''}`;
   if(m.type==='theater'){const x=S.theaters.find(x=>x.id===m.thId);return x?`<div class="thmsg" data-mi="${i}">${thCard(x)}</div>`:`<div class="stamp" data-mi="${i}">小剧场《${esc(m.content||'')}》已经撕掉了</div>`}
   const inner=m.type==='sticker'?(()=>{const s=findSticker(m.content);return`<button class="stk" data-a="msg" data-i="${i}">${s?`<img src="${esc(s.src)}" alt="${esc(m.content)}">`:`<span class="bub">[${esc(m.content)}]</span>`}</button>`})()
     :richBody(t,m,i,mine,c);
-  return`<div class="msg ${mine?'me':'ai'}" data-mi="${i}">${mine?'':av(c||{name:'?'},40)}<div class="col">${grp&&!mine?`<span class="who">${esc(dn(c))}</span>`:''}${inner}${mine?(m.rejected?'<span class="rej"><i>!</i>被拒收</span>':'')+(m.by?`<span class="qt">${esc(dn(charById(m.by)))} 用你的手机发的</span>`:''):folds(m)}</div>${mine?av(mask(t),40):''}</div>`;
+  return`<div class="msg ${mine?'me':'ai'}" data-mi="${i}">${mine?'':av(c||{name:'?'},40)}<div class="col">${grp&&!mine?`<span class="who">${esc(dn(c))}</span>`:''}${mine?'':thinkFold(m)}${inner}${mine?(m.rejected?'<span class="rej"><i>!</i>被拒收</span>':'')+(m.by?`<span class="qt">${esc(dn(charById(m.by)))} 用你的手机发的</span>`:''):folds(m)}</div>${mine?av(mask(t),40):''}</div>`;
 }
 function richBody(t,m,i,mine,c){const tap=`data-a="msg" data-i="${i}"`;
   switch(m.type){
@@ -1771,7 +1793,7 @@ async function backfill(t,ctx,posted,lack){const C=S.chat,last=posted[posted.len
   const ask=[lack.think&&`思考：${mac(C.thinkStyle||THINK_DEF)}`,lack.inner&&`心声：${mac(c.innerStyle||C.innerStyle||INNER_DEF)}`].filter(Boolean);
   try{const txt=String(await callAI(sysFor(c,''),[{role:'user',content:`${recent?`最近的对话：\n${recent}\n\n`:''}${c.name}刚刚回的是：\n${said}\n\n按${c.name}的人设，用${c.name}自己的口吻、第一人称，输出${ask.length}行，别的都不要：\n${ask.join('\n')}`}],{max:512,side:true,temp:.8}));
     const pick=k=>(txt.match(new RegExp(k+'[:：]\\s*([^\\n]+)'))||[])[1]?.trim()||'';
-    if(lack.think){const x=pick('思考');if(x)posted[0].think=x}
+    if(lack.think){const x=brief(pick('思考'));if(x)posted[0].think=x}
     if(lack.inner){const x=withKao(cuteKao(pick('心声')),tideOf(c));if(x){const m=[...posted].reverse().find(p=>p.from===c.id)||last;m.inner=x}}
     save();onThreadUpdate(t);if(cur()?.v==='chat'&&cur().id===t.id)render(true)}catch(e){}}
 
@@ -1816,9 +1838,9 @@ const sumBlock=t=>[t.summary?'【之前的事】\n'+t.summary:'',t.keep?'【不�
 async function summarize(t,manual){
   const n=Math.max(4,num(S.chat.ctx)||40);const from=t.sumUpTo||0;const to=Math.max(from,t.msgs.length-(manual?Math.min(n,10):n));
   const chunk=t.msgs.slice(from,to);if(!chunk.length){if(manual)toast('还没有需要总结的旧消息');return}
-  const me=mask(t),c=t.type==='dm'?charById(t.chars[0]):null,log=chunk.map(m=>(m.from==='me'?me.name:(charById(m.from)?.name||'?'))+'：'+pv(m)).join('\n');
+  const me=mask(t),c=t.type==='dm'?charById(t.chars[0]):null,log=(()=>{let k0='';return chunk.map(m=>{const k=m.t?dayLabel(m.t):'';const h=k&&k!==k0?`（${k}）\n`:'';if(k)k0=k;return h+(m.from==='me'?me.name:(charById(m.from)?.name||'?'))+'：'+pv(m)}).join('\n')})();
   const voice=c?`用${c.name}自己的口吻、第一人称「我」写，像${c.name}心里记着的，称呼对方用你平时叫TA的亲昵称呼`:'用旁白的口吻写';
-  const txt=String(await callAI(c?sysFor(c,''):'你在整理一段群聊的记录。',[{role:'user',content:(t.summary?`之前的小结：${t.summary}\n`:'')+(t.keep?`之前记下的：${t.keep}\n`:'')+`\n新的聊天记录：\n${log}\n\n输出两行，别的都不要：\n小结：${voice}，最近发生了什么（见面时做了什么、说了什么、关系有什么变化也要写）、现在什么状态，过时的删掉，150字以内。\n记住：只写新的聊天记录里新出现的硬信息——名字、称呼、约定、日子、喜好、忌讳，「之前记下的」里已有的不写，用「；」隔开；没有新的就写「无」。`}],{max:1024,temp:.4,side:true})).trim();
+  const txt=String(await callAI(c?sysFor(c,''):'你在整理一段群聊的记录。',[{role:'user',content:(t.summary?`之前的小结：${t.summary}\n`:'')+(t.keep?`之前记下的：${t.keep}\n`:'')+`\n新的聊天记录：\n${log}\n\n输出两行，别的都不要：\n小结：${voice}，最近发生了什么（见面时做了什么、说了什么、关系有什么变化也要写）、现在什么状态，过时的删掉，提到哪天写几月几日、不写「今天」「昨天」，150字以内。\n记住：只写新的聊天记录里新出现的硬信息——名字、称呼、约定（带上几月几日）、日子、喜好、忌讳，「之前记下的」里已有的不写，用「；」隔开；没有新的就写「无」。`}],{max:1024,temp:.4,side:true})).trim();
   const part=k=>{const m=txt.match(new RegExp(k+'[:：]\\s*([\\s\\S]*?)(?=\\n\\s*(?:小结|记住)[:：]|$)'));return m?m[1].replace(/\s*\n\s*/g,' ').trim():''};
   const sum=part('小结')||(/记住[:：]/.test(txt)?'':txt);
   t.summary=wholeText(sum,150);t.keep=addKeep(t.keep,part('记住'));t.sumUpTo=to;save();
@@ -2635,7 +2657,7 @@ function kidMemInit(k){k.mem=(k.log||[]).filter(x=>x.from==='ev'||(x.from==='sys
 function kidMemText(k,n=30){return[...(k.memOld||[]).slice(-6),...(k.mem||[]).slice(-n).map(memLine)].join('\n')}
 const kidFolding=new Set();
 async function kidMemFold(k){if(kidFolding.has(k.id))return;const c=kidChar(k),old=(k.mem||[]).slice(0,30),drop=()=>{k.mem=k.mem.filter(x=>!old.includes(x)||x.m)};
-  if(!c||!api(c)?.key){drop();return}
+  if(!c||!api(k)?.key){drop();return}
   kidFolding.add(k.id);
   try{const nm=kidName(k),me=mask(c).name,a=old.find(x=>x.age!=null)?.age,b=[...old].reverse().find(x=>x.age!=null)?.age;
     const out=String(await callAI(kidSys(k,c),[{role:'user',content:`这是你（${nm}）${a!=null&&b!=null?ageText(a)+'到'+ageText(b)+'之间':'小时候'}记得的事（「我」是你自己，「你」是${me}）：\n${old.map(memLine).join('\n')}\n\n把这些压成一段150字以内的回忆，还是用「我」指自己、「你」指${me}。留下印象最深的事，好的坏的都要留，尤其是${me}对你好不好、有没有陪着你。只输出这段回忆。`}],{max:500,side:true,tag:'other',who:c.id})||'').replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
@@ -2645,7 +2667,7 @@ async function kidMemFold(k){if(kidFolding.has(k.id))return;const c=kidChar(k),o
 const kidRecent=(k,n,me)=>(k.log||[]).slice(-n).map(x=>x.from==='me'?`${x.on?'（手机上）':''}${me}：${x.text}`:x.from==='act'?`（${me}${x.text}）`:x.from==='kid'?(x.nar?`（剧情）${x.text.slice(-200)}`:`${x.on?'（手机上）':''}${kidName(k)}：${x.text}`):`（${x.text}）`).join('\n');
 // 每聊一阵，TA在心里记一笔：记住哪些事、你对TA怎么样
 const kidRefBusy=new Set();
-async function kidReflect(k){if((k.refN||0)<10||kidRefBusy.has(k.id))return;const c=kidChar(k);if(!c||!api(c)?.key)return;k.refN=0;kidRefBusy.add(k.id);
+async function kidReflect(k){if((k.refN||0)<10||kidRefBusy.has(k.id))return;const c=kidChar(k);if(!c||!api(k)?.key)return;k.refN=0;kidRefBusy.add(k.id);
   try{const me=mask(c).name,nm=kidName(k);
     const out=String(await callAI(kidSys(k,c)+'\n\n现在不是在演，是你在心里记事。',[{role:'user',content:`【刚才这段时间】\n${kidRecent(k,40,me)}\n\n站在${nm}自己的角度，从这段里挑出你会一直记得的事，0到2条，每条一句话（「我」是你自己，「你」是${me}），写清楚发生了什么、${me}对你怎么样。平常的小事不用记。\n再判断这段时间${me}对你怎么样：很好+2，挺好+1，一般0，不太好-1，很糟-2（凶你、骂你、冷落你、说伤人的话、敷衍你都算）。\n只按这个格式输出：\n记得：……\n对我：+1`}],{max:400,side:true,tag:'other',who:c.id})||'').replace(/<think>[\s\S]*?<\/think>/gi,'');
     for(const l of out.split('\n')){const m=l.match(/^\s*记得[：:]\s*(.+)/);if(m&&!/^(无|没有)/.test(m[1].trim()))kidMem(k,m[1].trim())}
@@ -2677,9 +2699,9 @@ function kidMaybeEv(k){const now=Date.now();if(k.ev||k.sleep>now||kidBusy.has(k.
   k.ev={text:x[0],t:now};k.evAt=now;k.evLast=[...last,x[0]].slice(-8);kidLog(k,'ev',`TA${x[0]}`);save();
   kidAsk(k,`这时候发生了一件事：${kidName(k)}${x[0]}。写${kidName(k)}这时候的样子。`,'say')}
 function kidSys(k,c){const me=mask(c),P=String(c.persona||'').replaceAll('{{user}}',me.name).replaceAll('{{char}}',c.name).slice(0,1800),i=kidSi(k.age);
-  return`你在扮演${c.name}成长中的样子。下面是${c.name}长大以后（${Math.floor(kidTo(k)/12)}岁）的人设，当作性格的底子、家庭背景和长大后会变成的样子来参考：\n${P}\n\n现在的${c.name}${k.name&&k.name!==c.name?`（小名${k.name}）`:''}${ageText(k.age)}，${kidStage(k.age)}。按这个年纪来演，别提前长大：${KID_TALK[i]}。越长大越接近人设里的样子。${me.name}把你从小带大，你们是家人${i>=4?'，你对TA有很深的依赖和感情，但是像家人那样，不是恋人':'，你还小，没有恋爱的概念'}${k.call&&i>=1?`。你叫TA「${k.call}」`:i>=1?'。按你们的关系自然地称呼TA':''}。`}
+  return whoTag(`你在扮演${c.name}成长中的样子。下面是${c.name}长大以后（${Math.floor(kidTo(k)/12)}岁）的人设，当作性格的底子、家庭背景和长大后会变成的样子来参考：\n${P}\n\n现在的${c.name}${k.name&&k.name!==c.name?`（小名${k.name}）`:''}${ageText(k.age)}，${kidStage(k.age)}。按这个年纪来演，别提前长大：${KID_TALK[i]}。越长大越接近人设里的样子。${me.name}把你从小带大，你们是家人${i>=4?'，你对TA有很深的依赖和感情，但是像家人那样，不是恋人':'，你还小，没有恋爱的概念'}${k.call&&i>=1?`。你叫TA「${k.call}」`:i>=1?'。按你们的关系自然地称呼TA':''}。`,k.id)}
 async function kidAsk(k,what,fb,st){const c=kidChar(k);if(!c)return;
-  if(!api(c)?.key){kidLog(k,'kid',kpick(KID_FALL[fb]||KID_FALL.say));save();kidRe(k);return}
+  if(!api(k)?.key){kidLog(k,'kid',kpick(KID_FALL[fb]||KID_FALL.say));save();kidRe(k);return}
   kidBusy.add(k.id);kidRe(k);
   try{const me=mask(c),w=wxNow(S.loc),on=kidOn(k),recent=kidRecent(k,14,me.name),mt=kidMemText(k);
     const out=String(await callAI(kidSys(k,c),[{role:'user',content:`【现在】${nowText()}${w?`，${w.desc} ${w.temp}°C（只是背景，不用提）`:''}\n【你现在】${(st||kidNeeds(k)).join('、')}；${kidFeel(k)}${k.skills?.length?`；学过${k.skills.slice(-6).join('、')}`:''}\n${mt?`【你从小到大记得的事】（「我」是你自己，「你」是${me.name}；这些会影响你对TA的态度）\n${mt}\n`:''}${k.ev?`【还没过去的事】${kidName(k)}${k.ev.text}\n`:''}${recent?`【刚才】\n${recent}\n`:''}\n${what}\n\n${on?`你们现在不在一起，是在手机上聊（${k.age<84?'你用的是电话手表，还不太会打字，大多发语音，写成「[语音] 说的话」':k.age<144?'你用的是家里给的旧手机，打字慢，有错别字也正常':'你用自己的手机'}）。只写${kidName(k)}发过去的消息：一行一条，一到三条，像这个年纪的孩子发消息的样子，不写动作、不写（）、不写旁白。只输出消息。`:`写${kidName(k)}这时候的反应：动作和神态写在（）里，${kidSi(k.age)?'说的话直接写，':'还不会说话，'}一到三句，像真的${ageText(k.age)}的孩子。只输出反应本身。`}`}],{max:600,side:true,tag:'other',who:c.id})||'').replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
@@ -2692,7 +2714,7 @@ function kidKnow(c){const k=(S.raise?.kids||[]).find(x=>x.charId===c.id&&x.share
 // 剧情：一起出去玩、逛街……用小说的写法写一段一段的剧情
 const kidMd=k=>kidOn(k)?'on':k.mode==='story'?'story':'off';
 async function kidStory(k,mine,how){const c=kidChar(k);if(!c||kidBusy.has(k.id))return;
-  if(!api(c)?.key){toast('剧情要先在「设置 · 聊天」填好接口');return}
+  if(!api(k)?.key){toast('剧情要先在「设置 · 聊天」填好接口');return}
   const me=mask(c),nm=kidName(k),sc=k.scene?.what||k.scene?.place||'';kidBusy.add(k.id);kidRe(k);
   try{const PL=(k.log||[]).filter(x=>x.nar||x.from==='ev'||(x.from==='me'&&x.sc));if(mine&&PL[PL.length-1]?.sc)PL.pop();const prev=PL.slice(-6).map(x=>x.nar?x.text.slice(-500):x.from==='me'?`（${me.name}：${x.text}）`:`（${x.text}）`).join('\n\n');
     const mis=how==='go'&&Math.random()<.25?`\n这一段里发生一件小插曲（${kpick(['好事','不太顺的事','意想不到的事'])}），按地点和${nm}的年纪来，自然写进去，是小事。`:'';
@@ -2916,8 +2938,9 @@ kid(v){const k=kidById(v.id),c=k&&kidChar(k);if(!k||!c)return{title:'不见了',
   const bars=KID_ST.filter(([x])=>x!=='clean'||i<3).map(([x,n])=>`<span>${n}</span><span class="kbar${k.st[x]<30?' low':''}"><i style="width:${Math.round(k.st[x])}%"></i></span><em>${Math.round(k.st[x])}</em>`).join('');
   const acts=asleep?`<button class="btn o" data-a="kidWake" style="align-self:flex-start">叫醒TA</button><p class="hint">TA睡着了</p>`
     :`<div class="kacts">${kidActs(k).map(([x,a])=>`<button data-a="kidAct" data-k="${x}"${busy?' disabled':''}>${a.n[i]}</button>`).join('')}</div>`;
-  const log=(k.log||[]).slice(-40).map(x=>x.from==='sys'?`<div class="s">${esc(x.text)} · ${ago(x.t)}</div>`:x.from==='ev'?`<div class="s e">${esc(x.text)} · ${ago(x.t)}</div>`:x.from==='act'?`<div class="s a">— ${esc(x.text)} —</div>`:x.nar?`<div class="kn">${esc(x.text)}</div>`:x.sc?`<div class="kn me">${esc(x.text)}</div>`:`<div class="${x.from==='me'?'m':'k'}${x.on?' on':''}">${esc(x.text)}</div>`).join('')+(busy?'<div class="k"><span class="dots"><i></i><i></i><i></i></span></div>':'');
-  return{title:kidName(k),sub:ageText(k.age)+' · '+kidStage(k.age)+(k.pause?' · 不长大了':''),right:`<button class="tb" data-a="kidSet" aria-label="设置">···</button>`,body:`
+  (k.log||[]).forEach(x=>{if(!x.id)x.id=uid()});
+  const log=(k.log||[]).slice(-40).map(x=>x.from==='sys'?`<div data-a="kidMsg" data-id="${x.id}" class="s">${esc(x.text)} · ${ago(x.t)}</div>`:x.from==='ev'?`<div data-a="kidMsg" data-id="${x.id}" class="s e">${esc(x.text)} · ${ago(x.t)}</div>`:x.from==='act'?`<div data-a="kidMsg" data-id="${x.id}" class="s a">— ${esc(x.text)} —</div>`:x.nar?`<div data-a="kidMsg" data-id="${x.id}" class="kn">${esc(x.text)}</div>`:x.sc?`<div data-a="kidMsg" data-id="${x.id}" class="kn me">${esc(x.text)}</div>`:`<div data-a="kidMsg" data-id="${x.id}" class="${x.from==='me'?'m':'k'}${x.on?' on':''}">${esc(x.text)}</div>`).join('')+(busy?'<div class="k"><span class="dots"><i></i><i></i><i></i></span></div>':'');
+  return{title:kidName(k),sub:ageText(k.age)+' · '+kidStage(k.age)+(k.pause?' · 不长大了':''),right:HEART+`<button class="tb" data-a="kidSet" aria-label="设置">···</button>`,body:`
   <div class="panel"><div class="kidh">${av(c,58)}<span><b>${esc(kidName(k))}</b><small>${grown?'长成了现在的':'小时候的'}${esc(dn(c))} · ${kidFeel(k).replaceAll('TA','你')}</small><span class="btns">${kidNeeds(k).map(x=>`<span class="pill">${esc(x)}</span>`).join('')}</span></span></div>
     <div class="kbars">${bars}<span>长大</span><span class="kbar"><i style="width:${g}%"></i></span><em>${grown?'满':k.pause?'停':g}</em></div>
     ${k.skills?.length?`<p class="hint">学过：${esc(k.skills.join('、'))}</p>`:''}</div>
@@ -3076,7 +3099,8 @@ data(v){
   return{title:'数据',body:`
     <div class="panel"><h2>上次备份<span class="pill">${esc(last)}</span></h2>
       <label class="ck"><input type="checkbox" id="bk-key2" data-s="root" data-k="bkKey" ${S.bkKey?'checked':''}>备份里带上 API Key</label>
-      <div class="btns"><button class="btn" data-a="dl">下载备份</button><button class="btn o" data-a="copyBk">复制备份</button></div></div>
+      <div class="btns"><button class="btn" data-a="dl">下载备份</button><button class="btn o" data-a="copyBk">复制备份</button></div>
+      <p class="hint">备份大约 ${mb(size)}。手机上点「下载备份」会弹出分享，选「存储到文件」或发给自己就好。</p></div>
     <div class="panel"><h2>用量<button class="tb" data-a="dataMore">${v.more?'收起':'详情'}</button></h2>
       <p class="hint">${kn(T.i+T.o)} token · 文字 ${mb(size)}<span id="dataUse"></span></p>
       ${v.more?`<p class="hint">${rows.map(([k,n])=>n+' '+k).join(' · ')}</p>
@@ -3546,12 +3570,17 @@ const A={
     if(loc)ensureWx(loc).then(()=>{if(isOpen())render(true);else renderHome()});if(isOpen())render(true);else renderHome()},
   develop(el){const t=thread(cur().id),m=t.msgs[+el.dataset.i];if(m)developMsg(t,m)},
   useApiId(el){S.api.active=el.dataset.id;save();closeSheet();render(true);toast('默认用 '+api().name+'（单独选过的角色不变）')},
-  apiSwitch(el){let m=$('#mpop');if(m){m.remove();return}const v=cur(),tk=v?.v==='chat'?thread(v.id):null,a=api(tk),pin=apiPin(tk)&&apiById(apiPin(tk));
+  apiSwitch(el){let m=$('#mpop');if(m){m.remove();return}const v=cur(),tk=v?.v==='chat'?thread(v.id):v?.v==='kid'?kidById(v.id):null,a=api(tk),pin=v?.v==='kid'?tk?.api&&apiById(tk.api):apiPin(tk)&&apiById(apiPin(tk));
     m=document.createElement('div');m.id='mpop';
-    m.innerHTML=(tk?`<i class="mp-h" style="border-top:0">只换${esc(tk.type==='group'?'这个群':dn(charById(tk.chars[0])))}</i>`:'')+S.api.profiles.map(p=>`<button class="${p.id===a?.id?'on':''}" data-a="mpPick" data-id="${p.id}"><b>${esc(p.name)}</b><small>${esc(p.model||'')}${tk&&!pin&&p.id===a?.id?' · 默认':''}</small></button>`).join('')+(tk&&pin?`<button data-a="mpPick" data-id=""><b>跟默认走</b><small>${esc(apiById(S.api.active)?.name||'')}</small></button>`:'')+(()=>{const L=imgSync();return L.length>1?'<i class="mp-h">生图</i>'+L.map(p=>`<button class="${p.id===S.media.img.pid?'on':''}" data-a="mpImg" data-id="${p.id}"><b>${esc(p.name||'生图')}</b><small>${esc(p.model||'')}</small></button>`).join(''):''})()+'<button class="mp-set" data-a="apiManage">设置</button>';
+    m.innerHTML=(tk?`<i class="mp-h" style="border-top:0">只换${esc(v.v==='kid'?'养成里的'+kidName(tk):tk.type==='group'?'这个群':dn(charById(tk.chars[0])))}</i>`:'')+S.api.profiles.map(p=>`<button class="${p.id===a?.id?'on':''}" data-a="mpPick" data-id="${p.id}"><b>${esc(p.name)}</b><small>${esc(p.model||'')}${tk&&!pin&&p.id===a?.id?' · 默认':''}</small></button>`).join('')+(tk&&pin?`<button data-a="mpPick" data-id=""><b>跟默认走</b><small>${esc(v.v==='kid'?api(kidChar(tk)?.id)?.name||'':apiById(S.api.active)?.name||'')}${v.v==='kid'?' · 跟'+esc(dn(kidChar(tk))):''}</small></button>`:'')+(()=>{const L=imgSync();return L.length>1?'<i class="mp-h">生图</i>'+L.map(p=>`<button class="${p.id===S.media.img.pid?'on':''}" data-a="mpImg" data-id="${p.id}"><b>${esc(p.name||'生图')}</b><small>${esc(p.model||'')}</small></button>`).join(''):''})()+'<button class="mp-set" data-a="apiManage">设置</button>';
     document.body.appendChild(m);const r=el.getBoundingClientRect();m.style.top=(r.bottom+6)+'px';m.style.right=Math.max(8,innerWidth-r.right-6)+'px';
     const off=e=>{if(!e.target.closest('#mpop,[data-a=apiSwitch]')){m.remove();document.removeEventListener('pointerdown',off,true)}};document.addEventListener('pointerdown',off,true)},
+  kidMsg(el){const k=kidById(cur()?.id),x=k&&(k.log||[]).find(x=>x.id===el.dataset.id);if(!x)return;
+    sheet(`<p class="hint" style="margin:0 4px 6px;max-height:5.4em;overflow:hidden">${esc(x.text)}</p><button class="opt" data-a="kidMsgCopy" data-id="${x.id}">复制</button><button class="opt red" data-a="kidMsgDel" data-id="${x.id}">删除这条</button>${CANCEL}`)},
+  kidMsgCopy(el){const k=kidById(cur()?.id),x=k&&(k.log||[]).find(x=>x.id===el.dataset.id);closeSheet();if(x)copy(x.text,'复制好了')},
+  kidMsgDel(el){const k=kidById(cur()?.id);if(!k)return;k.log=(k.log||[]).filter(x=>x.id!==el.dataset.id);save();closeSheet();render(true)},
   mpPick(el){$('#mpop')?.remove();const id=el.dataset.id,v=cur(),t=v?.v==='chat'?thread(v.id):null;
+    if(v?.v==='kid'){const k=kidById(v.id);if(!k||(k.api||'')===id)return;if(id)k.api=id;else delete k.api;save();render(true);toast('♡ 养成 · '+kidName(k)+'：'+api(k).name+(id?'':'（跟'+dn(kidChar(k))+'）'));return}
     if(!t){if(!id||S.api.active===id)return;S.api.active=id;save();render(true);toast('♡ '+api().name);return}
     const o=t.type==='group'?t:charById(t.chars[0]);if(!o)return;if((o.api||'')===id)return;if(id)o.api=id;else delete o.api;save();render(true);toast('♡ '+(t.type==='group'?'这个群':dn(o))+'：'+api(t).name+(id?'':'（默认）'))},
   imgPick(el){imgUse(el.dataset.id);render(true)},
@@ -3717,8 +3746,23 @@ const A={
     finally{S.api.active=prev;if(el.isConnected){el.disabled=false;el.textContent='测试连接'}}},
   delApi(el){confirmTap(el,()=>{const id=cur().id;S.api.profiles=S.api.profiles.filter(p=>p.id!==id);if(!S.api.profiles.length)S.api.profiles=def().api.profiles;if(S.api.active===id||!S.api.profiles.some(p=>p.id===S.api.active))S.api.active=S.api.profiles[0].id;if(S.api.side===id)S.api.side='';save();back()})},
   clearPhoto(){S.look.photo='';save();render(true)},
-  dl(){S.lastBackup=Date.now();save();if(cur()?.v==='data')setTimeout(()=>render(true),300);const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([bkJSON()],{type:'application/json'}));a.download='冰雨机备份-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove()},
-  copyBk(){S.lastBackup=Date.now();save();copy(bkJSON(),'备份复制好了，存到备忘录里');if(cur()?.v==='data')render(true)},
+  // 备份：手机上（尤其是加到主屏幕的）<a download> 常常没反应，先走系统分享（能存到「文件」），不行再下载；成功了才记「上次备份」
+  async dl(el){const done=()=>{S.lastBackup=Date.now();save();if(cur()?.v==='data')setTimeout(()=>render(true),300)};
+    let txt;try{txt=bkJSON()}catch(e){toast('备份没生成出来：'+(e.message||e),6000);return}
+    const name='冰雨机备份-'+new Date().toISOString().slice(0,10)+'.json';
+    if(navigator.share&&navigator.canShare&&/iP(hone|ad|od)|Android/i.test(navigator.userAgent)){
+      const f=[new File([txt],name,{type:'application/json'}),new File([txt],name,{type:'text/plain'})].find(f=>{try{return navigator.canShare({files:[f]})}catch(e){return false}});
+      if(f){try{await navigator.share({files:[f]});done();toast('备份好了，记得存到「文件」或发给自己');return}
+        catch(e){if(e.name==='AbortError'){toast('没存，备份取消了');return}}}}
+    try{const u=URL.createObjectURL(new Blob([txt],{type:'application/json'})),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();
+      setTimeout(()=>{a.remove();URL.revokeObjectURL(u)},60e3);done();toast('备份文件已经下载，没看到的话点「复制备份」',4500)}
+    catch(e){toast('下载不了，用「复制备份」试试',5000)}},
+  async copyBk(){let txt;try{txt=bkJSON()}catch(e){toast('备份没生成出来：'+(e.message||e),6000);return}
+    const done=()=>{S.lastBackup=Date.now();save();if(cur()?.v==='data')render(true)};
+    try{await navigator.clipboard.writeText(txt);done();toast('备份复制好了，存到备忘录里');return}catch(e){}
+    {const ta=document.createElement('textarea');ta.value=txt;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;top:0;left:0;opacity:0;font-size:16px';document.body.appendChild(ta);ta.focus();ta.select();ta.setSelectionRange(0,txt.length);
+      let ok=false;try{ok=document.execCommand('copy')}catch(e){}ta.remove();if(ok){done();toast('备份复制好了，存到备忘录里');return}}
+    toast(txt.length>4e6?'备份太大，剪贴板放不下，用「下载备份」':'复制不了，用「下载备份」试试',6000)},
   tokClr(el){confirmTap(el,()=>{S.tok=def().tok;save();render(true)})},
   routineGen(el){const c=charById(el.dataset.id||cur().id);if(!c||genBusy)return;genBusy=true;toast('排一排 TA 的作息…',20000);routineGen(c).then(()=>schedOf(c)).then(()=>{$('#toast').hidden=true;render(true)}).catch(e=>toast(e.message||'没生成出来',4000)).finally(()=>genBusy=false)},
   async updCheck(el){if(el){el.disabled=true;el.textContent='检查中…'}
