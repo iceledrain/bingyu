@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.14.10';
+window.BYJ_VER='2026.11.14.11';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -647,7 +647,7 @@ html.dark .mheart svg{fill:#3a3a3c;stroke:#77777c}
 html.dark{--bg:#000;--bg2:#141416;--ink:#e8e8ea;--muted:#8e8e8e;--line:rgba(255,255,255,.12);--panel-rgb:28,28,30;--accent:#48484a;--accent-rgb:72,72,74;--accent-soft:#2c2c2e;--deep:#d1d1d1;--accent-ink:#f2f2f2;--red:#636366;
   --bub:#2c2c2e;--bub-me:#4a4a4a;--lift:none;--glass:28,28,30;--gb:rgba(255,255,255,.08);--gh:rgba(255,255,255,.12);--ts:rgba(0,0,0,.6);color-scheme:dark;background:#000!important}
 html.dark:not(.wp) body,html.dark:not(.wp) .wall,html.dark:not(.wp) .app .wall2{background:#000!important}
-/* 壁纸 + 半透明：透明只靠 alpha（不费电）；模糊只留在不动的东西上（图标、小组件、顶栏底栏），气泡不模糊 */
+/* 壁纸 + 透明度：透明靠 alpha，模糊见下面的「毛玻璃」 */
 html.wp .wall::after{content:"";position:absolute;inset:0;pointer-events:none;background:rgba(255,255,255,.1)}
 html.dark.wp .wall::after{background:rgba(0,0,0,.4)}
 html.wp .hclock{color:rgba(255,255,255,.94);text-shadow:0 1px 16px rgba(0,0,0,.4)}
@@ -664,6 +664,13 @@ html.wp{--bub-ai:rgba(var(--panel-rgb),max(.3,calc(var(--alpha) - .2)))}
 html.wp:not(.dark){--bub-me:rgba(112,112,122,max(.4,calc(var(--alpha) - .18)))}
 html.wp .chat .msg.ai .bub{background:var(--bub-ai)}html.wp .chat .msg.ai .col>.bub::before{border-right-color:var(--bub-ai)}
 html.wp .chat .msg.me .bub{background:var(--bub-me)}html.wp .chat .msg.me .col>.bub::before{border-left-color:var(--bub-me)}
+/* 毛玻璃：有壁纸时，图标、小组件、时间条、气泡都把后面的壁纸糊掉 */
+html.wp{--frost:blur(14px) saturate(1.5)}
+html.wp .ic-g::before{-webkit-backdrop-filter:var(--frost);backdrop-filter:var(--frost)}
+html.wp:not(.dark) .ic-g::before{background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.42),rgba(255,255,255,.1) 45%,rgba(213,213,213,.18) 100%)}
+html.wp .polaroid,html.wp .ava .av,html.wp .chat .bub,html.wp .chat .stamp{-webkit-backdrop-filter:var(--frost);backdrop-filter:var(--frost)}
+html.wp .chat .stamp{background:var(--bub-ai)}
+html.wp .bar{-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
 /* 进了应用，主屏的浮动和波纹就停下，不在后面白白耗电 */
 body:has(#app.open) #home *{animation-play-state:paused!important}
 .wpv{height:160px;border-radius:14px;background:center/cover no-repeat;border:1px solid var(--line)}
@@ -3152,10 +3159,10 @@ settings(v){
     return{title:'设置',body:head+`
     <div class="panel"><h2>壁纸</h2>${L.wallpaper?`<div class="wpv" style="background-image:url(${L.wallpaper})"></div>`:''}
       <div class="btns">${fileBtn(L.wallpaper?'换一张':'选一张','accept="image/*" data-img="wall"')}${L.wallpaper?'<button class="btn o" data-a="clrWall">去掉</button>':''}</div>
-      <p class="hint">主屏和每个页面都用这张。设了壁纸，图标、小组件、气泡的半透明才看得出来。</p></div>
-    ${L.wallpaper?`<div class="panel"><h2>半透明</h2>
+      <p class="hint">主屏和每个页面都用这张。设了壁纸，图标、小组件、时间条、气泡的毛玻璃才看得出来。</p></div>
+    ${L.wallpaper?`<div class="panel"><h2>毛玻璃</h2>
       <label class="f">透明程度<span class="inline"><input type="range" id="lk-clear" min="0" max="60" step="5" data-s="look" data-k="clear" value="${cl}"><output>${cl}</output></span></label>
-      <p class="hint">越大越透。气泡只透不糊，模糊只用在不动的地方，不会明显费电。</p></div>`:''}`}}
+      <p class="hint">越大越透，后面的壁纸始终是糊的。气泡也带模糊，聊天记录很长时滑动会比以前费电一点。</p></div>`:''}`}}
   if(tab==='chat'){
     const card=p=>`<div class="row apic${p.id===S.api.active?' on':''}"><span class="pv">${esc((p.name||'?')[0])}</span><button class="meta" data-a="editApi" data-id="${p.id}"><b>${esc(p.name)}</b><small>${esc(p.model||'没填模型')}${hostOf(p.base)?' · '+esc(hostOf(p.base)):''}${p.key?'':' · 没填 Key'}</small></button><span class="side h">${p.id===S.api.active?'<span class="pill fill">默认</span>':`<button class="tb" data-a="useApiId" data-id="${p.id}">设为默认</button>`}${(n=>n?`<small class="pill">${n} 个角色在用</small>`:'')(S.chars.filter(c=>c.api===p.id).length)}</span></div>`;
     return{title:'设置',body:head+`
