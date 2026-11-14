@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.18.2';
+window.BYJ_VER='2026.11.18.3';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -437,6 +437,9 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .banner{position:relative;display:block;cursor:pointer}
 .bedit{position:absolute;right:10px;bottom:8px;font-size:11.5px;background:rgba(0,0,0,.28);color:#fff;border-radius:999px;padding:2px 10px}
 .more{align-self:center;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px 14px;font-size:12px;color:var(--deep)}
+#np{position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--sat) + 64px);z-index:45;display:flex;align-items:center;gap:7px;max-width:62vw;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:rgba(var(--panel-rgb),.8);color:var(--ink);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);font-size:12.5px;line-height:1.2}
+#np b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+#np svg{width:13px;height:13px;flex:none}
 #toast{pointer-events:none;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(90px + var(--sab));z-index:50;max-width:min(88vw,440px);background:rgba(var(--panel-rgb),.96);color:var(--ink);border:1px solid var(--line);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);padding:10px 16px;border-radius:16px;font-size:14px;line-height:1.45;box-shadow:0 10px 30px rgba(143,143,143,.25);word-break:break-word}
 .apih{display:flex;justify-content:space-between;align-items:center;margin:6px 2px 0}.apih b{font:400 16px var(--display);color:var(--deep)}
 .grp .apic{border:0;box-shadow:none;background:none;border-radius:12px;padding:9px 8px}.grp .apic+.apic{border-top:1px solid var(--line);border-radius:0}
@@ -881,6 +884,7 @@ html:is(.xs,.fx) .fp.solo{background:none;border:0;border-bottom:1px solid var(-
 <section id="app" class="app" aria-live="polite"></section>
 <div id="sheet" class="sheet" hidden><div class="sheet-in" id="sheetIn"></div></div>
 <div id="toast" role="status" hidden></div>
+<button id="np" hidden aria-label="暂停音乐"></button>
 
 <script>
 const $=s=>document.querySelector(s);
@@ -1670,7 +1674,7 @@ function buildCtx(t,o={}){
       const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal&&lastReal.type!=='narr')ctxs.push(`【刚见面】刚才在手机上聊（见下），现在见面了，接着往下写。`);if(ph.length)ctxs.push(`【见面前在手机上聊的】（只是背景，别照这个格式写）\n`+ph.map(line).join('\n'))}
   }else{
     rules.push(group?`【群聊】群里有${me.name}和${cname}。大家互相接话、吐槽、起哄，各按人设说话，彼此不暧昧，不必人人都说。每行「名字：内容」，一行一条，不替${me.name}说话。`
-      :`【聊天】一行一个气泡，不写名字。不复述，不说教，不总结，不必句句提问，小事自己拿主意。语气以人设为准：人设冷就冷着说，话少、克制，在意放在做的事里，不说甜话、不黏人，别因为关系亲密就变腻。`);
+      :`【聊天】一行一个气泡，不写名字。不复述，不说教，不总结，不必句句提问，小事自己拿主意。语气和主动程度都以人设为准：开朗就开朗，冷就冷，温柔就温柔；人设有两面或反差，两面都写出来。别因为关系亲密就都写成同一种甜腻黏人的样子。同一个念头（想亲、想抱、想见）说过一次就翻篇，别每轮都提；亲密的举动看气氛和人设来，不是每轮都要。`);
     if(!group)rules.push(`【分享生活】按人设带出自己在干什么、刚遇到的事、吃到看到的东西，偶尔配一张 [图片:…]。话题干了就自己起新的，或拉${me.name}一起做点什么（听歌、玩游戏、约见面），具体、有梗。`);
     {const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal?.type==='narr')ctxs.push(`【刚分开】刚见过面，现在回到手机上。带着那时的情绪，只发消息，不写动作和长段。`)}
     rules.push(`【条数】一条说一句话，${num(C.onLen)||10}字左右，人设话多或事情要紧时可以长些。平时${G('每人','')}发1到${num(C.onMax)||3}条，情绪上来最多${bubbleCap()}条。真有很多话要说，偶尔可以到${BUBBLE_MAX}条。${C.casual!==false?'不打句号和逗号，停顿就换行。':''}`);
@@ -2363,13 +2367,15 @@ function lrcTick(){const box=$('#lyr'),s=songById(S.music.cur);if(!box||!s?.lrc?
   if(box.dataset.k===String(k))return;box.dataset.k=k;box.querySelector('p.on')?.classList.remove('on');const el=box.querySelector(`p[data-i="${k}"]`);if(el){el.classList.add('on');box.scrollTo({top:el.offsetTop-box.clientHeight/2+el.clientHeight/2,behavior:'smooth'})}}
 const hasAudio=()=>!!audio.getAttribute('src');
 function splitSong(line){line=String(line||'').replace(/^[「《"“\s]+|[」》"”\s]+$/g,'').trim();const m=line.split(/\s+[-—–]\s+|\s*[—–]\s*|\s*《|》\s*/).map(s=>s.trim()).filter(Boolean);return m.length>1?[m[0],m.slice(1).join(' ')]:[line,'']}
-function mUI(){const v=cur();if(isOpen()&&v?.v==='music'&&v.tab==='fav'){render(true);return}
+function mUI(){npUI();const v=cur();if(isOpen()&&v?.v==='music'&&v.tab==='fav'){render(true);return}
   if(isOpen()&&v?.v==='music'){$('#vinyl')?.classList.toggle('on',mState.playing);const pp=$('#mPP');if(pp){pp.innerHTML=mState.playing?ICONS.pause:ICONS.play;pp.setAttribute('aria-label',mState.playing?'暂停':'播放')}mTick()}}
 function mTick(){lrcTick();const r=$('#mRange');if(!r)return;const p=audio.currentTime||0,d=audio.duration||0;
   if(document.activeElement!==r)r.value=d?Math.round(p/d*1000):0;$('#mCur').textContent=fmt(p);$('#mDur').textContent=fmt(d)}
 audio.addEventListener('timeupdate',mTick);
-audio.addEventListener('play',()=>{mState.playing=true;mUI()});
-audio.addEventListener('pause',()=>{mState.playing=false;mUI()});
+function npUI(){const el=$('#np');if(!el)return;const s=songById(S.music.cur);el.hidden=!(mState.playing&&s);if(!el.hidden)el.innerHTML=`<span>♪</span><b>${esc(s.title)}</b>${ICONS.pause||'‖'}`}
+{const el=$('#np');if(el)el.onclick=()=>audio.pause()}
+audio.addEventListener('play',()=>{mState.playing=true;mUI();npUI()});
+audio.addEventListener('pause',()=>{mState.playing=false;mUI();npUI()});
 audio.addEventListener('ended',()=>mNext(true));
 audio.addEventListener('error',()=>{if(hasAudio()){mState.playing=false;mUI();toast('这首放不出来，可能链接失效了')}});
 async function mLoad(id,auto=true){
