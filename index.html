@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.15.4';
+window.BYJ_VER='2026.11.15.5';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -1030,6 +1030,7 @@ function mergeState(d){
   s.wx=s.wx&&typeof s.wx==='object'?s.wx:{};s.hol=s.hol&&typeof s.hol==='object'?s.hol:{};
   if(!Array.isArray(s.cards))s.cards=[];if(!Array.isArray(s.personaTpls))s.personaTpls=def().personaTpls;delete s.notes;delete s.caps;delete s.health;
   s.presets.forEach(p=>(p.items||[]).forEach(i=>{if(i.content===LANG_OLD)i.content=LANG_DEF}));
+  s.chat.thinkSrc='char';s.chat.effort='';
   if([THINK_OLD,THINK_OLD2,THINK_OLD3,THINK_OLD4,THINK_OLD5,THINK_OLD6,THINK_OLD7,THINK_OLD8,THINK_OLD9].includes(s.chat.thinkStyle))s.chat.thinkStyle=THINK_DEF;
   if(!s.presetV){const old=new Set([OLD_MAIN,ONLINE_OLD,ONLINE_DEF,OFFLINE_OLD,OFFLINE_DEF]);
     s.presets.forEach(p=>{const n=(p.items||[]).length;p.items=(p.items||[]).filter(i=>!old.has(i.content));if(p.items.length<n)BASE_ITEMS().slice(1).forEach(x=>p.items.push(x))});s.presetV=2}
@@ -1415,9 +1416,8 @@ const deNote=x=>String(x||'').replace(/<[!！]\s*-{1,2}[\s\S]*?-{1,2}\s*>/g,'').
 // 联网搜索：服务商自己搜、一次请求里搜完。只有 Claude 协议有（官方 Claude、MiniMax 的 /anthropic）
 const isMMBase=b=>/api\.minimaxi?\.(cn|com|io|chat)/i.test(b||'');
 const webOk=p=>!!p&&(provOf(p)==='claude'||isMMBase(p.base)||/api\.deepseek\.com/i.test(p.base||''));
-// DeepSeek：思考默认开（强度 high）。聊天设置里选了才改：none=关思考，low/high/max=强度
+// 只用角色自己写的思维链，模型自带的思考一律关掉：DeepSeek 直接关；MiniMax 关不了，压到最低档
 const isDS=p=>/deepseek/i.test((p?.base||'')+' '+(p?.model||''));
-const EFF=p=>isDS(p)?[['','默认'],['none','关'],['low','低'],['high','高'],['max','最高']]:[['','默认'],['low','低'],['medium','中'],['high','高']];
 const isKimi=base=>/moonshot\.(cn|ai)|kimi\.(com|ai)/.test(base||'');
 function addTok(tag,i,o,c=0,w=0){if(!i&&!o)return;const T=S.tok||(S.tok=def().tok);T.n++;T.i+=i;T.o+=o;T.c=(T.c||0)+c;T.w=(T.w||0)+w;
   const b=T.by[tag]||(T.by[tag]={n:0,i:0,o:0});b.n++;b.i+=i;b.o+=o;if(tag==='chat')T.last={i,o,c,t:Date.now()};save()}
@@ -1451,7 +1451,7 @@ async function callAI0(system,messages,o={}){
     if(p.provider==='openai'){
       const b={model,max_tokens:max,...(p.stream?{stream:true,stream_options:{include_usage:true}}:{}),...(isKimi(base)?{prompt_cache_options:{mode:'implicit',ttl:p.cache==='1h'?'1h':'5m'}}:{}),messages:[{role:'system',content:system},...m.map(x=>({role:x.role,content:x.imgs&&x.imgs.length?[{type:'text',text:x.content},...x.imgs.map(u=>({type:'image_url',image_url:{url:u}}))]:x.content}))]};if(temp!==null)b.temperature=temp;if(topP!==null)b.top_p=topP;if(topK!==null)b.top_k=topK;
       if(isMM(model))b.reasoning_effort=(o.thoughts&&S.chat.effort&&S.chat.effort!=='none'&&S.chat.effort)||'low';
-      if(isDS(p)&&o.thoughts&&S.chat.effort){if(S.chat.effort==='none')b.thinking={type:'disabled'};else b.reasoning_effort=S.chat.effort==='medium'?'high':S.chat.effort}
+      if(isDS(p))b.thinking={type:'disabled'};
       // DeepSeek 联网：关着思考它不会真去搜（实测会编），所以联网时至少开低档
       if(web&&p.provider==='openai'){b.tools=[{type:'deepseek_web_search'}];if(b.thinking?.type==='disabled'){delete b.thinking;b.reasoning_effort='low'}}if(/^minimax-m/i.test(model))b.reasoning_split=true;
       res=await fetch(base+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},body:JSON.stringify(b),signal:sig});
@@ -3044,11 +3044,7 @@ think(){const C=S.chat;
     <div class="panel"><h2>思维链</h2>
       <label class="ck"><input type="checkbox" id="ch-think" data-s="chat" data-k="think" ${C.think?'checked':''}>回复前先想清楚再回</label>
       ${C.think?`<label class="f">叫什么<input type="text" id="ch-tname" data-s="chat" data-k="thinkName" value="${esc(C.thinkName)}"></label>
-      <label class="f">想什么<textarea id="ch-tstyle" data-s="chat" data-k="thinkStyle">${esc(C.thinkStyle||THINK_DEF)}</textarea></label><button class="tb" data-a="setChat" data-k="thinkStyle" data-v="" style="align-self:flex-start">恢复默认</button>`:''}
-      ${provOf(api()||{})==='claude'||isMM(api()?.model)||isDS(api())?`<div class="f">思考深度<div class="seg">${EFF(api()).map(([k,l])=>`<button class="${(C.effort||'')===k?'on':''}" data-a="setChat" data-k="effort" data-v="${k}">${l}</button>`).join('')}</div></div>`:''}</div>
-    <div class="panel"><h2>联网</h2>${webOk(api())?`
-      <label class="ck"><input type="checkbox" id="ch-web" data-s="chat" data-k="web" ${C.web?'checked':''}>让TA能上网查东西</label>
-      <p class="hint">问到天气、新闻这类现实里的事，TA会自己去查，查完用自己的话告诉你。查一次要多花大约一万字的输入额度，闲聊不会查。</p>`:`<p class="hint">现在用的接口不支持联网。官方 Claude、MiniMax、DeepSeek 可以。</p>`}</div>`}},
+      <label class="f">想什么<textarea id="ch-tstyle" data-s="chat" data-k="thinkStyle">${esc(C.thinkStyle||THINK_DEF)}</textarea></label><button class="tb" data-a="setChat" data-k="thinkStyle" data-v="" style="align-self:flex-start">恢复默认</button>`:''}</div>`}},
 offline(v){
   const t=thread(v.id);t.offline=t.offline||{...S.offline};const o=t.offline;
   return{title:'见面设置',sub:threadTitle(t),body:`<div class="panel">
