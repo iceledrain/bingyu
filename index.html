@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.14.1';
+window.BYJ_VER='2026.11.14.2';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -1437,10 +1437,10 @@ function buildCtx(t,o={}){
   const lastMeet=meetAt<0?[]:t.msgs.slice(meetAt+1).filter(m=>m.type==='narr'),histStart=t.msgs.length-hist.length;
   const scan=hist.slice(-Math.max(1,num(C.scan)||8)).map(m=>m.content).join('\n')+'\n'+chars.map(c=>c.name).join(' ');
   const items=P.items.filter(i=>i.on&&(i.mode==='both'||i.mode===im));
-  const tail=[],G=(a,b)=>group?a:b,nm=chars[0]?.name||'名字',ai=!group&&!!chars[0]?.ai;
-  const pr=items.filter(i=>i.role==='system'&&!inChat(i)).map(i=>ai?mac(i.content).replace(/[，,]?\s*不提\s*AI[。.]?/g,'。').replace(/。。/g,'。'):mac(i.content)),lore=[],rules=[],who=[],ctxs=[];
+  const tail=[],G=(a,b)=>group?a:b,nm=chars[0]?.name||'名字';
+  const pr=items.filter(i=>i.role==='system'&&!inChat(i)).map(i=>mac(i.content)),lore=[],rules=[],who=[],ctxs=[];
   {const lb=loreBlock(loreFor(chars,scan,'fixed'),mac);if(lb)lore.push(lb);const ll=loreBlock(loreFor(chars,scan,'live'),mac);if(ll)tail.push(ll)}
-  chars.forEach(c=>who.push(`【${c.name}】${c.remark?`${me.name}给TA的备注：${c.remark}`:''}\n${mac(c.persona)}`));
+  chars.forEach(c=>{who.push(`【${c.name}】${c.remark?`${me.name}给TA的备注：${c.remark}`:''}\n${mac(c.persona)}`);const ex=exBlock(c,mac);if(ex)who.push(ex)});
   {const lb=loveBlock(cname,me);if(lb)who.push(lb)}
   {const of=t.offline||S.offline,u=mode==='offline'&&of.upov==='first'&&of.cpov!=='first'?'「我」':mode==='offline'&&of.upov==='third'?'「他/她」':'「你」';who.push(`【${me.name}（用户）】${me.name==='user'?`没设名字，叫${u}。`:''}${me.persona?'\n'+mac(me.persona):''}`);}
   if(sumBlock(t))ctxs.push(sumBlock(t));
@@ -1490,7 +1490,7 @@ function buildCtx(t,o={}){
       :`【聊天】一行一个气泡，不写名字。不复述，不说教，不总结，不必句句提问，小事自己拿主意。`);
     if(!group)rules.push(`【分享生活】常带出自己在干什么、刚遇到的事、吃到看到的东西，可以发 [图片:…]。话题干了就自己起新的，或拉${me.name}一起做点什么（听歌、玩游戏、约见面），具体、有梗。`);
     {const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal?.type==='narr')ctxs.push(`【刚分开】刚见过面，现在回到手机上。带着那时的情绪，只发消息，不写动作和长段。`)}
-    rules.push(`【条数】一条只说一句短话，${num(C.onLen)||10}字左右。平时${G('每人','')}发1到${num(C.onMax)||3}条，情绪上来最多${bubbleCap()}条。真有很多话要说，偶尔可以到${BUBBLE_MAX}条。${C.casual!==false?'不打句号和逗号，停顿就换行。':''}`);
+    rules.push(`【条数】一条说一句话，${num(C.onLen)||10}字左右，人设话多或事情要紧时可以长些。平时${G('每人','')}发1到${num(C.onMax)||3}条，情绪上来最多${bubbleCap()}条。真有很多话要说，偶尔可以到${BUBBLE_MAX}条。${C.casual!==false?'不打句号和逗号，停顿就换行。':''}`);
     const sp=['[图片:画面]','[语音:内容]'];
     if(!group)sp.push('[红包:金额:祝福]','[转账:金额:备注]',...(boughtRecently(t)?[]:['[外卖:吃的:金额]','[网购:东西:金额]']),'[查手机]','[语音通话]','[视频通话]','[送亲属卡:月额度]');
     sp.push('[分享歌曲:歌名 - 歌手]');sp.push('[定位:地点 · 一句备注]');
@@ -1534,7 +1534,7 @@ function buildCtx(t,o={}){
   const tw=C.think&&C.thinkSrc!=='model',iw=!!C.inner;
   if(mode!=='offline')end.push(`【回复格式】${tw?'先写 <think>…</think>，再':''}把发给${me.name}的话全写进 <reply>…</reply>，一行一条，[图片] [表情] 这类标记也在里面${iw?'；<inner> 和 <tide> 写在 </reply> 后面':'；<tide> 写在 </reply> 后面'}。<reply> 外的字不会发出去，给自己的分析${tw?'只写在 <think> 里':'不要写'}。每次都要写全。\n例：${tw?'<think>…</think>\n':''}<reply>\n第一条\n第二条\n</reply>${iw?'\n<inner>…</inner>':''}\n<tide>…</tide>`);
   else if(tw||iw)end.push(`【别漏】每次都写${[tw&&'开头的 <think>',iw&&'结尾的 <inner>'].filter(Boolean).join('和')}。`);
-  const sys=[...pr,...lore,...rules,...who,...ctxs,...end];
+  const sys=[...pr,...lore,...who,`【下面只管格式】性格、语气、怎么对${me.name}，都按上面的人设来；和下面的规则冲突时，听人设的。`,...rules,...ctxs,...end];
   return{system:whoTag(sys.join('\n\n'),t.id),msgs,chars,group,mode,t};
 }
 function describeSticker(s){if(!s||s.desc!=null||!/^data:image\/(png|jpe?g|webp)/.test(s.src||''))return;s.desc='';
@@ -1992,10 +1992,12 @@ function fmCard(p,showB){const b=fmB(p.b);
   return`<article class="fp"><button class="fp-in" data-a="fmOpen" data-id="${p.id}"><span class="fp-u">${fmAv(p,32)}<span><b>${esc(fmWho(p))}</b><small>${ago(p.t)}${showB&&b?' · '+esc(b.name):''}</small></span>${p.author!=='x'&&p.author!=='me'?'<span class="pill">认识的人</span>':''}</span>
     ${p.title?`<b class="fp-t">${esc(p.title)}</b>`:''}${p.text?`<span class="fp-x">${esc(p.text)}</span>`:''}${p.pic?`<span class="timg">${esc(p.pic)}</span>`:''}</button>${fmAct(p)}</article>`}
 
+const exBlock=(c,mac,n)=>{const x=String(c?.ex||'').replace(/^[ \t]*<START>[ \t]*$/gim,'').replace(/\n{3,}/g,'\n\n').trim();
+  return x?`【${c.name}说话的样子】（只是示范语气和用词，不是发生过的事，别照抄原句）\n${mac(n?x.slice(0,n):x)}`:''};
 const loveOn=()=>S.chat.love!==false;
-const loveBlock=(name,me)=>loveOn()?`【很爱${me.name}】${name}很爱${me.name}，离不开TA，怎么爱按人设来。闹别扭也只是嘴硬，给台阶就下，不会真的伤TA、离开TA。`:'';
+const loveBlock=(name,me)=>loveOn()?`【底色】${name}心里有${me.name}，不会真的离开TA。怎么表现全按人设：人设冷就冷，凶就凶，不用为了哄TA软下来。`:'';
 const sysFor=(c,extra)=>whoTag(sysFor0(c,extra),c?.id);
-const sysFor0=(c,extra)=>{const me=mask(c),k=extra.indexOf('\u0001'),lore=k<0?'':extra.slice(0,k)+'\n\n',rest=k<0?extra:extra.slice(k+1);return`${lore}你是${c.name}。\n${c.persona.replaceAll('{{user}}',me.name).replaceAll('{{char}}',c.name)}${loveOn()?'\n'+loveBlock(c.name,me):''}\n\n${aboutMe(me)}\n\n${rest}`};
+const sysFor0=(c,extra)=>{const me=mask(c),k=extra.indexOf('\u0001'),lore=k<0?'':extra.slice(0,k)+'\n\n',rest=k<0?extra:extra.slice(k+1);return`${lore}你是${c.name}。\n${c.persona.replaceAll('{{user}}',me.name).replaceAll('{{char}}',c.name)}${(x=>x?'\n\n'+x:'')(exBlock(c,s=>String(s).replaceAll('{{user}}',me.name).replaceAll('{{char}}',c.name),1200))}${loveOn()?'\n'+loveBlock(c.name,me):''}\n\n${aboutMe(me)}\n\n${rest}`};
 async function charReply(p,c,toWhat,toId,toName){
   const me=mask(c),a=authorOf(p.author,p),who=toName||me.name;
   const thr=(p.replies||[]).slice(-10).map(r=>authorOf(r.author,r).name+'：'+r.text).join('\n');
@@ -2584,8 +2586,8 @@ function toPreset(d,fallback){
 }
 function toChar(d){
   const x=d.data||d;if(!x.name)throw new Error('文件里没有角色名');
-  const persona=[x.description,x.personality&&('性格：'+x.personality),x.scenario&&('场景：'+x.scenario),x.mes_example&&('对话示例：\n'+x.mes_example)].filter(Boolean).join('\n\n');
-  const c={id:uid(),name:x.name,remark:'',handle:x.name.replace(/\s+/g,'').toLowerCase(),avatar:'',innerStyle:'',persona:persona||x.persona||'',books:[]};
+  const persona=[x.description,x.personality&&('性格：'+x.personality),x.scenario&&('场景：'+x.scenario)].filter(Boolean).join('\n\n');
+  const c={id:uid(),name:x.name,remark:'',handle:x.name.replace(/\s+/g,'').toLowerCase(),avatar:'',innerStyle:'',persona:persona||x.persona||'',ex:String(x.mes_example||'').trim(),books:[]};
   const cb=x.character_book;if(cb&&cb.entries&&Object.keys(cb.entries).length){const b=toBook({...cb,name:cb.name||x.name+'的世界书'});b.scope='local';S.books.push(b);c.books=[b.id]}
   const lo=String(x.extensions?.bingyuji?.lore||'').trim();if(lo){const b={id:uid(),name:x.name+'的设定',scope:'local',entries:[{id:uid(),title:'设定',keys:'',content:lo,light:'green',order:0,prob:100}]};S.books.push(b);c.books.push(b.id)}
   return c;
@@ -2855,6 +2857,11 @@ charEdit(v){
     </div>
   <div class="panel"><h2>人设</h2>
     <textarea class="tall" id="c-persona" data-s="char" data-k="persona" aria-label="人设">${esc(c.persona)}</textarea></div>
+  <div class="panel"><h2>对话示例</h2>
+    <textarea id="c-ex" data-s="char" data-k="ex" style="min-height:130px" aria-label="对话示例" placeholder="{{user}}：今天好累
+{{char}}：过来
+{{char}}：让你别熬夜，不听">${esc(c.ex||'')}</textarea>
+    <p class="hint">写两三段 TA 平时怎么说话，比形容词管用。导入酒馆角色卡时，卡里的对话示例会放到这里。</p></div>
   <div class="panel"><h2>水位<span class="pill">${esc(softMood(c.mood,tideOf(c))||moodBy(tideOf(c)))}</span></h2>
     <label class="f">现在的心情水位<span class="inline"><input type="range" id="c-tide" min="0" max="100" step="1" data-s="char" data-k="tide" value="${tideOf(c)}"><output>${tideOf(c)}</output></span></label>${spark(c.tideLog)}</div>
   <div class="panel"><h2>局部世界书<button class="tb" data-a="newCharBook">新建</button></h2>
@@ -3130,7 +3137,7 @@ chatPrefs(){const C=S.chat;
       <label class="f">条数<span class="inline"><input type="range" id="on-max" min="1" max="8" step="1" data-s="chat" data-k="onMax" value="${num(C.onMax)||3}"><output>${num(C.onMax)||3}</output></span></label>
       <label class="f">每条字数<span class="inline"><input type="range" id="on-len" min="1" max="60" step="1" data-s="chat" data-k="onLen" value="${num(C.onLen)||10}"><output>${num(C.onLen)||10}</output></span></label>
       <label class="ck"><input type="checkbox" id="on-casual" data-s="chat" data-k="casual" ${C.casual!==false?'checked':''}>不打句号</label>
-      <label class="ck"><input type="checkbox" id="on-love" data-s="chat" data-k="love" ${C.love!==false?'checked':''}>TA们都很爱我，离不开我</label></div>
+      <label class="ck"><input type="checkbox" id="on-love" data-s="chat" data-k="love" ${C.love!==false?'checked':''}>TA们不会真的离开我</label></div>
     <div class="panel"><h2>记忆</h2>
       <label class="f">读最近几条<span class="inline"><input type="range" id="ch-ctx" min="6" max="200" step="2" data-s="chat" data-k="ctx" value="${C.ctx}"><output>${C.ctx}</output></span></label>
       <label class="f">每几条总结一次<span class="inline"><input type="range" id="ch-every" min="10" max="100" step="5" data-s="chat" data-k="sumEvery" value="${C.sumEvery}"><output>${C.sumEvery}</output></span></label></div>
@@ -3517,7 +3524,7 @@ const A={
   rUnq(){cur().rq=null;render(true)},
   rLike(el){const p=S.feed.find(x=>x.id===cur().id),r=p.replies.find(x=>x.id===el.dataset.id);r.likes=r.likes||[];const i=r.likes.indexOf('me');i<0?r.likes.push('me'):r.likes.splice(i,1);save();render(true)},
   exportChar(){const c=charById(cur().id);const book=S.books.find(b=>(c.books||[]).includes(b.id));
-    dlJSON({spec:'chara_card_v2',spec_version:'2.0',data:{name:c.name,description:c.persona,first_mes:'',personality:'',scenario:'',mes_example:'',extensions:{bingyuji:{sign:c.sign,innerStyle:c.innerStyle,lore:c.lore||''}},...(book?{character_book:{name:book.name,entries:book.entries.map(e=>({keys:String(e.keys||'').split(/[,，]/).filter(Boolean),content:e.content,comment:e.title,constant:e.light==='green',enabled:e.light!=='red',insertion_order:e.order||0}))}}:{})}},c.name+'.json')},
+    dlJSON({spec:'chara_card_v2',spec_version:'2.0',data:{name:c.name,description:c.persona,first_mes:'',personality:'',scenario:'',mes_example:c.ex||'',extensions:{bingyuji:{sign:c.sign,innerStyle:c.innerStyle,lore:c.lore||''}},...(book?{character_book:{name:book.name,entries:book.entries.map(e=>({keys:String(e.keys||'').split(/[,，]/).filter(Boolean),content:e.content,comment:e.title,constant:e.light==='green',enabled:e.light!=='red',insertion_order:e.order||0}))}}:{})}},c.name+'.json')},
   dlPreset(){const p=presetById(cur().id);dlJSON(p,'预设-'+p.name+'.json')},
   dlBook(){const b=S.books.find(x=>x.id===cur().id);dlJSON(b,'世界书-'+b.name+'.json')},
   fontLink(){sheet(`<h3>用链接导入字体</h3><input type="url" id="fUrl" placeholder="https://…" aria-label="字体链接"><input type="text" id="fFam" placeholder="字体名" aria-label="字体名"><button class="btn" data-a="fontLinkGo">导入</button>`)},
