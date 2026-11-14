@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.15.7';
+window.BYJ_VER='2026.11.15.8';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -1030,7 +1030,7 @@ function mergeState(d){
   s.wx=s.wx&&typeof s.wx==='object'?s.wx:{};s.hol=s.hol&&typeof s.hol==='object'?s.hol:{};
   if(!Array.isArray(s.cards))s.cards=[];if(!Array.isArray(s.personaTpls))s.personaTpls=def().personaTpls;delete s.notes;delete s.caps;delete s.health;
   s.presets.forEach(p=>(p.items||[]).forEach(i=>{if(i.content===LANG_OLD)i.content=LANG_DEF}));
-  delete s.chat.thinkSrc;s.chat.effort='';
+  delete s.chat.thinkSrc;delete s.chat.deep;s.chat.effort='';s.chat.think=true;s.chat.inner=true;
   if([THINK_OLD,THINK_OLD2,THINK_OLD3,THINK_OLD4,THINK_OLD5,THINK_OLD6,THINK_OLD7,THINK_OLD8,THINK_OLD9,THINK_OLD10].includes(s.chat.thinkStyle))s.chat.thinkStyle=THINK_DEF;
   if(!s.presetV){const old=new Set([OLD_MAIN,ONLINE_OLD,ONLINE_DEF,OFFLINE_OLD,OFFLINE_DEF]);
     s.presets.forEach(p=>{const n=(p.items||[]).length;p.items=(p.items||[]).filter(i=>!old.has(i.content));if(p.items.length<n)BASE_ITEMS().slice(1).forEach(x=>p.items.push(x))});s.presetV=2}
@@ -1416,7 +1416,7 @@ const deNote=x=>String(x||'').replace(/<[!！]\s*-{1,2}[\s\S]*?-{1,2}\s*>/g,'').
 // 联网搜索：服务商自己搜、一次请求里搜完。只有 Claude 协议有（官方 Claude、MiniMax 的 /anthropic）
 const isMMBase=b=>/api\.minimaxi?\.(cn|com|io|chat)/i.test(b||'');
 const webOk=p=>!!p&&(provOf(p)==='claude'||isMMBase(p.base)||/api\.deepseek\.com/i.test(p.base||''));
-// 显示的只有角色自己写的思维链。模型自带的思考只在后台跑、不显示：DeepSeek 聊天时默认开（S.chat.deep），杂活一律关；MiniMax 关不了，压到最低档
+// 显示的只有角色自己写的思维链。模型自带的思考只在后台跑、不显示：DeepSeek 聊天时开着，杂活一律关；MiniMax 关不了，压到最低档
 const isDS=p=>/deepseek/i.test((p?.base||'')+' '+(p?.model||''));
 const isKimi=base=>/moonshot\.(cn|ai)|kimi\.(com|ai)/.test(base||'');
 function addTok(tag,i,o,c=0,w=0){if(!i&&!o)return;const T=S.tok||(S.tok=def().tok);T.n++;T.i+=i;T.o+=o;T.c=(T.c||0)+c;T.w=(T.w||0)+w;
@@ -1451,7 +1451,7 @@ async function callAI0(system,messages,o={}){
     if(p.provider==='openai'){
       const b={model,max_tokens:max,...(p.stream?{stream:true,stream_options:{include_usage:true}}:{}),...(isKimi(base)?{prompt_cache_options:{mode:'implicit',ttl:p.cache==='1h'?'1h':'5m'}}:{}),messages:[{role:'system',content:system},...m.map(x=>({role:x.role,content:x.imgs&&x.imgs.length?[{type:'text',text:x.content},...x.imgs.map(u=>({type:'image_url',image_url:{url:u}}))]:x.content}))]};if(temp!==null)b.temperature=temp;if(topP!==null)b.top_p=topP;if(topK!==null)b.top_k=topK;
       if(isMM(model))b.reasoning_effort=(o.thoughts&&S.chat.effort&&S.chat.effort!=='none'&&S.chat.effort)||'low';
-      if(isDS(p)&&!(o.thoughts&&S.chat.deep!==false))b.thinking={type:'disabled'};
+      if(isDS(p)&&!o.thoughts)b.thinking={type:'disabled'};
       // DeepSeek 联网：关着思考它不会真去搜（实测会编），所以联网时至少开低档
       if(web&&p.provider==='openai'){b.tools=[{type:'deepseek_web_search'}];if(b.thinking?.type==='disabled'){delete b.thinking;b.reasoning_effort='low'}}if(/^minimax-m/i.test(model))b.reasoning_split=true;
       res=await fetch(base+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},body:JSON.stringify(b),signal:sig});
@@ -3019,7 +3019,7 @@ chat(v){
     foot:`<textarea id="msgIn" rows="1" placeholder="你的动作和话" aria-label="你的动作和话"></textarea><button class="sq go" data-a="send" aria-label="发送">${ICONS.send}</button>`,
     after(){const c=$('#content');c.scrollTop=c.scrollHeight;const ta=$('#msgIn');if(ta)ta.addEventListener('input',()=>{ta.style.height='40px';ta.style.height=Math.min(140,ta.scrollHeight)+'px'})}};
   const c0=t.type==='dm'?charById(t.chars[0]):null,r=c0?rel(c0):{};
-  let foot=`<button class="sq" data-a="plus" aria-label="更多">${ICONS.plus}</button><button class="sq" data-a="stickerPicker" aria-label="表情包">${ICONS.smile}</button><textarea id="msgIn" rows="1" placeholder="发消息" enterkeyhint="send" aria-label="消息"></textarea><button class="sq go" data-a="send" aria-label="发送">${ICONS.send}</button>`;
+  let foot=`<button class="sq" data-a="plus" aria-label="更多">${ICONS.plus}</button><textarea id="msgIn" rows="1" placeholder="发消息" enterkeyhint="send" aria-label="消息"></textarea><button class="sq go" data-a="send" aria-label="发送">${ICONS.send}</button>`;
   let footCls='';
   const blk=()=>{const sf=warm(c0);footCls='wrap';return`<div class="blk"><span>${r.theyDeleted?'TA删了你':'TA拉黑了你'}</span><span class="meter" role="img" aria-label="回心 ${sf}"><i style="width:${sf}%"></i></span><span>回心 ${sf}</span><button class="btn o" data-a="coax">哄哄TA</button></div>`};
   if(r.youBlocked)foot=`<div class="notice">你已拉黑${esc(dn(c0))}<button class="btn o" data-a="unblock">解除拉黑</button></div>`;
@@ -3035,15 +3035,12 @@ chat(v){
 },
 think(){const C=S.chat;
   return{title:'思维链',body:`<div class="panel"><h2>心声</h2>
-      <label class="ck"><input type="checkbox" id="ch-inner" data-s="chat" data-k="inner" ${C.inner?'checked':''}>回复后带一句心声</label>
       ${C.inner?`<label class="ck"><input type="checkbox" id="ch-open" data-s="chat" data-k="innerOpen" ${C.innerOpen?'checked':''}>默认展开</label>
       <label class="f">叫什么<input type="text" id="ch-iname" data-s="chat" data-k="innerName" value="${esc(C.innerName)}" placeholder="心声 / 内心OS"></label>
       <label class="f">写什么<textarea id="ch-istyle" data-s="chat" data-k="innerStyle">${esc(C.innerStyle)}</textarea></label><button class="tb" data-a="setChat" data-k="innerStyle" data-v="${esc(CHAT_DEF().innerStyle)}" style="align-self:flex-start">恢复默认</button>`:''}</div>
     <div class="panel"><h2>思维链</h2>
-      <label class="ck"><input type="checkbox" id="ch-think" data-s="chat" data-k="think" ${C.think?'checked':''}>回复前先想清楚再回</label>
       ${C.think?`<label class="f">叫什么<input type="text" id="ch-tname" data-s="chat" data-k="thinkName" value="${esc(C.thinkName)}"></label>
-      <label class="f">想什么<textarea id="ch-tstyle" data-s="chat" data-k="thinkStyle">${esc(C.thinkStyle||THINK_DEF)}</textarea></label><button class="tb" data-a="setChat" data-k="thinkStyle" data-v="" style="align-self:flex-start">恢复默认</button>`:''}
-      ${isDS(api())?`<label class="ck"><input type="checkbox" id="ch-deep" data-s="chat" data-k="deep" ${C.deep!==false?'checked':''}>回之前先在后台想一遍（不显示）</label>`:''}</div>`}},
+      <label class="f">想什么<textarea id="ch-tstyle" data-s="chat" data-k="thinkStyle">${esc(C.thinkStyle||THINK_DEF)}</textarea></label><button class="tb" data-a="setChat" data-k="thinkStyle" data-v="" style="align-self:flex-start">恢复默认</button>`:''}</div>`}},
 offline(v){
   const t=thread(v.id);t.offline=t.offline||{...S.offline};const o=t.offline;
   return{title:'见面设置',sub:threadTitle(t),body:`<div class="panel">
@@ -3722,7 +3719,7 @@ const A={
   moreMsgs(){const v=cur();v.more=(v.more||120)+120;const c=$('#content');const h=c.scrollHeight;c.innerHTML=msgsHTML(thread(v.id));c.scrollTop=c.scrollHeight-h},
   plus(){const t=thread(cur().id),dm=t.type==='dm';const it=(a,ic,l,ex='')=>`<button class="pi" data-a="${a}" ${ex}><span class="ic">${ICONS[ic]}</span>${l}</button>`;
     sheet(`<div class="pgrid">
-      <label class="pi"><span class="ic">${ICONS.image}</span>照片<input type="file" accept="image/*" data-img="chatimg" class="vh" aria-label="发照片"></label>${it('pPic','camera','文字图片')}${it('pVoice','mic','语音')}
+      <label class="pi"><span class="ic">${ICONS.image}</span>照片<input type="file" accept="image/*" data-img="chatimg" class="vh" aria-label="发照片"></label>${it('stickerPicker','smile','表情包')}${it('pPic','camera','文字图片')}${it('pVoice','mic','语音')}
       ${it('pLoc','pin','位置')}${it('meetGo','contacts','见面')}${dm?it('pMoney','gift','红包','data-k="hb"')+it('pMoney','yen','转账','data-k="tf"')+it('cardAdd','wallet','亲属卡',`data-to="${t.chars[0]}"`)+it('pCall','phone','语音通话','data-k="voice"')+it('pCall','video','视频通话','data-k="video"')+it('pPhone','search','查TA手机')+it('pPeek','eye','让TA查我'):''}
     </div><button class="opt" data-a="closeSheet">关闭</button>`)},
   pLoc(){sheet(`<h3>发送位置</h3><input type="text" id="locIn" placeholder="在哪" aria-label="地点"><input type="text" id="locSub" placeholder="备注" aria-label="备注">
