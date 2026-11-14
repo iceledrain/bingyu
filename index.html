@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.18.6';
+window.BYJ_VER='2026.11.18.7';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -976,7 +976,7 @@ const THINK_OLD5='想清楚：{{user}}什么意思、想要什么，{{char}}真�
 const THINK_OLD6='用{{char}}的心思盘算：{{user}}什么意思、想要什么，接下来怎么回、怎么做。60字内。';
 const THINK_OLD7='用{{char}}的心思盘算：{{user}}什么意思，{{char}}自己想怎么做，接下来怎么回。60字内。';
 const THINK_OLD8='一两句话，{{char}}心里打算怎么回。30字内，不分析不列条目。';
-const THINK_OLD9='一句话，{{char}}心里打算怎么回。20字内。',THINK_OLD10='一句话：先认{{user}}上一句要什么、有没有约好的事，再定{{char}}打算怎么回。30字内。',THINK_OLD11='一句话，用{{char}}自己的口吻说心里打算怎么回。20字内。',THINK_DEF='一句话，{{char}}看到消息那一下心里的念头，像自己跟自己嘀咕，口语。20字内。不写「先…再…」这种步骤，不复述对方说了什么。';
+const THINK_OLD9='一句话，{{char}}心里打算怎么回。20字内。',THINK_OLD10='一句话：先认{{user}}上一句要什么、有没有约好的事，再定{{char}}打算怎么回。30字内。',THINK_OLD11='一句话，用{{char}}自己的口吻说心里打算怎么回。20字内。',THINK_OLD12='一句话，{{char}}看到消息那一下心里的念头，像自己跟自己嘀咕，口语。20字内。不写「先…再…」这种步骤，不复述对方说了什么。',THINK_DEF='一句话，{{char}}脑子里是怎么想的：{{user}}这句是什么意思、想要什么，{{char}}决定怎么回。用{{char}}自己的口气，口语，25字内。';
 const CHAT_DEF=()=>({lean:true,onMax:3,onLen:10,casual:true,ctx:80,sumEvery:30,inner:true,innerOpen:false,innerName:'心声',innerStyle:INNER_DEF,think:true,thinkName:'思维链',thinkStyle:THINK_DEF,effort:'',scan:8});
 const PERSONA_TPL='姓名：\n年龄：\n性别：\n身份/职业：\n外貌：\n性格：\n说话方式：\n喜欢：\n讨厌：\n背景经历：\n和{{user}}的关系：';
 const TH_FMTS=()=>[
@@ -1038,7 +1038,7 @@ function mergeState(d){
   {const seen=new Set();(s.chars||[]).forEach(c=>{c.books=(c.books||[]).filter(id=>{const b=(s.books||[]).find(x=>x.id===id);if(!b||b.scope==='global'||seen.has(id))return false;seen.add(id);return true})})}
   if(s.media?.img)s.media.img.auto=false;
   delete s.chat.thinkSrc;delete s.chat.deep;for(const k of['casual','love','chase','away','autoPost'])delete s.chat[k];s.diaryAuto=false;delete s.chat.web;delete s.look.shell;delete s.look.night;delete s.look.hide;s.chat.effort='';s.chat.think=true;s.chat.inner=true;
-  if([THINK_OLD,THINK_OLD2,THINK_OLD3,THINK_OLD4,THINK_OLD5,THINK_OLD6,THINK_OLD7,THINK_OLD8,THINK_OLD9,THINK_OLD10,THINK_OLD11].includes(s.chat.thinkStyle))s.chat.thinkStyle=THINK_DEF;
+  if([THINK_OLD,THINK_OLD2,THINK_OLD3,THINK_OLD4,THINK_OLD5,THINK_OLD6,THINK_OLD7,THINK_OLD8,THINK_OLD9,THINK_OLD10,THINK_OLD11,THINK_OLD12].includes(s.chat.thinkStyle))s.chat.thinkStyle=THINK_DEF;
   if(!s.presetV){const old=new Set([OLD_MAIN,ONLINE_OLD,ONLINE_DEF,OFFLINE_OLD,OFFLINE_DEF]);
     s.presets.forEach(p=>{const n=(p.items||[]).length;p.items=(p.items||[]).filter(i=>!old.has(i.content));if(p.items.length<n)BASE_ITEMS().slice(1).forEach(x=>p.items.push(x))});s.presetV=2}
   if(!s.catchV){s.catchV=1;s.presets.forEach(p=>{if(p.core===1&&!(p.items||[]).some(i=>i.name==='接住'||i.name==='记得')){const k=p.items.findIndex(i=>i.name==='怎么演');p.items.splice(k<0?p.items.length:k,0,SYS_ITEM('记得',CATCH_DEF))}})}
@@ -1706,7 +1706,7 @@ function buildCtx(t,o={}){
     if(pend)tail.push(`【没收的钱】${me.name}发来${pend.type==='hb'?'红包':'转账'}¥${pend.amt}${pend.content?'：'+pend.content:''}，写 [收下] 或 [退回]。`);
   }
   if(C.inner){const styles=chars.map(c=>c.innerStyle?`${c.name}：${mac(c.innerStyle)}`:'').filter(Boolean).join('；');
-    rules.push(`【${C.innerName||'心声'}】正文后另起一行写 <inner>…</inner>${G('，每人一个，「名字：」开头','')}。${mac(C.innerStyle||INNER_DEF)}${styles?'（'+styles+'）':''}提到${me.name}就用${cname}平时叫的那个：老婆、宝宝、乖乖、小乖、姐姐、${'小'+String(me.name||'').slice(-1)}，或者别的，看人设和当时的心情。不叫全名（气急了除外），不写「她」「他」「用户」。`)}
+    rules.push(`【${C.innerName||'心声'}】正文后另起一行写 <inner>…</inner>${G('，每人一个，「名字：」开头','')}。${mac(C.innerStyle||INNER_DEF)}${styles?'（'+styles+'）':''}${C.think?'和思维链不一样：那边是怎么想，这里是嘴上没说出来的那句话。':''}提到${me.name}就用${cname}平时叫的那个：老婆、宝宝、乖乖、小乖、姐姐、${'小'+String(me.name||'').slice(-1)}，或者别的，看人设和当时的心情。不叫全名（气急了除外），不写「她」「他」「用户」。`)}
   tail.push('【心情】\n'+chars.map(c=>`${c.name}：${c.mood?c.mood+'，':''}${tideOf(c)}/100`).join('\n'));
   rules.push(`【心情】${cname}有情绪，按人设露在话里，跟着聊天起伏，不突然跳变。心情0到100，现在的数值在「此刻的情况」里。最后一行写 <tide>${G('名字：','')}数字|两个字的心情</tide>，如 <tide>${G(nm+'：','')}68|吃醋</tide>；闲聊动5以内，有事动10左右。生气可以，不说伤人的话。`);
   if(!group&&mode==='online'&&chars[0]){const r=rel(chars[0]);
@@ -1733,7 +1733,7 @@ function buildCtx(t,o={}){
   if(mode==='offline'){const w=num(off.words)||500,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字，不替${me.name}说新台词、做决定${(off.upov||'second')==='second'?`；叙述里称呼${me.name}只用「你」，不写名字、不写她或他`:''}${(l=>l.length?`；${l.join('和')}别漏`:'')([C.think&&'开头的 <think>',C.inner&&'结尾的 <inner>'].filter(Boolean))}）`,last=msgs[msgs.length-1];
     if(last&&last.role==='user')last.content+='\n\n'+note;else msgs.push({role:'user',content:note})}
   const end=[];
-  if(C.think)end.push(`【思考】先在 <think>…</think> 里${mac(C.thinkStyle||THINK_DEF)}${C.inner?`没说出口的真心话留给${C.innerName||'心声'}，这里是看到消息的第一反应。`:''}提到${me.name}就用${cname}平时叫的那个：老婆、宝宝、乖乖、小乖、姐姐、${'小'+String(me.name||'').slice(-1)}，或者别的，看人设和当时的心情。不叫全名（气急了除外），不写「她」「他」「用户」。`);
+  if(C.think)end.push(`【思考】先在 <think>…</think> 里${mac(C.thinkStyle||THINK_DEF)}${C.inner?`这里只写怎么想、怎么打算；感受和没说出口的话留给${C.innerName||'心声'}，两边别写成一个意思。`:''}提到${me.name}就用${cname}平时叫的那个：老婆、宝宝、乖乖、小乖、姐姐、${'小'+String(me.name||'').slice(-1)}，或者别的，看人设和当时的心情。不叫全名（气急了除外），不写「她」「他」「用户」。`);
   const tw=C.think,iw=!!C.inner;
   if(mode!=='offline')end.push(`【回复格式】${tw?'先写 <think>…</think>，再':''}把发给${me.name}的话全写进 <reply>…</reply>，一行一条，[图片] [表情] 这类标记也在里面${iw?'；<inner> 和 <tide> 写在 </reply> 后面':'；<tide> 写在 </reply> 后面'}。<reply> 外的字不会发出去，给自己的分析${tw?'只写在 <think> 里':'不要写'}。每次都要写全。\n例：${tw?'<think>…</think>\n':''}<reply>\n第一条\n第二条\n</reply>${iw?'\n<inner>…</inner>':''}\n<tide>…</tide>`);
   else if(tw||iw)end.push(`【别漏】每次都按这个顺序写全：${tw?'第一行 <think>…</think>，然后':''}正文${iw?'，正文后另起一行 <inner>…</inner>':''}。\n例：${tw?'<think>…</think>\n':''}正文……${iw?'\n<inner>…</inner>':''}`);
