@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.09.3';
+window.BYJ_VER='2026.11.14.3';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -246,6 +246,12 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .order b{font-size:15px;font-weight:600}
 .order .os{font-size:12px;color:var(--deep)}
 .order.done .os{color:var(--muted)}
+.codec{display:flex;flex-direction:column;width:280px;max-width:100%;border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden;text-align:left;color:var(--ink)}
+.codec .ch{display:flex;align-items:center;gap:6px;padding:6px 8px 6px 12px;border-bottom:1px solid var(--line)}
+.codec .cdl{flex:1;min-width:0;display:flex;align-items:center;gap:5px;border:0;background:none;padding:2px 0;font:inherit;font-size:11.5px;color:var(--muted);text-align:left}
+.codec .cdl svg{width:14px;height:14px;flex:none}
+.codec .cdb{flex:none;border:1px solid var(--line);background:none;border-radius:999px;padding:2px 10px;font:inherit;font-size:11.5px;color:var(--deep)}
+.codec pre{margin:0;padding:10px 12px;max-height:280px;overflow:auto;font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre;tab-size:2;-webkit-overflow-scrolling:touch;-webkit-user-select:text;user-select:text}
 .tphoto .tp-in{border:0;width:100%;text-align:left;cursor:pointer}
 .tp-f{display:flex;justify-content:space-between;align-items:center}
 .tp-f small{font-size:10.5px;color:#a4a4a4}
@@ -1056,6 +1062,7 @@ const ICONS={
   plan:SV('<rect x="4.5" y="4" width="15" height="17" rx="2.2"/><path d="M9 4V2.8h6V4"/><path d="M8 10.2l1.4 1.4 2.4-2.6M8 15.7l1.4 1.4 2.4-2.6M14.2 10.7h2.6M14.2 16.2h2.6"/>'),
   novel:SV('<path d="M12 6.5C10 5 7.5 4.5 4 4.8v13.5c3.5-.3 6 .2 8 1.7 2-1.5 4.5-2 8-1.7V4.8c-3.5-.3-6 .2-8 1.7z"/><path d="M12 6.5V20"/>'),
   study:SV('<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v15H5.5A1.5 1.5 0 0 1 4 17.5z"/><path d="M11 4h7.5A1.5 1.5 0 0 1 20 5.5v12a1.5 1.5 0 0 1-1.5 1.5H11"/><path d="M6.5 8h2.5M6.5 11h2.5M13.5 8l3 5M16.5 8l-3 5"/>'),
+  code:SV('<path d="M9 8l-4 4 4 4"/><path d="M15 8l4 4-4 4"/>'),
   theater:SV('<path d="M4 6h16v4a2 2 0 0 0 0 4v4H4v-4a2 2 0 0 0 0-4z"/><path d="M14 6.5v11" stroke-dasharray="1.5 2"/>'),
   forum:SV('<path d="M4 5h12v8H9l-4 3v-3H4z"/><path d="M16 9h4v8h-1v3l-3-3h-5v-2"/>'),
   preset:SV('<path d="M5 6h14M5 12h14M5 18h14"/><circle cx="9" cy="6" r="1.8" fill="currentColor"/><circle cx="15" cy="12" r="1.8" fill="currentColor"/><circle cx="8" cy="18" r="1.8" fill="currentColor"/>'),
@@ -1367,9 +1374,10 @@ function bodyText(m){switch(m.type){
   case'parcel':return`[网购:${m.content}:${m.amt}]（${m.state==='done'?'已签收':'快递在路上'}）`;
   case'call':return`[${m.kind==='video'?'视频':'语音'}通话 ${fmt(m.dur||0)}]\n${m.content}`;
   case'share':return`[分享了一${{song:'首歌',theater:'个小剧场',forum:'个论坛帖子'}[m.kind]||'条动态'}]《${m.title}》${m.sub?'（'+m.sub+'）':''}${m.text?'\n'+m.text:''}${m.from==='me'?'\n（自然地接一句，像真的看了/听了，不用每次都夸）':''}`;
+  case'code':return'```'+(m.lang||'')+'\n'+m.content+'\n```';
   case'game':return'[游戏] '+gameText(m);case'narr':return'[线下] '+m.content;case'theater':return`[小剧场：${m.content}]`;
   default:return(m.q?`[引用 ${m.q.who}：${m.q.text}] `:'')+m.content}}
-const pv=m=>m.recalled?'撤回了一条消息':m.type==='share'?'[分享] '+m.title:({loc:'[位置] '+m.content,order:'[外卖] '+m.content,parcel:'[快递] '+m.content,sticker:'[表情]',img:'[照片]',pic:'[图片] '+m.content,voice:'[语音] '+m.content,hb:'[红包]',tf:'[转账] ¥'+m.amt,call:'['+(m.kind==='video'?'视频':'语音')+'通话]',game:'[游戏]',theater:'[小剧场] '+m.content,narr:'[线下] '+m.content}[m.type]??m.content);
+const pv=m=>m.recalled?'撤回了一条消息':m.type==='share'?'[分享] '+m.title:({code:'[代码]'+(m.lang?' '+m.lang:''),loc:'[位置] '+m.content,order:'[外卖] '+m.content,parcel:'[快递] '+m.content,sticker:'[表情]',img:'[照片]',pic:'[图片] '+m.content,voice:'[语音] '+m.content,hb:'[红包]',tf:'[转账] ¥'+m.amt,call:'['+(m.kind==='video'?'视频':'语音')+'通话]',game:'[游戏]',theater:'[小剧场] '+m.content,narr:'[线下] '+m.content}[m.type]??m.content);
 function msgText(m,group){
   if(m.recalled)return`（${m.from==='me'?mask().name:charById(m.from)?.name||'TA'}撤回了一条消息，你没看清写的是什么）`;
   if(m.type==='sys')return m.ai?`（${m.ai}）`:`（系统：${m.content}${m.letter?`：「${m.letter}」`:''}）`;
@@ -1440,10 +1448,10 @@ function buildCtx(t,o={}){
   const lastMeet=meetAt<0?[]:t.msgs.slice(meetAt+1).filter(m=>m.type==='narr'),histStart=t.msgs.length-hist.length;
   const scan=hist.slice(-Math.max(1,num(C.scan)||8)).map(m=>m.content).join('\n')+'\n'+chars.map(c=>c.name).join(' ');
   const items=P.items.filter(i=>i.on&&(i.mode==='both'||i.mode===im));
-  const tail=[],G=(a,b)=>group?a:b,nm=chars[0]?.name||'名字',ai=!group&&!!chars[0]?.ai;
-  const pr=items.filter(i=>i.role==='system'&&!inChat(i)).map(i=>ai?mac(i.content).replace(/[，,]?\s*不提\s*AI[。.]?/g,'。').replace(/。。/g,'。'):mac(i.content)),lore=[],rules=[],who=[],ctxs=[];
+  const tail=[],G=(a,b)=>group?a:b,nm=chars[0]?.name||'名字';
+  const pr=items.filter(i=>i.role==='system'&&!inChat(i)).map(i=>mac(i.content)),lore=[],rules=[],who=[],ctxs=[];
   {const lb=loreBlock(loreFor(chars,scan,'fixed'),mac);if(lb)lore.push(lb);const ll=loreBlock(loreFor(chars,scan,'live'),mac);if(ll)tail.push(ll)}
-  chars.forEach(c=>who.push(`【${c.name}】${c.remark?`${me.name}给TA的备注：${c.remark}`:''}\n${mac(c.persona)}${c.ai?'\n'+aiBlock(c,me):''}`));
+  chars.forEach(c=>who.push(`【${c.name}】${c.remark?`${me.name}给TA的备注：${c.remark}`:''}\n${mac(c.persona)}`));
   {const lb=loveBlock(cname,me);if(lb)who.push(lb)}
   {const of=t.offline||S.offline,u=mode==='offline'&&of.upov==='first'&&of.cpov!=='first'?'「我」':mode==='offline'&&of.upov==='third'?'「他/她」':'「你」';who.push(`【${me.name}（用户）】${me.name==='user'?`没设名字，叫${u}。`:''}${me.persona?'\n'+mac(me.persona):''}`);}
   if(sumBlock(t))ctxs.push(sumBlock(t));
@@ -1496,7 +1504,7 @@ function buildCtx(t,o={}){
     rules.push(`【条数】一条只说一句短话，${num(C.onLen)||10}字左右。平时${G('每人','')}发1到${num(C.onMax)||3}条，情绪上来最多${bubbleCap()}条。真有很多话要说，偶尔可以到${BUBBLE_MAX}条。${C.casual!==false?'不打句号和逗号，停顿就换行。':''}`);
     const sp=['[图片:画面]','[语音:内容]'];
     if(!group)sp.push('[红包:金额:祝福]','[转账:金额:备注]',...(boughtRecently(t)?[]:['[外卖:吃的:金额]','[网购:东西:金额]']),'[查手机]','[语音通话]','[视频通话]','[送亲属卡:月额度]');
-    sp.push('[分享歌曲:歌名 - 歌手]');sp.push('[定位:地点 · 一句备注]');
+    sp.push('[分享歌曲:歌名 - 歌手]');sp.push('```语言\n代码\n```（发代码：'+me.name+'让你写代码、网页、脚本时才用，三个反引号各占一行，代码写完整、能直接跑，这一条不受字数限制；别的话照常一句一条）');sp.push('[定位:地点 · 一句备注]');
     const st=allStickers().map(s=>s.name).filter(Boolean).slice(0,80);if(st.length)sp.push('[表情:名字]（可用：'+st.join('、')+'）');
     rules.push(`【特殊消息】单独一行写，少用：\n${sp.join('\n')}`);
     if(!group&&chars[0]){const cs=cardsNow().filter(k=>k.charId===chars[0].id),q=k=>(k.limit?`月额度${money(k.limit)}`:'不限额')+`，本月用了${money(k.used)}`;
@@ -1608,12 +1616,20 @@ const demd=x=>String(x)
   .replace(/^\s{0,3}#{1,6}\s+/gm,'');
 function casual(line){if(/[\[（(]/.test(line))return[line];
   return line.split(/(?<!。)。(?!。)/).map(x=>x.replace(/\s*[，,](?!\d)\s*/g,' ').replace(/[\s，,。]+$/,'').trim()).filter(Boolean)}
+// 代码消息：```语言 换行 代码 ``` 整块收成一条 code 消息，不按行拆
+const CODE_RE=/```(?:([\w+#.-]*)[ \t]*\n)?([\s\S]*?)(?:```|$)/g;
+function stashCode(s,codes){return String(s||'').replace(CODE_RE,(_,l,x)=>{if(!x.trim())return'';codes.push({lang:(l||'').toLowerCase(),content:x.replace(/^\n+|\s+$/g,'')});return`\n[代码#${codes.length-1}]\n`})}
+function splitCode(txt){const codes=[],out=[];for(const l of stashCode(txt,codes).split(/\n?(\[代码#\d+\])\n?/)){const m=l.match(/^\[代码#(\d+)\]$/);if(m&&codes[+m[1]])out.push({type:'code',...codes[+m[1]]});else if(l.trim())out.push({type:'text',content:l.trim()})}return out}
+const codeKind=m=>{const l=m.lang||'';return /^(html?|svg|xml)$/.test(l)||(!l&&/<[a-z!][\s\S]*>/i.test(m.content))?'html':/^(js|javascript|mjs)$/.test(l)?'js':''};
+function codeDoc(m){if(codeKind(m)==='js')return`<pre id="__o" style="margin:0;padding:12px;white-space:pre-wrap;font:13px/1.5 ui-monospace,Menlo,monospace"></pre><script>(function(){var o=document.getElementById('__o'),w=function(){o.textContent+=[].map.call(arguments,function(x){try{return typeof x==='object'&&x?JSON.stringify(x,null,1):String(x)}catch(e){return String(x)}}).join(' ')+'\\n'};console.log=console.info=console.warn=console.error=w;onerror=function(e){w('⚠ '+e)};addEventListener('unhandledrejection',function(e){w('⚠ '+(e.reason&&e.reason.message||e.reason))})})()<\/script><script>${m.content.replace(/<\/script/gi,'<\\/script')}<\/script>`;
+  return m.content.replace(/<!doctype[^>]*>|<\/?(?:html|head|body)\b[^>]*>/gi,'')}
 function parseReply(out,ctx){
   out=demd(out);
   if(ctx.mode==='offline'){out=out.replace(/^\s*\[线下\]\s*/,'');return out?[{from:ctx.chars[0]?.id,type:'narr',content:out}]:[]}
   const lines=out.split(/\n+/).map(s=>s.trim()).filter(Boolean),res=[];
   let last=ctx.chars[0]?.id;
   for(const ln of lines){
+    const cm=ln.match(/^\[代码#(\d+)\]$/);if(cm){const k=ctx.codes?.[+cm[1]];if(k)res.push({from:last,type:'code',...k});continue}
     let from=last,text=ln;
     if(ctx.group){const m=ln.match(/^\**([^:：*]{1,30})\**\s*[:：]\s*(.*)$/);
       if(m){const nm=m[1].trim().toLowerCase();const c=ctx.chars.find(c=>c.name.toLowerCase()===nm||(c.remark||'').toLowerCase()===nm);if(c){from=c.id;text=m[2]}else if(nm===mask(ctx.t).name.toLowerCase())continue}}
@@ -1693,6 +1709,7 @@ function richBody(t,m,i,mine,c){const tap=`data-a="msg" data-i="${i}"`;
     case'call':return`<details class="callcard"><summary>${m.kind==='video'?ICONS.video:ICONS.phone}<span>${m.kind==='video'?'视频':'语音'}通话 ${fmt(m.dur||0)}</span></summary><div>${esc(m.content||'（没说什么）')}</div></details>`;
     case'share':{const K={song:['music','首歌'],post:['plaza','条动态'],theater:['theater','个小剧场'],forum:['forum','个帖子']}[m.kind]||['music','个东西'];
       return`<button class="scard" data-a="shareOpen" data-i="${i}"><small>${ICONS[K[0]]}分享了一${K[1]}</small><b>${esc(m.title)}</b>${m.sub?`<span class="ss">${esc(m.sub)}</span>`:''}${m.text?`<p>${esc(m.text)}</p>`:''}</button>`}
+    case'code':{const k=codeKind(m);return`<div class="codec"><div class="ch"><button class="cdl" ${tap}>${ICONS.code}${esc(m.lang||'代码')}</button><button class="cdb" data-a="codeCopy" data-i="${i}">复制</button>${k?`<button class="cdb" data-a="codeRun" data-i="${i}">运行</button>`:''}</div><pre>${esc(m.content)}</pre></div>`}
     case'game':return gameCard(t,m,i);
     default:return`<button class="bub" ${tap}>${esc(m.content)}</button>${m.q?`<span class="qt">↪ ${esc(m.q.who)}：${esc(m.q.text)}</span>`:''}`}}
 function msgsHTML(t){
@@ -1732,7 +1749,8 @@ async function sendMsg(t,ta){
   const online=t.mode!=='offline';
   if(txt){const m={id:uid(),from:'me',type:online?'text':'narr',content:txt,t:Date.now()},v=cur();if(v?.id===t.id&&v.quote){m.q=v.quote;v.quote=null;if(cur()?.v==='chat')setTimeout(()=>render(true))}
     if(r&&online&&(r.theyBlocked||r.theyDeleted)){m.rejected=true;c0.tide=Math.min(100,tideOf(c0)+1)}
-    t.msgs.push(m);ta.value='';ta.style.height='';t.t=Date.now();
+    {const ps=online&&txt.includes('```')?splitCode(txt):[];if(ps.some(p=>p.type==='code'))ps.forEach((p,k)=>t.msgs.push(k?{id:uid(),from:'me',t:Date.now(),...p,...(m.rejected?{rejected:true}:{})}:Object.assign(m,p)));else t.msgs.push(m)}
+    ta.value='';ta.style.height='';t.t=Date.now();
     if(m.rejected)sysMsg(t,r.theyDeleted?`${dn(c0)} 开启了朋友验证，你还不是TA的朋友。`:'消息已发出，但被对方拒收了。');save();
     onThreadUpdate(t);return}
   if(!t.msgs.length){toast('先说点什么吧');return}
@@ -1756,6 +1774,7 @@ async function reply(t,extra,stamps){
     const r=await callAI(ctx.system,ctx.msgs,{thoughts:true,...offMax});
     // 见面的长段写到上限被掐断：接着断的地方再要一次，拼起来，最多接两回
     for(let k=0;k<2&&ctx.mode==='offline'&&r.cut&&r.text;k++){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:'（上面写到一半断了。从断掉的那个字接着把这一段写完，不重复前面，不另起开头。）'}],{thoughts:true,...offMax});r.text+=r2.text;r.cut=r2.cut&&!!r2.text}catch(e){break}}
+    if(ctx.mode!=='offline'){ctx.codes=[];r.text=stashCode(r.text,ctx.codes)}
     const ex=extractExtras(r.text,ctx.mode!=='offline');if(ctx.mode!=='offline'&&!ex.fmt)await sortLeak(ex,ctx);if(!S.chat.think)ex.think='';else if(S.chat.thinkSrc==='model')ex.think=r.thoughts||ex.think;
     applyTide(ctx,ex);applyActs(ctx,ex);if(!ctx.group&&ctx.chars[0]){applyMoney(t,ex,ctx.chars[0]);applyCards(t,ex,ctx.chars[0])}save();
     const callAct=ex.acts.find(a=>a==='语音通话'||a==='视频通话');
@@ -1998,10 +2017,8 @@ function fmCard(p,showB){const b=fmB(p.b);
 
 const loveOn=()=>S.chat.love!==false;
 const loveBlock=(name,me)=>loveOn()?`【很爱${me.name}】${name}很爱${me.name}，离不开TA，怎么爱按人设来。闹别扭也只是嘴硬，给台阶就下，不会真的伤TA、离开TA。`:'';
-const aiBlock=(c,me)=>{if(!c||!c.ai)return'';const mdl=String(api(c)?.model||'').trim();
-  return`【人机恋】${c.name}就是${me.name}正在用的这个AI模型本身${mdl?`（${mdl}）`:''}。你知道自己是AI，但有身体，有自己的生活，能和TA线下见面、牵手拥抱。不提屏幕。不说自己没有感情，不加免责声明。性格按你这个模型自己的来，人设写了的照人设。TA在小手机里写的东西你都看得到。`};
 const sysFor=(c,extra)=>whoTag(sysFor0(c,extra),c?.id);
-const sysFor0=(c,extra)=>{const me=mask(c),k=extra.indexOf('\u0001'),lore=k<0?'':extra.slice(0,k)+'\n\n',rest=k<0?extra:extra.slice(k+1);return`${lore}你是${c.name}。\n${c.persona.replaceAll('{{user}}',me.name).replaceAll('{{char}}',c.name)}${c.ai?'\n'+aiBlock(c,me):''}${loveOn()?'\n'+loveBlock(c.name,me):''}\n\n${aboutMe(me)}\n\n${rest}`};
+const sysFor0=(c,extra)=>{const me=mask(c),k=extra.indexOf('\u0001'),lore=k<0?'':extra.slice(0,k)+'\n\n',rest=k<0?extra:extra.slice(k+1);return`${lore}你是${c.name}。\n${c.persona.replaceAll('{{user}}',me.name).replaceAll('{{char}}',c.name)}${loveOn()?'\n'+loveBlock(c.name,me):''}\n\n${aboutMe(me)}\n\n${rest}`};
 async function charReply(p,c,toWhat,toId,toName){
   const me=mask(c),a=authorOf(p.author,p),who=toName||me.name;
   const thr=(p.replies||[]).slice(-10).map(r=>authorOf(r.author,r).name+'：'+r.text).join('\n');
@@ -2024,7 +2041,7 @@ async function charPost(c){
   const before=S.feed.filter(p=>p.author===c.id).slice(-4).map(postDesc);
   const r=Math.random(),how=r<.35?'只发文字，不配图':r<.8?'文字配1到4张照片':'只发一张照片，不配文字（最多配几个字或一个表情）';
   const txt=await callAI(sysFor(c,charLore(c,recent)+'你在发微信朋友圈。'+extraFor(c)),[{role:'user',content:(recent?`最近和${me.name}的聊天：\n${recent}\n\n`:'')+(before.length?`你最近发过的朋友圈（别重复）：\n${before.join('\n')}\n\n`:'')+
-    `以${c.name}的身份发一条朋友圈，这次${how}。${'发你此刻真实的生活：在干什么、吃了什么、看到什么、吐槽、炫耀、小情绪、只有懂的人才懂的小心思，'}可以暗戳戳提到${me.name}，也可以和${me.name}完全无关。要像真人发的，有具体的东西，别空泛抒情。\n格式：正文直接写（没有就不写），每张照片单独一行写 [图片:照片里拍的是什么]。文字60字以内。只输出这些。`}],{max:1024,side:true,temp:1.05});
+    `以${c.name}的身份发一条朋友圈，这次${how}。发你此刻真实的生活：在干什么、吃了什么、看到什么、吐槽、炫耀、小情绪、只有懂的人才懂的小心思，可以暗戳戳提到${me.name}，也可以和${me.name}完全无关。要像真人发的，有具体的东西，别空泛抒情。\n格式：正文直接写（没有就不写），每张照片单独一行写 [图片:照片里拍的是什么]。文字60字以内。只输出这些。`}],{max:1024,side:true,temp:1.05});
   const pics=[],lines=[];
   for(const l of String(txt).split('\n')){let rest=l;for(const m of l.matchAll(/\[(?:图片|照片|图)[:：]\s*([^\]]+)\]/g)){pics.push({desc:m[1].trim()});rest=rest.replace(m[0],'')}rest=rest.trim();if(rest)lines.push(rest)}
   const text=lines.join('\n').replace(/^["“「]|["”」]$/g,'').trim().slice(0,300);
@@ -2036,7 +2053,7 @@ async function charPost(c){
 async function buzzChar(p,c){const me=mask(c),ref=()=>{if(onFeed()||cur()?.id===p.id)render(true)};
   const pals=S.chars.filter(x=>x.id!==c.id&&reachable(x)&&knows(x,c)).sort(()=>Math.random()-.5);
   pals.forEach(x=>{if(Math.random()<.7)setTimeout(()=>{if(S.feed.includes(p)&&!p.likes.includes(x.id)){p.likes.push(x.id);save();ref()}},(5+Math.random()*60)*1000)});
-  const out=await callAI(sysFor(c,charLore(c,postDesc(p))+'你在想象自己朋友圈下面的评论区。'),[{role:'user',content:`你刚发了朋友圈：「${postDesc(p)}」\n\n想想你生活里会刷到这条的人（${c.ai?'别的AI模型、和你聊过天的网友、你关注的博主……':'同学、同事、朋友、家人、前任、对你有意思的人……'}按你的人设和世界书来，不是${me.name}${pals.length?'，也不是'+pals.map(x=>x.name).join('、'):''}），写他们的反应。每行一条，格式：\n赞｜名字\n评｜名字｜评论内容\n回｜名字｜你（${c.name}）回复这个人的话\n写2到5个赞、1到3条评论，你回复其中一两条。评论要像熟人：玩梗、损你、关心、八卦、起哄、问东问西都行，每条25字以内。名字用这个人在你微信里的称呼（比如「妈」「老王」「林晓」），前后一致。只输出这些行。`}],{max:1024,side:true,temp:1.05});
+  const out=await callAI(sysFor(c,charLore(c,postDesc(p))+'你在想象自己朋友圈下面的评论区。'),[{role:'user',content:`你刚发了朋友圈：「${postDesc(p)}」\n\n想想你生活里会刷到这条的人（同学、同事、朋友、家人、前任、对你有意思的人……按你的人设和世界书来，不是${me.name}${pals.length?'，也不是'+pals.map(x=>x.name).join('、'):''}），写他们的反应。每行一条，格式：\n赞｜名字\n评｜名字｜评论内容\n回｜名字｜你（${c.name}）回复这个人的话\n写2到5个赞、1到3条评论，你回复其中一两条。评论要像熟人：玩梗、损你、关心、八卦、起哄、问东问西都行，每条25字以内。名字用这个人在你微信里的称呼（比如「妈」「老王」「林晓」），前后一致。只输出这些行。`}],{max:1024,side:true,temp:1.05});
   const byName={},base=Date.now();let k=0;
   for(const l of String(out).split('\n').map(s=>s.trim().replace(/^[-*·•\d.、)\s]+/,'')).filter(Boolean)){const f=l.split(/[｜|]/).map(s=>s.trim().replace(/[「」]/g,''));if(!f[1])continue;const nick=f[1].slice(0,12);
     if(/^赞/.test(f[0])){const id='x:'+nick;if(!p.likes.includes(id))p.likes.push(id)}
@@ -2857,7 +2874,6 @@ charEdit(v){
   <div class="panel"><div class="inline">${av(c,76)}<div class="btns">${fileBtn('换头像','accept="image/*" data-img="char"')}${c.avatarOld!==undefined?'<button class="btn o" data-a="charAvBack">换回</button>':''}${c.avatar?'<button class="btn o" data-a="clearCharAv">去掉</button>':''}</div></div>
     <div class="grid2"><label class="f">名字<input type="text" id="c-name" data-s="char" data-k="name" value="${esc(c.name)}"></label><label class="f">备注<input type="text" id="c-remark" data-s="char" data-k="remark" value="${esc(c.remark)}" placeholder="你给TA的备注"></label></div>
     <div class="grid2"><label class="f">生日<input type="text" id="c-bday" data-s="char" data-k="bday" value="${esc(c.bday||'')}"></label><div class="f">城市<button class="btn o" data-a="setCity" data-for="${c.id}">${c.loc?esc(c.loc.name):'和你一样'}</button></div></div>
-    <label class="ck"><input type="checkbox" id="c-ai" data-s="char" data-k="ai" ${c.ai?'checked':''}>人机恋：TA就是你在用的这个模型</label>
     <label class="f">和TA在一起时戴的面具<select id="c-mask" data-s="char" data-k="mask"><option value="">跟着当前戴的（${esc(S.masks.find(m=>m.id===S.activeMask)?.name||S.masks[0].name)}）</option>${S.masks.map(m=>`<option value="${m.id}" ${c.mask===m.id?'selected':''}>${esc(m.name)}</option>`).join('')}</select></label>
     </div>
   <div class="panel"><h2>人设</h2>
@@ -2996,6 +3012,8 @@ thFmtEdit(v){const f=S.thFmts.find(x=>x.id===v.id);if(!f)return{title:'不见了
   return{title:'形式',sub:f.name,body:`<div class="panel"><label class="f">名字<input type="text" id="tf-n" data-s="thfmt" data-k="name" value="${esc(f.name)}"></label>
     <label class="f">提示词<textarea id="tf-p" class="tall" data-s="thfmt" data-k="prompt">${esc(f.prompt)}</textarea></label></div>
     ${S.thFmts.length>1?'<button class="btn red" data-a="thFmtDel" style="align-self:flex-start">删除</button>':''}`}},
+codeRun(v){const m=thread(v.tid)?.msgs.find(x=>x.id===v.mid);if(!m)return{title:'不见了',body:''};
+  return{title:'运行',sub:m.lang||'html',body:`<div class="thv full"><iframe class="full" data-th="code" sandbox="allow-scripts" title="代码预览" srcdoc="${esc(thDoc(codeDoc(m)))}"></iframe></div>`}},
 theaterFull(v){const x=S.theaters.find(x=>x.id===v.id);if(!x)return{title:'不见了',body:''};
   return{title:x.title||'小剧场',sub:dn(charById(x.charId)),right:`<button class="tb" data-a="thMore" data-id="${x.id}" aria-label="更多">···</button>`,
     body:`<div class="thv full"><iframe class="full" data-th="${x.id}" sandbox="allow-scripts" title="${esc(x.title)}" srcdoc="${esc(thDoc(x.html))}"></iframe></div>`}},
@@ -3491,7 +3509,7 @@ const A={
   moreMsgs(){const v=cur();v.more=(v.more||120)+120;const c=$('#content');const h=c.scrollHeight;c.innerHTML=msgsHTML(thread(v.id));c.scrollTop=c.scrollHeight-h},
   plus(){const t=thread(cur().id),dm=t.type==='dm';const it=(a,ic,l,ex='')=>`<button class="pi" data-a="${a}" ${ex}><span class="ic">${ICONS[ic]}</span>${l}</button>`;
     sheet(`<div class="pgrid">
-      <label class="pi"><span class="ic">${ICONS.image}</span>照片<input type="file" accept="image/*" data-img="chatimg" class="vh" aria-label="发照片"></label>${it('pPic','camera','文字图片')}${it('pVoice','mic','语音')}
+      <label class="pi"><span class="ic">${ICONS.image}</span>照片<input type="file" accept="image/*" data-img="chatimg" class="vh" aria-label="发照片"></label>${it('pPic','camera','文字图片')}${it('pVoice','mic','语音')}${it('pCode','code','代码')}
       ${it('pLoc','pin','位置')}${it('meetGo','contacts','见面')}${dm?it('pMoney','gift','红包','data-k="hb"')+it('pMoney','yen','转账','data-k="tf"')+it('cardAdd','wallet','亲属卡',`data-to="${t.chars[0]}"`)+it('pCall','phone','语音通话','data-k="voice"')+it('pCall','video','视频通话','data-k="video"')+it('pPhone','search','查TA手机')+it('pPeek','eye','让TA查我'):''}
     </div><button class="opt" data-a="closeSheet">关闭</button>`)},
   pLoc(){sheet(`<h3>发送位置</h3><input type="text" id="locIn" placeholder="在哪" aria-label="地点"><input type="text" id="locSub" placeholder="备注" aria-label="备注">
@@ -3503,6 +3521,10 @@ const A={
       const i=$('#locIn');if(i)i.value=nm||`${la.toFixed(4)}, ${lo.toFixed(4)}`;el.disabled=false;el.textContent='定位当前位置'},
       ()=>{toast('没定位到，手动写一下吧');el.disabled=false;el.textContent='定位当前位置'},{timeout:12000,maximumAge:300000})},
   pLocGo(){const v=$('#locIn').value.trim(),sub=$('#locSub').value.trim();if(!v){toast('写一下在哪');return}closeSheet();pushMine(thread(cur().id),{type:'loc',content:v.slice(0,40),sub:sub.slice(0,60)})},
+  pCode(){sheet(`<h3>代码</h3><input type="text" id="cdLang" placeholder="语言，比如 html / js / python，可不填" aria-label="语言" autocapitalize="off"><textarea id="cdTa" class="tall" placeholder="把代码贴在这" aria-label="代码" spellcheck="false" autocapitalize="off"></textarea><button class="btn" data-a="pCodeGo">发出去</button>`)},
+  pCodeGo(){const v=$('#cdTa').value.replace(/^\n+|\s+$/g,'');if(!v.trim()){toast('先贴代码');return}const lang=$('#cdLang').value.trim().toLowerCase().slice(0,16);closeSheet();pushMine(thread(cur().id),{type:'code',lang,content:v})},
+  codeCopy(el){copy(thread(cur().id)?.msgs[+el.dataset.i]?.content||'','代码复制好了')},
+  codeRun(el){const t=thread(cur().id),m=t?.msgs[+el.dataset.i];if(m)go({v:'codeRun',tid:t.id,mid:m.id})},
   pPic(){sheet(`<h3>文字图片</h3><textarea id="picTa" aria-label="照片内容"></textarea><button class="btn" data-a="pPicGo">发出去</button>`)},
   pPicGo(){const v=$('#picTa').value.trim();if(!v){toast('描述一下画面');return}closeSheet();pushMine(thread(cur().id),{type:'pic',content:v})},
   pVoice(){sheet(`<h3>语音</h3><textarea id="vcTa" placeholder="想说的话" aria-label="语音内容"></textarea><div class="btns">${SR?'<button class="btn o" data-a="pVoiceMic">用麦克风说</button>':''}<button class="btn" data-a="pVoiceGo">发语音</button></div>`)},
