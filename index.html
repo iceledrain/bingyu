@@ -3018,7 +3018,7 @@ chatInfo(v){const t=thread(v.id);if(!t)return{title:'不见了',body:''};const d
   return{title:'',cls:'cinfo',body:`<div class="ci-top">${dm?av(c||{},96):(t.avatar?av(t,96):`<span class="grpav big">${cs.slice(0,4).map(x=>av(x,44)).join('')}</span>`)}<b>${esc(threadTitle(t))}</b><small>${dm?'@'+esc(c?.name||''):cs.length+1+' 人'}</small></div>
     <div class="ci-btns"><button data-a="${dm?'openCharFromChat':'openGroupEdit'}"><i>${ICONS.person}</i><span>${dm?'资料':'成员'}</span></button><button data-a="chatMenu"><i>···</i><span>更多</span></button></div>
     <div class="ci-list">${row('chatSet','settings','聊天设置')}${v.off?row('openOffline','pin','见面设置'):''}${row('ctxPeek','eye','记忆')}${row('openSummary','diary','总结')}${row('open','brain','思维链','data-v="think"')}</div>`}},
-threads(v){
+threads(v){dropBlank();
   const tab=['dm','people','find','me'].includes(v.tab)?v.tab:'dm',un=S.threads.reduce((n,t)=>n+(t.unread||0),0);
   const bar=[['dm',ICONS.messages,'聊天'],['people',ICONS.contacts,'通讯录'],['find',ICONS.plaza,'发现'],['me',ICONS.person,'我']].map(([k,ic,l])=>`<button class="${tab===k?'on':''}" data-a="tab" data-t="${k}">${ic}<span>${l}</span>${k==='dm'&&un?`<i class="wxn">${un>99?'99+':un}</i>`:''}${k==='find'&&tab!=='find'&&feedNew()?'<i class="wxn dot"></i>':''}</button>`).join('');
   const nav={foot:bar,footCls:'tabbar wx'},go_=(a,ic,l,ex='',side='')=>`<button class="wxr" data-a="${a}" ${ex}><span class="wxi">${ICONS[ic]}</span><b>${l}</b>${side?`<em>${side}</em>`:''}<i class="chev">›</i></button>`;
@@ -3435,6 +3435,8 @@ apiEdit(v){
 }
 };
 
+function dropBlank(){const bad=S.chars.filter(c=>c.name==='新角色'&&!String(c.persona||'').trim()&&!c.avatar&&!c.remark&&!c.handle&&!stack.some(x=>x.id===c.id)&&!S.threads.some(t=>t.chars.includes(c.id)&&(t.type==='group'||t.msgs.length))).map(c=>c.id);
+  if(!bad.length)return;S.chars=S.chars.filter(c=>!bad.includes(c.id));S.threads=S.threads.filter(t=>!(t.type==='dm'&&bad.includes(t.chars[0])));save()}
 function purgeChar(id){S.chars=S.chars.filter(c=>c.id!==id);S.threads.forEach(t=>t.chars=t.chars.filter(x=>x!==id));S.threads=S.threads.filter(t=>t.chars.length&&!(t.type==='group'&&t.chars.length<2&&!t.msgs.length));
   S.feed=S.feed.filter(p=>p.author!==id);S.events=S.events.filter(e=>e.who!==id);if(S.music.with===id)S.music.with=null;S.diary=S.diary.filter(d=>d.charId!==id);if(S.raise)S.raise.kids=S.raise.kids.filter(k=>k.charId!==id);S.theaters=S.theaters.filter(x=>x.charId!==id);S.codes=S.codes.filter(p=>p.charId!==id);
   save();closeSheet();stack=stack.filter(x=>x.id!==id&&!(x.v==='chat'&&!thread(x.id)));if(!stack.length)toRoot('dm');else render();toast('删掉了')}
