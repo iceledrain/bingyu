@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.15.10';
+window.BYJ_VER='2026.11.16.1';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -972,7 +972,7 @@ const THINK_OLD6='用{{char}}的心思盘算：{{user}}什么意思、想要什�
 const THINK_OLD7='用{{char}}的心思盘算：{{user}}什么意思，{{char}}自己想怎么做，接下来怎么回。60字内。';
 const THINK_OLD8='一两句话，{{char}}心里打算怎么回。30字内，不分析不列条目。';
 const THINK_OLD9='一句话，{{char}}心里打算怎么回。20字内。',THINK_OLD10='一句话：先认{{user}}上一句要什么、有没有约好的事，再定{{char}}打算怎么回。30字内。',THINK_DEF='一句话，用{{char}}自己的口吻说心里打算怎么回。20字内。';
-const CHAT_DEF=()=>({lean:true,onMax:3,onLen:10,casual:true,ctx:80,sumEvery:30,inner:true,innerOpen:false,innerName:'心声',innerStyle:INNER_DEF,think:true,thinkName:'思维链',thinkStyle:THINK_DEF,effort:'',web:false,scan:8});
+const CHAT_DEF=()=>({lean:true,onMax:3,onLen:10,casual:true,ctx:80,sumEvery:30,inner:true,innerOpen:false,innerName:'心声',innerStyle:INNER_DEF,think:true,thinkName:'思维链',thinkStyle:THINK_DEF,effort:'',scan:8});
 const PERSONA_TPL='姓名：\n年龄：\n性别：\n身份/职业：\n外貌：\n性格：\n说话方式：\n喜欢：\n讨厌：\n背景经历：\n和{{user}}的关系：';
 const TH_FMTS=()=>[
   {id:'tp_memo',name:'备忘录',prompt:'做成手机备忘录的样子：{{char}}手机里一条关于{{user}}的备忘录，有标题、日期、几条清单或碎碎念，有删掉又改的痕迹。'},
@@ -1366,8 +1366,6 @@ function go(v){stack.push(v);appEl.classList.add('open');render()}
 const rootOf=tab=>xOn()?{v:'x',tab:tab||'home'}:{v:'threads'};
 // 回到最底层：X 样式是外壳首页，经典是桌面
 function toRoot(tab){closeSheet();if(xOn()){stack=[rootOf(tab)];appEl.classList.add('open');render()}else{stack=[];appEl.classList.remove('open');fxOff();renderHome();paintCanvas()}}
-const WEB_CUE=/查一下|查查|查一查|搜一下|搜搜|帮我[查搜]|上网|百度|天气|气温|温度|下雨|下雪|台风|新闻|热搜|头条|多少钱|价格|汇率|股价|票房|比分|几号|星期几|礼拜几|怎么去|地址在|营业|开门了吗|最新|上映|是什么东西|是啥|怎么做|攻略|推荐一/;
-const needWeb=t=>{let x='';for(let i=t.msgs.length-1;i>=0&&t.msgs[i].from==='me';i--)x+=' '+(t.msgs[i].content||'');return WEB_CUE.test(x)};
 const fmCurB=v=>v?.v==='x'?v.b:v?.tab;
 function back(){closeSheet();if(xOn()&&stack.length<=1&&cur()?.v==='x')return;stack.pop();if(!stack.length){toRoot();return}render()}
 function fxOff(){setTimeout(()=>{if(!isOpen())document.documentElement.classList.remove('fx')},340)}
@@ -1412,10 +1410,7 @@ const rzOf=d=>d.reasoning_content||(typeof d.reasoning==='string'?d.reasoning:''
 // 官方地址用 x-api-key；别家的 /anthropic 兼容地址（MiniMax）网页跨域只放行 Authorization
 const antHdr=(base,key)=>/anthropic\.com/.test(base)?{'x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'}:{Authorization:'Bearer '+key};
 // 模型写给自己的 <!--笔记--> 这类注释（含全角叹号、没写全的），整条去掉
-const deNote=x=>String(x||'').replace(/<[!！]\s*-{1,2}[\s\S]*?-{1,2}\s*>/g,'').replace(/^[ \t]*<[!！]\s*-{1,2}[^\n]*$/gm,'').replace(/\n{3,}/g,'\n\n');
-// 联网搜索：服务商自己搜、一次请求里搜完。只有 Claude 协议有（官方 Claude、MiniMax 的 /anthropic）
-const isMMBase=b=>/api\.minimaxi?\.(cn|com|io|chat)/i.test(b||'');
-const webOk=p=>!!p&&(isMMBase(p.base)||/api\.deepseek\.com/i.test(p.base||''));
+const deNote=x=>String(x||'').replace(/\]?<\]?minimax\[?>\[?/gi,'').replace(/<[!！]\s*-{1,2}[\s\S]*?-{1,2}\s*>/g,'').replace(/^[ \t]*<[!！]\s*-{1,2}[^\n]*$/gm,'').replace(/\n{3,}/g,'\n\n');
 // 显示的只有角色自己写的思维链。模型自带的思考只在后台跑、不显示：DeepSeek 聊天时开着，杂活一律关；MiniMax 关不了，压到最低档
 const isDS=p=>/deepseek/i.test((p?.base||'')+' '+(p?.model||''));
 const isKimi=base=>/moonshot\.(cn|ai)|kimi\.(com|ai)/.test(base||'');
@@ -1437,10 +1432,7 @@ async function callAI1(system,messages,o={}){let hid=document.hidden;const vh=()
   finally{document.removeEventListener('visibilitychange',vh)}}
 async function callAI0(system,messages,o={}){
   let p=api(o.who||whoOf(system));if(!p)throw new Error('先在「设置 · 聊天」里添加一个模型');p={...p,provider:provOf(p)};
-  const key=(p.key||'').trim(),model=(p.model||'').trim();let base=(p.base||'').trim().replace(/\/+$/,'');
-  const web=!!(o.web&&webOk(p));
-  // 联网时不走流式（要拿到完整的内容块）；MiniMax 填的是 /v1 也自动换到它的 /anthropic 地址
-  if(web){p.stream=false;if(p.provider==='openai'&&isMMBase(base)){p.provider='claude';base=base.replace(/\/v1$/,'')+'/anthropic'}}
+  const key=(p.key||'').trim(),model=(p.model||'').trim();const base=(p.base||'').trim().replace(/\/+$/,'');
   if(!key)throw new Error('先在「设置 · 聊天」填 API Key');
   if(!model)throw new Error('先在「设置 · 聊天」填模型名');
   if(!base)throw new Error('先在「设置 · 聊天」填接口地址');
@@ -1452,8 +1444,6 @@ async function callAI0(system,messages,o={}){
       const b={model,max_tokens:max,...(p.stream?{stream:true,stream_options:{include_usage:true}}:{}),...(isKimi(base)?{prompt_cache_options:{mode:'implicit',ttl:p.cache==='1h'?'1h':'5m'}}:{}),messages:[{role:'system',content:system},...m.map(x=>({role:x.role,content:x.imgs&&x.imgs.length?[{type:'text',text:x.content},...x.imgs.map(u=>({type:'image_url',image_url:{url:u}}))]:x.content}))]};if(temp!==null)b.temperature=temp;if(topP!==null)b.top_p=topP;if(topK!==null)b.top_k=topK;
       if(isMM(model))b.reasoning_effort=(o.thoughts&&S.chat.effort&&S.chat.effort!=='none'&&S.chat.effort)||'low';
       if(isDS(p)&&!o.thoughts)b.thinking={type:'disabled'};
-      // DeepSeek 联网：关着思考它不会真去搜（实测会编），所以联网时至少开低档
-      if(web&&p.provider==='openai'){b.tools=[{type:'deepseek_web_search'}];if(b.thinking?.type==='disabled'){delete b.thinking;b.reasoning_effort='low'}}if(/^minimax-m/i.test(model))b.reasoning_split=true;
       res=await fetch(base+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},body:JSON.stringify(b),signal:sig});
     }else if(p.provider==='gemini'){
       const g={maxOutputTokens:max};if(temp!==null)g.temperature=temp;if(topP!==null)g.topP=topP;if(topK!==null)g.topK=topK;
@@ -1466,8 +1456,6 @@ async function callAI0(system,messages,o={}){
       const ad=cur||/claude-(opus|sonnet)-4-6/.test(model),old=!ad&&/claude-(3-7|(opus|sonnet|haiku)-4)/.test(model);
       if(o.thoughts&&S.chat.effort&&S.chat.effort!=='none'&&(ad||/claude-opus-4-5/.test(model)))b.output_config={effort:S.chat.effort};
       if(isMM(model))b.output_config={effort:(o.thoughts&&S.chat.effort&&S.chat.effort!=='none'&&S.chat.effort)||'low'};
-      if(web)b.tools=[{type:'web_search_20250305',name:'web_search',...(/anthropic\.com/.test(base)?{max_uses:3}:{})}];
-      if(!cur&&!b.thinking){if(temp!==null)b.temperature=Math.min(temp,1);else if(topP!==null)b.top_p=topP;if(topK!==null)b.top_k=topK}
       res=await fetch(base.replace(/\/v1$/,'')+'/v1/messages',{method:'POST',headers:{'content-type':'application/json',...antHdr(base,key),...(fb?{'anthropic-beta':'server-side-fallback-2026-07-01'}:{})},body:JSON.stringify(b),signal:sig});
     }
   }catch(e){const er=new Error(e?.name==='AbortError'?'五分钟没回应，再试一次（会思考的模型写长文很慢）':'连不上：检查网络和接口地址，或中转站不允许网页访问');er.net=true;if(e?.name==='AbortError')er.timeout=true;throw er}
@@ -1485,6 +1473,10 @@ async function callAI0(system,messages,o={}){
     if(p.provider==='gemini'){const u=data.usageMetadata||{};addTok(tag,+u.promptTokenCount||0,(+u.candidatesTokenCount||0)+(+u.thoughtsTokenCount||0),+u.cachedContentTokenCount||0)}
     else if(p.provider==='claude'){const u=data.usage||{},cr=+u.cache_read_input_tokens||0,cw=+u.cache_creation_input_tokens||0;addTok(tag,(+u.input_tokens||0)+cr+cw,+u.output_tokens||0,cr,cw)}
     else{const u=data.usage||{},d=u.prompt_tokens_details||u.input_tokens_details||{};addTok(tag,+u.prompt_tokens||+u.input_tokens||0,+u.completion_tokens||+u.output_tokens||0,+d.cached_tokens||+u.cached_tokens||0,+d.cache_write_tokens||0)}}
+  // MiniMax 出错时也可能回 200，把错误码放在 base_resp 里
+  {const br=data.base_resp,sc=+br?.status_code||0;if(sc){const M={1002:'发太快被限流了，等几秒再发',1004:'Key 不对，检查一下',2049:'Key 不对，检查一下',1008:'余额不够了，去充一下',2053:'积分不够了',2067:'套餐额度用完了',1026:'这句被内容审核拦了，换个说法',1027:'他的回复被内容审核拦了，换个说法或重试',1039:'太长了，把最大长度调小一点',2013:'参数不对：'+(br.status_msg||''),2064:'那边太忙，稍后再试',2066:'那边超时了，再试一次',1001:'那边超时了，再试一次',1000:'那边出了点问题，再试一次',1024:'那边出了点问题，再试一次',1033:'那边出了点问题，再试一次'};
+    const er=new Error(M[sc]||('接口报错 '+sc+'：'+(br.status_msg||'')));if([1000,1001,1002,1024,1033,2064,2066].includes(sc))er.status=sc===1002?429:503;throw er}
+    if((data.input_sensitive||data.output_sensitive)&&!(data.choices?.[0]?.message?.content))throw new Error(data.input_sensitive?'这句被内容审核拦了，换个说法':'他的回复被内容审核拦了，换个说法或重试')}
   let out='',th='';
   if(p.provider==='openai'){const mm=data.choices?.[0]?.message||{},fr=data.choices?.[0]?.finish_reason;out=mm.content||'';th=rzOf(mm);
     // DeepSeek 偶尔把 <think>…</think> 连同正文整段写进思考通道、正文留空（实测约五分之一）：捞回来当正文
@@ -1493,11 +1485,10 @@ async function callAI0(system,messages,o={}){
   else if(p.provider==='gemini'){const c=data.candidates?.[0];if(!c)throw new Error('没有回复'+(data.promptFeedback?.blockReason?'（被拦截：'+data.promptFeedback.blockReason+'）':''));
     const parts=c.content?.parts||[];out=parts.filter(x=>!x.thought).map(x=>x.text||'').join('');th=parts.filter(x=>x.thought).map(x=>x.text||'').join('');
     if(!out)throw new Error('回复是空的（'+(c.finishReason||'未知')+'），把接口里的最大长度调大试试')}
-  else{out=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');th=(data.content||[]).filter(b=>b.type==='thinking').map(b=>b.thinking||'').join('\n');if(!out&&data.stop_reason==='refusal')throw new Error('Claude 拒绝回答这条，换个说法试试');if(!out&&data.stop_reason==='pause_turn')throw new Error('查了太多次还没查完，再发一次试试')}
-  const searched=[...new Set((p.provider==='claude'?(data.content||[]).filter(b=>b.type==='server_tool_use').map(b=>b.input?.query):p.provider==='openai'?(data.choices?.[0]?.message?.server_tool_calls||[]).flatMap(x=>(x?.calls||[]).flatMap(c=>c?.action?.queries||[])):[]).map(q=>String(q||'').trim()).filter(Boolean))];
+  else{out=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');th=(data.content||[]).filter(b=>b.type==='thinking').map(b=>b.thinking||'').join('\n');if(!out&&data.stop_reason==='refusal')throw new Error('Claude 拒绝回答这条，换个说法试试');}
   const cut=p.provider==='openai'?data.choices?.[0]?.finish_reason==='length':p.provider==='gemini'?data.candidates?.[0]?.finishReason==='MAX_TOKENS':data.stop_reason==='max_tokens';
   out=deNote(out);
-  return o.thoughts?{text:out.trim(),thoughts:th.trim(),cut,searched}:out.replace(/<think(?:ing)?>[\s\S]*?<\/think(?:ing)?>/g,'').trim();
+  return o.thoughts?{text:out.trim(),thoughts:th.trim(),cut}:out.replace(/<think(?:ing)?>[\s\S]*?<\/think(?:ing)?>/g,'').trim();
 }
 
 async function sseData(res,prov){const rd=res.body.getReader(),dec=new TextDecoder();let buf='',txt='',th='',usage=null,parts=[],fin='',inU={},outT=0;
@@ -1672,7 +1663,7 @@ function buildCtx(t,o={}){
     if(pend)tail.push(`【没收的钱】${me.name}发来${pend.type==='hb'?'红包':'转账'}¥${pend.amt}${pend.content?'：'+pend.content:''}，写 [收下] 或 [退回]。`);
   }
   if(C.inner){const styles=chars.map(c=>c.innerStyle?`${c.name}：${mac(c.innerStyle)}`:'').filter(Boolean).join('；');
-    rules.push(`【${C.innerName||'心声'}】正文后另起一行写 <inner>…</inner>${G('，每人一个，「名字：」开头','')}。${mac(C.innerStyle||INNER_DEF)}${styles?'（'+styles+'）':''}提到${me.name}一律用「你」，不写他、她。`)}
+    rules.push(`【${C.innerName||'心声'}】正文后另起一行写 <inner>…</inner>${G('，每人一个，「名字：」开头','')}。${mac(C.innerStyle||INNER_DEF)}${styles?'（'+styles+'）':''}提到${me.name}就用${cname}平时对TA的亲密叫法，想怎么叫怎么叫（生气时可以直呼名字），也可以用「你」；不写他、她。`)}
   tail.push('【心情】\n'+chars.map(c=>`${c.name}：${c.mood?c.mood+'，':''}${tideOf(c)}/100`).join('\n'));
   rules.push(`【心情】${cname}有情绪，按人设露在话里，跟着聊天起伏，不突然跳变。心情0到100，现在的数值在「此刻的情况」里。最后一行写 <tide>${G('名字：','')}数字|两个字的心情</tide>，如 <tide>${G(nm+'：','')}68|吃醋</tide>；闲聊动5以内，有事动10左右。生气可以，不说伤人的话。`);
   if(!group&&mode==='online'&&chars[0]){const r=rel(chars[0]);
@@ -1699,12 +1690,10 @@ function buildCtx(t,o={}){
   if(mode==='offline'){const w=num(off.words)||500,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字，不替${me.name}说新台词、做决定${(l=>l.length?`；${l.join('和')}别漏`:'')([C.think&&'开头的 <think>',C.inner&&'结尾的 <inner>'].filter(Boolean))}）`,last=msgs[msgs.length-1];
     if(last&&last.role==='user')last.content+='\n\n'+note;else msgs.push({role:'user',content:note})}
   const end=[];
-  if(C.think)end.push(`【思考】先在 <think>…</think> 里${mac(C.thinkStyle||THINK_DEF)}${C.inner?`感受留给${C.innerName||'心声'}，这里只想打算。`:''}提到${me.name}一律用「你」，不写他、她。`);
+  if(C.think)end.push(`【思考】先在 <think>…</think> 里${mac(C.thinkStyle||THINK_DEF)}${C.inner?`感受留给${C.innerName||'心声'}，这里只想打算。`:''}提到${me.name}就用${cname}平时对TA的亲密叫法，想怎么叫怎么叫（生气时可以直呼名字），也可以用「你」；不写他、她。`);
   const tw=C.think,iw=!!C.inner;
   if(mode!=='offline')end.push(`【回复格式】${tw?'先写 <think>…</think>，再':''}把发给${me.name}的话全写进 <reply>…</reply>，一行一条，[图片] [表情] 这类标记也在里面${iw?'；<inner> 和 <tide> 写在 </reply> 后面':'；<tide> 写在 </reply> 后面'}。<reply> 外的字不会发出去，给自己的分析${tw?'只写在 <think> 里':'不要写'}。每次都要写全。\n例：${tw?'<think>…</think>\n':''}<reply>\n第一条\n第二条\n</reply>${iw?'\n<inner>…</inner>':''}\n<tide>…</tide>`);
   else if(tw||iw)end.push(`【别漏】每次都按这个顺序写全：${tw?'第一行 <think>…</think>，然后':''}正文${iw?'，正文后另起一行 <inner>…</inner>':''}。\n例：${tw?'<think>…</think>\n':''}正文……${iw?'\n<inner>…</inner>':''}`);
-  // 联网规则放在最后、说死「先调用再写」：实测放前面时模型会嘴上说查、其实直接编
-  if(o.web&&webOk(api(t.id)))end.push(`【联网工具】${me.name}这句问的是现实里的事：先调用联网搜索拿到结果，再回。没调用就不知道答案，不要假装查过。查到的用你自己的口吻说，不贴链接，不写引用编号。回复照上面的格式写全${mode==='offline'?'':'：<think>、<reply>、<inner>、<tide> 一样都不能少'}。`);
   const sys=[...pr,...lore,...who,`【下面只管格式】性格、语气、怎么对${me.name}，都按上面的人设来；和下面的规则冲突时，听人设的。`,...rules,...ctxs,...end];
   return{system:whoTag(sys.join('\n\n'),t.id),msgs,chars,group,mode,t};
 }
@@ -1746,6 +1735,9 @@ function stripPlan(out,thinkOn){const me=mask().name,lines=out.split('\n'),cut=[
 function brief(x){x=String(x||'').trim();if(!x)return'';const ss=(x.match(/[^。！？!?…~～\n]+[。！？!?…~～]*/g)||[]).map(z=>z.trim()).filter(Boolean);let o=ss[0]||'';if([...o].length>40)o=[...o].slice(0,38).join('')+'…';return o}
 function extractExtras(out,chat=true){
   let think='',inner=[];
+  // MiniMax 常把标签写歪：</t> 当 </think>；<think> 不收尾，或拿 </reply> 来收尾。先扶正再拆
+  out=out.replace(/<\/t>/gi,'</think>');
+  if(/<think>/i.test(out)&&!/<\/think>/i.test(out))out=out.replace(/<think>([^\n<]*)(<\/reply>|<reply>|\n|$)/i,(m,x,e)=>'<think>'+x+'</think>'+(e.toLowerCase()==='</reply>'?'\n<reply>':e));
   out=out.replace(new RegExp(`<(${THINK_TAG})>([\\s\\S]*?)<\\/\\1>`,'gi'),(_,t,x)=>{think+=x.trim()+'\n';return''});
   out=out.replace(new RegExp(`^[\\s\\S]*?<\\/(?:${THINK_TAG})>`,'i'),x=>{think+=x.replace(new RegExp(`<\\/?(?:${THINK_TAG})>`,'gi'),'').trim();return''});
   // 开头的 <think> 没闭合（多半是思考写到长度上限被掐断）：有 <reply> 就切到 <reply>，否则长的整段都算思考，不往外发
@@ -1768,7 +1760,7 @@ function extractExtras(out,chat=true){
   out=out.replace(/<profile>([\s\S]*?)<\/profile>/gi,(_,x)=>{prof.push(x.trim());return''});
   const cards=[];out=out.replace(/\[送亲属卡[:：]\s*([\d.]*)[^\]]*\]/g,(_,a)=>{cards.push({give:1,amt:Math.max(0,+a||0)});return''}).replace(/\[刷亲属卡[:：]([^:：\]]+)[:：]\s*([\d.]+)[^\]]*\]/g,(_,w,a)=>{cards.push({what:w.trim(),amt:+a||0});return''});
   out=out.replace(/\[(拉黑|解除拉黑|删除好友|沉默|收下|退回|语音通话|视频通话|拒接|挂断|查手机)\]/g,(_,x)=>{acts.push(x);return''});
-  think=brief(think);
+  think=brief(think.replace(/<\/?[a-z]{1,8}>/gi,' ').trim());
   return{text:out.trim(),think:think.trim(),inner,tide,acts,prof,cards,fmt};
 }
 async function sortLeak(ex,ctx){const lines=ex.text.split('\n').map(l=>l.trim()).filter(Boolean),mark=l=>/^\[[^\]]+\]$/.test(l);
@@ -1925,9 +1917,9 @@ async function reply(t,extra,stamps){
   try{
     if(t.type==='dm'){const c=charById(t.chars[0]);await Promise.all([ensureToday(c),schedOf(c)])}
     await Promise.all([ensureWx(S.loc),...t.chars.map(id=>ensureWx(charById(id)?.loc))].map(p=>p.catch(()=>{})));
-    const web=needWeb(t),ctx=buildCtx(t,{ev:1,web});if(extra)ctx.msgs.push({role:'user',content:extra});
+    const ctx=buildCtx(t,{ev:1});if(extra)ctx.msgs.push({role:'user',content:extra});
     const offMax=ctx.mode==='offline'?{max:Math.max((num(api()?.maxTokens)||2048)-4096,Math.round((num((t.offline||S.offline).words)||500)*3)+2000)}:{};
-    const r=await callAI(ctx.system,ctx.msgs,{thoughts:true,web,...offMax});
+    const r=await callAI(ctx.system,ctx.msgs,{thoughts:true,...offMax});
     // 见面的长段写到上限被掐断：接着断的地方再要一次，拼起来，最多接两回
     for(let k=0;k<2&&ctx.mode==='offline'&&r.cut&&r.text;k++){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:'（上面写到一半断了。从断掉的那个字接着把这一段写完，不重复前面，不另起开头。）'}],{thoughts:true,...offMax});r.text+=r2.text;r.cut=r2.cut&&!!r2.text}catch(e){break}}
     const ex=extractExtras(r.text,ctx.mode!=='offline');if(ctx.mode!=='offline'&&!ex.fmt)await sortLeak(ex,ctx);if(!S.chat.think)ex.think='';
@@ -1936,7 +1928,6 @@ async function reply(t,extra,stamps){
     applyTide(ctx,ex);applyActs(ctx,ex);if(!ctx.group&&ctx.chars[0]){applyMoney(t,ex,ctx.chars[0]);applyCards(t,ex,ctx.chars[0])}save();
     const callAct=ex.acts.find(a=>a==='语音通话'||a==='视频通话');
     if(!ex.text&&!ex.acts.length)throw new Error(r.cut?'光顾着想了，还没说话长度就用完了：把接口里的最大长度调大，或把思考深度调低':'回复是空的，再试一次');
-    if(r.searched?.length)sysMsg(t,'上网查了：'+r.searched.slice(0,3).join('、'));
     const bought=boughtRecently(t),parts=ex.text?parseReply(ex.text,ctx).filter(p=>!(bought&&(p.type==='order'||p.type==='parcel'))):[];attachExtras(parts,ex,ctx);
     const posted=[],lack={think:S.chat.think&&!ex.think,inner:S.chat.inner&&!ex.inner.length};
     for(let i=0;i<parts.length;i++){
@@ -1961,7 +1952,7 @@ async function backfill(t,ctx,posted,lack){const C=S.chat,last=posted[posted.len
   const recent=t.msgs.slice(-14).filter(m=>!posted.includes(m)&&m.type!=='sys').map(m=>(m.from==='me'?me.name:(charById(m.from)?.name||'?'))+'：'+pv(m)).join('\n');
   const said=posted.filter(m=>m.from===c.id).map(pv).join('\n');
   const ask=[lack.think&&`思考：${mac(C.thinkStyle||THINK_DEF)}`,lack.inner&&`心声：${mac(c.innerStyle||C.innerStyle||INNER_DEF)}`].filter(Boolean);
-  try{const txt=String(await callAI(sysFor(c,''),[{role:'user',content:`${recent?`最近的对话：\n${recent}\n\n`:''}${c.name}刚刚回的是：\n${said}\n\n按${c.name}的人设，用${c.name}自己的口吻、第一人称，提到${me.name}一律用「你」，输出${ask.length}行，别的都不要：\n${ask.join('\n')}`}],{max:512,side:true,temp:.8}));
+  try{const txt=String(await callAI(sysFor(c,''),[{role:'user',content:`${recent?`最近的对话：\n${recent}\n\n`:''}${c.name}刚刚回的是：\n${said}\n\n按${c.name}的人设，用${c.name}自己的口吻、第一人称，提到${me.name}用平时的亲密叫法或「你」、不写他/她，输出${ask.length}行，别的都不要：\n${ask.join('\n')}`}],{max:512,side:true,temp:.8}));
     const one=ask.length===1?txt.trim().split('\n').filter(Boolean)[0]?.replace(/^(思考|心声)[:：]\s*/,'').trim()||'':'';
     const pick=k=>{const x=(txt.match(new RegExp(k+'[:：]\\s*([^\\n]+)'))||[])[1]?.trim()||one;return said.split('\n').some(l=>l.trim()===x)?'':x};
     const u=x=>ctx.group?x:String(x||'').replace(/[他她]/g,'你');
