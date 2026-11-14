@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.16.3';
+window.BYJ_VER='2026.11.17.1';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -1664,7 +1664,16 @@ function buildCtx(t,o={}){
     if(!group)sp.push('[红包:金额:祝福]','[转账:金额:备注]',...(boughtRecently(t)?[]:['[外卖:吃的:金额]','[网购:东西:金额]']),'[查手机]','[语音通话]','[视频通话]','[送亲属卡:月额度]');
     sp.push('[分享歌曲:歌名 - 歌手]');sp.push('[定位:地点 · 一句备注]');
     const st=allStickers().map(s=>s.name).filter(Boolean).slice(0,80);if(st.length)sp.push('[表情:名字]（可用：'+st.join('、')+'）');
-    rules.push(`【特殊消息】单独一行写。这些是你手机上真能用的，该用就用，别几轮下来只发文字：\n${sp.join('\n')}${group?'':`\n什么时候用：TA说饿了、没吃、想吃什么，点 [外卖]；TA提到想要、缺什么，或者想哄TA、过节，[网购] 送过去或发 [红包] [转账]；想听TA声音、有话打字说不清，发 [语音] 或直接 [语音通话]；想看看TA，[视频通话]；你在外面、到了哪儿，发 [定位]；在听歌或想起一首歌，[分享歌曲]；吃醋、不放心，[查手机]；想让TA随便花，[送亲属卡]。\n每三四轮里至少用上一次，挑当下最顺手的那个，一次用一种。`}`);
+    rules.push(`【特殊消息】单独一行写。这些是你手机上真能用的，像真人谈恋爱那样用，别几轮下来只发文字：\n${sp.join('\n')}${group?'':`\n真人是这么用的：
+· 图片：随手拍吃的、路上看到的、刚买的东西；TA说想看你，就发张自拍；到家、到公司拍一张报平安。
+· 语音：懒得打字、在走路开车、哄TA、说晚安早安的时候。${mm28()?'语音里可以带（轻笑）（叹气）这类语气。':''}
+· 语音通话：打字说不清、TA情绪不好或哭了、睡前想听声音。视频通话：想看TA、陪TA吃饭、TA一个人害怕。
+· 定位：出门了、到了、在等TA的时候。
+· 红包：过节、纪念日、哄TA消气，随手的小数目（5.20、13.14、52、66）。转账：TA说没钱、要买东西、发了工资，数目大的。
+· 外卖：TA没吃饭、加班、生病、不舒服，直接点过去，不问「要不要」。网购：TA提过想要的、换季、过节的礼物。
+· 分享歌曲：正在听的、歌词像在说TA的、睡前。
+· 查手机：吃醋、觉得TA躲躲闪闪。送亲属卡：想让TA随便花，送一次就够。
+每三四轮里至少用上一次，挑当下最顺手的那个，一次用一种。`}`);
     if(!group&&chars[0]){const cs=cardsNow().filter(k=>k.charId===chars[0].id),q=k=>(k.limit?`月额度${money(k.limit)}`:'不限额')+`，本月用了${money(k.used)}`;
       const mine=cs.filter(k=>k.dir!=='out'),theirs=cs.filter(k=>k.dir==='out');
       if(cs.length)tail.push(`【亲属卡】${mine.length?`你给${me.name}开了（${mine.map(q).join('；')}）。`:''}${theirs.length?`${me.name}给你开了（${theirs.map(q).join('；')}），用时写 [刷亲属卡:东西:金额]。`:''}`)}
@@ -1673,7 +1682,7 @@ function buildCtx(t,o={}){
     if(pend)tail.push(`【没收的钱】${me.name}发来${pend.type==='hb'?'红包':'转账'}¥${pend.amt}${pend.content?'：'+pend.content:''}，写 [收下] 或 [退回]。`);
   }
   if(C.inner){const styles=chars.map(c=>c.innerStyle?`${c.name}：${mac(c.innerStyle)}`:'').filter(Boolean).join('；');
-    rules.push(`【${C.innerName||'心声'}】正文后另起一行写 <inner>…</inner>${G('，每人一个，「名字：」开头','')}。${mac(C.innerStyle||INNER_DEF)}${styles?'（'+styles+'）':''}提到${me.name}就用${cname}平时对TA的亲密叫法，想怎么叫怎么叫（生气时可以直呼名字），也可以用「你」；不写他、她。`)}
+    rules.push(`【${C.innerName||'心声'}】正文后另起一行写 <inner>…</inner>${G('，每人一个，「名字：」开头','')}。${mac(C.innerStyle||INNER_DEF)}${styles?'（'+styles+'）':''}提到${me.name}只用${cname}私下对TA的亲密叫法（宝宝、乖乖这类，按人设来，想怎么叫怎么叫）；只有生气时才直呼名字。不写「她」「他」「用户」，也不干巴巴叫全名。`)}
   tail.push('【心情】\n'+chars.map(c=>`${c.name}：${c.mood?c.mood+'，':''}${tideOf(c)}/100`).join('\n'));
   rules.push(`【心情】${cname}有情绪，按人设露在话里，跟着聊天起伏，不突然跳变。心情0到100，现在的数值在「此刻的情况」里。最后一行写 <tide>${G('名字：','')}数字|两个字的心情</tide>，如 <tide>${G(nm+'：','')}68|吃醋</tide>；闲聊动5以内，有事动10左右。生气可以，不说伤人的话。`);
   if(!group&&mode==='online'&&chars[0]){const r=rel(chars[0]);
@@ -1700,7 +1709,7 @@ function buildCtx(t,o={}){
   if(mode==='offline'){const w=num(off.words)||500,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字，不替${me.name}说新台词、做决定${(off.upov||'second')==='second'?`；叙述里称呼${me.name}只用「你」，不写名字、不写她或他`:''}${(l=>l.length?`；${l.join('和')}别漏`:'')([C.think&&'开头的 <think>',C.inner&&'结尾的 <inner>'].filter(Boolean))}）`,last=msgs[msgs.length-1];
     if(last&&last.role==='user')last.content+='\n\n'+note;else msgs.push({role:'user',content:note})}
   const end=[];
-  if(C.think)end.push(`【思考】先在 <think>…</think> 里${mac(C.thinkStyle||THINK_DEF)}${C.inner?`感受留给${C.innerName||'心声'}，这里只想打算。`:''}提到${me.name}就用${cname}平时对TA的亲密叫法，想怎么叫怎么叫（生气时可以直呼名字），也可以用「你」；不写他、她。`);
+  if(C.think)end.push(`【思考】先在 <think>…</think> 里${mac(C.thinkStyle||THINK_DEF)}${C.inner?`感受留给${C.innerName||'心声'}，这里只想打算。`:''}提到${me.name}只用${cname}私下对TA的亲密叫法（宝宝、乖乖这类，按人设来，想怎么叫怎么叫）；只有生气时才直呼名字。不写「她」「他」「用户」，也不干巴巴叫全名。`);
   const tw=C.think,iw=!!C.inner;
   if(mode!=='offline')end.push(`【回复格式】${tw?'先写 <think>…</think>，再':''}把发给${me.name}的话全写进 <reply>…</reply>，一行一条，[图片] [表情] 这类标记也在里面${iw?'；<inner> 和 <tide> 写在 </reply> 后面':'；<tide> 写在 </reply> 后面'}。<reply> 外的字不会发出去，给自己的分析${tw?'只写在 <think> 里':'不要写'}。每次都要写全。\n例：${tw?'<think>…</think>\n':''}<reply>\n第一条\n第二条\n</reply>${iw?'\n<inner>…</inner>':''}\n<tide>…</tide>`);
   else if(tw||iw)end.push(`【别漏】每次都按这个顺序写全：${tw?'第一行 <think>…</think>，然后':''}正文${iw?'，正文后另起一行 <inner>…</inner>':''}。\n例：${tw?'<think>…</think>\n':''}正文……${iw?'\n<inner>…</inner>':''}`);
@@ -1932,7 +1941,9 @@ async function reply(t,extra,stamps){
     await Promise.all([ensureWx(S.loc),...t.chars.map(id=>ensureWx(charById(id)?.loc))].map(p=>p.catch(()=>{})));
     const ctx=buildCtx(t,{ev:1});if(extra)ctx.msgs.push({role:'user',content:extra});
     const offMax=ctx.mode==='offline'?{max:Math.max((num(api()?.maxTokens)||2048)-4096,Math.round((num((t.offline||S.offline).words)||500)*3)+2000)}:{};
-    const r=await callAI(ctx.system,ctx.msgs,{thoughts:true,...offMax});
+    let r=await callAI(ctx.system,ctx.msgs,{thoughts:true,...offMax});
+    // 先思考再写正文：开头没有 <think> 的打回去重写一次（再不行才事后补）
+    if(S.chat.think&&r.text&&!/^\s*(?:\]?<\]?minimax\[?>\[?)?\s*<think>/i.test(r.text)){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:`（上面这条没按顺序写，作废。重写：第一行先写 <think>一句打算</think>，然后才是${ctx.mode==='offline'?'正文':' <reply>…</reply>'}，最后 <inner>…</inner>${ctx.mode==='offline'?'':' 和 <tide>…</tide>'}。内容可以和刚才一样。）`}],{thoughts:true,...offMax});if(/<think>/i.test(r2.text))r=r2}catch(e){}}
     // 见面的长段写到上限被掐断：接着断的地方再要一次，拼起来，最多接两回
     for(let k=0;k<2&&ctx.mode==='offline'&&r.cut&&r.text;k++){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:'（上面写到一半断了。从断掉的那个字接着把这一段写完，不重复前面，不另起开头。）'}],{thoughts:true,...offMax});r.text+=r2.text;r.cut=r2.cut&&!!r2.text}catch(e){break}}
     const ex=extractExtras(r.text,ctx.mode!=='offline');if(ctx.mode!=='offline'&&!ex.fmt)await sortLeak(ex,ctx);if(!S.chat.think)ex.think='';
@@ -1965,7 +1976,7 @@ async function backfill(t,ctx,posted,lack){const C=S.chat,last=posted[posted.len
   const recent=t.msgs.slice(-14).filter(m=>!posted.includes(m)&&m.type!=='sys').map(m=>(m.from==='me'?me.name:(charById(m.from)?.name||'?'))+'：'+pv(m)).join('\n');
   const said=posted.filter(m=>m.from===c.id).map(pv).join('\n');
   const ask=[lack.think&&`思考：${mac(C.thinkStyle||THINK_DEF)}`,lack.inner&&`心声：${mac(c.innerStyle||C.innerStyle||INNER_DEF)}`].filter(Boolean);
-  try{const txt=String(await callAI(sysFor(c,''),[{role:'user',content:`${recent?`最近的对话：\n${recent}\n\n`:''}${c.name}刚刚回的是：\n${said}\n\n按${c.name}的人设，用${c.name}自己的口吻、第一人称，提到${me.name}用平时的亲密叫法或「你」、不写他/她，输出${ask.length}行，别的都不要：\n${ask.join('\n')}`}],{max:512,side:true,temp:.8}));
+  try{const txt=String(await callAI(sysFor(c,''),[{role:'user',content:`${recent?`最近的对话：\n${recent}\n\n`:''}${c.name}刚刚回的是：\n${said}\n\n按${c.name}的人设，用${c.name}自己的口吻、第一人称，提到${me.name}只用平时的亲密叫法、不写他/她，输出${ask.length}行，别的都不要：\n${ask.join('\n')}`}],{max:512,side:true,temp:.8}));
     const one=ask.length===1?txt.trim().split('\n').filter(Boolean)[0]?.replace(/^(思考|心声)[:：]\s*/,'').trim()||'':'';
     const pick=k=>{const x=(txt.match(new RegExp(k+'[:：]\\s*([^\\n]+)'))||[])[1]?.trim()||one;return said.split('\n').some(l=>l.trim()===x)?'':x};
     const u=x=>ctx.group?x:String(x||'').replace(/[他她]/g,'你');
@@ -2693,7 +2704,11 @@ async function peekRun(c,v){try{const r=await genPeek(c,v.how);v.shown=[];
   catch(e){toast(e.message,5600);v.done=1;v.err=1;if(cur()===v)render(true)}}
 
 let vAudio=null,ttsWarned=false;
-const cleanSpeak=t=>String(t||'').replace(/[（(][^）)]*[）)]/g,'').replace(/[*_~#]/g,'').trim();
+// MiniMax speech-2.8 认语气词标签：把角色写的（轻笑）（叹气）换成它认的 (chuckle) (sighs)，别的括号照旧去掉
+const MM_CUE=[[/大笑|笑出声|哈哈/,'laughs'],[/轻笑|低笑|笑了?一?[下声]?|笑/,'chuckle'],[/叹气|叹/,'sighs'],[/咳/,'coughs'],[/清嗓/,'clear-throat'],[/喘/,'pant'],[/吸气|深吸/,'inhale'],[/呼气|松.?口气/,'exhale'],[/倒吸/,'gasps'],[/吸鼻|抽鼻/,'sniffs'],[/哼/,'snorts'],[/嗯|沉吟/,'emm']];
+const mm28=()=>isMMTts()&&/speech-2\.8/i.test(S.media.tts.model||'speech-2.8-turbo');
+const cleanSpeak=t=>{let x=String(t||'');if(mm28())x=x.replace(/[（(]([^）)]{1,6})[）)]/g,(m,c)=>{const k=MM_CUE.find(([re])=>re.test(c));return k?'\u2039'+k[1]+'\u203a':m});
+  return x.replace(/[（(][^）)]*[）)]/g,'').replace(/[*_~#]/g,'').replace(/\u2039([a-z-]+)\u203a/g,'($1)').trim()};
 function shrinkUrl(u,max=900){return new Promise(res=>{if(!/^data:/.test(u)){res(u);return}const im=new Image();im.onload=()=>{try{const k=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.86))}catch(e){res(u)}};im.onerror=()=>res(u);im.src=u})}
 async function genImage(prompt){const I=S.media.img;if(!I.key||!I.base)throw new Error('先在「设置 · 生图」填生图接口');if(!(I.model||'').trim())throw new Error('先在「设置 · 生图」填生图模型');
   let res;try{res=await fetch(I.base.trim().replace(/\/+$/,'')+'/images/generations',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+I.key.trim()},body:JSON.stringify({model:I.model.trim(),prompt,n:1,size:I.size||'1024x1024'})})}catch(e){throw new Error('生图接口连不上')}
@@ -2729,7 +2744,9 @@ async function listVoices(){const T=S.media.tts,base=ttsBase(),key=(T.key||'').t
   const root=base.replace(/\/v1$/,'');
   if(isMMTts()){try{const r=await fetch(mmRoot()+'/v1/get_voice',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},body:JSON.stringify({voice_type:'all'})});const d=r.ok?await r.json().catch(()=>null):null;
       for(const k of['voice_cloning','voice_generation','system_voice'])for(const x of(Array.isArray(d?.[k])?d[k]:[]))add(x.voice_id,x.voice_name||(Array.isArray(x.description)?x.description[0]:x.description))}catch(e){}
-    TTS_PRESET[1][1]().forEach(([v])=>add(v));return got}
+    TTS_PRESET[1][1]().forEach(([v])=>add(v));
+    // 中文音色排前面，外语的往后放
+    const zh=x=>/[\u4e00-\u9fff]/.test(x[1]||'')||/^(male-qn|female-|Chinese|Cantonese)/.test(x[0]);return got.filter(zh).concat(got.filter(x=>!zh(x)))}
   for(const u of isEleven()?[root+'/v1/voices']:[base+'/audio/voice/list',base+'/audio/voices',base+'/voices'+(model?'?model='+encodeURIComponent(model):''),root+'/v1/voices'].filter((x,i,a)=>a.indexOf(x)===i)){
     try{const r=await fetch(u,{headers:/elevenlabs/.test(u)?{'xi-api-key':key}:{Authorization:'Bearer '+key}});if(!r.ok)continue;const d=await r.json().catch(()=>null);if(!d)continue;
       const arr=[d.result,d.voices,d.data,d.data?.voices,d.items,Array.isArray(d)?d:null].find(Array.isArray)||[];
@@ -2740,10 +2757,10 @@ async function listVoices(){const T=S.media.tts,base=ttsBase(),key=(T.key||'').t
 const ttsFail='语音接口连不上：检查地址和 Key，或者这个地址不允许网页直接访问（跨域）';
 async function ttsAudio(text,c){const T=S.media.tts,v=c?.voice||{};
   if(!(T.base||'').trim())throw new Error('先在「设置 · 语音」填语音接口地址');if(!(T.key||'').trim())throw new Error('先填语音的 Key');
-  if(!(T.model||'').trim())throw new Error('先填语音模型');const voice=(v.vid||T.voice||'').trim();if(!voice)throw new Error('先填声音');
+  if(!(T.model||'').trim()&&!isMMTts())throw new Error('先填语音模型');const voice=(v.vid||T.voice||'').trim();if(!voice)throw new Error('先填声音');
   const spd=Math.max(.25,Math.min(4,+v.rate||1));let res;try{res=isEleven()
     ?await fetch(elBase()+'/text-to-speech/'+encodeURIComponent(voice)+'?output_format=mp3_44100_128',{method:'POST',headers:{'Content-Type':'application/json','xi-api-key':T.key.trim()},body:JSON.stringify({model_id:T.model.trim(),text,...(spd!==1?{voice_settings:{speed:Math.max(.7,Math.min(1.2,spd))}}:{})})})
-    :isMMTts()?await fetch(mmRoot()+'/v1/t2a_v2',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+T.key.trim()},body:JSON.stringify({model:T.model.trim(),text,stream:false,voice_setting:{voice_id:voice,speed:Math.max(.5,Math.min(2,spd))},audio_setting:{format:'mp3'}})})
+    :isMMTts()?await fetch(mmRoot()+'/v1/t2a_v2',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+T.key.trim()},body:JSON.stringify({model:T.model.trim()||'speech-2.8-turbo',text,stream:false,language_boost:'auto',text_normalization_mode:'basic',voice_setting:{voice_id:voice,speed:Math.max(.5,Math.min(2,spd))},audio_setting:{format:'mp3',sample_rate:32000,bitrate:128000,channel:1}})})
     :await fetch(ttsUrl(),{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+T.key.trim()},body:JSON.stringify({model:T.model.trim(),input:text,voice,response_format:'mp3',speed:spd})})}catch(e){throw new Error(ttsFail)}
   const ct=res.headers.get('content-type')||'';
   if(!res.ok){const t=await res.text().catch(()=>'');let m=t;try{const d=JSON.parse(t);m=d.error?.message||d.message||d.detail?.message||(typeof d.detail==='string'&&d.detail)||d.base_resp?.status_msg||t}catch(e){}throw new Error('语音失败 '+res.status+'：'+String(m).slice(0,140))}
