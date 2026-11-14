@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.15.1';
+window.BYJ_VER='2026.11.15.2';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -1120,8 +1120,8 @@ async function loadFont(){const F=S.look.customFont;if(!F)return;const sig=F.loc
       const ff=new FontFace('LedCustom',srcv);await ff.load();document.fonts.add(ff)}
     applyLook()}catch(e){fontLoaded='';toast('字体加载不了')}}
 const isNight=()=>{const h=new Date().getHours();return h<7||h>=19};
-// 样式：x = 信息流外壳（默认），desk = 经典桌面。深色：on / off / auto（跟时间）；X 样式默认一直深色
-const xOn=()=>(S.look.shell||'x')==='x';
+// 样式：desk = 经典桌面（默认），x = 信息流外壳（可选）。深色：on / off / auto（跟时间）；X 样式默认一直深色
+const xOn=()=>S.look.shell==='x';
 const darkOn=()=>{const n=S.look.night||(xOn()?'on':'auto');return n==='on'||(n==='auto'&&isNight())};
 function applyLook(){
   const L=S.look,r=document.documentElement;r.classList.toggle('full',!!(navigator.standalone||matchMedia('(display-mode: standalone)').matches));
@@ -1410,6 +1410,9 @@ const deNote=x=>String(x||'').replace(/<[!！]\s*-{1,2}[\s\S]*?-{1,2}\s*>/g,'').
 // 联网搜索：服务商自己搜、一次请求里搜完。只有 Claude 协议有（官方 Claude、MiniMax 的 /anthropic）
 const isMMBase=b=>/api\.minimaxi?\.(cn|com|io|chat)/i.test(b||'');
 const webOk=p=>!!p&&(provOf(p)==='claude'||isMMBase(p.base));
+// DeepSeek：思考默认开（强度 high）。聊天设置里选了才改：none=关思考，low/high/max=强度
+const isDS=p=>/deepseek/i.test((p?.base||'')+' '+(p?.model||''));
+const EFF=p=>isDS(p)?[['','默认'],['none','关'],['low','低'],['high','高'],['max','最高']]:[['','默认'],['low','低'],['medium','中'],['high','高']];
 const isKimi=base=>/moonshot\.(cn|ai)|kimi\.(com|ai)/.test(base||'');
 function addTok(tag,i,o,c=0,w=0){if(!i&&!o)return;const T=S.tok||(S.tok=def().tok);T.n++;T.i+=i;T.o+=o;T.c=(T.c||0)+c;T.w=(T.w||0)+w;
   const b=T.by[tag]||(T.by[tag]={n:0,i:0,o:0});b.n++;b.i+=i;b.o+=o;if(tag==='chat')T.last={i,o,c,t:Date.now()};save()}
@@ -1442,7 +1445,8 @@ async function callAI0(system,messages,o={}){
   try{
     if(p.provider==='openai'){
       const b={model,max_tokens:max,...(p.stream?{stream:true,stream_options:{include_usage:true}}:{}),...(isKimi(base)?{prompt_cache_options:{mode:'implicit',ttl:p.cache==='1h'?'1h':'5m'}}:{}),messages:[{role:'system',content:system},...m.map(x=>({role:x.role,content:x.imgs&&x.imgs.length?[{type:'text',text:x.content},...x.imgs.map(u=>({type:'image_url',image_url:{url:u}}))]:x.content}))]};if(temp!==null)b.temperature=temp;if(topP!==null)b.top_p=topP;if(topK!==null)b.top_k=topK;
-      if(isMM(model))b.reasoning_effort=(o.thoughts&&S.chat.effort)||'low';if(/^minimax-m/i.test(model))b.reasoning_split=true;
+      if(isMM(model))b.reasoning_effort=(o.thoughts&&S.chat.effort&&S.chat.effort!=='none'&&S.chat.effort)||'low';
+      if(isDS(p)&&o.thoughts&&S.chat.effort){if(S.chat.effort==='none')b.thinking={type:'disabled'};else b.reasoning_effort=S.chat.effort==='medium'?'high':S.chat.effort}if(/^minimax-m/i.test(model))b.reasoning_split=true;
       res=await fetch(base+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},body:JSON.stringify(b),signal:sig});
     }else if(p.provider==='gemini'){
       const g={maxOutputTokens:max};if(temp!==null)g.temperature=temp;if(topP!==null)g.topP=topP;if(topK!==null)g.topK=topK;
@@ -1455,8 +1459,8 @@ async function callAI0(system,messages,o={}){
       const b={model,system,max_tokens:cur?Math.max(max,16000):max,...(p.stream?{stream:true}:{}),...(fb?{fallbacks:'default'}:{}),messages:m.map(x=>({role:x.role,content:x.imgs&&x.imgs.length?[...x.imgs.map(u=>({type:'image',source:{type:'base64',media_type:u.slice(5,u.indexOf(';')),data:u.split(',')[1]}})),{type:'text',text:x.content||'（图片）'}]:x.content}))};
       const ad=cur||/claude-(opus|sonnet)-4-6/.test(model),old=!ad&&/claude-(3-7|(opus|sonnet|haiku)-4)/.test(model);
       if(o.thoughts&&S.chat.think&&S.chat.thinkSrc==='model'){if(ad)b.thinking=cur?{type:'adaptive',display:'summarized'}:{type:'adaptive'};else if(old){b.thinking={type:'enabled',budget_tokens:2048};b.max_tokens=Math.max(max,4096)}}
-      if(o.thoughts&&S.chat.effort&&(ad||/claude-opus-4-5/.test(model)))b.output_config={effort:S.chat.effort};
-      if(isMM(model))b.output_config={effort:(o.thoughts&&S.chat.effort)||'low'};
+      if(o.thoughts&&S.chat.effort&&S.chat.effort!=='none'&&(ad||/claude-opus-4-5/.test(model)))b.output_config={effort:S.chat.effort};
+      if(isMM(model))b.output_config={effort:(o.thoughts&&S.chat.effort&&S.chat.effort!=='none'&&S.chat.effort)||'low'};
       if(web)b.tools=[{type:'web_search_20250305',name:'web_search',...(/anthropic\.com/.test(base)?{max_uses:3}:{})}];
       if(!cur&&!b.thinking){if(temp!==null)b.temperature=Math.min(temp,1);else if(topP!==null)b.top_p=topP;if(topK!==null)b.top_k=topK}
       res=await fetch(base.replace(/\/v1$/,'')+'/v1/messages',{method:'POST',headers:{'content-type':'application/json',...antHdr(base,key),...(fb?{'anthropic-beta':'server-side-fallback-2026-07-01'}:{})},body:JSON.stringify(b),signal:sig});
@@ -1477,7 +1481,8 @@ async function callAI0(system,messages,o={}){
     else if(p.provider==='claude'){const u=data.usage||{},cr=+u.cache_read_input_tokens||0,cw=+u.cache_creation_input_tokens||0;addTok(tag,(+u.input_tokens||0)+cr+cw,+u.output_tokens||0,cr,cw)}
     else{const u=data.usage||{},d=u.prompt_tokens_details||u.input_tokens_details||{};addTok(tag,+u.prompt_tokens||+u.input_tokens||0,+u.completion_tokens||+u.output_tokens||0,+d.cached_tokens||+u.cached_tokens||0,+d.cache_write_tokens||0)}}
   let out='',th='';
-  if(p.provider==='openai'){const mm=data.choices?.[0]?.message||{};out=mm.content||'';th=rzOf(mm)}
+  if(p.provider==='openai'){const mm=data.choices?.[0]?.message||{},fr=data.choices?.[0]?.finish_reason;out=mm.content||'';th=rzOf(mm);
+    if(!out&&fr==='content_filter')throw new Error('这条被接口那边的内容审核拦了，换个说法试试');if(!out&&(fr==='insufficient_system_resource'||fr==='aborted'))throw new Error('接口那边太忙，写到一半断了，再试一次')}
   else if(p.provider==='gemini'){const c=data.candidates?.[0];if(!c)throw new Error('没有回复'+(data.promptFeedback?.blockReason?'（被拦截：'+data.promptFeedback.blockReason+'）':''));
     const parts=c.content?.parts||[];out=parts.filter(x=>!x.thought).map(x=>x.text||'').join('');th=parts.filter(x=>x.thought).map(x=>x.text||'').join('');
     if(!out)throw new Error('回复是空的（'+(c.finishReason||'未知')+'），把接口里的最大长度调大试试')}
@@ -3030,7 +3035,7 @@ think(){const C=S.chat;
       <label class="ck"><input type="checkbox" id="ch-think" data-s="chat" data-k="think" ${C.think?'checked':''}>回复前先想清楚再回</label>
       ${C.think?`<label class="f">叫什么<input type="text" id="ch-tname" data-s="chat" data-k="thinkName" value="${esc(C.thinkName)}"></label>
       <label class="f">想什么<textarea id="ch-tstyle" data-s="chat" data-k="thinkStyle">${esc(C.thinkStyle||THINK_DEF)}</textarea></label><button class="tb" data-a="setChat" data-k="thinkStyle" data-v="" style="align-self:flex-start">恢复默认</button>`:''}
-      ${provOf(api()||{})==='claude'||isMM(api()?.model)?`<div class="f">思考深度<div class="seg">${[['','默认'],['low','低'],['medium','中'],['high','高']].map(([k,l])=>`<button class="${(C.effort||'')===k?'on':''}" data-a="setChat" data-k="effort" data-v="${k}">${l}</button>`).join('')}</div></div>`:''}</div>
+      ${provOf(api()||{})==='claude'||isMM(api()?.model)||isDS(api())?`<div class="f">思考深度<div class="seg">${EFF(api()).map(([k,l])=>`<button class="${(C.effort||'')===k?'on':''}" data-a="setChat" data-k="effort" data-v="${k}">${l}</button>`).join('')}</div></div>`:''}</div>
     <div class="panel"><h2>联网</h2>${webOk(api())?`
       <label class="ck"><input type="checkbox" id="ch-web" data-s="chat" data-k="web" ${C.web?'checked':''}>让TA能上网查东西</label>
       <p class="hint">问到天气、新闻这类现实里的事，TA会自己去查，查完用自己的话告诉你。查一次要多花大约一万字的输入额度，闲聊不会查。</p>`:`<p class="hint">现在用的接口不支持联网。官方 Claude 和 MiniMax 可以。</p>`}</div>`}},
@@ -3327,9 +3332,9 @@ settings(v){
   if(tab==='look'){const L=S.look,cl=Math.min(60,Math.max(0,num(L.clear)??30));
     return{title:'设置',body:head+`
     <div class="panel"><h2>样式</h2>
-      <div class="seg">${[['x','X 样式'],['desk','经典桌面']].map(([k,l])=>`<button class="${(L.shell||'x')===k?'on':''}" data-a="setLook" data-k="shell" data-v="${k}">${l}</button>`).join('')}</div>
+      <div class="seg">${[['desk','经典桌面'],['x','X 样式']].map(([k,l])=>`<button class="${(L.shell||'desk')===k?'on':''}" data-a="setLook" data-k="shell" data-v="${k}">${l}</button>`).join('')}</div>
       <div class="f">深色模式<div class="seg">${[['on','一直深色'],['auto','跟时间'],['off','一直浅色']].map(([k,l])=>`<button class="${(L.night||(xOn()?'on':'auto'))===k?'on':''}" data-a="setLook" data-k="night" data-v="${k}">${l}</button>`).join('')}</div></div>
-      <p class="hint">X 样式：打开就是信息流，头像点开是菜单，别的应用都在菜单里。经典桌面：原来的图标主屏。</p></div>
+      <p class="hint">经典桌面：原来的图标主屏。X 样式：打开就是信息流，头像点开是菜单，别的应用都在菜单里。</p></div>
     ${xOn()?'':`<div class="panel"><h2>主屏图标</h2>
       <div class="chips">${APPS.filter(a=>a.id!=='settings').map(a=>`<button class="${appHidden(a.id)?'':'on'}" data-a="togApp" data-id="${a.id}">${a.name}</button>`).join('')}</div>
       <p class="hint">点一下收起或放回，现在主屏上有 ${appsOrdered().length} 个。设置一直在。</p>
