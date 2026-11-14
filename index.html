@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.14.15';
+window.BYJ_VER='2026.11.14.16';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -516,6 +516,28 @@ html.dark .timg{color:#d1d1d1;background:linear-gradient(150deg,#303030,#212121 
 .fp.tl .timg{margin-top:6px;border-radius:16px}
 .fp.tl .fp-a{padding:2px 0 6px 44px;gap:0;justify-content:space-between;max-width:330px}
 .fp.tl .fp-a button{flex:none;justify-content:flex-start;min-width:56px;padding:8px 6px}
+/* 论坛「我的」：个人主页。横幅 + 压在横幅上的头像，顶栏浮在横幅上 */
+.content.pfv{padding:0;gap:0;background:var(--bg)}
+.app:has(.content.pfv) .bar{position:absolute;top:0;left:0;right:0;z-index:3;background:none;border:0;-webkit-backdrop-filter:none;backdrop-filter:none}
+.app:has(.content.pfv) .bar h1{visibility:hidden}
+.app:has(.content.pfv) .bar .bk,.app:has(.content.pfv) .bar .br .tb{justify-self:start;background:rgba(0,0,0,.5);color:#fff;border-radius:999px;height:36px;min-width:36px;padding:0 10px;display:inline-flex;align-items:center;justify-content:center}
+.app:has(.content.pfv) .bar .br .tb{justify-self:end;font-size:13px}
+.app:has(.content.pfv) .bar .bk span{display:none}
+.pf-bn{flex:none;height:calc(150px + var(--sat,0px));background:#8a8a8e center/cover no-repeat}
+.pf-hd{display:flex;flex-direction:column;gap:3px;padding:0 16px 14px;flex:none}
+.pf-av{margin-top:-42px;align-self:flex-start;border-radius:50%;border:4px solid var(--bg);background:var(--bg);line-height:0}
+.pf-n{font-size:22px;font-weight:800;margin-top:6px}
+.pf-at{font-size:15px;color:var(--muted)}
+.pf-j{display:flex;align-items:center;gap:6px;font-size:14.5px;color:var(--muted);margin-top:8px}.pf-j svg{width:17px;height:17px}
+.pf-st{display:flex;gap:18px;font-size:14.5px;color:var(--muted);margin-top:4px}.pf-st b{color:var(--ink);font-weight:700}
+.pf-bt{display:flex;gap:10px;margin-top:12px}
+.pf-bt button{flex:1;height:40px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--ink);font-size:15px;font-weight:700}
+.pf-tabs{display:flex;border-bottom:1px solid var(--line);flex:none}
+.pf-tabs button{flex:1;background:none;border:0;padding:13px 0 12px;color:var(--muted);font-size:15px;font-weight:600;position:relative}
+.pf-tabs button.on{color:var(--ink)}.pf-tabs button.on::after{content:"";position:absolute;left:28%;right:28%;bottom:0;height:3px;border-radius:3px;background:var(--ink)}
+.pfv .tl-list{background:none;border:0;border-radius:0;box-shadow:none;padding:0 16px}
+.tabbar{position:relative}
+.tabbar .fab{position:absolute;right:16px;top:-68px;flex:none;width:54px;height:54px;border-radius:50%;background:var(--accent);color:var(--accent-ink);box-shadow:0 6px 18px rgba(0,0,0,.25)}
 .fp.ghost{flex-direction:row;align-items:center;justify-content:center;gap:10px;padding:18px;color:var(--muted);font-size:13px}
 .fc{display:flex;gap:10px;padding:10px 4px;border-bottom:1px solid var(--line)}
 .fc-b{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
@@ -2060,6 +2082,18 @@ async function fmReply(p,n,rq){const b=fmB(p.b),me=mask().name,thr=p.cm.slice(-1
   save()}
 const fmAct=(p,tl)=>{const lk=`<button class="${p.liked?'lk':''}" data-a="fmLike" data-id="${p.id}" aria-label="点赞">${XI.like}<span>${kn(p.likes+(p.liked?1:0))}</span></button>`,cm=`<button data-a="fmOpen" data-id="${p.id}" aria-label="评论">${XI.reply}<span>${p.cm.length||(tl?'':'评论')}</span></button>`,sh=`<button data-a="fmShare" data-id="${p.id}" aria-label="分享给TA">${XI.share}<span>${tl?'':'分享'}</span></button>`;
   return`<div class="fp-a">${tl?cm+lk+sh:lk+cm+sh}</div>`};
+// 论坛「我的」：个人主页
+function fmProfile(v){const me=mask(),F=S.forum,pt=['posts','replies','likes'].includes(v.pt)?v.pt:'posts';
+  const mine=F.posts.filter(p=>p.author==='me'),L=(pt==='posts'?mine:pt==='replies'?F.posts.filter(p=>p.cm.some(c=>c.author==='me')):F.posts.filter(p=>p.liked)).sort((x,y)=>y.t-x.t);
+  const d=new Date(Math.min(Date.now(),...F.posts.map(p=>p.t||Infinity),...S.threads.map(t=>t.msgs[0]?.t||Infinity)));
+  const likes=mine.reduce((n,p)=>n+(+p.likes||0)+(p.liked?1:0),0),fol=S.chars.filter(visible).length,bn=S.look.photo||S.look.wallpaper||'';
+  return`<div class="pf-bn"${bn?` style="background-image:url(${bn})"`:''}></div>
+  <div class="pf-hd"><div class="pf-av">${av(me,84)}</div><b class="pf-n">${esc(me.name)}</b><small class="pf-at">@${esc(me.name)}</small>
+    <span class="pf-j">${ICONS.days}加入于 ${d.getFullYear()}年${d.getMonth()+1}月</span>
+    <span class="pf-st"><span><b>${fol}</b> 关注</span><span><b>${kn(likes)}</b> 获赞</span></span>
+    <div class="pf-bt"><button data-a="fmNew">发帖</button><button data-a="fmEditMe">编辑资料</button></div></div>
+  <div class="pf-tabs">${[['posts','帖子'],['replies','回复'],['likes','喜欢']].map(([k,l])=>`<button class="${k===pt?'on':''}" data-a="fmPt" data-t="${k}">${l}</button>`).join('')}</div>
+  ${L.length?`<div class="tl-list">${L.map(p=>fmCard(p,true)).join('')}</div>`:`<div class="empty"><big>${pt==='posts'?'还没发过帖':pt==='replies'?'还没回过帖':'还没点过赞'}</big></div>`}`}
 function fmCard(p,showB){const b=fmB(p.b);
   return`<article class="fp tl"><button class="fp-in" data-a="fmOpen" data-id="${p.id}">${fmAv(p,40)}<span class="tl-b"><span class="tl-h"><b>${esc(fmWho(p))}</b>${p.author!=='x'&&p.author!=='me'?'<span class="pill">认识的人</span>':''}<small>· ${ago(p.t)}${showB&&b?' · '+esc(b.name):''}</small></span>
     ${p.title?`<b class="fp-t">${esc(p.title)}</b>`:''}${p.text?`<span class="fp-x">${esc(p.text)}</span>`:''}${p.pic?`<span class="timg">${esc(p.pic)}</span>`:''}</span></button>${fmAct(p,1)}</article>`}
@@ -3104,9 +3138,11 @@ code(v){const p=cdProj(v.id);if(!p)return{title:'不见了',body:''};const c=cha
 codeFull(v){const p=cdProj(v.id),x=cdCur(p),html=cdHtml(x);if(!html)return{title:'不见了',body:''};
   return{title:p.title||'小程序',sub:dn(charById(p.charId)),right:`<button class="tb" data-a="cdReload">重新开始</button>`,
     body:`<div class="thv full"><iframe class="full" data-th="${x.id}" sandbox="allow-scripts" title="${esc(p.title||'小程序')}" srcdoc="${esc(thDoc(html))}"></iframe></div>`}},
-forum(v){const F=S.forum,B=F.boards;if(v.tab!=='mine'&&!fmB(v.tab))v.tab=B[0]?.id||'mine';const tab=v.tab,b=fmB(tab);
-  const L=F.posts.filter(p=>tab==='mine'?p.author==='me'||p.cm.some(c=>c.author==='me'):p.b===tab).sort((x,y)=>y.t-x.t);
-  return{title:F.name||'论坛',right:`<button class="tb" data-a="open" data-v="fmSet">设置</button>`,body:tabs([...B.map(x=>[x.id,x.name]),['mine','我的']],tab)+
+forum(v){const F=S.forum,B=F.boards;if(v.tab!=='mine'&&!fmB(v.tab))v.tab=B[0]?.id||'mine';const tab=v.tab,b=fmB(tab);if(b)v.lastB=tab;
+  const L=F.posts.filter(p=>p.b===tab).sort((x,y)=>y.t-x.t);
+  const nav={footCls:'tabbar',foot:`<button class="${tab!=='mine'?'on':''}" data-a="fmNav" data-t="home" aria-label="首页">${ICONS.plaza}</button><button class="${tab==='mine'?'on':''}" data-a="fmNav" data-t="mine" aria-label="我的">${ICONS.person}</button><button class="fab" data-a="fmNew" aria-label="发帖">${ICONS.plus}</button>`};
+  if(tab==='mine')return{title:mask().name||'我的',cls:'pfv',right:`<button class="tb" data-a="open" data-v="fmSet">设置</button>`,...nav,body:fmProfile(v)};
+  return{title:F.name||'论坛',right:`<button class="tb" data-a="open" data-v="fmSet">设置</button>`,...nav,body:(B.length>1?tabs(B.map(x=>[x.id,x.name]),tab):'')+
     `<div class="fmbar">${b?`<p>${b.prompt?esc(fmMac(b.prompt)):'还没写这个版块发什么帖，点「改」写一下'}</p>`:''}
       <span class="btns">${b?`<button class="tb" data-a="fmBoardOpen" data-id="${b.id}">改</button>`:''}<button class="btn o" data-a="fmNew">发帖</button>${b?`<button class="btn" data-a="fmRefresh" ${v.busy?'disabled':''}>${v.busy?'刷新中…':'刷新'}</button>`:''}</span></div>`+
     (v.busy?`<div class="fp ghost"><span class="dots"><i></i><i></i><i></i></span><small>正在刷「${esc(b?.name||'')}」</small></div>`:'')+
@@ -3349,6 +3385,9 @@ const A={
     const p={id:uid(),b:b.id,author:'me',nick:mask().name,title:ti,text:tx,pic,likes:rnd(20),t:Date.now(),cm:[]};S.forum.posts.unshift(p);logEvent(null,`${mask().name}在论坛「${b.name}」发了帖：${ti||tx}`);save();closeSheet();
     const v={v:'fmPost',id:p.id,busy:1};go(v);try{await fmReply(p,3+rnd(3))}catch(e){toast(e.message,5000)}v.busy=0;if(cur()===v)render(true)},
   fmOpen(el){go({v:'fmPost',id:el.dataset.id})},
+  fmNav(el){const v=cur();v.tab=el.dataset.t==='mine'?'mine':(fmB(v.lastB)?v.lastB:S.forum.boards[0]?.id||'mine');v.err=0;render()},
+  fmPt(el){cur().pt=el.dataset.t;render(true)},
+  fmEditMe(){go({v:'maskEdit',id:mask().id})},
   fmLike(el){const p=fmPost(el.dataset.id);if(!p)return;p.liked=!p.liked;save();render(true)},
   fmShare(el){closeSheet();const p=fmPost(el.dataset.id);if(!p)return;const b=fmB(p.b);
     shareSheet({type:'share',kind:'forum',title:`${fmWho(p)}在${S.forum.name||'论坛'}发的帖子`,sub:[b?.name,p.title].filter(Boolean).join(' · '),text:p.text+(p.pic?'\n【配图】'+p.pic:''),ref:{fp:p.id}})},
