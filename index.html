@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.14.14';
+window.BYJ_VER='2026.11.14.15';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -504,6 +504,18 @@ html.dark .timg{color:#d1d1d1;background:linear-gradient(150deg,#303030,#212121 
 .fp-a button{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;background:none;border:0;padding:8px 4px;color:var(--muted);font-size:12.5px;border-radius:12px}
 .fp-a svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linejoin:round;stroke-linecap:round}
 .fp-a .lk{color:#e0245e}.fp-a .lk svg{fill:currentColor}
+/* 论坛列表：时间线。一整张底板，帖子之间只隔一条细线，头像在左 */
+.tl-list{display:flex;flex-direction:column;flex:none;background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:var(--lift);padding:0 14px;overflow:hidden}
+.fp.tl{background:none;border:0;border-bottom:1px solid var(--line);border-radius:0;box-shadow:none}.fp.tl:last-child{border-bottom:0}
+.fp.tl .fp-in{flex-direction:row;align-items:flex-start;gap:10px;padding:13px 0 0}
+.tl-b{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.tl-h{display:flex;align-items:center;gap:6px;min-width:0}
+.tl-h b{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl-h small{font-size:13px;color:var(--muted);white-space:nowrap;flex:none}
+.fp.tl .fp-t{font-size:15px;line-height:1.45}.fp.tl .fp-x{font-size:15px;line-height:1.5}
+.fp.tl .timg{margin-top:6px;border-radius:16px}
+.fp.tl .fp-a{padding:2px 0 6px 44px;gap:0;justify-content:space-between;max-width:330px}
+.fp.tl .fp-a button{flex:none;justify-content:flex-start;min-width:56px;padding:8px 6px}
 .fp.ghost{flex-direction:row;align-items:center;justify-content:center;gap:10px;padding:18px;color:var(--muted);font-size:13px}
 .fc{display:flex;gap:10px;padding:10px 4px;border-bottom:1px solid var(--line)}
 .fc-b{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
@@ -2046,10 +2058,11 @@ async function fmReply(p,n,rq){const b=fmB(p.b),me=mask().name,thr=p.cm.slice(-1
     const nick=m[1].replace(/[*「」@]/g,'').trim(),to=(m[2]||'').replace(/[*「」@]/g,'').trim(),text=m[3].trim();if(!nick||nick===me)continue;const id=fmLurk(nick);
     p.cm.push({id:uid(),author:id||(nick===fmWho(p)?p.author:'x'),nick,to,text,t:Date.now()});if(id)logEvent(id,`${charById(id).name}在论坛上${to?'回复了'+to:'评论了'+fmWho(p)+'的帖子'}：${text}`)}
   save()}
-const fmAct=p=>`<div class="fp-a"><button class="${p.liked?'lk':''}" data-a="fmLike" data-id="${p.id}" aria-label="点赞">${XI.like}<span>${kn(p.likes+(p.liked?1:0))}</span></button><button data-a="fmOpen" data-id="${p.id}" aria-label="评论">${XI.reply}<span>${p.cm.length||'评论'}</span></button><button data-a="fmShare" data-id="${p.id}" aria-label="分享给TA">${XI.share}<span>分享</span></button></div>`;
+const fmAct=(p,tl)=>{const lk=`<button class="${p.liked?'lk':''}" data-a="fmLike" data-id="${p.id}" aria-label="点赞">${XI.like}<span>${kn(p.likes+(p.liked?1:0))}</span></button>`,cm=`<button data-a="fmOpen" data-id="${p.id}" aria-label="评论">${XI.reply}<span>${p.cm.length||(tl?'':'评论')}</span></button>`,sh=`<button data-a="fmShare" data-id="${p.id}" aria-label="分享给TA">${XI.share}<span>${tl?'':'分享'}</span></button>`;
+  return`<div class="fp-a">${tl?cm+lk+sh:lk+cm+sh}</div>`};
 function fmCard(p,showB){const b=fmB(p.b);
-  return`<article class="fp"><button class="fp-in" data-a="fmOpen" data-id="${p.id}"><span class="fp-u">${fmAv(p,32)}<span><b>${esc(fmWho(p))}</b><small>${ago(p.t)}${showB&&b?' · '+esc(b.name):''}</small></span>${p.author!=='x'&&p.author!=='me'?'<span class="pill">认识的人</span>':''}</span>
-    ${p.title?`<b class="fp-t">${esc(p.title)}</b>`:''}${p.text?`<span class="fp-x">${esc(p.text)}</span>`:''}${p.pic?`<span class="timg">${esc(p.pic)}</span>`:''}</button>${fmAct(p)}</article>`}
+  return`<article class="fp tl"><button class="fp-in" data-a="fmOpen" data-id="${p.id}">${fmAv(p,40)}<span class="tl-b"><span class="tl-h"><b>${esc(fmWho(p))}</b>${p.author!=='x'&&p.author!=='me'?'<span class="pill">认识的人</span>':''}<small>· ${ago(p.t)}${showB&&b?' · '+esc(b.name):''}</small></span>
+    ${p.title?`<b class="fp-t">${esc(p.title)}</b>`:''}${p.text?`<span class="fp-x">${esc(p.text)}</span>`:''}${p.pic?`<span class="timg">${esc(p.pic)}</span>`:''}</span></button>${fmAct(p,1)}</article>`}
 
 const exBlock=(c,mac,n)=>{const x=String(c?.ex||'').replace(/^[ \t]*<START>[ \t]*$/gim,'').replace(/\n{3,}/g,'\n\n').trim();
   return x?`【${c.name}说话的样子】（只是示范语气和用词，不是发生过的事，别照抄原句）\n${mac(n?x.slice(0,n):x)}`:''};
@@ -3097,7 +3110,7 @@ forum(v){const F=S.forum,B=F.boards;if(v.tab!=='mine'&&!fmB(v.tab))v.tab=B[0]?.i
     `<div class="fmbar">${b?`<p>${b.prompt?esc(fmMac(b.prompt)):'还没写这个版块发什么帖，点「改」写一下'}</p>`:''}
       <span class="btns">${b?`<button class="tb" data-a="fmBoardOpen" data-id="${b.id}">改</button>`:''}<button class="btn o" data-a="fmNew">发帖</button>${b?`<button class="btn" data-a="fmRefresh" ${v.busy?'disabled':''}>${v.busy?'刷新中…':'刷新'}</button>`:''}</span></div>`+
     (v.busy?`<div class="fp ghost"><span class="dots"><i></i><i></i><i></i></span><small>正在刷「${esc(b?.name||'')}」</small></div>`:'')+
-    (L.map(p=>fmCard(p,tab==='mine')).join('')||(v.busy?'':`<div class="empty"><big>${tab==='mine'?'还没发过帖':'空空的'}</big></div>`))}},
+    (L.length?`<div class="tl-list">${L.map(p=>fmCard(p,tab==='mine')).join('')}</div>`:(v.busy?'':`<div class="empty"><big>${tab==='mine'?'还没发过帖':'空空的'}</big></div>`))}},
 fmPost(v){const p=fmPost(v.id);if(!p)return{title:'不见了',body:''};const b=fmB(p.b);
   return{title:b?b.name:(S.forum.name||'论坛'),sub:S.forum.name||'论坛',right:`<button class="tb" data-a="fmMore" data-id="${p.id}" aria-label="更多">···</button>`,body:
     `<article class="fp solo"><span class="fp-u">${fmAv(p,38)}<span><b>${esc(fmWho(p))}</b><small>${ago(p.t)}</small></span>${p.author!=='x'&&p.author!=='me'?'<span class="pill">认识的人</span>':''}</span>
