@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.15.5';
+window.BYJ_VER='2026.11.15.6';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -1416,7 +1416,7 @@ const deNote=x=>String(x||'').replace(/<[!！]\s*-{1,2}[\s\S]*?-{1,2}\s*>/g,'').
 // 联网搜索：服务商自己搜、一次请求里搜完。只有 Claude 协议有（官方 Claude、MiniMax 的 /anthropic）
 const isMMBase=b=>/api\.minimaxi?\.(cn|com|io|chat)/i.test(b||'');
 const webOk=p=>!!p&&(provOf(p)==='claude'||isMMBase(p.base)||/api\.deepseek\.com/i.test(p.base||''));
-// 只用角色自己写的思维链，模型自带的思考一律关掉：DeepSeek 直接关；MiniMax 关不了，压到最低档
+// 显示的只有角色自己写的思维链。模型自带的思考只在后台跑、不显示：DeepSeek 聊天时默认开（S.chat.deep），杂活一律关；MiniMax 关不了，压到最低档
 const isDS=p=>/deepseek/i.test((p?.base||'')+' '+(p?.model||''));
 const isKimi=base=>/moonshot\.(cn|ai)|kimi\.(com|ai)/.test(base||'');
 function addTok(tag,i,o,c=0,w=0){if(!i&&!o)return;const T=S.tok||(S.tok=def().tok);T.n++;T.i+=i;T.o+=o;T.c=(T.c||0)+c;T.w=(T.w||0)+w;
@@ -1451,7 +1451,7 @@ async function callAI0(system,messages,o={}){
     if(p.provider==='openai'){
       const b={model,max_tokens:max,...(p.stream?{stream:true,stream_options:{include_usage:true}}:{}),...(isKimi(base)?{prompt_cache_options:{mode:'implicit',ttl:p.cache==='1h'?'1h':'5m'}}:{}),messages:[{role:'system',content:system},...m.map(x=>({role:x.role,content:x.imgs&&x.imgs.length?[{type:'text',text:x.content},...x.imgs.map(u=>({type:'image_url',image_url:{url:u}}))]:x.content}))]};if(temp!==null)b.temperature=temp;if(topP!==null)b.top_p=topP;if(topK!==null)b.top_k=topK;
       if(isMM(model))b.reasoning_effort=(o.thoughts&&S.chat.effort&&S.chat.effort!=='none'&&S.chat.effort)||'low';
-      if(isDS(p))b.thinking={type:'disabled'};
+      if(isDS(p)&&!(o.thoughts&&S.chat.deep!==false))b.thinking={type:'disabled'};
       // DeepSeek 联网：关着思考它不会真去搜（实测会编），所以联网时至少开低档
       if(web&&p.provider==='openai'){b.tools=[{type:'deepseek_web_search'}];if(b.thinking?.type==='disabled'){delete b.thinking;b.reasoning_effort='low'}}if(/^minimax-m/i.test(model))b.reasoning_split=true;
       res=await fetch(base+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},body:JSON.stringify(b),signal:sig});
@@ -3044,7 +3044,8 @@ think(){const C=S.chat;
     <div class="panel"><h2>思维链</h2>
       <label class="ck"><input type="checkbox" id="ch-think" data-s="chat" data-k="think" ${C.think?'checked':''}>回复前先想清楚再回</label>
       ${C.think?`<label class="f">叫什么<input type="text" id="ch-tname" data-s="chat" data-k="thinkName" value="${esc(C.thinkName)}"></label>
-      <label class="f">想什么<textarea id="ch-tstyle" data-s="chat" data-k="thinkStyle">${esc(C.thinkStyle||THINK_DEF)}</textarea></label><button class="tb" data-a="setChat" data-k="thinkStyle" data-v="" style="align-self:flex-start">恢复默认</button>`:''}</div>`}},
+      <label class="f">想什么<textarea id="ch-tstyle" data-s="chat" data-k="thinkStyle">${esc(C.thinkStyle||THINK_DEF)}</textarea></label><button class="tb" data-a="setChat" data-k="thinkStyle" data-v="" style="align-self:flex-start">恢复默认</button>`:''}
+      ${isDS(api())?`<label class="ck"><input type="checkbox" id="ch-deep" data-s="chat" data-k="deep" ${C.deep!==false?'checked':''}>回之前先在后台想一遍（不显示）</label>`:''}</div>`}},
 offline(v){
   const t=thread(v.id);t.offline=t.offline||{...S.offline};const o=t.offline;
   return{title:'见面设置',sub:threadTitle(t),body:`<div class="panel">
