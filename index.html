@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.18.1';
+window.BYJ_VER='2026.11.18.2';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -1670,24 +1670,28 @@ function buildCtx(t,o={}){
       const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal&&lastReal.type!=='narr')ctxs.push(`【刚见面】刚才在手机上聊（见下），现在见面了，接着往下写。`);if(ph.length)ctxs.push(`【见面前在手机上聊的】（只是背景，别照这个格式写）\n`+ph.map(line).join('\n'))}
   }else{
     rules.push(group?`【群聊】群里有${me.name}和${cname}。大家互相接话、吐槽、起哄，各按人设说话，彼此不暧昧，不必人人都说。每行「名字：内容」，一行一条，不替${me.name}说话。`
-      :`【聊天】一行一个气泡，不写名字。不复述，不说教，不总结，不必句句提问，小事自己拿主意。`);
-    if(!group)rules.push(`【分享生活】常带出自己在干什么、刚遇到的事、吃到看到的东西，可以发 [图片:…]。话题干了就自己起新的，或拉${me.name}一起做点什么（听歌、玩游戏、约见面），具体、有梗。`);
+      :`【聊天】一行一个气泡，不写名字。不复述，不说教，不总结，不必句句提问，小事自己拿主意。语气以人设为准：人设冷就冷着说，话少、克制，在意放在做的事里，不说甜话、不黏人，别因为关系亲密就变腻。`);
+    if(!group)rules.push(`【分享生活】按人设带出自己在干什么、刚遇到的事、吃到看到的东西，偶尔配一张 [图片:…]。话题干了就自己起新的，或拉${me.name}一起做点什么（听歌、玩游戏、约见面），具体、有梗。`);
     {const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal?.type==='narr')ctxs.push(`【刚分开】刚见过面，现在回到手机上。带着那时的情绪，只发消息，不写动作和长段。`)}
     rules.push(`【条数】一条说一句话，${num(C.onLen)||10}字左右，人设话多或事情要紧时可以长些。平时${G('每人','')}发1到${num(C.onMax)||3}条，情绪上来最多${bubbleCap()}条。真有很多话要说，偶尔可以到${BUBBLE_MAX}条。${C.casual!==false?'不打句号和逗号，停顿就换行。':''}`);
     const sp=['[图片:画面]','[语音:内容]'];
     if(!group)sp.push('[红包:金额:祝福]','[转账:金额:备注]',...(boughtRecently(t)?[]:['[外卖:吃的:金额]','[网购:东西:金额]']),'[查手机]','[语音通话]','[视频通话]','[送亲属卡:月额度]');
     sp.push('[分享歌曲:歌名 - 歌手]');sp.push('[定位:地点 · 一句备注]');
     const st=allStickers().map(s=>s.name).filter(Boolean).slice(0,80);if(st.length)sp.push('[表情:名字]（可用：'+st.join('、')+'）');
-    rules.push(`【特殊消息】单独一行写。这些是你手机上真能用的，像真人谈恋爱那样用，别几轮下来只发文字：\n${sp.join('\n')}${group?'':`\n真人是这么用的：
-· 图片：随手拍吃的、路上看到的、刚买的东西；TA说想看你，就发张自拍；到家、到公司拍一张报平安。
-· 语音：懒得打字、在走路开车、哄TA、说晚安早安的时候。${mm28()?'语音里可以带（轻笑）（叹气）这类语气。':''}
-· 语音通话：打字说不清、TA情绪不好或哭了、睡前想听声音。视频通话：想看TA、陪TA吃饭、TA一个人害怕。
+    rules.push(`【特殊消息】单独一行写。这些是你手机上能用的：\n${sp.join('\n')}${group?'':`\n怎么用：
+· 大多数时候只打字。隔上好几轮、真有由头才用一个，一次只用一种。用不用、用多少跟着人设：话少冷淡的人用得更少。
+· 图片：只发你自己拍的（吃的、路上看到的、手边的东西；TA开口说想看你才发自拍），冒号后写照片里拍到了什么。TA发来照片，你用文字回，不回图片；「收到」「存了」「放大看」是动作，不是照片，别写成图片。
+· 语音：懒得打字、在走路开车、睡前。${mm28()?'语音里可以带（轻笑）（叹气）这类语气。':''}
+· 语音通话、视频通话：很少打。打字说不清、TA哭了或害怕、睡前TA想听声音时才打；打过一次或TA没接，就不再打。
 · 定位：出门了、到了、在等TA的时候。
-· 红包：过节、纪念日、哄TA消气，随手的小数目（5.20、13.14、52、66）。转账：TA说没钱、要买东西、发了工资，数目大的。
-· 外卖：TA没吃饭、加班、生病、不舒服，直接点过去，不问「要不要」。网购：TA提过想要的、换季、过节的礼物。
-· 分享歌曲：正在听的、歌词像在说TA的、睡前。
-· 查手机：吃醋、觉得TA躲躲闪闪。送亲属卡：想让TA随便花，送一次就够。
-每三四轮里至少用上一次，挑当下最顺手的那个，一次用一种。`}`);
+· 红包：过节、纪念日、哄TA消气，随手的小数目（5.20、13.14、52、66）。转账：TA说没钱、要买东西，数目大的。
+· 外卖：TA没吃饭、加班、生病，直接点过去，不问「要不要」。网购：TA提过想要的、过节的礼物。
+· 分享歌曲：正在听的、歌词像在说TA的。
+· 查手机：吃醋、觉得TA躲躲闪闪。送亲属卡：想让TA随便花，送一次就够。`}`);
+    if(!group){const u=spUse(t);
+      if(u.last>0&&u.last<=2)tail.push(`【这轮】前面刚用过特殊消息，这轮只打字${u.callN>=0&&u.callN<25?'，也别再打电话':''}（除非${me.name}这句明确开口要）。`);
+      else if(u.callN>=0&&u.callN<25)tail.push(`【这轮】刚打过电话，这轮别再打（除非${me.name}开口要）。`);
+      else if(u.rounds>=6&&(u.last<0||u.last>=6))tail.push(`【这轮】已经好几轮只打字了。这轮要是有顺手的由头，可以用一个特殊消息；没有就算了。`)}
     if(!group&&chars[0]){const cs=cardsNow().filter(k=>k.charId===chars[0].id),q=k=>(k.limit?`月额度${money(k.limit)}`:'不限额')+`，本月用了${money(k.used)}`;
       const mine=cs.filter(k=>k.dir!=='out'),theirs=cs.filter(k=>k.dir==='out');
       if(cs.length)tail.push(`【亲属卡】${mine.length?`你给${me.name}开了（${mine.map(q).join('；')}）。`:''}${theirs.length?`${me.name}给你开了（${theirs.map(q).join('；')}），用时写 [刷亲属卡:东西:金额]。`:''}`)}
@@ -1964,9 +1968,10 @@ async function reply(t,extra,stamps){
     // 单聊里思维链和心声提到的「他/她」就是用户：一律换成「你」，不猜性别
     if(!ctx.group){const u=x=>String(x||'').replace(/[他她]/g,'你');ex.think=u(ex.think);ex.inner=ex.inner.map(u)}
     applyTide(ctx,ex);applyActs(ctx,ex);if(!ctx.group&&ctx.chars[0]){applyMoney(t,ex,ctx.chars[0]);applyCards(t,ex,ctx.chars[0])}save();
-    const callAct=ex.acts.find(a=>a==='语音通话'||a==='视频通话');
+    const callWas=spUse(t).callN,askedCall=/电话|视频|语音|通话|打给|打过来/.test(String([...t.msgs].reverse().find(m=>m.from==='me')?.content||''));
+    const callAct=(callWas<0||callWas>=25||askedCall)&&ex.acts.find(a=>a==='语音通话'||a==='视频通话');
     if(!ex.text&&!ex.acts.length)throw new Error(r.cut?'光顾着想了，还没说话长度就用完了：把接口里的最大长度调大，或把思考深度调低':'回复是空的，再试一次');
-    const bought=boughtRecently(t),parts=ex.text?parseReply(ex.text,ctx).filter(p=>!(bought&&(p.type==='order'||p.type==='parcel'))):[];attachExtras(parts,ex,ctx);
+    const bought=boughtRecently(t),parts=ex.text?parseReply(ex.text,ctx).filter(p=>!(bought&&(p.type==='order'||p.type==='parcel'))&&!(p.type==='pic'&&/^(收到|已?存|保存|放大|截图|点开|看了|好的?$)/.test(String(p.content||'').trim()))):[];attachExtras(parts,ex,ctx);
     const posted=[],lack={think:S.chat.think&&!ex.think,inner:S.chat.inner&&!ex.inner.length};
     for(let i=0;i<parts.length;i++){
       if(i)await sleep(ctx.mode==='offline'||stamps?0:Math.min(1400,350+String(parts[i].content||'').length*25));
@@ -2456,6 +2461,15 @@ function renderCall(){let e=$('#call');if(!call){if(e)e.remove();return}
 function updCall(){if(call?.mini){renderCall();return}const s=$('#callSubs');if(s){s.innerHTML=callSubsHTML();s.scrollTop=s.scrollHeight}const st=$('#callSt');if(st)st.textContent=callStatus()}
 function startCall(t,kind){if(call)return;const c=charById(t.chars[0]);if(!reachable(c)){toast('现在打不通');return}if(!api()?.key){toast('先在「设置 · 聊天」填 Key');return}
   closeSheet();call={tid:t.id,kind,status:'out',lines:[],start:0,tts:true,dir:'out'};renderCall();setTimeout(()=>{if(call&&call.status==='out')callTurn()},1400+Math.random()*1600)}
+// 他最近用特殊消息的情况：一共回了几轮、上一次用是倒数第几轮、最近一次通话离现在几条消息
+function spUse(t){let rounds=0,run=false,last=-1,callN=-1,n=0;
+  for(let i=t.msgs.length-1;i>=0&&n<80;i--,n++){const m=t.msgs[i];
+    if(callN<0&&(m.type==='call'||(m.type==='sys'&&/通话/.test(m.content||''))))callN=n;
+    if(m.type==='sys'||m.type==='call')continue;
+    if(m.from==='me'){run=false;continue}
+    if(!run){run=true;rounds++}
+    if(last<0&&!['text','sticker','narr'].includes(m.type))last=rounds}
+  return{rounds,last,callN}}
 function incomingCall(t,kind){if(call)return;const c=charById(t.chars[0]);if(!reachable(c))return;
   call={tid:t.id,kind,status:'in',lines:[],start:0,tts:true,dir:'in'};renderCall();try{navigator.vibrate&&navigator.vibrate([300,200,300])}catch(e){}
   call.ring=setTimeout(()=>{if(call&&call.status==='in')endCall('missed')},30000)}
