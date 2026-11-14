@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.18.4';
+window.BYJ_VER='2026.11.18.5';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -947,10 +947,10 @@ const SYS_ITEM=(name,content)=>({id:uid(),name,role:'system',mode:'both',on:true
 const BASE_ITEMS=()=>[SYS_ITEM('不重复',REP_DEF)];
 const PLAY_OLD='【怎么演】你是{{char}}，对面是{{user}}。按人设说话做事，有自己的想法和脾气，自己推剧情：提议、拿主意、带出新的事。接住{{user}}的话，尊重TA。不替TA说话或决定感受，说过的事不反复要求。背景用得上才提。不出戏，不提AI。',PLAY_OLD3='【怎么演】你是{{char}}，对面是{{user}}。按人设说话做事，有自己的想法，自己推剧情、带出新的事。接住{{user}}的话，不替TA说话或决定感受，说过的事不反复要求。背景用得上才提。不出戏，不提AI。',PLAY_OLD4='【怎么演】你是{{char}}，对面是{{user}}。按人设说话做事，有自己的想法和脾气，自己推剧情、带出新的事。接住{{user}}的话，不替TA说话或决定感受，说过的事不反复要求。背景用得上才提。不出戏，不提AI。',PLAY_DEF='【怎么演】你是{{char}}，对面是{{user}}。有自己的想法和脾气，自己带出新的事。不替TA说话、决定感受。不出戏，不提AI。';
 const CORE_HEAD=()=>[SYS_ITEM('陪着','【陪着】{{user}}来找你就陪着聊。可以说在忙或要睡了，但不敷衍，不催TA睡。'),SYS_ITEM('亲密','【亲密】可以大胆直接写，不跳过。日常照样有。')];
-const CATCH_DEF='【接住】{{user}}上一句提的要求、问的事、约好的事，这一轮先接住再说别的。答应过的要兑现，做不到就说一声，别当没听见。';
-const CORE_TAIL=()=>[SYS_ITEM('接住',CATCH_DEF),SYS_ITEM('怎么演',PLAY_DEF),
+const CATCH_OLD='【接住】{{user}}上一句提的要求、问的事、约好的事，这一轮先接住再说别的。答应过的要兑现，做不到就说一声，别当没听见。',CATCH_DEF='【记得】{{user}}上一句问的、要的、约好的事，先回这个，再聊别的。答应过的就去做，做不到就直说，别装没看见。';
+const CORE_TAIL=()=>[SYS_ITEM('记得',CATCH_DEF),SYS_ITEM('怎么演',PLAY_DEF),
   SYS_ITEM('称呼',CALL_DEF)];
-const CALL_OLD='【称呼】别总叫全名，按人设换着叫。不用「小东西」「小家伙」「小傻瓜」「小笨蛋」「小废物」「欠收拾」「你试试」「活该」「拿捏」「发疯」。',CALL_DEF='【称呼】别总叫全名，按人设换着叫。';
+const CALL_OLD='【称呼】别总叫全名，按人设换着叫。不用「小东西」「小家伙」「小傻瓜」「小笨蛋」「小废物」「欠收拾」「你试试」「活该」「拿捏」「发疯」。',CALL_OLD2='【称呼】别总叫全名，按人设换着叫。',CALL_DEF='【称呼】不叫{{user}}全名（气急了除外）。老婆、宝宝、乖乖、小乖、姐姐、小名，或者别的，看人设和当时的心情换着叫。';
 const DEFAULT_ITEMS=()=>[...CORE_HEAD(),...BASE_ITEMS(),...CORE_TAIL()];
 const inChat=i=>i.depth!=null&&i.depth!==''&&isFinite(+i.depth);
 const withCore=p=>{if(p.core!==1){p.items=[...CORE_HEAD(),...(p.items||[]),...CORE_TAIL()];p.core=1}return p};
@@ -975,7 +975,7 @@ const THINK_OLD5='想清楚：{{user}}什么意思、想要什么，{{char}}真�
 const THINK_OLD6='用{{char}}的心思盘算：{{user}}什么意思、想要什么，接下来怎么回、怎么做。60字内。';
 const THINK_OLD7='用{{char}}的心思盘算：{{user}}什么意思，{{char}}自己想怎么做，接下来怎么回。60字内。';
 const THINK_OLD8='一两句话，{{char}}心里打算怎么回。30字内，不分析不列条目。';
-const THINK_OLD9='一句话，{{char}}心里打算怎么回。20字内。',THINK_OLD10='一句话：先认{{user}}上一句要什么、有没有约好的事，再定{{char}}打算怎么回。30字内。',THINK_DEF='一句话，用{{char}}自己的口吻说心里打算怎么回。20字内。';
+const THINK_OLD9='一句话，{{char}}心里打算怎么回。20字内。',THINK_OLD10='一句话：先认{{user}}上一句要什么、有没有约好的事，再定{{char}}打算怎么回。30字内。',THINK_OLD11='一句话，用{{char}}自己的口吻说心里打算怎么回。20字内。',THINK_DEF='一句话，{{char}}看到消息那一下心里的念头，像自己跟自己嘀咕，口语。20字内。不写「先…再…」这种步骤，不复述对方说了什么。';
 const CHAT_DEF=()=>({lean:true,onMax:3,onLen:10,casual:true,ctx:80,sumEvery:30,inner:true,innerOpen:false,innerName:'心声',innerStyle:INNER_DEF,think:true,thinkName:'思维链',thinkStyle:THINK_DEF,effort:'',scan:8});
 const PERSONA_TPL='姓名：\n年龄：\n性别：\n身份/职业：\n外貌：\n性格：\n说话方式：\n喜欢：\n讨厌：\n背景经历：\n和{{user}}的关系：';
 const TH_FMTS=()=>[
@@ -1037,10 +1037,11 @@ function mergeState(d){
   {const seen=new Set();(s.chars||[]).forEach(c=>{c.books=(c.books||[]).filter(id=>{const b=(s.books||[]).find(x=>x.id===id);if(!b||b.scope==='global'||seen.has(id))return false;seen.add(id);return true})})}
   if(s.media?.img)s.media.img.auto=false;
   delete s.chat.thinkSrc;delete s.chat.deep;for(const k of['casual','love','chase','away','autoPost'])delete s.chat[k];s.diaryAuto=false;delete s.chat.web;delete s.look.shell;delete s.look.night;delete s.look.hide;s.chat.effort='';s.chat.think=true;s.chat.inner=true;
-  if([THINK_OLD,THINK_OLD2,THINK_OLD3,THINK_OLD4,THINK_OLD5,THINK_OLD6,THINK_OLD7,THINK_OLD8,THINK_OLD9,THINK_OLD10].includes(s.chat.thinkStyle))s.chat.thinkStyle=THINK_DEF;
+  if([THINK_OLD,THINK_OLD2,THINK_OLD3,THINK_OLD4,THINK_OLD5,THINK_OLD6,THINK_OLD7,THINK_OLD8,THINK_OLD9,THINK_OLD10,THINK_OLD11].includes(s.chat.thinkStyle))s.chat.thinkStyle=THINK_DEF;
   if(!s.presetV){const old=new Set([OLD_MAIN,ONLINE_OLD,ONLINE_DEF,OFFLINE_OLD,OFFLINE_DEF]);
     s.presets.forEach(p=>{const n=(p.items||[]).length;p.items=(p.items||[]).filter(i=>!old.has(i.content));if(p.items.length<n)BASE_ITEMS().slice(1).forEach(x=>p.items.push(x))});s.presetV=2}
-  if(!s.catchV){s.catchV=1;s.presets.forEach(p=>{if(p.core===1&&!(p.items||[]).some(i=>i.name==='接住')){const k=p.items.findIndex(i=>i.name==='怎么演');p.items.splice(k<0?p.items.length:k,0,SYS_ITEM('接住',CATCH_DEF))}})}
+  if(!s.catchV){s.catchV=1;s.presets.forEach(p=>{if(p.core===1&&!(p.items||[]).some(i=>i.name==='接住'||i.name==='记得')){const k=p.items.findIndex(i=>i.name==='怎么演');p.items.splice(k<0?p.items.length:k,0,SYS_ITEM('记得',CATCH_DEF))}})}
+  s.presets.forEach(p=>(p.items||[]).forEach(i=>{if(i.content===CATCH_OLD){i.content=CATCH_DEF;i.name='记得'}}));
   s.presets.forEach(p=>{(p.items||[]).forEach(i=>{if(i.content===ONLINE_OLD)i.content=ONLINE_DEF;if(i.content===OFFLINE_OLD)i.content=OFFLINE_DEF});p.items=(p.items||[]).filter(i=>i.content!==MAN_OLD)});
   if([INNER_OLD,INNER_OLD2,INNER_OLD3,INNER_OLD4,INNER_OLD5,INNER_OLD6,INNER_OLD7,INNER_OLD8].includes(s.chat.innerStyle))s.chat.innerStyle=INNER_DEF;
   s.threads.forEach(t=>{delete t.face});delete s.chat.face;delete s.chat.faceLen;delete s.chat.faceStyle;
@@ -1066,7 +1067,7 @@ for(const K of['evWipe','memWipe'])if(!s[K]||typeof s[K]!=='object')s[K]={};if(!
   if(s.thFmts.length===1&&s.thFmts[0].id==='f1'&&!String(s.thFmts[0].prompt||'').trim())s.thFmts=TH_FMTS();
   for(const k of ['mailAuto','autoReply','autoSum','real','life','busy','tide','proactive','world','time','tts','strangers'])delete s.chat[k];
   for(const k of ['full','eco','glassy','fx','fxs'])delete s.look[k];s.threads.forEach(t=>delete t.heat);
-  {const up={[PLAY_OLD]:PLAY_DEF,[PLAY_OLD3]:PLAY_DEF,[PLAY_OLD4]:PLAY_DEF,[LANG_OLD]:LANG_DEF,[LANG_OLD2]:LANG_DEF,[REP_OLD]:REP_DEF,[REP_OLD2]:REP_DEF,[CLICHE_OLD]:CLICHE_DEF,[CLICHE_OLD2]:CLICHE_DEF,[CALL_OLD]:CALL_DEF};s.presets.forEach(p=>{(p.items||[]).forEach(i=>{if(up[i.content])i.content=up[i.content]});if((p.items||[]).some(i=>i.content===REP_DEF))p.items=p.items.filter(i=>i.content!==CLICHE_DEF);p.items=(p.items||[]).filter(i=>i.content!==LANG_DEF)})}
+  {const up={[PLAY_OLD]:PLAY_DEF,[PLAY_OLD3]:PLAY_DEF,[PLAY_OLD4]:PLAY_DEF,[LANG_OLD]:LANG_DEF,[LANG_OLD2]:LANG_DEF,[REP_OLD]:REP_DEF,[REP_OLD2]:REP_DEF,[CLICHE_OLD]:CLICHE_DEF,[CLICHE_OLD2]:CLICHE_DEF,[CALL_OLD]:CALL_DEF,[CALL_OLD2]:CALL_DEF};s.presets.forEach(p=>{(p.items||[]).forEach(i=>{if(up[i.content])i.content=up[i.content]});if((p.items||[]).some(i=>i.content===REP_DEF))p.items=p.items.filter(i=>i.content!==CLICHE_DEF);p.items=(p.items||[]).filter(i=>i.content!==LANG_DEF)})}
   s.presets.forEach(withCore);
   if(!d.loreV)s.books.forEach(b=>(b.entries||[]).forEach(e=>{if(e.light==='yellow'&&!String(e.keys||'').trim())e.light='green'}));s.loreV=1;
   {const L=s.look;delete L.appWalls;delete L.alpha;delete L.dark;delete L.font;delete L.customFont;
@@ -1602,7 +1603,7 @@ const TODAY_SEED=['碰到一个意外的人','出了个小岔子','临时改了�
 async function ensureToday(c){if(!c||c.today?.day===dayKey()||!api()?.key)return;const day=dayKey(),wl=c.loc||S.loc;await ensureWx(wl).catch(()=>{});const tw=wxNow(wl);
   if(c.today?.text&&c.today.day!==day){(c.past||=[]).push({day:c.today.day,t:c.today.t||Date.now()-864e5,text:c.today.text});c.past=c.past.slice(-3)}
   c.today={day,text:'',t:Date.now()};const past=pastText(c);
-  try{const txt=await callAI(sysFor(c,charLore(c,past)+'你在安排这个角色今天的生活。'),[{role:'user',content:`今天是${nowText()}。${tw?`${c.name}那边今天${tw.desc}，${tw.min}~${tw.max}°C${tw.next?'，接下来'+tw.next:''}。`:''}${past?`${c.name}前几天（别重样）：${past}\n`:''}${`写${c.name}今天的安排（和天气对得上）和两三件平常小事，按时间先后，每件标大概几点。其中一件是：${TODAY_SEED[Math.floor(Math.random()*TODAY_SEED.length)]}，具体是什么你定。符合人设，大多和${mask(c).name}无关。`}第三人称，150字以内。只输出内容。`}],{max:1024,side:true});c.today={day,t:Date.now(),text:wholeText(txt,320)};save()}catch(e){c.today=null}}
+  try{const txt=await callAI(sysFor(c,charLore(c,past)+'你在安排这个角色今天的生活。'),[{role:'user',content:`今天是${nowText()}。${tw?`${c.name}那边今天${tw.desc}，${tw.min}~${tw.max}°C${tw.next?'，接下来'+tw.next:''}。`:''}${past?`${c.name}前几天（别重样）：${past}\n`:''}${`写${c.name}今天的安排（和天气对得上）和两三件平常小事，按时间先后，每件标大概几点。其中一件是：${TODAY_SEED[Math.floor(Math.random()*TODAY_SEED.length)]}，具体是什么你定。符合人设。只写${c.name}自己的事，不写和${mask(c).name}见面、住在一起、一起做了什么。`}第三人称，150字以内。只输出内容。`}],{max:1024,side:true});c.today={day,t:Date.now(),text:wholeText(txt,320)};save()}catch(e){c.today=null}}
 const GAME_RULES={truth:'【游戏：真心话大冒险】每一轮先掷骰子，点数小的人输，看聊天里最新的那次掷骰。输的人选真心话或大冒险：{{user}}输了，你就按TA选的出一个问题或挑战，可以暧昧一点；你输了，你自己选一个，然后诚实回答或者真的去做（线上就描述你做了什么，或者发 [图片:…]、[语音:…]）。一轮结束后等{{user}}掷下一轮，你不要自己掷骰子。',
   soup:'【游戏：海龟汤】你是出题人。先讲一个离奇的汤面（几句话的小故事），{{user}}来提问，你只能回答「是」「不是」「无关」或「很接近了」，可以带一点语气。{{user}}猜出汤底或者说放弃时，揭晓完整的汤底。'};
 // 线下见面的随机事件：每轮按概率抽一件，好事坏事都有，不连着两轮都出，最近抽过的尽量不重复
@@ -1675,7 +1676,7 @@ function buildCtx(t,o={}){
   }else{
     rules.push(group?`【群聊】群里有${me.name}和${cname}。大家互相接话、吐槽、起哄，各按人设说话，彼此不暧昧，不必人人都说。每行「名字：内容」，一行一条，不替${me.name}说话。`
       :`【聊天】一行一个气泡，不写名字。不复述，不说教，不总结，不必句句提问，小事自己拿主意。语气和主动程度都以人设为准：开朗就开朗，冷就冷，温柔就温柔；人设有两面或反差，两面都写出来。别因为关系亲密就都写成同一种甜腻黏人的样子。人设黏人、爱亲近的，可以常说想亲想抱；不是这种人设，就别每轮都提。`);
-    if(!group)rules.push(`【分享生活】按人设带出自己在干什么、刚遇到的事、吃到看到的东西，偶尔配一张 [图片:…]。话题干了就自己起新的，或拉${me.name}一起做点什么（听歌、玩游戏、约见面），具体、有梗。`);
+    if(!group)rules.push(`【分享生活】按人设带出自己在干什么、刚遇到的事、吃到看到的东西，偶尔配一张 [图片:…]。和${me.name}一起的事，只提真的聊过、做过的，没发生过的别说成发生过。话题干了就自己起新的，或拉${me.name}一起做点什么（听歌、玩游戏、约见面），具体、有梗。`);
     {const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal?.type==='narr')ctxs.push(`【刚分开】刚见过面，现在回到手机上。带着那时的情绪，只发消息，不写动作和长段。`)}
     rules.push(`【条数】一条说一句话，${num(C.onLen)||10}字左右，人设话多或事情要紧时可以长些。平时${G('每人','')}发1到${num(C.onMax)||3}条，情绪上来最多${bubbleCap()}条。真有很多话要说，偶尔可以到${BUBBLE_MAX}条。${C.casual!==false?'不打句号和逗号，停顿就换行。':''}`);
     const sp=['[图片:画面]','[语音:内容]'];
@@ -1683,7 +1684,7 @@ function buildCtx(t,o={}){
     sp.push('[分享歌曲:歌名 - 歌手]');sp.push('[定位:地点 · 一句备注]');
     const st=allStickers().map(s=>s.name).filter(Boolean).slice(0,80);if(st.length)sp.push('[表情:名字]（可用：'+st.join('、')+'）');
     rules.push(`【特殊消息】单独一行写。这些是你手机上能用的：\n${sp.join('\n')}${group?'':`\n怎么用：
-· 像平常人聊天那样用：隔几轮用一个，有由头就用，一次只用一种，不要连着几轮都用，也别一直只打字。用多用少跟着人设：爱分享的人多些，话少的人少些。
+· 像平常人聊天那样用：隔几轮用一个，正好用得上就用，一次只用一种，不要连着几轮都用，也别一直只打字。用多用少跟着人设：爱分享的人多些，话少的人少些。
 · 图片：只发你自己拍的（吃的、路上看到的、手边的东西；TA开口说想看你才发自拍），冒号后写照片里拍到了什么。TA发来照片，你用文字回，不回图片；「收到」「存了」「放大看」是动作，不是照片，别写成图片。
 · 语音：懒得打字、在走路开车、睡前。${mm28()?'语音里可以带（轻笑）（叹气）这类语气。':''}
 · 语音通话、视频通话：偶尔打。打字说不清、TA哭了或害怕、睡前TA想听声音时才打；打过一次或TA没接，就不再打。
@@ -1695,7 +1696,7 @@ function buildCtx(t,o={}){
     if(!group){const u=spUse(t);
       if(u.last===1)tail.push(`【这轮】上一轮刚用过特殊消息，这轮只打字${u.callN>=0&&u.callN<25?'，也别再打电话':''}（除非${me.name}这句明确开口要）。`);
       else if(u.callN>=0&&u.callN<25)tail.push(`【这轮】刚打过电话，这轮别再打（除非${me.name}开口要）。`);
-      else if(u.rounds>=4&&(u.last<0||u.last>=4))tail.push(`【这轮】已经好几轮只打字了。这轮要是有顺手的由头，可以用一个特殊消息；没有就算了。`)}
+      else if(u.rounds>=4&&(u.last<0||u.last>=4))tail.push(`【这轮】已经好几轮只打字了。这轮要是正好用得上，可以发个图片、语音之类的；用不上就算了。`)}
     if(!group&&chars[0]){const cs=cardsNow().filter(k=>k.charId===chars[0].id),q=k=>(k.limit?`月额度${money(k.limit)}`:'不限额')+`，本月用了${money(k.used)}`;
       const mine=cs.filter(k=>k.dir!=='out'),theirs=cs.filter(k=>k.dir==='out');
       if(cs.length)tail.push(`【亲属卡】${mine.length?`你给${me.name}开了（${mine.map(q).join('；')}）。`:''}${theirs.length?`${me.name}给你开了（${theirs.map(q).join('；')}），用时写 [刷亲属卡:东西:金额]。`:''}`)}
@@ -1704,7 +1705,7 @@ function buildCtx(t,o={}){
     if(pend)tail.push(`【没收的钱】${me.name}发来${pend.type==='hb'?'红包':'转账'}¥${pend.amt}${pend.content?'：'+pend.content:''}，写 [收下] 或 [退回]。`);
   }
   if(C.inner){const styles=chars.map(c=>c.innerStyle?`${c.name}：${mac(c.innerStyle)}`:'').filter(Boolean).join('；');
-    rules.push(`【${C.innerName||'心声'}】正文后另起一行写 <inner>…</inner>${G('，每人一个，「名字：」开头','')}。${mac(C.innerStyle||INNER_DEF)}${styles?'（'+styles+'）':''}提到${me.name}只用${cname}自己最想叫TA的叫法（不限定哪种，按人设和当下的心情，想怎么叫怎么叫）；只有生气时才直呼名字。不写「她」「他」「用户」，也不干巴巴叫全名。`)}
+    rules.push(`【${C.innerName||'心声'}】正文后另起一行写 <inner>…</inner>${G('，每人一个，「名字：」开头','')}。${mac(C.innerStyle||INNER_DEF)}${styles?'（'+styles+'）':''}提到${me.name}就用${cname}平时叫的那个：老婆、宝宝、乖乖、小乖、姐姐、${'小'+String(me.name||'').slice(-1)}，或者别的，看人设和当时的心情。不叫全名（气急了除外），不写「她」「他」「用户」。`)}
   tail.push('【心情】\n'+chars.map(c=>`${c.name}：${c.mood?c.mood+'，':''}${tideOf(c)}/100`).join('\n'));
   rules.push(`【心情】${cname}有情绪，按人设露在话里，跟着聊天起伏，不突然跳变。心情0到100，现在的数值在「此刻的情况」里。最后一行写 <tide>${G('名字：','')}数字|两个字的心情</tide>，如 <tide>${G(nm+'：','')}68|吃醋</tide>；闲聊动5以内，有事动10左右。生气可以，不说伤人的话。`);
   if(!group&&mode==='online'&&chars[0]){const r=rel(chars[0]);
@@ -1731,7 +1732,7 @@ function buildCtx(t,o={}){
   if(mode==='offline'){const w=num(off.words)||500,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字，不替${me.name}说新台词、做决定${(off.upov||'second')==='second'?`；叙述里称呼${me.name}只用「你」，不写名字、不写她或他`:''}${(l=>l.length?`；${l.join('和')}别漏`:'')([C.think&&'开头的 <think>',C.inner&&'结尾的 <inner>'].filter(Boolean))}）`,last=msgs[msgs.length-1];
     if(last&&last.role==='user')last.content+='\n\n'+note;else msgs.push({role:'user',content:note})}
   const end=[];
-  if(C.think)end.push(`【思考】先在 <think>…</think> 里${mac(C.thinkStyle||THINK_DEF)}${C.inner?`感受留给${C.innerName||'心声'}，这里只想打算。`:''}提到${me.name}只用${cname}自己最想叫TA的叫法（不限定哪种，按人设和当下的心情，想怎么叫怎么叫）；只有生气时才直呼名字。不写「她」「他」「用户」，也不干巴巴叫全名。`);
+  if(C.think)end.push(`【思考】先在 <think>…</think> 里${mac(C.thinkStyle||THINK_DEF)}${C.inner?`没说出口的真心话留给${C.innerName||'心声'}，这里是看到消息的第一反应。`:''}提到${me.name}就用${cname}平时叫的那个：老婆、宝宝、乖乖、小乖、姐姐、${'小'+String(me.name||'').slice(-1)}，或者别的，看人设和当时的心情。不叫全名（气急了除外），不写「她」「他」「用户」。`);
   const tw=C.think,iw=!!C.inner;
   if(mode!=='offline')end.push(`【回复格式】${tw?'先写 <think>…</think>，再':''}把发给${me.name}的话全写进 <reply>…</reply>，一行一条，[图片] [表情] 这类标记也在里面${iw?'；<inner> 和 <tide> 写在 </reply> 后面':'；<tide> 写在 </reply> 后面'}。<reply> 外的字不会发出去，给自己的分析${tw?'只写在 <think> 里':'不要写'}。每次都要写全。\n例：${tw?'<think>…</think>\n':''}<reply>\n第一条\n第二条\n</reply>${iw?'\n<inner>…</inner>':''}\n<tide>…</tide>`);
   else if(tw||iw)end.push(`【别漏】每次都按这个顺序写全：${tw?'第一行 <think>…</think>，然后':''}正文${iw?'，正文后另起一行 <inner>…</inner>':''}。\n例：${tw?'<think>…</think>\n':''}正文……${iw?'\n<inner>…</inner>':''}`);
@@ -2255,7 +2256,7 @@ async function charPost(c){
   const before=S.feed.filter(p=>p.author===c.id).slice(-4).map(postDesc);
   const r=Math.random(),how=r<.35?'只发文字，不配图':r<.8?'文字配1到4张照片':'只发一张照片，不配文字（最多配几个字或一个表情）';
   const txt=await callAI(sysFor(c,charLore(c,recent)+'你在发微信朋友圈。'+extraFor(c)),[{role:'user',content:(recent?`最近和${me.name}的聊天：\n${recent}\n\n`:'')+(before.length?`你最近发过的朋友圈（别重复）：\n${before.join('\n')}\n\n`:'')+
-    `以${c.name}的身份发一条朋友圈，这次${how}。${'发你此刻真实的生活：在干什么、吃了什么、看到什么、吐槽、炫耀、小情绪、只有懂的人才懂的小心思，'}可以暗戳戳提到${me.name}，也可以和${me.name}完全无关。要像真人发的，有具体的东西，别空泛抒情。\n格式：正文直接写（没有就不写），每张照片单独一行写 [图片:照片里拍的是什么]。文字60字以内。只输出这些。`}],{max:1024,side:true,temp:1.05});
+    `以${c.name}的身份发一条朋友圈，这次${how}。发你自己的日常：在干什么、吃了什么、看到什么，喜欢的、讨厌的东西，吐槽，小情绪。只写你自己的事。和${me.name}有关的，只能提上面聊天里真的发生过的；没发生过的见面、约会、送东西、一起做的事，一律不编，拿不准就不提${me.name}。像真人随手发的，有具体的东西，不抒情。\n格式：正文直接写（没有就不写），每张照片单独一行写 [图片:照片里拍的是什么]。文字60字以内。只输出这些。`}],{max:1024,side:true,temp:1.05});
   const pics=[],lines=[];
   for(const l of String(txt).split('\n')){let rest=l;for(const m of l.matchAll(/\[(?:图片|照片|图)[:：]\s*([^\]]+)\]/g)){pics.push({desc:m[1].trim()});rest=rest.replace(m[0],'')}rest=rest.trim();if(rest)lines.push(rest)}
   const text=lines.join('\n').replace(/^["“「]|["”」]$/g,'').trim().slice(0,300);
