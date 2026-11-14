@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.14.4';
+window.BYJ_VER='2026.11.14.5';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -723,7 +723,6 @@ html.dark .mo-pic.tp{background:linear-gradient(150deg,#303030,#212121 60%,#2929
 .plr{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
 .plr>span{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.plr b{font-weight:400;font-size:15px;line-height:1.45;word-break:break-word}.plr small{font-size:11.5px;color:var(--muted)}
 .plr.done b{text-decoration:line-through;color:var(--muted)}
-.cmore summary{font-size:13.5px;color:var(--muted);cursor:pointer;padding:4px 6px}.cmore>div{display:flex;flex-direction:column;gap:12px;margin-top:10px}
 .cdic{width:40px;height:40px;flex:none;border-radius:12px;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;font:600 11.5px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:-.02em}
 .cdpre{margin:0;padding:12px;border-radius:14px;background:var(--bg);border:1px solid var(--line);font:12.5px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink);white-space:pre;overflow:auto;max-height:420px;tab-size:2;-webkit-overflow-scrolling:touch;user-select:text;-webkit-user-select:text}
 .cdpre.sm{max-height:200px}
@@ -1995,7 +1994,8 @@ function fmCard(p,showB){const b=fmB(p.b);
 
 const exBlock=(c,mac,n)=>{const x=String(c?.ex||'').replace(/^[ \t]*<START>[ \t]*$/gim,'').replace(/\n{3,}/g,'\n\n').trim();
   return x?`【${c.name}说话的样子】（只是示范语气和用词，不是发生过的事，别照抄原句）\n${mac(n?x.slice(0,n):x)}`:''};
-const exBusy=new Set();
+const charBooksPanel=c=>`<div class="panel"><h2>${esc(dn(c))}的世界书<button class="tb" data-a="newCharBook" data-c="${c.id}">新建</button></h2>
+    ${(()=>{const L=S.books.filter(b=>b.scope!=='global');return L.length?L.map(b=>`<label class="ck"><input type="checkbox" data-a2="charBook" data-c="${c.id}" data-id="${b.id}" ${(c.books||[]).includes(b.id)?'checked':''}>${esc(b.name)}<small class="sec"> ${b.entries.length} 条</small></label>`).join(''):'<p class="hint">还没有。只有 TA 用得到的设定放这里</p>'})()}</div>`;
 const loveOn=()=>S.chat.love!==false;
 const loveBlock=(name,me)=>loveOn()?`【底色】${name}心里有${me.name}，不会真的离开TA。怎么表现全按人设：人设冷就冷，凶就凶，不用为了哄TA软下来。`:'';
 const sysFor=(c,extra)=>whoTag(sysFor0(c,extra),c?.id);
@@ -2864,22 +2864,7 @@ charEdit(v){
   <div class="panel"><div class="inline">${av(c,76)}<div class="btns">${fileBtn('换头像','accept="image/*" data-img="char"')}${c.avatarOld!==undefined?'<button class="btn o" data-a="charAvBack">换回</button>':''}${c.avatar?'<button class="btn o" data-a="clearCharAv">去掉</button>':''}</div></div>
     <div class="grid2"><label class="f">名字<input type="text" id="c-name" data-s="char" data-k="name" value="${esc(c.name)}"></label><label class="f">备注<input type="text" id="c-remark" data-s="char" data-k="remark" value="${esc(c.remark)}" placeholder="你给TA的备注"></label></div>
     <label class="f">人设<textarea class="tall" id="c-persona" data-s="char" data-k="persona" aria-label="人设">${esc(c.persona)}</textarea></label></div>
-  <details class="cmore"${v.more?' open':''}><summary>更多</summary><div>
-  <div class="panel">
-    <div class="grid2"><label class="f">生日<input type="text" id="c-bday" data-s="char" data-k="bday" value="${esc(c.bday||'')}"></label><div class="f">城市<button class="btn o" data-a="setCity" data-for="${c.id}">${c.loc?esc(c.loc.name):'和你一样'}</button></div></div>
-    <label class="f">和TA在一起时戴的面具<select id="c-mask" data-s="char" data-k="mask"><option value="">跟着当前戴的（${esc(S.masks.find(m=>m.id===S.activeMask)?.name||S.masks[0].name)}）</option>${S.masks.map(m=>`<option value="${m.id}" ${c.mask===m.id?'selected':''}>${esc(m.name)}</option>`).join('')}</select></label>
-    </div>
-  <div class="panel"><h2>对话示例</h2>
-    <textarea id="c-ex" data-s="char" data-k="ex" style="min-height:130px" aria-label="对话示例">${esc(c.ex||'')}</textarea>
-    <button class="btn o" data-a="exWrite" style="align-self:flex-start" ${exBusy.has(c.id)?'disabled':''}>${exBusy.has(c.id)?'在写…':'让模型按人设写几段'}</button>
-    <p class="hint">TA 平时怎么说话的样子。不填也行，人设写了就够用。</p></div>
-  <div class="panel"><h2>水位<span class="pill">${esc(softMood(c.mood,tideOf(c))||moodBy(tideOf(c)))}</span></h2>
-    <label class="f">现在的心情水位<span class="inline"><input type="range" id="c-tide" min="0" max="100" step="1" data-s="char" data-k="tide" value="${tideOf(c)}"><output>${tideOf(c)}</output></span></label>${spark(c.tideLog)}</div>
-  <div class="panel"><h2>局部世界书<button class="tb" data-a="newCharBook">新建</button></h2>
-    ${(()=>{const L=S.books.filter(b=>b.scope!=='global');return L.length?L.map(b=>`<label class="ck"><input type="checkbox" data-a2="charBook" data-id="${b.id}" ${(c.books||[]).includes(b.id)?'checked':''}>${esc(b.name)}<small class="sec"> ${b.entries.length} 条</small></label>`).join(''):'<p class="hint">还没有</p>'})()}</div>
-  </div></details>
-  <div class="btns"><button class="btn" data-a="messageChar" data-id="${c.id}">发消息</button><button class="btn o" data-a="exportChar">导出</button>${rel(c).youBlocked?`<button class="btn o" data-a="unblockC" data-id="${c.id}">解除拉黑</button>`:''}<button class="btn red" data-a="delChar">删除好友</button></div>`,
-  after(){const d=$('details.cmore');if(d)d.addEventListener('toggle',()=>{const x=cur();if(x&&x.v==='charEdit')x.more=d.open})}};
+  <div class="btns"><button class="btn" data-a="messageChar" data-id="${c.id}">发消息</button><button class="btn o" data-a="exportChar">导出</button>${rel(c).youBlocked?`<button class="btn o" data-a="unblockC" data-id="${c.id}">解除拉黑</button>`:''}<button class="btn red" data-a="delChar">删除好友</button></div>`};
 },
 maskEdit(v){
   const m=maskById(v.id);if(!m)return{title:'不见了',body:''};
@@ -3145,8 +3130,8 @@ settings(v){
       <div class="btns">${fileBtn('恢复数据','accept=".json,application/json,text/plain" id="impFile"')}</div></div>
     <div class="panel"><h2>清空</h2><button class="btn red" data-a="resetAll" style="align-self:flex-start">清空全部数据</button></div>`,after:D.after};
 },
-chatPrefs(){const C=S.chat;
-  return{title:'聊天设置',body:`<div class="panel"><h2>回复</h2>
+chatPrefs(v){const C=S.chat,T=v?.tid&&thread(v.tid),cs=T?T.chars.map(charById).filter(Boolean):[];
+  return{title:'聊天设置',sub:T?threadTitle(T):'',body:`${cs.map(charBooksPanel).join('')}<div class="panel"><h2>回复</h2>
       <label class="f">条数<span class="inline"><input type="range" id="on-max" min="1" max="8" step="1" data-s="chat" data-k="onMax" value="${num(C.onMax)||3}"><output>${num(C.onMax)||3}</output></span></label>
       <label class="f">每条字数<span class="inline"><input type="range" id="on-len" min="1" max="60" step="1" data-s="chat" data-k="onLen" value="${num(C.onLen)||10}"><output>${num(C.onLen)||10}</output></span></label>
       <label class="ck"><input type="checkbox" id="on-casual" data-s="chat" data-k="casual" ${C.casual!==false?'checked':''}>不打句号</label>
@@ -3354,7 +3339,7 @@ const A={
   newThread(){sheet(`<h3>新建</h3><button class="opt" data-a="newDm">单聊</button><button class="opt" data-a="newGroupChat">群聊</button>${CANCEL}`)},
   dataMore(){const v=stack[stack.length-1];v.more=!v.more;render(true)},
   goThink(){go({v:'think'})},
-  chatSet(){closeSheet();go({v:'chatPrefs'})},
+  chatSet(){closeSheet();const v=cur();go(v?.v==='chat'&&thread(v.id)?{v:'chatPrefs',tid:v.id}:{v:'chatPrefs'})},
   newDm(){pickChar('和谁聊？','dmGo')},
   dmGo(el){const t=dmFor(el.dataset.id);closeSheet();go({v:'chat',id:t.id})},
   newGroupChat(){if(S.chars.length<2){toast('群聊至少要 2 个角色');return}
@@ -3433,15 +3418,6 @@ const A={
     sheet(`<h3>照片</h3><p style="white-space:pre-wrap;line-height:1.7;margin:0 4px 10px">${esc(x.desc||'')}</p>${imgOn()?`<button class="btn" data-a="moDev" data-id="${p.id}" data-i="${el.dataset.i}" ${x.dev?'disabled':''}>${x.dev?'冲洗中…':'冲洗成真照片'}</button>`:''}${CANCEL}`)},
   moDev(el){const p=S.feed.find(x=>x.id===el.dataset.id),x=p&&postPics(p)[+el.dataset.i];closeSheet();if(x)devPostPic(p,x)},
   planAdd(){const i=$('#planIn'),x=(i?.value||'').trim();if(!x){i?.focus();return}planDay().items.push({id:uid(),text:x.slice(0,80),by:'me',t:Date.now()});save();render(true);setTimeout(()=>$('#planIn')?.focus(),30)},
-  exWrite(){const c=charById(cur().id);if(!c||exBusy.has(c.id))return;if(!String(c.persona||'').trim()){toast('先写人设');return}if(!api(c.id)?.key){toast('先在「设置 · 聊天」填好接口');return}
-    const me=mask(c),show=()=>{if(cur()?.v==='charEdit'&&cur().id===c.id)render(true)},re=n=>new RegExp('^'+String(n).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\s*[:：]\\s*','gm');
-    exBusy.add(c.id);show();
-    callAI(`你是角色设定的编辑。按给你的人设，写出这个角色平时在手机上和对方聊天的样子，给模型当语气示范。
-要求：写 3 段，每段 2 到 4 行，段和段之间空一行；每行以「{{user}}：」或「{{char}}：」开头；{{char}} 的话要带这个人设独有的语气、用词和态度，三段情绪各不相同（比如平常、被惹到、心软）；口语、短句，不写动作和旁白，不写解释。只输出这三段。`,
-      [{role:'user',content:`【${c.name}的人设】\n${c.persona}\n\n【对方】${me.name}${me.persona?'：'+me.persona:''}`}],{max:2048,tag:'other',who:c.id})
-    .then(o=>{const out=String(o||'').replace(/<think(?:ing)?>[\s\S]*?<\/think(?:ing)?>/gi,'').replace(/```\w*/g,'').trim().replace(re(c.name),'{{char}}：').replace(re(me.name),'{{user}}：').slice(0,1500);
-      if(!out)throw new Error('模型什么都没写出来，再试一次');c.ex=(c.ex?String(c.ex).trim()+'\n\n':'')+out;save();toast('写好了，不满意可以自己改')})
-    .catch(e=>toast(e.message||'没写出来',5600)).finally(()=>{exBusy.delete(c.id);show()})},
   cdOpen(el){go({v:'code',id:el.dataset.id})},
   cdWho(el){cur().who=el.dataset.id;render(true)},
   cdCreate(){const v=cur(),c=charById(v.who),i=$('#cdNew'),x=(i?.value||'').trim();if(!c)return;if(!x){toast('先说说想要什么');i?.focus();return}
@@ -3680,7 +3656,7 @@ const A={
   messageChar(el){const t=dmFor(el.dataset.id);go({v:'chat',id:t.id})},
   delChar(el){confirmTap(el,()=>purgeChar(el.dataset.id||cur().id))},
   bookMenu(){sheet(`<h3>世界书</h3><button class="opt" data-a="newBook">新建</button><button class="opt" data-a="importBookSheet">导入</button>${CANCEL}`)},
-  newCharBook(){const c=charById(cur().id);if(!c)return;const b={id:uid(),name:dn(c)+'的世界书',scope:'local',entries:[]};S.books.push(b);(c.books||=[]).push(b.id);save();go({v:'bookEdit',id:b.id})},
+  newCharBook(el){const c=charById(el?.dataset.c);if(!c)return;const b={id:uid(),name:dn(c)+'的世界书',scope:'local',entries:[]};S.books.push(b);(c.books||=[]).push(b.id);save();go({v:'bookEdit',id:b.id})},
   newBook(){const b={id:uid(),name:'新世界书',scope:'global',entries:[]};S.books.push(b);save();closeSheet();go({v:'bookEdit',id:b.id})},
   importBookSheet(){fileSheet('导入世界书','*/*','impBook','')},
   impBookGo(){const ta=$('#impBookTa'),t=ta.value.trim();let d=null;try{d=JSON.parse(t)}catch(e){}try{const b=d&&typeof d==='object'?toBook(d,ta.dataset.name):textBook(t,ta.dataset.name);S.books.push(b);save();closeSheet();go({v:'bookEdit',id:b.id});toast('导入了 '+b.entries.length+' 条')}catch(e){toast(e.message||'不是有效的 JSON')}},
@@ -3800,7 +3776,7 @@ document.addEventListener('change',async e=>{const el=e.target;bind(e);
   if(el.id==='pl-study'&&el.checked&&cur()?.v==='plan'){cur().studied=0;render(true)}
   if(el.dataset.a2==='member'){const t=thread(cur().id);if(el.checked){if(!t.chars.includes(el.dataset.id))t.chars.push(el.dataset.id)}else{if(t.chars.length<=2){el.checked=true;toast('群聊至少要 2 个角色');return}t.chars=t.chars.filter(x=>x!==el.dataset.id)}save()}
   if(el.dataset.a2==='maskChar'){const c=charById(el.dataset.id),id=cur().id;if(!c)return;if(el.checked)c.mask=id;else if(c.mask===id)delete c.mask;save();render(true);return}
-  if(el.dataset.a2==='charBook'){const c=charById(cur().id),id=el.dataset.id;if(!c)return;c.books=(c.books||[]).filter(x=>x!==id);if(el.checked)c.books.push(id);save()}
+  if(el.dataset.a2==='charBook'){const c=charById(el.dataset.c),id=el.dataset.id;if(!c)return;c.books=(c.books||[]).filter(x=>x!==id);if(el.checked)c.books.push(id);save()}
   if(el.dataset.a2==='bookChar'){const c=charById(el.dataset.id),id=cur().id;if(!c)return;c.books=(c.books||[]).filter(x=>x!==id);if(el.checked)c.books.push(id);save()}
   if(el.dataset.a2==='itemOn'){presetById(cur().id).items.find(x=>x.id===el.dataset.id).on=el.checked;save()}
   if(el.dataset.img==='post'){const fs=[...(el.files||[])].slice(0,Math.max(0,9-postDraft.pics.length));let left=fs.length;el.value='';const done=()=>{if(--left<=0)render(true)};
