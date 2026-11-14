@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.14.3';
+window.BYJ_VER='2026.11.14.4';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -723,7 +723,7 @@ html.dark .mo-pic.tp{background:linear-gradient(150deg,#303030,#212121 60%,#2929
 .plr{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
 .plr>span{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.plr b{font-weight:400;font-size:15px;line-height:1.45;word-break:break-word}.plr small{font-size:11.5px;color:var(--muted)}
 .plr.done b{text-decoration:line-through;color:var(--muted)}
-.cex summary{font-size:13px;color:var(--muted);cursor:pointer;padding:2px 0}.cex>div{display:flex;flex-direction:column;gap:10px;margin-top:10px}.cex textarea{width:100%;box-sizing:border-box}
+.cmore summary{font-size:13.5px;color:var(--muted);cursor:pointer;padding:4px 6px}.cmore>div{display:flex;flex-direction:column;gap:12px;margin-top:10px}
 .cdic{width:40px;height:40px;flex:none;border-radius:12px;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;font:600 11.5px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:-.02em}
 .cdpre{margin:0;padding:12px;border-radius:14px;background:var(--bg);border:1px solid var(--line);font:12.5px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink);white-space:pre;overflow:auto;max-height:420px;tab-size:2;-webkit-overflow-scrolling:touch;user-select:text;-webkit-user-select:text}
 .cdpre.sm{max-height:200px}
@@ -2863,20 +2863,23 @@ charEdit(v){
   return{title:dn(c),sub:'角色',body:`
   <div class="panel"><div class="inline">${av(c,76)}<div class="btns">${fileBtn('换头像','accept="image/*" data-img="char"')}${c.avatarOld!==undefined?'<button class="btn o" data-a="charAvBack">换回</button>':''}${c.avatar?'<button class="btn o" data-a="clearCharAv">去掉</button>':''}</div></div>
     <div class="grid2"><label class="f">名字<input type="text" id="c-name" data-s="char" data-k="name" value="${esc(c.name)}"></label><label class="f">备注<input type="text" id="c-remark" data-s="char" data-k="remark" value="${esc(c.remark)}" placeholder="你给TA的备注"></label></div>
+    <label class="f">人设<textarea class="tall" id="c-persona" data-s="char" data-k="persona" aria-label="人设">${esc(c.persona)}</textarea></label></div>
+  <details class="cmore"${v.more?' open':''}><summary>更多</summary><div>
+  <div class="panel">
     <div class="grid2"><label class="f">生日<input type="text" id="c-bday" data-s="char" data-k="bday" value="${esc(c.bday||'')}"></label><div class="f">城市<button class="btn o" data-a="setCity" data-for="${c.id}">${c.loc?esc(c.loc.name):'和你一样'}</button></div></div>
     <label class="f">和TA在一起时戴的面具<select id="c-mask" data-s="char" data-k="mask"><option value="">跟着当前戴的（${esc(S.masks.find(m=>m.id===S.activeMask)?.name||S.masks[0].name)}）</option>${S.masks.map(m=>`<option value="${m.id}" ${c.mask===m.id?'selected':''}>${esc(m.name)}</option>`).join('')}</select></label>
     </div>
-  <div class="panel"><h2>人设</h2>
-    <textarea class="tall" id="c-persona" data-s="char" data-k="persona" aria-label="人设">${esc(c.persona)}</textarea>
-    <details class="cex"${c.ex||exBusy.has(c.id)?' open':''}><summary>对话示例（选填）</summary><div>
-      <textarea id="c-ex" data-s="char" data-k="ex" style="min-height:130px" aria-label="对话示例">${esc(c.ex||'')}</textarea>
-      <button class="btn o" data-a="exWrite" style="align-self:flex-start" ${exBusy.has(c.id)?'disabled':''}>${exBusy.has(c.id)?'在写…':'让模型按人设写几段'}</button>
-      <p class="hint">TA 平时怎么说话的样子。不填也行，人设一栏写了就够用。</p></div></details></div>
+  <div class="panel"><h2>对话示例</h2>
+    <textarea id="c-ex" data-s="char" data-k="ex" style="min-height:130px" aria-label="对话示例">${esc(c.ex||'')}</textarea>
+    <button class="btn o" data-a="exWrite" style="align-self:flex-start" ${exBusy.has(c.id)?'disabled':''}>${exBusy.has(c.id)?'在写…':'让模型按人设写几段'}</button>
+    <p class="hint">TA 平时怎么说话的样子。不填也行，人设写了就够用。</p></div>
   <div class="panel"><h2>水位<span class="pill">${esc(softMood(c.mood,tideOf(c))||moodBy(tideOf(c)))}</span></h2>
     <label class="f">现在的心情水位<span class="inline"><input type="range" id="c-tide" min="0" max="100" step="1" data-s="char" data-k="tide" value="${tideOf(c)}"><output>${tideOf(c)}</output></span></label>${spark(c.tideLog)}</div>
   <div class="panel"><h2>局部世界书<button class="tb" data-a="newCharBook">新建</button></h2>
     ${(()=>{const L=S.books.filter(b=>b.scope!=='global');return L.length?L.map(b=>`<label class="ck"><input type="checkbox" data-a2="charBook" data-id="${b.id}" ${(c.books||[]).includes(b.id)?'checked':''}>${esc(b.name)}<small class="sec"> ${b.entries.length} 条</small></label>`).join(''):'<p class="hint">还没有</p>'})()}</div>
-  <div class="btns"><button class="btn" data-a="messageChar" data-id="${c.id}">发消息</button><button class="btn o" data-a="exportChar">导出</button>${rel(c).youBlocked?`<button class="btn o" data-a="unblockC" data-id="${c.id}">解除拉黑</button>`:''}<button class="btn red" data-a="delChar">删除好友</button></div>`};
+  </div></details>
+  <div class="btns"><button class="btn" data-a="messageChar" data-id="${c.id}">发消息</button><button class="btn o" data-a="exportChar">导出</button>${rel(c).youBlocked?`<button class="btn o" data-a="unblockC" data-id="${c.id}">解除拉黑</button>`:''}<button class="btn red" data-a="delChar">删除好友</button></div>`,
+  after(){const d=$('details.cmore');if(d)d.addEventListener('toggle',()=>{const x=cur();if(x&&x.v==='charEdit')x.more=d.open})}};
 },
 maskEdit(v){
   const m=maskById(v.id);if(!m)return{title:'不见了',body:''};
