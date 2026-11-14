@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.18.6';
+window.BYJ_VER='2026.11.18.8';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -976,7 +976,7 @@ const THINK_OLD5='想清楚：{{user}}什么意思、想要什么，{{char}}真�
 const THINK_OLD6='用{{char}}的心思盘算：{{user}}什么意思、想要什么，接下来怎么回、怎么做。60字内。';
 const THINK_OLD7='用{{char}}的心思盘算：{{user}}什么意思，{{char}}自己想怎么做，接下来怎么回。60字内。';
 const THINK_OLD8='一两句话，{{char}}心里打算怎么回。30字内，不分析不列条目。';
-const THINK_OLD9='一句话，{{char}}心里打算怎么回。20字内。',THINK_OLD10='一句话：先认{{user}}上一句要什么、有没有约好的事，再定{{char}}打算怎么回。30字内。',THINK_OLD11='一句话，用{{char}}自己的口吻说心里打算怎么回。20字内。',THINK_DEF='一句话，{{char}}看到消息那一下心里的念头，像自己跟自己嘀咕，口语。20字内。不写「先…再…」这种步骤，不复述对方说了什么。';
+const THINK_OLD9='一句话，{{char}}心里打算怎么回。20字内。',THINK_OLD10='一句话：先认{{user}}上一句要什么、有没有约好的事，再定{{char}}打算怎么回。30字内。',THINK_OLD11='一句话，用{{char}}自己的口吻说心里打算怎么回。20字内。',THINK_OLD12='一句话，{{char}}看到消息那一下心里的念头，像自己跟自己嘀咕，口语。20字内。不写「先…再…」这种步骤，不复述对方说了什么。',THINK_OLD13='一句话，{{char}}脑子里是怎么想的：{{user}}这句是什么意思、想要什么，{{char}}决定怎么回。用{{char}}自己的口气，口语，25字内。',THINK_DEF='只写关键：{{user}}要什么，{{char}}怎么回。{{char}}自己的口气，能几个字说完就几个字，最多一句，15字内。不铺垫，不复述，不解释。';
 const CHAT_DEF=()=>({lean:true,onMax:3,onLen:10,casual:true,ctx:80,sumEvery:30,inner:true,innerOpen:false,innerName:'心声',innerStyle:INNER_DEF,think:true,thinkName:'思维链',thinkStyle:THINK_DEF,effort:'',scan:8});
 const PERSONA_TPL='姓名：\n年龄：\n性别：\n身份/职业：\n外貌：\n性格：\n说话方式：\n喜欢：\n讨厌：\n背景经历：\n和{{user}}的关系：';
 const TH_FMTS=()=>[
@@ -1038,7 +1038,7 @@ function mergeState(d){
   {const seen=new Set();(s.chars||[]).forEach(c=>{c.books=(c.books||[]).filter(id=>{const b=(s.books||[]).find(x=>x.id===id);if(!b||b.scope==='global'||seen.has(id))return false;seen.add(id);return true})})}
   if(s.media?.img)s.media.img.auto=false;
   delete s.chat.thinkSrc;delete s.chat.deep;for(const k of['casual','love','chase','away','autoPost'])delete s.chat[k];s.diaryAuto=false;delete s.chat.web;delete s.look.shell;delete s.look.night;delete s.look.hide;s.chat.effort='';s.chat.think=true;s.chat.inner=true;
-  if([THINK_OLD,THINK_OLD2,THINK_OLD3,THINK_OLD4,THINK_OLD5,THINK_OLD6,THINK_OLD7,THINK_OLD8,THINK_OLD9,THINK_OLD10,THINK_OLD11].includes(s.chat.thinkStyle))s.chat.thinkStyle=THINK_DEF;
+  if([THINK_OLD,THINK_OLD2,THINK_OLD3,THINK_OLD4,THINK_OLD5,THINK_OLD6,THINK_OLD7,THINK_OLD8,THINK_OLD9,THINK_OLD10,THINK_OLD11,THINK_OLD12,THINK_OLD13].includes(s.chat.thinkStyle))s.chat.thinkStyle=THINK_DEF;
   if(!s.presetV){const old=new Set([OLD_MAIN,ONLINE_OLD,ONLINE_DEF,OFFLINE_OLD,OFFLINE_DEF]);
     s.presets.forEach(p=>{const n=(p.items||[]).length;p.items=(p.items||[]).filter(i=>!old.has(i.content));if(p.items.length<n)BASE_ITEMS().slice(1).forEach(x=>p.items.push(x))});s.presetV=2}
   if(!s.catchV){s.catchV=1;s.presets.forEach(p=>{if(p.core===1&&!(p.items||[]).some(i=>i.name==='接住'||i.name==='记得')){const k=p.items.findIndex(i=>i.name==='怎么演');p.items.splice(k<0?p.items.length:k,0,SYS_ITEM('记得',CATCH_DEF))}})}
@@ -1665,7 +1665,7 @@ function buildCtx(t,o={}){
     const pov=`【人称】${cp==='first'?`${cname}是「我」`:`${cname}用第三人称（名字或他/她），叙述里不用「我」指${cname}`}；${me.name}是${uq==='second'?'「你」':uq==='first'?'「我」（叙述跟着我的视角）':'名字或他/她'}。全篇不换人称。只管旁白；引号里的台词照常说话：自称「我」，对谁说就叫「你」。`;
     const ost=mac(String(off.style||'').trim()||OFF_STYLE_DEF),oshort=ost.length<=12&&!/\n/.test(ost);
     rules.push(pov);rules.push(`【见面】${oshort?`文风${ost}，`:''}每次${Math.round((num(off.words)||500)*.8)}到${Math.round((num(off.words)||500)*1.2)}字。场景里该有的人要写出来：店员、路人、朋友、家人、同事，给个称呼，让他们说话做事、和你们有来有往，戏份别盖过${cname}和${me.name}。`);
-    {rules.push(`【推剧情】剧情由${cname}带着走，${me.name}只想轻松跟着。每段都往前推：${cname}自己提议、拿主意、换地方、带出新的事，或让时间往前走，不原地打转。小事直接定，不问「好不好」。${me.name}回得短就当TA跟着。可以写TA跟着走这类小动作，不替TA说新台词、写心理、做重要决定。结尾不必抛问题。`);
+    {rules.push(`【推剧情】${cname}掌控节奏，${me.name}只跟着。每段至少推进一步：${cname}直接做、直接定（去哪、吃什么、接下来干什么），带出新的事，或让时间往前走，不原地打转。不问「好不好」「要不要」「想去哪」，不给选项让TA挑。结尾停在${cname}已经做出的动作或新冒出来的情况上，不停在提问、等TA表态上。${me.name}回得短或没回就当同意，接着推。TA顺着走的小动作、一两句简短反应可以直接写，不写TA的心理和大段台词；只有会改变两人关系的大事才留给TA。`);
       const ln=[...t.msgs].reverse().find(m=>m.type==='narr');if(ln&&ln.from!=='me')tail.push(`【接着写】${me.name}这轮没写，接着往后推，别重复上一段。`)}
     if(!oshort)rules.push(`【文风】${ost}`);
     rules.push(`【描写】写${cname}的衣着外貌、神态动作、语气，和场景的光线、声音、气味（按【现在】）。挑一两个具体细节，和对白交替写，不堆形容词。`);
@@ -1706,7 +1706,7 @@ function buildCtx(t,o={}){
     if(pend)tail.push(`【没收的钱】${me.name}发来${pend.type==='hb'?'红包':'转账'}¥${pend.amt}${pend.content?'：'+pend.content:''}，写 [收下] 或 [退回]。`);
   }
   if(C.inner){const styles=chars.map(c=>c.innerStyle?`${c.name}：${mac(c.innerStyle)}`:'').filter(Boolean).join('；');
-    rules.push(`【${C.innerName||'心声'}】正文后另起一行写 <inner>…</inner>${G('，每人一个，「名字：」开头','')}。${mac(C.innerStyle||INNER_DEF)}${styles?'（'+styles+'）':''}提到${me.name}就用${cname}平时叫的那个：老婆、宝宝、乖乖、小乖、姐姐、${'小'+String(me.name||'').slice(-1)}，或者别的，看人设和当时的心情。不叫全名（气急了除外），不写「她」「他」「用户」。`)}
+    rules.push(`【${C.innerName||'心声'}】正文后另起一行写 <inner>…</inner>${G('，每人一个，「名字：」开头','')}。${mac(C.innerStyle||INNER_DEF)}${styles?'（'+styles+'）':''}${C.think?'和思维链不一样：那边是怎么想，这里是嘴上没说出来的那句话。':''}提到${me.name}就用${cname}平时叫的那个：老婆、宝宝、乖乖、小乖、姐姐、${'小'+String(me.name||'').slice(-1)}，或者别的，看人设和当时的心情。不叫全名（气急了除外），不写「她」「他」「用户」。`)}
   tail.push('【心情】\n'+chars.map(c=>`${c.name}：${c.mood?c.mood+'，':''}${tideOf(c)}/100`).join('\n'));
   rules.push(`【心情】${cname}有情绪，按人设露在话里，跟着聊天起伏，不突然跳变。心情0到100，现在的数值在「此刻的情况」里。最后一行写 <tide>${G('名字：','')}数字|两个字的心情</tide>，如 <tide>${G(nm+'：','')}68|吃醋</tide>；闲聊动5以内，有事动10左右。生气可以，不说伤人的话。`);
   if(!group&&mode==='online'&&chars[0]){const r=rel(chars[0]);
@@ -1730,10 +1730,10 @@ function buildCtx(t,o={}){
   if(mode==='online'&&(C.think||C.inner))tail.push(`【这次回复】照【回复格式】写全：${C.think?'<think>…</think>、':''}<reply>…</reply>${C.inner?'、<inner>…</inner>':''}、<tide>…</tide>，一样都不能少。`);
   if(tail.length){let k=msgs.length;while(k>0&&msgs[k-1].role==='user'&&k>pre.length)k--;const last=k<msgs.length;
     msgs.splice(k,0,{role:'user',content:`（此刻的情况，系统告诉你的，不是${me.name}发的消息）\n`+tail.join('\n\n')+(last?`\n\n（下面是${me.name}发的）`:'')})}
-  if(mode==='offline'){const w=num(off.words)||500,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字，不替${me.name}说新台词、做决定${(off.upov||'second')==='second'?`；叙述里称呼${me.name}只用「你」，不写名字、不写她或他`:''}${(l=>l.length?`；${l.join('和')}别漏`:'')([C.think&&'开头的 <think>',C.inner&&'结尾的 <inner>'].filter(Boolean))}）`,last=msgs[msgs.length-1];
+  if(mode==='offline'){const w=num(off.words)||500,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字，${cname}带节奏往前推，不问${me.name}意见，结尾不抛问题${(off.upov||'second')==='second'?`；叙述里称呼${me.name}只用「你」，不写名字、不写她或他`:''}${(l=>l.length?`；${l.join('和')}别漏`:'')([C.think&&'开头的 <think>',C.inner&&'结尾的 <inner>'].filter(Boolean))}）`,last=msgs[msgs.length-1];
     if(last&&last.role==='user')last.content+='\n\n'+note;else msgs.push({role:'user',content:note})}
   const end=[];
-  if(C.think)end.push(`【思考】先在 <think>…</think> 里${mac(C.thinkStyle||THINK_DEF)}${C.inner?`没说出口的真心话留给${C.innerName||'心声'}，这里是看到消息的第一反应。`:''}提到${me.name}就用${cname}平时叫的那个：老婆、宝宝、乖乖、小乖、姐姐、${'小'+String(me.name||'').slice(-1)}，或者别的，看人设和当时的心情。不叫全名（气急了除外），不写「她」「他」「用户」。`);
+  if(C.think)end.push(`【思考】先在 <think>…</think> 里${mac(C.thinkStyle||THINK_DEF)}${C.inner?`感受留给${C.innerName||'心声'}，别重复。`:''}提到${me.name}用${cname}平时的叫法，不写「她」「他」「用户」。`);
   const tw=C.think,iw=!!C.inner;
   if(mode!=='offline')end.push(`【回复格式】${tw?'先写 <think>…</think>，再':''}把发给${me.name}的话全写进 <reply>…</reply>，一行一条，[图片] [表情] 这类标记也在里面${iw?'；<inner> 和 <tide> 写在 </reply> 后面':'；<tide> 写在 </reply> 后面'}。<reply> 外的字不会发出去，给自己的分析${tw?'只写在 <think> 里':'不要写'}。每次都要写全。\n例：${tw?'<think>…</think>\n':''}<reply>\n第一条\n第二条\n</reply>${iw?'\n<inner>…</inner>':''}\n<tide>…</tide>`);
   else if(tw||iw)end.push(`【别漏】每次都按这个顺序写全：${tw?'第一行 <think>…</think>，然后':''}正文${iw?'，正文后另起一行 <inner>…</inner>':''}。\n例：${tw?'<think>…</think>\n':''}正文……${iw?'\n<inner>…</inner>':''}`);
@@ -1775,7 +1775,7 @@ function stripPlan(out,thinkOn){const me=mask().name,lines=out.split('\n'),cut=[
     if(!(who.test(l)&&PLAN_CUE.test(l))&&mulls(l)<(thinkOn?2:3))break;cut.push(l);lines.shift()}
   const rest=lines.join('\n').trim();return rest?{out:rest,plan:cut.join('\n')}:{out,plan:''}}
 // 思维链只留一两句
-function brief(x){x=String(x||'').trim();if(!x)return'';const ss=(x.match(/[^。！？!?…~～\n]+[。！？!?…~～]*/g)||[]).map(z=>z.trim()).filter(Boolean);let o=ss[0]||'';if([...o].length>40)o=[...o].slice(0,38).join('')+'…';return o}
+function brief(x){x=String(x||'').trim();if(!x)return'';const ss=(x.match(/[^。！？!?…~～\n]+[。！？!?…~～]*/g)||[]).map(z=>z.trim()).filter(Boolean);let o=ss[0]||'';if([...o].length>24)o=[...o].slice(0,23).join('')+'…';return o}
 function extractExtras(out,chat=true){
   let think='',inner=[];
   // MiniMax 常把标签写歪：</t> 当 </think>；<think> 不收尾，或拿 </reply> 来收尾。先扶正再拆
@@ -2805,7 +2805,7 @@ async function ttsAudio(text,c){const T=S.media.tts,v=c?.voice||{};
     return new Blob([u],{type:'audio/mpeg'})}
   const blob=await res.blob();if(!blob.size)throw new Error('没拿到语音');return blob}
 async function speak(text,c,key){const s=cleanSpeak(text);if(!s)return;const T=S.media.tts;
-  if(!T.key||!T.base||!T.model||!(c?.voice?.vid||T.voice))return;{try{let blob=key?await DB.get('tts:'+key):null;if(!(blob instanceof Blob)){blob=await ttsAudio(s,c);if(key)DB.set('tts:'+key,blob)}
+  if(!T.key||!T.base||!T.model||!(c?.voice?.vid||T.voice))return;{if(key)key+='|'+(c?.voice?.vid||T.voice)+'|'+(c?.voice?.rate||1);try{let blob=key?await DB.get('tts:'+key):null;if(!(blob instanceof Blob)){blob=await ttsAudio(s,c);if(key)DB.set('tts:'+key,blob)}
       return await new Promise(res=>{try{vAudio&&vAudio.pause()}catch(e){}vAudio=new Audio(URL.createObjectURL(blob));let done=false;const fin=()=>{if(!done){done=true;res()}};vAudio.onended=vAudio.onerror=fin;vAudio.play().catch(fin)})}
     catch(e){if(!ttsWarned){ttsWarned=true;toast(e.message,5600)}}}}
 async function listModels(p){p={...p,provider:provOf(p)};const key=(p.key||'').trim(),base=(p.base||'').trim().replace(/\/+$/,'');if(!key)throw new Error('先填 Key');let r;
@@ -3152,6 +3152,9 @@ charEdit(v){
   <div class="panel"><div class="inline">${av(c,76)}<div class="btns">${fileBtn('换头像','accept="image/*" data-img="char"')}${c.avatarOld!==undefined?'<button class="btn o" data-a="charAvBack">换回</button>':''}${c.avatar?'<button class="btn o" data-a="clearCharAv">去掉</button>':''}</div></div>
     <div class="grid2"><label class="f">名字<input type="text" id="c-name" data-s="char" data-k="name" value="${esc(c.name)}"></label><label class="f">备注<input type="text" id="c-remark" data-s="char" data-k="remark" value="${esc(c.remark)}" placeholder="你给TA的备注"></label></div>
     <label class="f">人设<textarea class="tall" id="c-persona" data-s="char" data-k="persona" aria-label="人设">${esc(c.persona)}</textarea></label></div>
+  <div class="panel"><h2>声音</h2><div class="grid2"><label class="f">音色<input type="text" id="c-vid" data-s="cvoice" data-k="vid" value="${esc(c.voice?.vid||'')}" placeholder="${esc(S.media.tts.voice||'跟设置里的一样')}" autocomplete="off"><button class="tb" data-a="fetchVoices" data-c="${c.id}" style="align-self:flex-start;padding:4px 0">拉取音色</button></label>
+    <label class="f">语速<input type="number" id="c-vrate" data-s="cvoice" data-k="rate" value="${esc(c.voice?.rate||'')}" placeholder="1" min="0.5" max="2" step="0.1"></label></div>
+    <button class="btn o" data-a="tryVoice" style="align-self:flex-start">试听</button></div>
   <div class="btns"><button class="btn" data-a="messageChar" data-id="${c.id}">发消息</button><button class="btn o" data-a="exportChar">导出</button>${rel(c).youBlocked?`<button class="btn o" data-a="unblockC" data-id="${c.id}">解除拉黑</button>`:''}<button class="btn red" data-a="delChar">删除好友</button></div>`};
 },
 maskEdit(v){
@@ -3876,12 +3879,13 @@ const A={
       $('#mdQ').addEventListener('input',e=>{const q=e.target.value.toLowerCase();document.querySelectorAll('#mdL .opt').forEach(b=>b.hidden=!b.dataset.m.toLowerCase().includes(q))})}
     catch(e){toast(e.message,5600)}finally{if(el.isConnected){el.disabled=false;el.textContent=lbl}}},
   pickModel(el){const tg=el.dataset.t||'api';if(tg==='img')S.media.img.model=el.dataset.m;else if(tg==='tts')S.media.tts.model=el.dataset.m;else apiById(el.dataset.id||cur().id).model=el.dataset.m;save();closeSheet();render(true);if(el.dataset.id)toast('换成 '+el.dataset.m)},
-  async fetchVoices(el){const T=S.media.tts,lbl=el.textContent;el.disabled=true;el.textContent='拉取中…';
+  async fetchVoices(el){const cc=el.dataset.c?charById(el.dataset.c):null,T=cc?{voice:cc.voice?.vid||''}:S.media.tts,lbl=el.textContent;el.disabled=true;el.textContent='拉取中…';
     try{const L=await listVoices();if(!L.length)throw new Error('没拉到音色，照服务商文档手填');
-      sheet(`<h3>选一个音色</h3><input type="text" id="mdQ" placeholder="搜索" aria-label="搜索音色"><div class="mlist" id="mdL">${L.map(([v,n])=>`<button class="opt" data-a="pickVoice" data-m="${esc(v)}">${esc(n&&n!==v?n+' · '+v:v)}${T.voice===v?' ✓':''}</button>`).join('')}</div>`);
+      sheet(`<h3>选一个音色</h3><input type="text" id="mdQ" placeholder="搜索" aria-label="搜索音色"><div class="mlist" id="mdL">${L.map(([v,n])=>`<button class="opt" data-a="pickVoice" data-c="${cc?.id||''}" data-m="${esc(v)}">${esc(n&&n!==v?n+' · '+v:v)}${T.voice===v?' ✓':''}</button>`).join('')}</div>`);
       $('#mdQ').addEventListener('input',e=>{const q=e.target.value.toLowerCase();document.querySelectorAll('#mdL .opt').forEach(b=>b.hidden=!b.textContent.toLowerCase().includes(q))})}
     catch(e){toast(e.message,5600)}finally{if(el.isConnected){el.disabled=false;el.textContent=lbl}}},
-  pickVoice(el){S.media.tts.voice=el.dataset.m;save();closeSheet();render(true)},
+  async tryVoice(el){const c=charById(cur().id);el.disabled=true;try{const b=await ttsAudio('喂，听得到吗，是我',c);try{vAudio&&vAudio.pause()}catch(e){}vAudio=new Audio(URL.createObjectURL(b));vAudio.play()}catch(e){toast(e.message,5600)}finally{if(el.isConnected)el.disabled=false}},
+  pickVoice(el){const c=el.dataset.c&&charById(el.dataset.c);if(c)(c.voice||(c.voice={})).vid=el.dataset.m;else S.media.tts.voice=el.dataset.m;save();closeSheet();render(true)},
   async testImg(el){el.disabled=true;el.textContent='画画中…';try{const u=await genImage((S.media.img.style||'')+'。一只在窗边晒太阳的白猫，淡蓝色的海在窗外');sheet(`<h3>测试成功</h3><img src="${esc(u)}" alt="测试图" style="width:100%;border-radius:16px">`)}catch(e){toast(e.message,6000)}finally{if(el.isConnected){el.disabled=false;el.textContent='测试生图'}}},
   async testTts(el){const line='你好呀，今天的雨很安静，我在想你。';
     el.disabled=true;el.textContent='连接中…';
@@ -4064,7 +4068,7 @@ document.addEventListener('keydown',e=>{const id=e.target.id;if(id==='mQ'&&e.key
 document.addEventListener('pointerup',()=>{const d=document,r=d.documentElement;if(d.fullscreenElement)return;try{(r.requestFullscreen||r.webkitRequestFullscreen)?.call(r)?.catch?.(()=>{})}catch(e){}setAppH()},{passive:true});
 
 function scopeObj(s){const v=cur()||{};
-  switch(s){case'look':return S.look;case'root':return S;case'chat':return S.chat;case'char':return charById(v.id);case'mask':return maskById(v.id);
+  switch(s){case'look':return S.look;case'root':return S;case'chat':return S.chat;case'char':return charById(v.id);case'cvoice':{const c=charById(v.id);return c.voice||(c.voice={})}case'mask':return maskById(v.id);
     case'book':return S.books.find(x=>x.id===v.id);case'entry':return S.books.find(x=>x.id===v.id)?.entries.find(x=>x.id===v.eid);
     case'preset':return presetById(v.id);case'item':return presetById(v.id)?.items.find(x=>x.id===v.iid);
     case'forum':return S.forum;case'study':return S.study;case'plan':return S.plan;case'board':return fmB(v.id);case'thfmt':return S.thFmts.find(x=>x.id===v.id);
