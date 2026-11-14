@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.15.6';
+window.BYJ_VER='2026.11.15.7';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -971,8 +971,8 @@ const THINK_OLD5='想清楚：{{user}}什么意思、想要什么，{{char}}真�
 const THINK_OLD6='用{{char}}的心思盘算：{{user}}什么意思、想要什么，接下来怎么回、怎么做。60字内。';
 const THINK_OLD7='用{{char}}的心思盘算：{{user}}什么意思，{{char}}自己想怎么做，接下来怎么回。60字内。';
 const THINK_OLD8='一两句话，{{char}}心里打算怎么回。30字内，不分析不列条目。';
-const THINK_OLD9='一句话，{{char}}心里打算怎么回。20字内。',THINK_DEF='一句话：先认{{user}}上一句要什么、有没有约好的事，再定{{char}}打算怎么回。30字内。';
-const CHAT_DEF=()=>({lean:true,onMax:3,onLen:10,casual:true,ctx:80,sumEvery:30,inner:true,innerOpen:false,innerName:'心声',innerStyle:INNER_DEF,think:true,thinkName:'思维链',thinkSrc:'char',thinkStyle:THINK_DEF,effort:'',web:false,scan:8});
+const THINK_OLD9='一句话，{{char}}心里打算怎么回。20字内。',THINK_OLD10='一句话：先认{{user}}上一句要什么、有没有约好的事，再定{{char}}打算怎么回。30字内。',THINK_DEF='一句话，用{{char}}自己的口吻说心里打算怎么回。20字内。';
+const CHAT_DEF=()=>({lean:true,onMax:3,onLen:10,casual:true,ctx:80,sumEvery:30,inner:true,innerOpen:false,innerName:'心声',innerStyle:INNER_DEF,think:true,thinkName:'思维链',thinkStyle:THINK_DEF,effort:'',web:false,scan:8});
 const PERSONA_TPL='姓名：\n年龄：\n性别：\n身份/职业：\n外貌：\n性格：\n说话方式：\n喜欢：\n讨厌：\n背景经历：\n和{{user}}的关系：';
 const TH_FMTS=()=>[
   {id:'tp_memo',name:'备忘录',prompt:'做成手机备忘录的样子：{{char}}手机里一条关于{{user}}的备忘录，有标题、日期、几条清单或碎碎念，有删掉又改的痕迹。'},
@@ -1030,8 +1030,8 @@ function mergeState(d){
   s.wx=s.wx&&typeof s.wx==='object'?s.wx:{};s.hol=s.hol&&typeof s.hol==='object'?s.hol:{};
   if(!Array.isArray(s.cards))s.cards=[];if(!Array.isArray(s.personaTpls))s.personaTpls=def().personaTpls;delete s.notes;delete s.caps;delete s.health;
   s.presets.forEach(p=>(p.items||[]).forEach(i=>{if(i.content===LANG_OLD)i.content=LANG_DEF}));
-  s.chat.thinkSrc='char';s.chat.effort='';
-  if([THINK_OLD,THINK_OLD2,THINK_OLD3,THINK_OLD4,THINK_OLD5,THINK_OLD6,THINK_OLD7,THINK_OLD8,THINK_OLD9].includes(s.chat.thinkStyle))s.chat.thinkStyle=THINK_DEF;
+  delete s.chat.thinkSrc;s.chat.effort='';
+  if([THINK_OLD,THINK_OLD2,THINK_OLD3,THINK_OLD4,THINK_OLD5,THINK_OLD6,THINK_OLD7,THINK_OLD8,THINK_OLD9,THINK_OLD10].includes(s.chat.thinkStyle))s.chat.thinkStyle=THINK_DEF;
   if(!s.presetV){const old=new Set([OLD_MAIN,ONLINE_OLD,ONLINE_DEF,OFFLINE_OLD,OFFLINE_DEF]);
     s.presets.forEach(p=>{const n=(p.items||[]).length;p.items=(p.items||[]).filter(i=>!old.has(i.content));if(p.items.length<n)BASE_ITEMS().slice(1).forEach(x=>p.items.push(x))});s.presetV=2}
   if(!s.catchV){s.catchV=1;s.presets.forEach(p=>{if(p.core===1&&!(p.items||[]).some(i=>i.name==='接住')){const k=p.items.findIndex(i=>i.name==='怎么演');p.items.splice(k<0?p.items.length:k,0,SYS_ITEM('接住',CATCH_DEF))}})}
@@ -1068,7 +1068,7 @@ for(const K of['evWipe','memWipe'])if(!s[K]||typeof s[K]!=='object')s[K]={};if(!
   {const A=s.api;
     if(A.profiles.some(isOldExample)){A.profiles=A.profiles.filter(p=>!isOldExample(p));if(!A.profiles.length)A.profiles=[API_BLANK(uid())];if(!A.profiles.some(p=>p.id===A.active))A.active=A.profiles[0].id;if(A.side&&!A.profiles.some(p=>p.id===A.side))A.side=''}
     A.profiles.forEach(p=>{if(/anthropic\.com|generativelanguage/.test(p.base||'')&&(+p.maxTokens||0)<=8192)p.maxTokens=64000;if(/anthropic\.com/.test(p.base||''))p.stream=true})}
-  s.feed.forEach(p=>(Array.isArray(p.pics)?p.pics:[]).forEach(x=>delete x.dev));s.chars.forEach(c=>{if(c.mood)c.mood=softMood(c.mood,num(c.tide)??60)});s.chat.thinkSrc='char';if(!s.thinkOnV){s.chat.think=true;s.thinkOnV=1}s.api.side='';s.threads.forEach(t=>delete t.clock);
+  s.feed.forEach(p=>(Array.isArray(p.pics)?p.pics:[]).forEach(x=>delete x.dev));s.chars.forEach(c=>{if(c.mood)c.mood=softMood(c.mood,num(c.tide)??60)});if(!s.thinkOnV){s.chat.think=true;s.thinkOnV=1}s.api.side='';s.threads.forEach(t=>delete t.clock);
   s.chars.forEach(c=>{delete c.routine;delete c.sched;delete c.sign});s.masks.forEach(m=>{delete m.handle;delete m.bio;delete m.follow;delete m.fans;delete m.likes});
   s.stickers.groups.forEach(g=>(g.items||[]).forEach(x=>{x.name=stkName(x.name)||x.name}));
   delete s.lock;delete s.bubble;delete s.cycle;s.look.icons={};s.look.homeIcon='';delete s.look.order;delete s.look.caption;s.v=4;
@@ -1457,7 +1457,6 @@ async function callAI0(system,messages,o={}){
       res=await fetch(base+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},body:JSON.stringify(b),signal:sig});
     }else if(p.provider==='gemini'){
       const g={maxOutputTokens:max};if(temp!==null)g.temperature=temp;if(topP!==null)g.topP=topP;if(topK!==null)g.topK=topK;
-      if(o.thoughts&&S.chat.think&&S.chat.thinkSrc==='model')g.thinkingConfig={includeThoughts:true};
       res=await fetch(`${base}/models/${encodeURIComponent(model)}:${p.stream?'streamGenerateContent?alt=sse&':'generateContent?'}key=${encodeURIComponent(key)}`,{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({systemInstruction:{parts:[{text:system}]},contents:m.map(x=>({role:x.role==='user'?'user':'model',parts:[{text:x.content},...(x.imgs||[]).map(u=>({inlineData:{mimeType:u.slice(5,u.indexOf(';')),data:u.split(',')[1]}}))]})),generationConfig:g,
           safetySettings:['HARASSMENT','HATE_SPEECH','SEXUALLY_EXPLICIT','DANGEROUS_CONTENT'].map(c=>({category:'HARM_CATEGORY_'+c,threshold:'BLOCK_ONLY_HIGH'}))}),signal:sig});
@@ -1465,7 +1464,6 @@ async function callAI0(system,messages,o={}){
       const cur=/claude-(opus|sonnet|haiku|fable|mythos)-(5|4-[78])/.test(model),fb=/api\.anthropic\.com/.test(base)&&/claude-(opus-5|fable-5|sonnet-5-5)/.test(model);
       const b={model,system,max_tokens:cur?Math.max(max,16000):max,...(p.stream?{stream:true}:{}),...(fb?{fallbacks:'default'}:{}),messages:m.map(x=>({role:x.role,content:x.imgs&&x.imgs.length?[...x.imgs.map(u=>({type:'image',source:{type:'base64',media_type:u.slice(5,u.indexOf(';')),data:u.split(',')[1]}})),{type:'text',text:x.content||'（图片）'}]:x.content}))};
       const ad=cur||/claude-(opus|sonnet)-4-6/.test(model),old=!ad&&/claude-(3-7|(opus|sonnet|haiku)-4)/.test(model);
-      if(o.thoughts&&S.chat.think&&S.chat.thinkSrc==='model'){if(ad)b.thinking=cur?{type:'adaptive',display:'summarized'}:{type:'adaptive'};else if(old){b.thinking={type:'enabled',budget_tokens:2048};b.max_tokens=Math.max(max,4096)}}
       if(o.thoughts&&S.chat.effort&&S.chat.effort!=='none'&&(ad||/claude-opus-4-5/.test(model)))b.output_config={effort:S.chat.effort};
       if(isMM(model))b.output_config={effort:(o.thoughts&&S.chat.effort&&S.chat.effort!=='none'&&S.chat.effort)||'low'};
       if(web)b.tools=[{type:'web_search_20250305',name:'web_search',...(/anthropic\.com/.test(base)?{max_uses:3}:{})}];
@@ -1697,11 +1695,11 @@ function buildCtx(t,o={}){
       .forEach(({i,d},k)=>msgs.splice(Math.max(pre.length,end-d)+k,0,{role:i.role==='assistant'?'assistant':'user',content:mac(i.content)}))}
   if(tail.length){let k=msgs.length;while(k>0&&msgs[k-1].role==='user'&&k>pre.length)k--;const last=k<msgs.length;
     msgs.splice(k,0,{role:'user',content:`（此刻的情况，系统告诉你的，不是${me.name}发的消息）\n`+tail.join('\n\n')+(last?`\n\n（下面是${me.name}发的）`:'')})}
-  if(mode==='offline'){const w=num(off.words)||500,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字，不替${me.name}说新台词、做决定${(l=>l.length?`；${l.join('和')}别漏`:'')([C.think&&C.thinkSrc!=='model'&&'开头的 <think>',C.inner&&'结尾的 <inner>'].filter(Boolean))}）`,last=msgs[msgs.length-1];
+  if(mode==='offline'){const w=num(off.words)||500,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字，不替${me.name}说新台词、做决定${(l=>l.length?`；${l.join('和')}别漏`:'')([C.think&&'开头的 <think>',C.inner&&'结尾的 <inner>'].filter(Boolean))}）`,last=msgs[msgs.length-1];
     if(last&&last.role==='user')last.content+='\n\n'+note;else msgs.push({role:'user',content:note})}
   const end=[];
-  if(C.think&&C.thinkSrc!=='model')end.push(`【思考】先在 <think>…</think> 里${mac(C.thinkStyle||THINK_DEF)}${C.inner?`感受留给${C.innerName||'心声'}，这里只想打算。`:''}`);
-  const tw=C.think&&C.thinkSrc!=='model',iw=!!C.inner;
+  if(C.think)end.push(`【思考】先在 <think>…</think> 里${mac(C.thinkStyle||THINK_DEF)}${C.inner?`感受留给${C.innerName||'心声'}，这里只想打算。`:''}`);
+  const tw=C.think,iw=!!C.inner;
   if(mode!=='offline')end.push(`【回复格式】${tw?'先写 <think>…</think>，再':''}把发给${me.name}的话全写进 <reply>…</reply>，一行一条，[图片] [表情] 这类标记也在里面${iw?'；<inner> 和 <tide> 写在 </reply> 后面':'；<tide> 写在 </reply> 后面'}。<reply> 外的字不会发出去，给自己的分析${tw?'只写在 <think> 里':'不要写'}。每次都要写全。\n例：${tw?'<think>…</think>\n':''}<reply>\n第一条\n第二条\n</reply>${iw?'\n<inner>…</inner>':''}\n<tide>…</tide>`);
   else if(tw||iw)end.push(`【别漏】每次都按这个顺序写全：${tw?'第一行 <think>…</think>，然后':''}正文${iw?'，正文后另起一行 <inner>…</inner>':''}。\n例：${tw?'<think>…</think>\n':''}正文……${iw?'\n<inner>…</inner>':''}`);
   // 联网规则放在最后、说死「先调用再写」：实测放前面时模型会嘴上说查、其实直接编
@@ -1763,13 +1761,13 @@ function extractExtras(out,chat=true){
     const loose=[];rest.split('\n').map(l=>l.trim()).filter(Boolean).forEach(l=>/^\[[^\]]+\]$/.test(l)?body.push(l):loose.push(l));
     if(loose.length&&chat)think+=(think?'\n':'')+loose.join('\n');
     out=body.join('\n')+'\n'+(out.match(/<(tide|profile)>[\s\S]*?<\/\1>/gi)||[]).join('\n')}
-  else{out=out.replace(/<\/reply>/gi,'');{const f=stripForeign(out);out=f.out;if(f.plan)think+=(think?'\n':'')+f.plan}if(chat){const p=stripPlan(out,S.chat.think&&S.chat.thinkSrc!=='model');out=p.out;if(p.plan)think+=(think?'\n':'')+p.plan}}
+  else{out=out.replace(/<\/reply>/gi,'');{const f=stripForeign(out);out=f.out;if(f.plan)think+=(think?'\n':'')+f.plan}if(chat){const p=stripPlan(out,S.chat.think);out=p.out;if(p.plan)think+=(think?'\n':'')+p.plan}}
   const tide=[],acts=[],prof=[];
   out=out.replace(/<tide>([\s\S]*?)<\/tide>/gi,(_,x)=>{tide.push(x.trim());return''});
   out=out.replace(/<profile>([\s\S]*?)<\/profile>/gi,(_,x)=>{prof.push(x.trim());return''});
   const cards=[];out=out.replace(/\[送亲属卡[:：]\s*([\d.]*)[^\]]*\]/g,(_,a)=>{cards.push({give:1,amt:Math.max(0,+a||0)});return''}).replace(/\[刷亲属卡[:：]([^:：\]]+)[:：]\s*([\d.]+)[^\]]*\]/g,(_,w,a)=>{cards.push({what:w.trim(),amt:+a||0});return''});
   out=out.replace(/\[(拉黑|解除拉黑|删除好友|沉默|收下|退回|语音通话|视频通话|拒接|挂断|查手机)\]/g,(_,x)=>{acts.push(x);return''});
-  if(!(S.chat.think&&S.chat.thinkSrc==='model'))think=brief(think);
+  think=brief(think);
   return{text:out.trim(),think:think.trim(),inner,tide,acts,prof,cards,fmt};
 }
 async function sortLeak(ex,ctx){const lines=ex.text.split('\n').map(l=>l.trim()).filter(Boolean),mark=l=>/^\[[^\]]+\]$/.test(l);
@@ -1934,7 +1932,7 @@ async function reply(t,extra,stamps){
     const r=await callAI(ctx.system,ctx.msgs,{thoughts:true,web:true,...offMax});
     // 见面的长段写到上限被掐断：接着断的地方再要一次，拼起来，最多接两回
     for(let k=0;k<2&&ctx.mode==='offline'&&r.cut&&r.text;k++){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:'（上面写到一半断了。从断掉的那个字接着把这一段写完，不重复前面，不另起开头。）'}],{thoughts:true,...offMax});r.text+=r2.text;r.cut=r2.cut&&!!r2.text}catch(e){break}}
-    const ex=extractExtras(r.text,ctx.mode!=='offline');if(ctx.mode!=='offline'&&!ex.fmt)await sortLeak(ex,ctx);if(!S.chat.think)ex.think='';else if(S.chat.thinkSrc==='model')ex.think=r.thoughts||ex.think;
+    const ex=extractExtras(r.text,ctx.mode!=='offline');if(ctx.mode!=='offline'&&!ex.fmt)await sortLeak(ex,ctx);if(!S.chat.think)ex.think='';
     applyTide(ctx,ex);applyActs(ctx,ex);if(!ctx.group&&ctx.chars[0]){applyMoney(t,ex,ctx.chars[0]);applyCards(t,ex,ctx.chars[0])}save();
     const callAct=ex.acts.find(a=>a==='语音通话'||a==='视频通话');
     if(!ex.text&&!ex.acts.length)throw new Error(r.cut?'光顾着想了，还没说话长度就用完了：把接口里的最大长度调大，或把思考深度调低':'回复是空的，再试一次');
