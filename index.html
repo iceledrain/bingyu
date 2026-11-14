@@ -507,7 +507,6 @@ html.dark .timg{color:#d1d1d1;background:linear-gradient(150deg,#303030,#212121 
 .fp-a button{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;background:none;border:0;padding:8px 4px;color:var(--muted);font-size:12.5px;border-radius:12px}
 .fp-a svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linejoin:round;stroke-linecap:round}
 .fp-a .lk{color:#e0245e}.fp-a .lk svg{fill:currentColor}
-/* 论坛列表：时间线。一整张底板，帖子之间只隔一条细线，头像在左 */
 .tl-list{display:flex;flex-direction:column;flex:none;background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:var(--lift);padding:0 14px;overflow:hidden}
 .fp.tl{background:none;border:0;border-bottom:1px solid var(--line);border-radius:0;box-shadow:none}.fp.tl:last-child{border-bottom:0}
 .fp.tl .fp-in{flex-direction:row;align-items:flex-start;gap:10px;padding:13px 0 0}
@@ -519,7 +518,6 @@ html.dark .timg{color:#d1d1d1;background:linear-gradient(150deg,#303030,#212121 
 .fp.tl .timg{margin-top:6px;border-radius:16px}
 .fp.tl .fp-a{padding:2px 0 6px 44px;gap:0;justify-content:space-between;max-width:330px}
 .fp.tl .fp-a button{flex:none;justify-content:flex-start;min-width:56px;padding:8px 6px}
-/* 论坛「我的」：个人主页。横幅 + 压在横幅上的头像，顶栏浮在横幅上 */
 .content.pfv{padding:0;gap:0;background:var(--bg)}
 .app:has(.content.pfv) .bar{position:absolute;top:0;left:0;right:0;z-index:3;background:none;border:0;-webkit-backdrop-filter:none;backdrop-filter:none}
 .app:has(.content.pfv) .bar h1{visibility:hidden}
@@ -682,7 +680,6 @@ html.dark .mheart svg{fill:#3a3a3c;stroke:#77777c}
 html.dark{--bg:#000;--bg2:#141416;--ink:#e8e8ea;--muted:#8e8e8e;--line:rgba(255,255,255,.12);--panel-rgb:28,28,30;--accent:#48484a;--accent-rgb:72,72,74;--accent-soft:#2c2c2e;--deep:#d1d1d1;--accent-ink:#f2f2f2;--red:#636366;
   --bub:#2c2c2e;--bub-me:#4a4a4a;--lift:none;--glass:28,28,30;--gb:rgba(255,255,255,.08);--gh:rgba(255,255,255,.12);--ts:rgba(0,0,0,.6);color-scheme:dark;background:#000!important}
 html.dark:not(.wp) body,html.dark:not(.wp) .wall,html.dark:not(.wp) .app .wall2{background:#000!important}
-/* 壁纸 + 透明度：透明靠 alpha，模糊见下面的「毛玻璃」 */
 html.wp .wall::after{content:"";position:absolute;inset:0;pointer-events:none;background:rgba(255,255,255,.1)}
 html.dark.wp .wall::after{background:rgba(0,0,0,.4)}
 html.wp .hclock{color:rgba(255,255,255,.94);text-shadow:0 1px 16px rgba(0,0,0,.4)}
@@ -698,16 +695,13 @@ html.wp{--bub-ai:rgba(var(--panel-rgb),max(.3,calc(var(--alpha) - .2)))}
 html.wp:not(.dark){--bub-me:rgba(112,112,122,max(.4,calc(var(--alpha) - .18)))}
 html.wp .chat .msg.ai .bub{background:var(--bub-ai)}html.wp .chat .msg.ai .col>.bub::before{border-right-color:var(--bub-ai)}
 html.wp .chat .msg.me .bub{background:var(--bub-me)}html.wp .chat .msg.me .col>.bub::before{border-left-color:var(--bub-me)}
-/* 毛玻璃：有壁纸时，图标、小组件、时间条、气泡都把后面的壁纸糊掉 */
 html.wp{--frost:blur(14px) saturate(1.5)}
 html.wp .ic-g::before{-webkit-backdrop-filter:var(--frost);backdrop-filter:var(--frost)}
-/* 图标和气泡一个样：平的毛玻璃，没有高光 */
 html.wp .ic-g::before{background:var(--bub-ai)}
 html.wp:not(.dark) .ic-g{color:var(--deep)}html.wp:not(.dark) .ic-g svg{filter:none}
 html.wp .polaroid,html.wp .ava .av,html.wp .chat .bub,html.wp .chat .stamp{-webkit-backdrop-filter:var(--frost);backdrop-filter:var(--frost)}
 html.wp .chat .stamp{background:var(--bub-ai)}
 html.wp .bar{-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
-/* 进了应用，主屏的浮动和波纹就停下，不在后面白白耗电 */
 body:has(#app.open) #home *{animation-play-state:paused!important}
 .wpv{height:160px;border-radius:14px;background:center/cover no-repeat;border:1px solid var(--line)}
 html.dark .bub,html.dark .msg.me .bub,html.dark .narr,html.dark .narr.me{border-color:rgba(255,255,255,.06);text-shadow:none}
@@ -810,7 +804,6 @@ html.dark .mo-pic.tp{background:linear-gradient(150deg,#303030,#212121 60%,#2929
 .mbar .scov{display:grid;place-items:center;width:42px;height:42px}
 .mbar .sq{width:38px;height:38px;flex:none;border-radius:50%;background:var(--accent-soft);border:0;display:grid;place-items:center;color:var(--deep);padding:0}.mbar .sq svg{width:18px;height:18px;display:block}
 .mbar .meta{flex:1;min-width:0;display:flex;flex-direction:column}.mbar .meta b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mbar .meta small{color:var(--muted);font-size:12px}
-/* ===== X 样式（html.xs 整机；html.fx 只有论坛）：整机黑白 + 一个蓝；不带任何别家的标志 ===== */
 html:is(.xs,.fx){--bg:#fff;--bg-rgb:255,255,255;--bg2:#f7f9f9;--ink:#0f1419;--muted:#536471;--line:rgba(83,100,113,.22);--panel-rgb:255,255,255;--alpha:1;--accent:#1d9bf0;--accent-rgb:29,155,240;--accent-soft:#eff3f4;--accent-ink:#fff;--deep:#0f1419;--red:#f4212e;--bub:#eff3f4;--bub-me:#1d9bf0;--lift:none}
 html:is(.xs,.fx).dark{--bg:#000;--bg-rgb:0,0,0;--bg2:#16181c;--ink:#e7e9ea;--muted:#71767b;--line:rgba(255,255,255,.17);--panel-rgb:22,24,28;--accent:#1d9bf0;--accent-rgb:29,155,240;--accent-soft:#202327;--accent-ink:#fff;--deep:#e7e9ea;--red:#f4212e;--bub:#2f3336;--bub-me:#1d9bf0}
 html.xs body,html.xs .wall,html.fx .app .wall2{background:var(--bg)!important}
@@ -822,7 +815,6 @@ html:is(.xs,.fx) .tb{color:var(--ink)}html:is(.xs,.fx) .tb.red{color:var(--red)}
 .tabbar.xnav button svg{width:27px;height:27px}.tabbar.xnav .wxn{top:2px;right:auto;left:calc(50% + 6px)}
 .tabbar .wxn.dot{min-width:0;width:9px;height:9px;padding:0;top:7px;left:calc(50% + 10px)}
 .tabbar .fab svg{width:26px;height:26px;stroke-width:2.2}
-/* 首页信息流 */
 .content.fmv{padding:0 0 calc(96px + var(--sab));gap:0}
 .fm-tabs{display:flex;flex:none;overflow-x:auto;border-bottom:1px solid var(--line);scrollbar-width:none;position:sticky;top:0;z-index:2;background:rgba(var(--bg-rgb,246,246,246),.92)}
 .fm-tabs::-webkit-scrollbar{display:none}
@@ -836,7 +828,6 @@ html:is(.xs,.fx) .tb{color:var(--ink)}html:is(.xs,.fx) .tb.red{color:var(--red)}
 .xsb input{flex:1;min-width:0;height:42px;border-radius:999px;border:0;background:var(--accent-soft);padding:0 16px;color:var(--ink);font-size:15px;box-sizing:border-box}
 .xsb button{flex:none;height:42px;padding:0 18px;border-radius:999px;border:0;background:var(--accent);color:var(--accent-ink);font-weight:700}
 .xsf{display:flex;align-items:center;gap:8px;flex:none;margin:10px 16px 6px;height:42px;border-radius:999px;border:0;background:var(--accent-soft);color:var(--muted);padding:0 16px;font-size:15px}.xsf svg{width:18px;height:18px}
-/* 私信、联系人 */
 html:is(.xs,.fx) .wx .wxg{background:none;border:0;margin-bottom:0}
 html:is(.xs,.fx) .wx .wxg>.row+.row::before,html:is(.xs,.fx) .wx .wxg>.wxr+.wxr::before{display:none}
 html:is(.xs,.fx) .wx .row .av,html:is(.xs,.fx) .msg .av,html:is(.xs,.fx) .grpav{border-radius:50%}
@@ -844,7 +835,6 @@ html:is(.xs,.fx) .wx .xn b{font-weight:700}html:is(.xs,.fx) .wx .row small{font-
 html:is(.xs,.fx) .wxn{background:var(--accent);color:#fff!important}
 html:is(.xs,.fx) .chat .msg.me>.av{display:none}html:is(.xs,.fx) .chat .msg .col{max-width:78%}
 .content.xdm{padding-bottom:calc(96px + var(--sab))}
-/* 聊天页 */
 .xch{display:flex;align-items:center;gap:10px;background:none;border:0;color:var(--ink);padding:0;max-width:100%;text-align:left;font:inherit}
 .xch>span{display:flex;flex-direction:column;min-width:0}.xch b{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.xch small{font:11.5px var(--body);color:var(--muted);letter-spacing:0}
 .bar h1:has(.xch){text-align:left}
@@ -855,9 +845,7 @@ html:is(.xs,.fx) .chat .msg.me .bub,html:is(.xs,.fx).dark .chat .msg.me .bub{bac
 html:is(.xs,.fx) .chat .msg .col>.bub::before{display:none}
 html:is(.xs,.fx) .foot textarea{background:var(--accent-soft);border:0}
 html:is(.xs,.fx) .chat .stamp{background:none}
-/* 帖子详情：去卡片 */
 html:is(.xs,.fx) .fp.solo{background:none;border:0;border-bottom:1px solid var(--line);border-radius:0;box-shadow:none;padding:2px 0 0}html:is(.xs,.fx) .fp.solo .fp-x{font-size:17px;line-height:1.55}html:is(.xs,.fx) .fp.solo .fp-t{font-size:19px}
-/* 聊天信息页 */
 .ci-top{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0 4px;flex:none}.ci-top b{font-size:22px;font-weight:800;margin-top:10px}.ci-top small{color:var(--muted);font-size:15px}
 .grpav.big{width:96px;height:96px}
 .ci-btns{display:flex;justify-content:center;gap:30px;flex:none;margin:8px 0 10px}
@@ -865,7 +853,6 @@ html:is(.xs,.fx) .fp.solo{background:none;border:0;border-bottom:1px solid var(-
 .ci-btns i{width:60px;height:60px;border-radius:50%;background:var(--accent-soft);display:grid;place-items:center;font-style:normal;font-size:22px}.ci-btns svg{width:24px;height:24px}
 .ci-list{background:var(--panel);border:1px solid var(--line);border-radius:20px;overflow:hidden;flex:none;display:flex;flex-direction:column}
 .ci-list .wxr{width:100%;background:none;border:0;padding:4px 18px}.ci-list .wxr+.wxr{border-top:1px solid var(--line)}
-/* 侧边抽屉：底部弹层的靠左版 */
 .sheet.side{align-items:stretch;justify-content:flex-start}
 .sheet.side .sheet-in{width:min(82%,330px);max-height:none;height:100%;border-radius:0;gap:0;padding:calc(var(--sat) + 22px) 0 calc(var(--sab) + 18px);animation:drawer .22s ease-out}
 @keyframes drawer{from{transform:translateX(-100%)}to{transform:none}}
@@ -1089,7 +1076,6 @@ const boundMask=x=>{if(!x)return null;if(typeof x==='string')x=charById(x);else 
   return x&&x.mask?S.masks.find(m=>m.id===x.mask)||null:null};
 const mask=x=>boundMask(x)||S.masks.find(m=>m.id===S.activeMask)||S.masks[0];
 const preset=()=>S.presets.find(p=>p.id===S.activePreset)||S.presets[0];
-// 每个角色（群聊按群）可以单独选接口：c.api / t.api；养成里的小孩 k.api（没选就跟 TA 本人）；都没选就跟默认（S.api.active）
 const apiPin=k=>{if(!k)return'';const x=typeof k==='string'?(S.chars.find(c=>c.id===k)||S.threads.find(t=>t.id===k)||kidById(k)):k;if(!x)return'';
   if(x.charId&&x.st)return x.api||apiPin(x.charId);
   if(Array.isArray(x.chars))return x.api||(x.type!=='group'?S.chars.find(c=>c.id===x.chars[0])?.api||'':'');return x.api||''};
@@ -1132,7 +1118,6 @@ async function loadFont(){const F=S.look.customFont;if(!F)return;const sig=F.loc
       const ff=new FontFace('LedCustom',srcv);await ff.load();document.fonts.add(ff)}
     applyLook()}catch(e){fontLoaded='';toast('字体加载不了')}}
 const isNight=()=>{const h=new Date().getHours();return h<7||h>=19};
-// 样式：desk = 经典桌面（默认），x = 信息流外壳（可选）。深色：on / off / auto（跟时间）；X 样式默认一直深色
 const xOn=()=>false;
 const darkOn=()=>{const n=S.look.night||(xOn()?'on':'auto');return n==='on'||(n==='auto'&&isNight())};
 function applyLook(){
@@ -1203,7 +1188,6 @@ const ICONS={
 };
 const APPS=[
   {id:'messages',name:'聊天',v:'threads'},{id:'library',name:'世界书',v:'books'},{id:'preset',name:'预设',v:'presets'},{id:'think',name:'思维链',v:'think',ic:'brain'},{id:'settings',name:'设置',v:'settings'}];
-// 主屏只摆没收起来的；设置永远在，不然进不去
 const HIDE_DEF=['forum','theater','diary','music','raise','code','shop'];
 const appHidden=()=>false;
 const appsOrdered=()=>APPS.filter(a=>!appHidden(a.id));
@@ -1212,14 +1196,12 @@ function appIcon(a){const img=0;const n=a.id==='messages'?S.threads.reduce((s,t)
 
 const WX={0:'晴',1:'晴间多云',2:'多云',3:'阴',45:'有雾',48:'雾凇',51:'毛毛雨',53:'毛毛雨',55:'毛毛雨',56:'冻雨',57:'冻雨',61:'小雨',63:'中雨',65:'大雨',66:'冻雨',67:'冻雨',71:'小雪',73:'中雪',75:'大雪',77:'雪粒',80:'阵雨',81:'阵雨',82:'暴雨',85:'阵雪',86:'大雪',95:'雷阵雨',96:'雷阵雨',99:'雷暴'};
 const wxKey=l=>l&&l.lat!==undefined?(+l.lat).toFixed(2)+','+(+l.lon).toFixed(2):'';
-// 时区跟着选的城市走（天气接口按城市给时差）；没选城市、天气还没拉到时用手机自己的时间
 const tzName=l=>l&&(l.tz||(S.wx||{})[wxKey(l)]?.d?.timezone)||'';
 const tzFmt={};
 function tzOff(l,at=Date.now()){const z=tzName(l);
   if(z)try{const f=tzFmt[z]||=new Intl.DateTimeFormat('en-US',{timeZone:z,hourCycle:'h23',year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric'});
     const p={};f.formatToParts(new Date(at)).forEach(x=>p[x.type]=+x.value);return Math.round((Date.UTC(p.year,p.month-1,p.day,p.hour%24,p.minute)-Math.floor(at/60e3)*60e3)/60e3)*60}catch(e){}
   const d=l&&(S.wx||{})[wxKey(l)]?.d;return d&&typeof d.utc_offset_seconds==='number'?d.utc_offset_seconds:null}
-// 把某个时刻换成城市当地的「墙上时间」（只读 getHours/getDate 这些）
 function locDate(t=Date.now(),l=S.loc){const o=tzOff(l,t),n=new Date(t);return o===null?n:new Date(t+n.getTimezoneOffset()*60e3+o*1e3)}
 const locNow=(l=S.loc)=>locDate(Date.now(),l);
 const locTime=l=>{const o=tzOff(l),m=tzOff(S.loc)??-new Date().getTimezoneOffset()*60;if(o===null||o===m)return'';const d=locNow(l);return`，当地时间${pad(d.getHours())}:${pad(d.getMinutes())}`};
@@ -1231,7 +1213,6 @@ const WXE=d=>/雷/.test(d)?'⛈️':/雪|冻/.test(d)?'❄️':/雨/.test(d)?'�
 function wxHours(l,n=12){const x=(S.wx||{})[wxKey(l)],H=x?.d?.hourly;if(!H?.time)return[];const off=(x.d.utc_offset_seconds||0)*1000,now=Date.now(),out=[];
   H.time.forEach((t,k)=>{const at=Date.parse(t+'Z')-off;if(at>now-3600e3&&out.length<n)out.push({h:new Date(at+off).getUTCHours(),d:WX[H.weather_code[k]]||'',t:Math.round(H.temperature_2m[k]),p:(H.precipitation_probability||[])[k]})});return out}
 const planDay=(k=dayKey())=>(S.plan.days[k]||={items:[]});
-// 「计划」已经从主屏换成了别的（现在是「代码」）：监督功能先关掉（数据还留着，想恢复把 PLAN_ON 改成 true、APPS 里加回去就行）
 const PLAN_ON=false;
 const planSup=()=>{if(!PLAN_ON)return null;const c=charById(S.plan.sup);return c&&reachable(c)?c:null};
 function planText(){const me=mask(planSup()).name,L=S.plan.days[dayKey()]?.items||[];
@@ -1312,10 +1293,8 @@ const softMood=(w,v)=>{if(!w)return w;v=v??60;if(MOOD_BAD.test(w))return moodBy(
   const M={美滋滋:'开心',乐呵呵:'开心',笑嘻嘻:'开心',甜滋滋:'甜蜜',气鼓鼓:'生气',气呼呼:'生气',想贴贴:'想你',懵懵:'懵了',心虚虚:'心虚',酸溜溜:'吃醋',委屈巴巴:'委屈',可怜巴巴:'委屈',困兮兮:'犯困',软乎乎:'心软',暖洋洋:'温暖',平平静静:'平静',开开心心:'开心'};
   x=x.replace(/^(心情|有点儿?|有些|有一点|一点点?|好|超|很|特别|非常|贼|巨|小小|微微|略|小(?=..$))+/,'').replace(/[的了啦呀哦嘛呢]+$/,'');if(M[x])return M[x];
   return x.length===2?x:moodBy(v)};
-// 心声里的颜文字：写在开头结尾都认；主屏头像下面显示的就是这一个
 const KAO_CH=/[()（）ω︿ᴗ´`•｡≧≦╥﹏>＜<^ˊˋ]/;
 const kaoIn=x=>(String(x||'').match(/[^\s\u4e00-\u9fff，。！？、：；“”‘’「」]{3,24}/g)||[]).find(k=>KAO_CH.test(k)&&!KAO_BAD.test(k))||'';
-// 心声不带颜文字了：写了也去掉（主屏头像下面的颜文字照旧按心情来）
 const noKao=x=>String(x||'').replace(/[^\s\u4e00-\u9fff，。！？、：；“”‘’「」…~～]{2,30}/g,k=>KAO_CH.test(k)||KAO_BAD.test(k)||/[✧♡♥☆★ﾉ و∀ᐛ]/.test(k)?'':k).replace(/[ \t]{2,}/g,' ').trim();
 const withKao=(x,v)=>noKao(x);
 const MOOD_KAO=[[/开心|高兴|愉快|满足|得意|雀跃|兴奋|期待|欢喜|甜/,['(๑>ᴗ<๑)♡','(≧▽≦)','٩(ˊᗜˋ*)و','(*´▽`*)']],
@@ -1381,7 +1360,6 @@ let inappT;
 new MutationObserver(()=>{clearTimeout(inappT);if(isOpen())inappT=setTimeout(()=>document.documentElement.classList.toggle('inapp',isOpen()),420);else document.documentElement.classList.remove('inapp')}).observe(appEl,{attributes:true,attributeFilter:['class']});
 function go(v){stack.push(v);appEl.classList.add('open');render()}
 const rootOf=tab=>xOn()?{v:'x',tab:tab||'home'}:{v:'threads'};
-// 回到最底层：X 样式是外壳首页，经典是桌面
 function toRoot(tab){closeSheet();if(xOn()){stack=[rootOf(tab)];appEl.classList.add('open');render()}else{stack=[];appEl.classList.remove('open');fxOff();renderHome();paintCanvas()}}
 const fmCurB=v=>v?.v==='x'?v.b:v?.tab;
 function back(){closeSheet();if(xOn()&&stack.length<=1&&cur()?.v==='x')return;
@@ -1426,14 +1404,10 @@ const num=v=>v===null||v===undefined||v===''||isNaN(+v)?null:+v;
 const TOKTAG={chat:'聊天',bg:'后台生成',other:'其他'};
 const isMM=model=>/minimax-m3\.1/i.test(model||'');
 const rzOf=d=>d.reasoning_content||(typeof d.reasoning==='string'?d.reasoning:'')||(Array.isArray(d.reasoning_details)?d.reasoning_details.map(x=>x?.text||'').join(''):'')||'';
-// 官方地址用 x-api-key；别家的 /anthropic 兼容地址（MiniMax）网页跨域只放行 Authorization
 const antHdr=(base,key)=>/anthropic\.com/.test(base)?{'x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'}:{Authorization:'Bearer '+key};
-// 模型写给自己的 <!--笔记--> 这类注释（含全角叹号、没写全的），整条去掉
 const deNote=x=>String(x||'').replace(/\]?<\]?minimax\[?>\[?/gi,'').replace(/<\/?voice_?call[^>\n]{0,20}>/gi,'[语音通话]').replace(/<\/?video_?call[^>\n]{0,20}>/gi,'[视频通话]').replace(/【(语音通话|视频通话|查手机|拉黑|解除拉黑|挂断|拒接)】/g,'[$1]').replace(/(\[(?:语音通话|视频通话)\])\s*\1/g,'$1').replace(/<[!！]\s*-{1,2}[\s\S]*?-{1,2}\s*>/g,'').replace(/^[ \t]*<[!！]\s*-{1,2}[^\n]*$/gm,'').replace(/\n{3,}/g,'\n\n');
-// 显示的只有角色自己写的思维链。模型自带的思考只在后台跑、不显示：DeepSeek 聊天时开着，杂活一律关；MiniMax 关不了，压到最低档
 const isDS=p=>/deepseek/i.test((p?.base||'')+' '+(p?.model||''));
 const isKimi=base=>/moonshot\.(cn|ai)|kimi\.(com|ai)/.test(base||'');
-// 智谱 GLM：普通聊天地址不让网页直接访问（浏览器会拦），异步地址可以。所以走「先提交、再取结果」
 const isGLM=base=>/bigmodel\.cn/.test(base||'');
 function addTok(tag,i,o,c=0,w=0){if(!i&&!o)return;const T=S.tok||(S.tok=def().tok);T.n++;T.i+=i;T.o+=o;T.c=(T.c||0)+c;T.w=(T.w||0)+w;
   const b=T.by[tag]||(T.by[tag]={n:0,i:0,o:0});b.n++;b.i+=i;b.o+=o;if(tag==='chat')T.last={i,o,c,t:Date.now()};save()}
@@ -1466,7 +1440,6 @@ async function callAI0(system,messages,o={}){
       if(isMM(model))b.reasoning_effort=(o.thoughts&&S.chat.effort&&S.chat.effort!=='none'&&S.chat.effort)||'low';
       if(isDS(p)&&!o.thoughts)b.thinking={type:'disabled'};
       if(isGLM(base)){delete b.stream;delete b.stream_options;
-        // 5 系列的思考关不掉，压到最低档；老型号杂活时关掉
         if(/^glm-5/i.test(model))b.reasoning_effort='low';else if(!o.thoughts)b.thinking={type:'disabled'};
         const H={Authorization:'Bearer '+key};
         res=await fetch(base+'/async/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',...H},body:JSON.stringify(b),signal:sig});
@@ -1505,14 +1478,12 @@ async function callAI0(system,messages,o={}){
     if(p.provider==='gemini'){const u=data.usageMetadata||{};addTok(tag,+u.promptTokenCount||0,(+u.candidatesTokenCount||0)+(+u.thoughtsTokenCount||0),+u.cachedContentTokenCount||0)}
     else if(p.provider==='claude'){const u=data.usage||{},cr=+u.cache_read_input_tokens||0,cw=+u.cache_creation_input_tokens||0;addTok(tag,(+u.input_tokens||0)+cr+cw,+u.output_tokens||0,cr,cw)}
     else{const u=data.usage||{},d=u.prompt_tokens_details||u.input_tokens_details||{};addTok(tag,+u.prompt_tokens||+u.input_tokens||0,+u.completion_tokens||+u.output_tokens||0,+d.cached_tokens||+u.cached_tokens||0,+d.cache_write_tokens||0)}}
-  // MiniMax 出错时也可能回 200，把错误码放在 base_resp 里
   {const br=data.base_resp,sc=+br?.status_code||0;if(sc){const M={1002:'发太快被限流了，等几秒再发',1004:'Key 不对，检查一下',2049:'Key 不对，检查一下',1008:'余额不够了，去充一下',2053:'积分不够了',2067:'套餐额度用完了',1026:'这句被内容审核拦了，换个说法',1027:'他的回复被内容审核拦了，换个说法或重试',1039:'太长了，把最大长度调小一点',2013:'参数不对：'+(br.status_msg||''),2064:'那边太忙，稍后再试',2066:'那边超时了，再试一次',1001:'那边超时了，再试一次',1000:'那边出了点问题，再试一次',1024:'那边出了点问题，再试一次',1033:'那边出了点问题，再试一次'};
     const er=new Error(M[sc]||('接口报错 '+sc+'：'+(br.status_msg||'')));if([1000,1001,1002,1024,1033,2064,2066].includes(sc))er.status=sc===1002?429:503;throw er}
     if((data.input_sensitive||data.output_sensitive)&&!(data.choices?.[0]?.message?.content))throw new Error(data.input_sensitive?'这句被内容审核拦了，换个说法':'他的回复被内容审核拦了，换个说法或重试')}
   if(glm&&glm.task_status&&glm.task_status!=='SUCCESS'){const er=new Error(glm.task_status==='PROCESSING'?'智谱那边一直没写完，再试一次':'智谱那边这条没写出来'+(glm.error?.message?'：'+glm.error.message:'，再试一次'));er.status=503;throw er}
   let out='',th='';
   if(p.provider==='openai'){const mm=data.choices?.[0]?.message||{},fr=data.choices?.[0]?.finish_reason;out=mm.content||'';th=rzOf(mm);
-    // DeepSeek 偶尔把 <think>…</think> 连同正文整段写进思考通道、正文留空（实测约五分之一）：捞回来当正文
     if(!out&&fr==='stop'&&/<\/think>|<reply>/i.test(th)){out=th;th=''}
     if(!out&&(fr==='content_filter'||fr==='sensitive'))throw new Error('这条被接口那边的内容审核拦了，换个说法试试');if(!out&&fr==='network_error'){const er=new Error('接口那边写到一半断了，再试一次');er.status=503;throw er}if(!out&&(fr==='insufficient_system_resource'||fr==='aborted'))throw new Error('接口那边太忙，写到一半断了，再试一次')}
   else if(p.provider==='gemini'){const c=data.candidates?.[0];if(!c)throw new Error('没有回复'+(data.promptFeedback?.blockReason?'（被拦截：'+data.promptFeedback.blockReason+'）':''));
@@ -1567,13 +1538,11 @@ function msgText(m,group){
   return group?`${charById(m.from)?.name||'?'}：${body}`:body;
 }
 function nowText(){const d=locNow(),h=d.getHours();const per=h<5?'深夜':h<8?'清晨':h<11?'上午':h<13?'中午':h<17?'下午':h<19?'傍晚':h<23?'晚上':'深夜';return`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 星期${WK[d.getDay()]} ${pad(h)}:${pad(d.getMinutes())}（${per}）${(o=>o?o.off?`，今天放假${o.name?'（'+o.name+'）':''}`:`，今天${o.name?o.name+'调休':''}补班`:'')(dayOff(d))}`}
-// 按 S.loc 的时区：某个时间点离今天差几天、写成「11月8日 星期日」
 const dayDiff=t=>Math.round((locNow().setHours(0,0,0,0)-locDate(t).setHours(0,0,0,0))/864e5);
 const dayLabel=t=>{const d=locDate(t);return`${d.getMonth()+1}月${d.getDate()}日 星期${WK[d.getDay()]}`};
 const dayWord=n=>n===1?'昨天':n===2?'前天':n+'天前';
 const dayKey=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
 function logEvent(who,text){text=String(text).replace(/\s+/g,' ').trim();(S.events||=[]).push({id:uid(),t:Date.now(),who,me:mask(who).id,text:wholeText(text,120)});if(S.events.length>1000)S.events.splice(0,S.events.length-1000)}
-// 近事清空/删除是永久的：记在 evWipe（清空时间）、memWipe（删很久以前的记忆）、evGone（单条删掉的），恢复备份后会再套一遍
 function evWipeApply(s){const w=s.evWipe||{},mw=s.memWipe||{},gone=new Set(s.evGone||[]);
   (s.chars||[]).forEach(c=>{const at=w[c.id]||0,mt=Math.max(at,mw[c.id]||0);if(at&&(c.evFrom||0)<at)c.evFrom=at;if(mt&&c.longMem&&(c.memT||0)<mt){c.longMem='';c.memAt=Math.max(c.memAt||0,mt)}});
   s.events=(s.events||[]).filter(e=>!gone.has(e.id)&&!(e.who&&w[e.who]&&e.t<w[e.who]))}
@@ -1607,7 +1576,6 @@ async function ensureToday(c){if(!c||c.today?.day===dayKey()||!api()?.key)return
   try{const txt=await callAI(sysFor(c,charLore(c,past)+'你在安排这个角色今天的生活。'),[{role:'user',content:`今天是${nowText()}。${tw?`${c.name}那边今天${tw.desc}，${tw.min}~${tw.max}°C${tw.next?'，接下来'+tw.next:''}。`:''}${past?`${c.name}前几天（别重样）：${past}\n`:''}${`写${c.name}今天的安排（和天气对得上）和两三件平常小事，按时间先后，每件标大概几点。其中一件是：${TODAY_SEED[Math.floor(Math.random()*TODAY_SEED.length)]}，具体是什么你定。符合人设。只写${c.name}自己的事，不写和${mask(c).name}见面、住在一起、一起做了什么。`}第三人称，150字以内。只输出内容。`}],{max:1024,side:true});c.today={day,t:Date.now(),text:wholeText(txt,320)};save()}catch(e){c.today=null}}
 const GAME_RULES={truth:'【游戏：真心话大冒险】每一轮先掷骰子，点数小的人输，看聊天里最新的那次掷骰。输的人选真心话或大冒险：{{user}}输了，你就按TA选的出一个问题或挑战，可以暧昧一点；你输了，你自己选一个，然后诚实回答或者真的去做（线上就描述你做了什么，或者发 [图片:…]、[语音:…]）。一轮结束后等{{user}}掷下一轮，你不要自己掷骰子。',
   soup:'【游戏：海龟汤】你是出题人。先讲一个离奇的汤面（几句话的小故事），{{user}}来提问，你只能回答「是」「不是」「无关」或「很接近了」，可以带一点语气。{{user}}猜出汤底或者说放弃时，揭晓完整的汤底。'};
-// 线下见面的随机事件：每轮按概率抽一件，好事坏事都有，不连着两轮都出，最近抽过的尽量不重复
 const OFF_EV={
   good:['天突然放晴了，或者天边出了很好看的晚霞','一只很亲人的猫或狗凑过来蹭腿，赖着不走','路边有人在弹唱，唱的正好是一首很应景的歌','路过的小店在搞活动，白送了一样小东西','老板看两人顺眼，多送了一份','误打误撞发现一家很好吃、没什么人知道的小店','有陌生人把两人当成一对，说了句好听的话','从口袋里摸到一张早就忘了的钱或者票','刚好赶上了最后一班车，或者最后一份','随手一拍，拍到一张特别好看的照片','收到一个好消息（工作、学业或者朋友那边的）','排了很久的队突然轮到了，或者有人让了个座','远处有人放烟花，或者看见了很亮的星星','抽奖、刮刮乐或者夹娃娃中了'],
   bad:['突然下起雨来，谁都没带伞','手机快没电了，或者突然没信号','鞋磨脚，或者鞋带断了','被路过的车溅了一身水','想去的店今天关门了，或者排着巨长的队','撞见一个不太想见的熟人（前任、同事或者亲戚）','不小心撞到人，手里的东西洒了','钥匙或者钱包一下子找不着了（后面可以找到）','一阵冷风吹过来，有人打了好几个喷嚏，好像要感冒','点的东西上错了，或者特别难吃','路上堵得动不了，或者走错路迷路了','突然停电，或者电梯坏了','一通电话打进来，有急事打断了正在做的事','一点小磕碰：崴了脚、划破手指之类','饮料或者咖啡洒在了衣服上','被突然窜出来的狗或者虫子吓了一跳'],
@@ -1648,7 +1616,9 @@ function buildCtx(t,o={}){
     chars.forEach(c=>{const x=kidKnow(c);if(x)tail.push(x)});
     if(mode!=='offline')chars.forEach(c=>{if(c.today?.day===dayKey()&&c.today.text)tail.push(`【${c.name}的今天】${c.today.text}\n（到现在已经发生的，可以主动挑一件讲，一次一件，讲过的不重复。）`)})}
   {const dy=[...new Set(chars.map(myDiaryFor).filter(Boolean))];if(dy.length)tail.push(dy.join('\n'))}
-  const el=[...new Set(chars.flatMap(c=>elsewhere(c,t.id)))];if(el.length)tail.push('【别处的事】\n'+el.join('\n'));
+  const el=[...new Set(chars.flatMap(c=>elsewhere(c,t.id)))];const others=group?[]:[...new Set(S.threads.filter(x=>x.type==='group'&&chars[0]&&x.chars.includes(chars[0].id)).flatMap(x=>x.chars).filter(id=>id!==chars[0].id).map(id=>charById(id)?.name).filter(Boolean))];
+  if(el.length)tail.push('【别处的事】'+(others.length?`（群里的事是在群里发生的，不在这里。只当作你知道的事，不接着群里的话往下说。）`:'')+'\n'+el.join('\n'));
+  if(others.length)tail.push(mode==='offline'?`【只有两个人】现在只有${cname}和${me.name}在一起。${others.join('、')}不在场，除非${me.name}自己写了他们来了。可以提起他们，不对他们说话，不写他们的动作和台词。`:`【这是私聊】这个对话里只有${cname}和${me.name}两个人。${others.join('、')}在群里，看不到这里，也听不到。可以跟${me.name}聊起他们，但不对他们说话：不喊他们的名字，不@他们，不叫他们走开或闭嘴，不写「名字：内容」。每一句都是说给${me.name}一个人听的。`);
   {const kn=chars.map(x=>{const o=S.chars.filter(c=>visible(c)&&!chars.some(y=>y.id===c.id)&&knows(x,c)).map(c=>c.name).slice(0,8);return o.length?`${x.name}认识${o.join('、')}`:''}).filter(Boolean);
     if(kn.length)ctxs.push(`【认识的人】${kn.join('；')}。只是朋友、同事或对头，不暧昧。别人不认识。`)}
   chars.forEach(c=>{
@@ -1667,15 +1637,16 @@ function buildCtx(t,o={}){
     rules.push(pov);rules.push(`【见面】${oshort?`文风${ost}，`:''}每次${Math.round((num(off.words)||500)*.8)}到${Math.round((num(off.words)||500)*1.2)}字。场景里该有的人要写出来：店员、路人、朋友、家人、同事，给个称呼，让他们说话做事、和你们有来有往，戏份别盖过${cname}和${me.name}。`);
     {rules.push(`【推剧情】${cname}掌控节奏，${me.name}只跟着。每段至少推进一步：${cname}直接做、直接定（去哪、吃什么、接下来干什么），带出新的事，或让时间往前走，不原地打转。不问「好不好」「要不要」「想去哪」，不给选项让TA挑。结尾停在${cname}已经做出的动作或新冒出来的情况上，不停在提问、等TA表态上。${me.name}回得短或没回就当同意，接着推。TA顺着走的小动作、一两句简短反应可以直接写，不写TA的心理和大段台词；只有会改变两人关系的大事才留给TA。`);
       const ln=[...t.msgs].reverse().find(m=>m.type==='narr');if(ln&&ln.from!=='me')tail.push(`【接着写】${me.name}这轮没写，接着往后推，别重复上一段。`)}
+    if(group)rules.push(`【都在场】${cname}都在${me.name}身边，面对面。每一段里每个人都要有动作和台词，彼此之间也搭话、抬杠、配合，不是轮流只对${me.name}说。谁来带节奏按人设和当下的情况，可以换人接手，但每段都得有人拿主意、往前推，别互相等、互相让。`);
     if(!oshort)rules.push(`【文风】${ost}`);
     rules.push(`【描写】写${cname}的衣着外貌、神态动作、语气，和场景的光线、声音、气味（按【现在】）。挑一两个具体细节，和对白交替写，不堆形容词。`);
-    rules.push(`【格式】小说段落，对白用「」。段落短，每段最多三句，对白单独成段。不一行一句，不用 [图片] 这类格式，不写「名字：」。`);
+    rules.push(`【格式】小说段落，对白用「」。段落短，每段最多三句，对白单独成段。不一行一句，不用 [图片] 这类格式，不写「名字：」。现在是面对面，不是在手机上打字：不写成聊天气泡，不发消息。`);
     if(o.ev){const e=offEvent(t,off,me);if(e)tail.push(e)}
     {const phAll=t.msgs.filter(m=>m.type!=='narr'&&!m.recalled&&!isMark(m));let ph=phAll.filter(m=>hist.includes(m));if(ph.length<30)ph=phAll.slice(-30);
       const line=m=>m.type==='sys'?`（${m.content}）`:(m.from==='me'?me.name:charById(m.from)?.name||'?')+'：'+(m.type==='call'?`[${m.kind==='video'?'视频':'语音'}通话] ${String(m.content||'').replace(/\n/g,' / ')}`:pv(m));
       const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal&&lastReal.type!=='narr')ctxs.push(`【刚见面】刚才在手机上聊（见下），现在见面了，接着往下写。`);if(ph.length)ctxs.push(`【见面前在手机上聊的】（只是背景，别照这个格式写）\n`+ph.map(line).join('\n'))}
   }else{
-    rules.push(group?`【群聊】群里有${me.name}和${cname}。大家互相接话、吐槽、起哄，各按人设说话，彼此不暧昧，不必人人都说。每行「名字：内容」，一行一条，不替${me.name}说话。`
+    rules.push(group?`【群聊】这是手机上的群，群里有${me.name}和${cname}，大家都不在一起，只隔着屏幕打字。只发消息：不写动作、神态、场景和旁白，不用（）或*写动作，不写小说段落。每行「名字：内容」，一行一条，不替${me.name}说话。\n【有来有往】这一轮每个人都要开口，至少一条。先接${me.name}刚说的，再互相接：吐槽、起哄、抬杠、拆台、帮腔，点名问对方，也把话头抛回给${me.name}。不要各说各的，不要排着队一人对${me.name}说一句。顺序打散，一个人说完别人插进来，他可以再接。各按人设说话，话多话少、冷热都不一样，彼此不暧昧。`
       :`【聊天】一行一个气泡，不写名字。不复述，不说教，不总结，不必句句提问，小事自己拿主意。语气和主动程度都以人设为准：开朗就开朗，冷就冷，温柔就温柔；人设有两面或反差，两面都写出来。别因为关系亲密就都写成同一种甜腻黏人的样子。人设黏人、爱亲近的，可以常说想亲想抱；不是这种人设，就别自己每轮都提。但${me.name}主动靠近的时候要回应，不躲不拖。`);
     if(!group)rules.push(`【分享生活】按人设带出自己在干什么、刚遇到的事、吃到看到的东西，偶尔配一张 [图片:…]。和${me.name}一起的事，只提真的聊过、做过的，没发生过的别说成发生过。话题干了就自己起新的，或拉${me.name}一起做点什么（听歌、玩游戏、约见面），具体、有梗。`);
     {const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal?.type==='narr')ctxs.push(`【刚分开】刚见过面，现在回到手机上。带着那时的情绪，只发消息，不写动作和长段。`)}
@@ -1706,7 +1677,7 @@ function buildCtx(t,o={}){
     if(pend)tail.push(`【没收的钱】${me.name}发来${pend.type==='hb'?'红包':'转账'}¥${pend.amt}${pend.content?'：'+pend.content:''}，写 [收下] 或 [退回]。`);
   }
   if(C.inner){const styles=chars.map(c=>c.innerStyle?`${c.name}：${mac(c.innerStyle)}`:'').filter(Boolean).join('；');
-    rules.push(`【${C.innerName||'心声'}】正文后另起一行写 <inner>…</inner>${G('，每人一个，「名字：」开头','')}。${mac(C.innerStyle||INNER_DEF)}${styles?'（'+styles+'）':''}${C.think?'和思维链不一样：那边是怎么想，这里是嘴上没说出来的那句话。':''}提到${me.name}就用${cname}平时叫的那个：老婆、宝宝、乖乖、小乖、姐姐、${'小'+String(me.name||'').slice(-1)}，或者别的，看人设和当时的心情。不叫全名（气急了除外），不写「她」「他」「用户」。`)}
+    rules.push(`【${C.innerName||'心声'}】正文后另起一行写 <inner>…</inner>${G('，里面每人一行，「名字：」开头，每人只写自己的一句，谁也别漏','')}。${mac(C.innerStyle||INNER_DEF)}${styles?'（'+styles+'）':''}${C.think?'和思维链不一样：那边是怎么想，这里是嘴上没说出来的那句话。':''}提到${me.name}就用${cname}平时叫的那个：老婆、宝宝、乖乖、小乖、姐姐、${'小'+String(me.name||'').slice(-1)}，或者别的，看人设和当时的心情。不叫全名（气急了除外），不写「她」「他」「用户」。`)}
   tail.push('【心情】\n'+chars.map(c=>`${c.name}：${c.mood?c.mood+'，':''}${tideOf(c)}/100`).join('\n'));
   rules.push(`【心情】${cname}有情绪，按人设露在话里，跟着聊天起伏，不突然跳变。心情0到100，现在的数值在「此刻的情况」里。最后一行写 <tide>${G('名字：','')}数字|两个字的心情</tide>，如 <tide>${G(nm+'：','')}68|吃醋</tide>；闲聊动5以内，有事动10左右。生气可以，不说伤人的话。`);
   if(!group&&mode==='online'&&chars[0]){const r=rel(chars[0]);
@@ -1717,7 +1688,6 @@ function buildCtx(t,o={}){
   const imgIdx=new Set(hist.map((m,i)=>m.type==='img'&&m.img?i:-1).filter(i=>i>=0).slice(-3));
   const rows=[];let run=null,dk0='';
   hist.forEach((m,i)=>{
-    // 换天的地方插一行日期，模型才分得清「今天」说的是哪天（写死日期，不会让缓存失效）
     if(mode!=='offline'&&m.t){const k=dayLabel(m.t);if(k!==dk0){dk0=k;rows.push({role:'user',content:`（—— ${k} ——）`});run=null}}
     if(mode==='offline'){if(m.type==='narr')rows.push({role:m.from==='me'?'user':'assistant',content:m.content});return}
     if(m.type==='narr'){if(!run){run={role:'user',content:'（下面是你们见面时的经过，已经结束了，只是记忆）'};rows.push(run)}run.content+='\n'+nameOf(m)+'：'+(lastMeet.includes(m)?wholeText(m.content,4000):wholeText(m.content,800));return}
@@ -1727,13 +1697,13 @@ function buildCtx(t,o={}){
   {const end=msgs.length;
     items.filter(inChat).map(i=>({i,d:Math.max(0,Math.floor(+i.depth))})).sort((a,b)=>b.d-a.d)
       .forEach(({i,d},k)=>msgs.splice(Math.max(pre.length,end-d)+k,0,{role:i.role==='assistant'?'assistant':'user',content:mac(i.content)}))}
-  if(mode==='online'&&(C.think||C.inner))tail.push(`【这次回复】照【回复格式】写全：${C.think?'<think>…</think>、':''}<reply>…</reply>${C.inner?'、<inner>…</inner>':''}、<tide>…</tide>，一样都不能少。`);
+  if(mode==='online'&&(C.think||C.inner))tail.push(`【这次回复】照【回复格式】写全：${C.think?'<think>…</think>、':''}<reply>…</reply>${C.inner?'、<inner>…</inner>':''}、<tide>…</tide>，一样都不能少。${group?`现在是在手机群里，<reply> 里只有消息，每行「名字：内容」，每个人都说话，不写动作和旁白。`:''}`);
   if(tail.length){let k=msgs.length;while(k>0&&msgs[k-1].role==='user'&&k>pre.length)k--;const last=k<msgs.length;
     msgs.splice(k,0,{role:'user',content:`（此刻的情况，系统告诉你的，不是${me.name}发的消息）\n`+tail.join('\n\n')+(last?`\n\n（下面是${me.name}发的）`:'')})}
-  if(mode==='offline'){const w=num(off.words)||500,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字，${cname}带节奏往前推，不问${me.name}意见，结尾不抛问题${(off.upov||'second')==='second'?`；叙述里称呼${me.name}只用「你」，不写名字、不写她或他`:''}${(l=>l.length?`；${l.join('和')}别漏`:'')([C.think&&'开头的 <think>',C.inner&&'结尾的 <inner>'].filter(Boolean))}）`,last=msgs[msgs.length-1];
+  if(mode==='offline'){const w=num(off.words)||500,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字，${cname}带节奏往前推，不问${me.name}意见，结尾不抛问题${group?'；每个人都有戏份，互相也说话':''}；现在是面对面，写小说段落，不写成手机消息${(off.upov||'second')==='second'?`；叙述里称呼${me.name}只用「你」，不写名字、不写她或他`:''}${(l=>l.length?`；${l.join('和')}别漏`:'')([C.think&&'开头的 <think>',C.inner&&(group?'结尾的 <inner>（每人一行，一个都不能少）':'结尾的 <inner>')].filter(Boolean))}）`,last=msgs[msgs.length-1];
     if(last&&last.role==='user')last.content+='\n\n'+note;else msgs.push({role:'user',content:note})}
   const end=[];
-  if(C.think)end.push(`【思考】先在 <think>…</think> 里${mac(C.thinkStyle||THINK_DEF)}${C.inner?`感受留给${C.innerName||'心声'}，别重复。`:''}提到${me.name}用${cname}平时的叫法，不写「她」「他」「用户」。`);
+  if(C.think)end.push(`【思考】先在 <think>…</think> 里${mac(C.thinkStyle||THINK_DEF)}${C.inner?`感受留给${C.innerName||'心声'}，别重复。`:''}${group?'群里每人一行，「名字：」开头，各想各的，谁也别漏。':''}提到${me.name}用${cname}平时的叫法，不写「她」「他」「用户」。`);
   const tw=C.think,iw=!!C.inner;
   if(mode!=='offline')end.push(`【回复格式】${tw?'先写 <think>…</think>，再':''}把发给${me.name}的话全写进 <reply>…</reply>，一行一条，[图片] [表情] 这类标记也在里面${iw?'；<inner> 和 <tide> 写在 </reply> 后面':'；<tide> 写在 </reply> 后面'}。<reply> 外的字不会发出去，给自己的分析${tw?'只写在 <think> 里':'不要写'}。每次都要写全。\n例：${tw?'<think>…</think>\n':''}<reply>\n第一条\n第二条\n</reply>${iw?'\n<inner>…</inner>':''}\n<tide>…</tide>`);
   else if(tw||iw)end.push(`【别漏】每次都按这个顺序写全：${tw?'第一行 <think>…</think>，然后':''}正文${iw?'，正文后另起一行 <inner>…</inner>':''}。\n例：${tw?'<think>…</think>\n':''}正文……${iw?'\n<inner>…</inner>':''}`);
@@ -1762,7 +1732,6 @@ const THINK_TAG='think|thinking|thought|thoughts|reasoning|analysis|思考|思�
 const PLAN_CUE=/(告诉|回|跟|哄|逗|安慰|应付)(她|他|TA)|别(显得|让(她|他|TA)|表现)|(她|他|TA)(突然|又|居然|竟然|怎么)?(问我|在问)|装作|打算|先回|就行|语气|自然点|随口带过/;
 const MULL_CUE=/什么意思|啥意思|试探|在不在乎|在乎|太明显|很明显|不乐意|不高兴|报备|故意|是不是想|想看我|显得|装作|装得|抓着|不放|别让|不能让|吃醋|先别|怎么回|该怎么|不动声色|表现得|冷淡点|淡定点|随口|带过|算了|先晾|晾着|反应|打算|语气/g;
 const mulls=l=>new Set(l.match(MULL_CUE)||[]).size;
-// 正文是中文、开头却是一大段英文：那是模型把分析写出来了，收进思考
 function stripForeign(out){const cjk=x=>(x.match(/[\u3400-\u9fff]/g)||[]).length,lat=x=>(x.match(/[A-Za-z]/g)||[]).length;
   const lines=out.split('\n');let k=0,n=0;
   for(;k<lines.length;k++){const l=lines[k];if(!l.trim())continue;if(/^\s*[\[<]/.test(l)||cjk(l)*6>lat(l))break;n+=lat(l)}
@@ -1774,16 +1743,13 @@ function stripPlan(out,thinkOn){const me=mask().name,lines=out.split('\n'),cut=[
     if(/你|您|[\[<？?]/.test(l))break;
     if(!(who.test(l)&&PLAN_CUE.test(l))&&mulls(l)<(thinkOn?2:3))break;cut.push(l);lines.shift()}
   const rest=lines.join('\n').trim();return rest?{out:rest,plan:cut.join('\n')}:{out,plan:''}}
-// 思维链只留一两句
 function brief(x){x=String(x||'').trim();if(!x)return'';const ss=(x.match(/[^。！？!?…~～\n]+[。！？!?…~～]*/g)||[]).map(z=>z.trim()).filter(Boolean);let o=ss[0]||'';if([...o].length>24)o=[...o].slice(0,23).join('')+'…';return o}
-function extractExtras(out,chat=true){
+function extractExtras(out,chat=true,group=false){
   let think='',inner=[];
-  // MiniMax 常把标签写歪：</t> 当 </think>；<think> 不收尾，或拿 </reply> 来收尾。先扶正再拆
   out=out.replace(/<\/t>/gi,'</think>');
   if(/<think>/i.test(out)&&!/<\/think>/i.test(out))out=out.replace(/<think>([^\n<]*)(<\/reply>|<reply>|\n|$)/i,(m,x,e)=>'<think>'+x+'</think>'+(e.toLowerCase()==='</reply>'?'\n<reply>':e));
   out=out.replace(new RegExp(`<(${THINK_TAG})>([\\s\\S]*?)<\\/\\1>`,'gi'),(_,t,x)=>{think+=x.trim()+'\n';return''});
   out=out.replace(new RegExp(`^[\\s\\S]*?<\\/(?:${THINK_TAG})>`,'i'),x=>{think+=x.replace(new RegExp(`<\\/?(?:${THINK_TAG})>`,'gi'),'').trim();return''});
-  // 开头的 <think> 没闭合（多半是思考写到长度上限被掐断）：有 <reply> 就切到 <reply>，否则长的整段都算思考，不往外发
   out=out.replace(new RegExp(`^\\s*<(?:${THINK_TAG})>([\\s\\S]*)$`,'i'),(_,x)=>{const i=x.search(/<reply>/i);if(i>=0){think+=x.slice(0,i).trim();return x.slice(i)}
     {const f=stripForeign(x);if(f.plan){think+=f.plan;return f.out}}
     const j=x.indexOf('\n');if(j<0||(chat&&[...x].length>200)){think+=x.trim();return''}think+=x.slice(0,j).trim();return x.slice(j+1)});
@@ -1804,7 +1770,8 @@ function extractExtras(out,chat=true){
   out=out.replace(/<profile>([\s\S]*?)<\/profile>/gi,(_,x)=>{prof.push(x.trim());return''});
   const cards=[];out=out.replace(/\[送亲属卡[:：]\s*([\d.]*)[^\]]*\]/g,(_,a)=>{cards.push({give:1,amt:Math.max(0,+a||0)});return''}).replace(/\[刷亲属卡[:：]([^:：\]]+)[:：]\s*([\d.]+)[^\]]*\]/g,(_,w,a)=>{cards.push({what:w.trim(),amt:+a||0});return''});
   out=out.replace(/\[(拉黑|解除拉黑|删除好友|沉默|收下|退回|语音通话|视频通话|拒接|挂断|查手机)\]/g,(_,x)=>{acts.push(x);return''});
-  think=brief(think.replace(/<\/?[a-z]{1,8}>/gi,' ').trim());
+  think=think.replace(/<\/?[a-z]{1,8}>/gi,' ').trim();
+  think=group?think.split('\n').map(l=>{const m=l.trim().match(/^([^:：\n]{1,30})[:：]\s*(.*)$/);return m?(x=>x?m[1].trim()+'：'+x:'')(brief(m[2])):brief(l)}).filter(Boolean).slice(0,8).join('\n'):brief(think);
   return{text:out.trim(),think:think.trim(),inner,tide,acts,prof,cards,fmt};
 }
 async function sortLeak(ex,ctx){const lines=ex.text.split('\n').map(l=>l.trim()).filter(Boolean),mark=l=>/^\[[^\]]+\]$/.test(l);
@@ -1821,7 +1788,6 @@ const demd=x=>String(x)
   .replace(/^\s{0,3}#{1,6}\s+/gm,'');
 function casual(line){if(/[\[（(]/.test(line))return[line];
   return line.split(/(?<!。)。(?!。)/).map(x=>x.replace(/\s*[，,](?!\d)\s*/g,' ').replace(/[\s，,。]+$/,'').trim()).filter(Boolean)}
-// 见面正文收拾：普通引号换成「」。名字不敢替换（名字可能是个常用字，比如「雨」），称呼靠提示词管
 function offFix(out){return String(out||'').replace(/“([^”\n]*)”/g,'「$1」').replace(/"([^"\n]*)"/g,'「$1」')}
 function parseReply(out,ctx){
   out=demd(out);
@@ -1838,17 +1804,23 @@ function parseReply(out,ctx){
   }
   return ctx.mode==='online'?capBubbles(res):res;
 }
-// 微信聊天一次最多发几条：平时按设置（默认3条），情绪上来到 bubbleCap；真有很多话时偶尔能到 BUBBLE_MAX，再多的不发，不合并成长段
 const BUBBLE_MAX=8,CALL_MAX=3;
 const bubbleCap=()=>Math.min(8,Math.max(num(S.chat.onMax)||3,6));
 function capBubbles(res){const cap=BUBBLE_MAX,n={};return res.filter(p=>(n[p.from]=(n[p.from]||0)+1)<=cap)}
+function byName(txt,ctx){const out=[];let curr=null;
+  for(const l of String(txt||'').split('\n').map(x=>x.trim()).filter(Boolean)){const m=l.match(/^[\s*【\[「]*([^:：*】\]」]{1,30}?)[\s*】\]」]*[:：]\s*(.*)$/)||l.match(/^[【\[]([^】\]]{1,30})[】\]]\s*(.*)$/),k=m&&m[1].trim(),c=m&&ctx.chars.find(c=>c.name===k||(c.remark&&c.remark===k)||dn(c)===k);
+    if(c){curr={c,text:m[2].trim()};out.push(curr)}else if(curr)curr.text+=(curr.text?'\n':'')+l;else out.push({c:null,text:l})}
+  return out.filter(x=>x.text)}
 function attachExtras(parts,ex,ctx){
   if(!parts.length)return;
-  if(ex.think)parts[0].think=ex.think;
-  if(!ex.inner.length)return;
-  if(ctx.group){for(const x of ex.inner){const m=x.match(/^([^:：]{1,30})[:：]\s*([\s\S]*)$/);const c=m&&ctx.chars.find(c=>c.name===m[1].trim()||c.remark===m[1].trim());
-      const target=c?[...parts].reverse().find(p=>p.from===c.id):parts[parts.length-1];if(target)target.inner=(target.inner?target.inner+'\n':'')+(c?withKao(m[2],tideOf(c)):x)}}
-  else{const c=ctx.chars&&ctx.chars[0];parts[parts.length-1].inner=withKao(ex.inner.join('\n'),c?tideOf(c):60)}
+  if(!ctx.group){if(ex.think)parts[0].think=ex.think;
+    if(ex.inner.length){const c=ctx.chars&&ctx.chars[0];parts[parts.length-1].inner=withKao(ex.inner.join('\n'),c?tideOf(c):60)}return}
+  const add=(p,k,x)=>{if(p&&x)p[k]=(p[k]?p[k]+'\n':'')+x},one=parts.length===1&&parts[0].type==='narr',seenT=new Set(),seenI=new Set();
+  for(const x of byName(ex.think,ctx)){if(x.c){if(seenT.has(x.c.id))continue;seenT.add(x.c.id)}
+    if(one)add(parts[0],'think',x.c?x.c.name+'：'+x.text:x.text);else add(x.c?parts.find(p=>p.from===x.c.id):parts[0],'think',x.text)}
+  for(const x of byName(ex.inner.join('\n'),ctx)){if(x.c){if(seenI.has(x.c.id))continue;seenI.add(x.c.id)}
+    const tx=x.c?withKao(x.text,tideOf(x.c)):x.text;
+    if(one)add(parts[0],'inner',x.c?x.c.name+'：'+tx:tx);else add(x.c?[...parts].reverse().find(p=>p.from===x.c.id):parts[parts.length-1],'inner',tx)}
 }
 function applyTide(ctx,ex){
   for(const x of ex.tide||[]){const m=x.match(/^(?:([^:：|｜]{1,30})[:：])?\s*(\d{1,3})\s*(?:[|｜/]\s*(.+))?$/);if(!m)continue;
@@ -1876,7 +1848,6 @@ function dmFor(cid){let t=S.threads.find(x=>x.type==='dm'&&x.chars[0]===cid);if(
   save()}return t}
 function threadTitle(t){return t.type==='dm'?dn(charById(t.chars[0])):(t.title||t.chars.map(id=>dn(charById(id))).join('、'))}
 function lastPreview(t){const m=t.msgs[t.msgs.length-1];if(!m)return'还没有消息';if(m.type==='sys')return m.content;const who=t.type==='group'&&m.from!=='me'?dn(charById(m.from))+'：':m.from==='me'?'我：':'';return who+pv(m)}
-// 每条回复：思维链（在消息前）→ 消息 → 想法（心声），都是文字小标签，点开看
 const mindSt={};
 const fOpen=(m,k,d)=>{const id=m.id+':'+k;return`data-fid="${esc(id)}"${(id in mindSt?mindSt[id]:d)?' open':''}`};
 function thinkFold(m){return m.think?`<details class="fold think" ${fOpen(m,'t',false)}><summary>${ICONS.brain}${esc(S.chat.thinkName||'思维链')}</summary><div>${esc(m.think)}</div></details>`:''}
@@ -1966,12 +1937,9 @@ async function reply(t,extra,stamps){
     const ctx=buildCtx(t,{ev:1});if(extra)ctx.msgs.push({role:'user',content:extra});
     const offMax=ctx.mode==='offline'?{max:Math.max((num(api()?.maxTokens)||2048)-4096,Math.round((num((t.offline||S.offline).words)||500)*3)+2000)}:{};
     let r=await callAI(ctx.system,ctx.msgs,{thoughts:true,...offMax});
-    // 先思考再写正文：开头没有 <think> 的打回去重写一次（再不行才事后补）
     if(S.chat.think&&r.text&&!/^\s*(?:\]?<\]?minimax\[?>\[?)?\s*<think>/i.test(r.text)){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:`（上面这条没按顺序写，作废。重写：第一行先写 <think>一句打算</think>，然后才是${ctx.mode==='offline'?'正文':' <reply>…</reply>'}，最后 <inner>…</inner>${ctx.mode==='offline'?'':' 和 <tide>…</tide>'}。内容可以和刚才一样。）`}],{thoughts:true,...offMax});if(/<think>/i.test(r2.text))r=r2}catch(e){}}
-    // 见面的长段写到上限被掐断：接着断的地方再要一次，拼起来，最多接两回
     for(let k=0;k<2&&ctx.mode==='offline'&&r.cut&&r.text;k++){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:'（上面写到一半断了。从断掉的那个字接着把这一段写完，不重复前面，不另起开头。）'}],{thoughts:true,...offMax});r.text+=r2.text;r.cut=r2.cut&&!!r2.text}catch(e){break}}
-    const ex=extractExtras(r.text,ctx.mode!=='offline');if(ctx.mode!=='offline'&&!ex.fmt)await sortLeak(ex,ctx);if(!S.chat.think)ex.think='';
-    // 单聊里思维链和心声提到的「他/她」就是用户：一律换成「你」，不猜性别
+    const ex=extractExtras(r.text,ctx.mode!=='offline',ctx.group);if(ctx.mode!=='offline'&&!ex.fmt)await sortLeak(ex,ctx);if(!S.chat.think)ex.think='';
     if(!ctx.group){const u=x=>String(x||'').replace(/[他她]|TA/g,'你');ex.think=u(ex.think);ex.inner=ex.inner.map(u)}
     applyTide(ctx,ex);applyActs(ctx,ex);if(!ctx.group&&ctx.chars[0]){applyMoney(t,ex,ctx.chars[0]);applyCards(t,ex,ctx.chars[0])}save();
     const callWas=spUse(t).callN,askedCall=/电话|视频|语音|通话|打给|打过来/.test(String([...t.msgs].reverse().find(m=>m.from==='me')?.content||''));
@@ -1979,6 +1947,7 @@ async function reply(t,extra,stamps){
     if(!ex.text&&!ex.acts.length)throw new Error(r.cut?'光顾着想了，还没说话长度就用完了：把接口里的最大长度调大，或把思考深度调低':'回复是空的，再试一次');
     const bought=boughtRecently(t),parts=ex.text?parseReply(ex.text,ctx).filter(p=>!(bought&&(p.type==='order'||p.type==='parcel'))&&!(p.type==='pic'&&/^(收到|已?存|保存|放大|截图|点开|看了|好的?$)/.test(String(p.content||'').trim()))):[];attachExtras(parts,ex,ctx);
     const posted=[],lack={think:S.chat.think&&!ex.think,inner:S.chat.inner&&!ex.inner.length};
+    const miss=ctx.group&&S.chat.inner&&parts.length?ctx.chars.filter(c=>{const o=parts.length===1&&parts[0].type==='narr';return o?!new RegExp('(^|\\n)'+c.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'：').test(parts[0].inner||''):parts.some(p=>p.from===c.id)&&!parts.some(p=>p.from===c.id&&p.inner)}):[];
     for(let i=0;i<parts.length;i++){
       if(i)await sleep(ctx.mode==='offline'||stamps?0:Math.min(1400,350+String(parts[i].content||'').length*25));
       const pm={id:uid(),...parts[i],t:stamps?Math.min(Date.now(),stamps[Math.min(stamps.length-1,Math.floor(i*stamps.length/parts.length))]+i*20e3):Date.now()};t.msgs.push(pm);posted.push(pm);t.t=Date.now();if(pm.type==='pic'&&false)developMsg(t,pm);
@@ -1990,11 +1959,20 @@ async function reply(t,extra,stamps){
     if(!isOpen())renderHome();
     if(ex.acts.includes('查手机')&&!ctx.group)setTimeout(()=>autoPeek(t,ctx.chars[0],'open'),2500);
     if(callAct&&!ctx.group&&!call)setTimeout(()=>incomingCall(t,callAct==='视频通话'?'video':'voice'),1500);
-    if(posted.length&&(lack.think||lack.inner))backfill(t,ctx,posted,lack);
+    if(posted.length&&miss.length)fillInner(t,ctx,posted,miss);
+    else if(posted.length&&(lack.think||lack.inner))backfill(t,ctx,posted,lack);
     maybeSummarize(t);
   }catch(e){toast(e.message,5600)}
   finally{busy.delete(t.id);onThreadUpdate(t)}
 }
+
+async function fillInner(t,ctx,posted,miss){const me=mask(t),C=S.chat,one=posted.length===1&&posted[0].type==='narr';
+  const said=posted.map(m=>one?m.content:(charById(m.from)?.name||'?')+'：'+pv(m)).join('\n');
+  try{const txt=String(await callAI(whoTag(miss.map(c=>`【${c.name}】\n${c.persona||''}`).join('\n\n'),t.id),[{role:'user',content:`刚刚${one?'见面时发生的':'群里说的'}：\n${wholeText(said,3000)}\n\n给下面每个人各写一句此刻没说出口的心声：${miss.map(c=>c.name).join('、')}。${String(C.innerStyle||INNER_DEF).replaceAll('{{char}}','TA').replaceAll('{{user}}',me.name)}各用自己的口吻、第一人称，提到${me.name}用平时的叫法。每人一行，「名字：心声」，别的都不要。`}],{max:512,side:true,temp:.8}));
+    for(const x of byName(txt.replace(/<think[\s\S]*?<\/think>/gi,''),ctx)){if(!x.c||!miss.includes(x.c))continue;const tx=withKao(cuteKao(x.text.split('\n')[0]),tideOf(x.c));if(!tx)continue;
+      if(one){if(!new RegExp('(^|\\n)'+x.c.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'：').test(posted[0].inner||''))posted[0].inner=(posted[0].inner?posted[0].inner+'\n':'')+x.c.name+'：'+tx}
+      else{const m=[...posted].reverse().find(p=>p.from===x.c.id);if(m&&!m.inner)m.inner=tx}}
+    save();onThreadUpdate(t);if(cur()?.v==='chat'&&cur().id===t.id)render(true)}catch(e){}}
 
 async function backfill(t,ctx,posted,lack){const C=S.chat,last=posted[posted.length-1],c=charById(last.from)||ctx.chars[0];if(!c)return;
   const me=mask(c),mac=s=>String(s||'').replaceAll('{{char}}',c.name).replaceAll('{{user}}',me.name);
@@ -2005,7 +1983,7 @@ async function backfill(t,ctx,posted,lack){const C=S.chat,last=posted[posted.len
     const one=ask.length===1?txt.trim().split('\n').filter(Boolean)[0]?.replace(/^(思考|心声)[:：]\s*/,'').trim()||'':'';
     const pick=k=>{const x=(txt.match(new RegExp(k+'[:：]\\s*([^\\n]+)'))||[])[1]?.trim()||one;return said.split('\n').some(l=>l.trim()===x)?'':x};
     const u=x=>ctx.group?x:String(x||'').replace(/[他她]|TA/g,'你');
-    if(lack.think){const x=u(brief(pick('思考')));if(x)posted[0].think=x}
+    if(lack.think){const x=u(brief(pick('思考')));if(x)(posted.find(p=>p.from===c.id)||posted[0]).think=x}
     if(lack.inner){const x=withKao(cuteKao(u(pick('心声'))),tideOf(c));if(x){const m=[...posted].reverse().find(p=>p.from===c.id)||last;m.inner=x}}
     save();onThreadUpdate(t);if(cur()?.v==='chat'&&cur().id===t.id)render(true)}catch(e){}}
 
@@ -2136,7 +2114,6 @@ function thJobCard(j){const c=charById(j.charId),f=thFmt(j.fmt);
   <div class="thjob">${j.err?`<p>${esc(j.err)}</p><div class="btns"><button class="btn" data-a="thRetry" data-id="${j.id}">再试一次</button><button class="btn o" data-a="thDrop" data-id="${j.id}">算了</button></div>`
     :`<span class="dots"><i></i><i></i><i></i></span><p>${esc(dn(c))} 正在搭舞台，一般要一两分钟</p>`}</div></article>`}
 
-// ===== 代码：说想要什么，角色来写。能做成网页的直接在沙盒里跑，别的语言给代码块；可以接着让 TA 改 =====
 const CD_SYS=`你在给对方写代码。说话按你的性子，代码要认真写、能直接用。
 规则，一定遵守：
 1. 需求能做成手机上的网页小程序的（小游戏、小工具、小页面、小动画），就做成网页：只用一个 \`\`\`html 代码块，样式写在 <style> 里，页面内容写在后面，交互写在最后的 <script> 里。不用写 <html>、<head>、<body>。
@@ -2211,7 +2188,6 @@ async function fmReply(p,n,rq){const b=fmB(p.b),me=mask().name,thr=p.cm.slice(-1
   save()}
 const fmAct=(p,tl)=>{const lk=`<button class="${p.liked?'lk':''}" data-a="fmLike" data-id="${p.id}" aria-label="点赞">${XI.like}<span>${kn(p.likes+(p.liked?1:0))}</span></button>`,cm=`<button data-a="fmOpen" data-id="${p.id}" aria-label="评论">${XI.reply}<span>${p.cm.length||(tl?'':'评论')}</span></button>`,sh=`<button data-a="fmShare" data-id="${p.id}" aria-label="分享给TA">${XI.share}<span>${tl?'':'分享'}</span></button>`;
   return`<div class="fp-a">${tl?cm+lk+sh:lk+cm+sh}</div>`};
-// 论坛「我的」：个人主页
 function fmProfile(v){const me=mask(),F=S.forum,pt=['posts','replies','likes'].includes(v.pt)?v.pt:'posts';
   const mine=F.posts.filter(p=>p.author==='me'),L=(pt==='posts'?mine:pt==='replies'?F.posts.filter(p=>p.cm.some(c=>c.author==='me')):F.posts.filter(p=>p.liked)).sort((x,y)=>y.t-x.t);
   const d=new Date(Math.min(Date.now(),...F.posts.map(p=>p.t||Infinity),...S.threads.map(t=>t.msgs[0]?.t||Infinity)));
@@ -2469,7 +2445,6 @@ function renderCall(){let e=$('#call');if(!call){if(e)e.remove();return}
 function updCall(){if(call?.mini){renderCall();return}const s=$('#callSubs');if(s){s.innerHTML=callSubsHTML();s.scrollTop=s.scrollHeight}const st=$('#callSt');if(st)st.textContent=callStatus()}
 function startCall(t,kind){if(call)return;const c=charById(t.chars[0]);if(!reachable(c)){toast('现在打不通');return}if(!api()?.key){toast('先在「设置 · 聊天」填 Key');return}
   closeSheet();call={tid:t.id,kind,status:'out',lines:[],start:0,tts:true,dir:'out'};renderCall();setTimeout(()=>{if(call&&call.status==='out')callTurn()},1400+Math.random()*1600)}
-// 他最近用特殊消息的情况：一共回了几轮、上一次用是倒数第几轮、最近一次通话离现在几条消息
 function spUse(t){let rounds=0,run=false,last=-1,callN=-1,n=0;
   for(let i=t.msgs.length-1;i>=0&&n<80;i--,n++){const m=t.msgs[i];
     if(callN<0&&(m.type==='call'||(m.type==='sys'&&/通话/.test(m.content||''))))callN=n;
@@ -2493,7 +2468,7 @@ async function callTurn(){if(!call)return;const t=thread(call.tid),c=charById(t.
     if(ex.inner.length)call.inner=(call.inner?call.inner+'\n':'')+ex.inner.join('\n');
     const lines=[];for(const l of ex.text.split('\n').map(s=>s.trim()).filter(Boolean)){const m=v&&l.match(/^[（(]([^（）()]+)[）)]\s*(.*)$/);
       if(m){lines.push({text:'（'+m[1].trim()+'）',scene:true});if(m[2])lines.push({text:m[2]})}else lines.push({text:l})}
-    {let sc=0,sp=0;for(let i=0;i<lines.length;i++){const keep=lines[i].scene?++sc<=1:++sp<=CALL_MAX;if(!keep)lines.splice(i--,1)}} // 通话一次最多说 CALL_MAX 句，画面只留一行
+    {let sc=0,sp=0;for(let i=0;i<lines.length;i++){const keep=lines[i].scene?++sc<=1:++sp<=CALL_MAX;if(!keep)lines.splice(i--,1)}}
     call.wait=false;
     for(const l of lines){if(!call)return;call.lines.push(l);updCall();if(l.scene){await sleep(500);continue}if(call.tts)await speak(l.text,c)}
     if(ex.acts.includes('挂断')&&call){await sleep(800);endCall('done')}
@@ -2680,6 +2655,12 @@ function lifeTick(mins){const now=Date.now();{const d=new Date();ensureHolidays(
       if(!L.length&&h>=9&&h<12&&P.askAt!==dk){P.askAt=dk;save();reply(t,`（现在是${nowText()}。你在监督${me}做计划，TA今天还没写。问问TA今天打算干什么，让TA去「计划」里写下来，按你的性子来。）`);return}
       if(left.length&&h>=15&&h<22&&P.nudgeAt!==dk){P.nudgeAt=dk;save();reply(t,`（现在是${nowText()}。你在监督${me}的计划，今天还有这些没做：${left.map(x=>x.text).join('、')}（完成了${L.length-left.length}/${L.length}）。按你的性子催一催、问问进度，短一点。）`);return}}}}
   const dms=S.threads.filter(t=>t.type==='dm'&&!t.pending&&!t.game&&(t.mode||'online')==='online').sort(()=>Math.random()-.5);
+  for(const c of S.chars.filter(reachable).sort(()=>Math.random()-.5)){if(statusOf(c)==='sleep'||c.helloAt)continue;
+    const d=S.threads.find(x=>x.type==='dm'&&x.chars[0]===c.id);if(d&&(d.msgs.some(m=>m.type!=='sys')||d.pending||d.game||(d.mode||'online')!=='online'))continue;
+    const g=S.threads.filter(x=>x.type==='group'&&x.chars.includes(c.id)&&x.msgs.some(m=>m.from==='me')).sort((a,b)=>(b.t||0)-(a.t||0))[0];if(!g||now-(g.t||0)<10*60e3)continue;
+    if(Math.random()>1-Math.pow(1-.04,mins))continue;
+    const t=dmFor(c.id);c.helloAt=now;t.proAt=now;save();
+    reply(t,`（现在是${nowText()}。你和${mask(c).name}在群「${threadTitle(g)}」里聊过，还没私下说过话。你主动私聊TA，按你的性子开个头，1到2条。这里只有你们两个，群里别人看不到。）`);return}
   for(const t of dms){const c=charById(t.chars[0]),me=mask(c).name;if(!reachable(c)||statusOf(c)==='sleep')continue;
     const last=[...t.msgs].reverse().find(m=>m.type!=='sys');if(!last)continue;const gap=now-last.t;
     const lastMe=t.msgs.filter(m=>m.from==='me').slice(-1)[0]?.t||0;
@@ -2695,8 +2676,6 @@ function lifeTick(mins){const now=Date.now();{const d=new Date();ensureHolidays(
     t.proAt=now;save();
     if(statusOf(c)==='free'&&Math.random()<.18){incomingCall(t,Math.random()<.3?'video':'voice');return}
     reply(t,`（现在是${nowText()}。${me}已经${gapText(gap)}没有找你了。你主动找TA，从下面挑一个最自然的理由：\n${whyReach(c).map(x=>'· '+x).join('\n')}）`);return}}
-// 你不在的时候：离开够久再回来，TA 这段时间里发过的消息会落在当时的钟点上，一打开就有东西等着
-// 只挑最近聊的那一个 TA、一次请求；TA 整段都在睡就不发。设置 → 后台 里可以关
 function awayCatch(from,now){
   if(S.chat.away===false||!api()?.key||busy.size||call||document.hidden)return false;
   const dms=S.threads.filter(t=>t.type==='dm'&&!t.pending&&!t.game&&(t.mode||'online')==='online'&&t.msgs.some(m=>m.from==='me')).sort((a,b)=>(b.t||0)-(a.t||0));
@@ -2740,7 +2719,6 @@ async function peekRun(c,v){try{const r=await genPeek(c,v.how);v.shown=[];
   catch(e){toast(e.message,5600);v.done=1;v.err=1;if(cur()===v)render(true)}}
 
 let vAudio=null,ttsWarned=false;
-// MiniMax speech-2.8 认语气词标签：把角色写的（轻笑）（叹气）换成它认的 (chuckle) (sighs)，别的括号照旧去掉
 const MM_CUE=[[/大笑|笑出声|哈哈/,'laughs'],[/轻笑|低笑|笑了?一?[下声]?|笑/,'chuckle'],[/叹气|叹/,'sighs'],[/咳/,'coughs'],[/清嗓/,'clear-throat'],[/喘/,'pant'],[/吸气|深吸/,'inhale'],[/呼气|松.?口气/,'exhale'],[/倒吸/,'gasps'],[/吸鼻|抽鼻/,'sniffs'],[/哼/,'snorts'],[/嗯|沉吟/,'emm']];
 const mm28=()=>isMMTts()&&/speech-2\.8/i.test(S.media.tts.model||'speech-2.8-turbo');
 const cleanSpeak=t=>{let x=String(t||'');if(mm28())x=x.replace(/[（(]([^）)]{1,6})[）)]/g,(m,c)=>{const k=MM_CUE.find(([re])=>re.test(c));return k?'\u2039'+k[1]+'\u203a':m});
@@ -2761,7 +2739,6 @@ async function developMsg(t,m){if(m.dev)return;m.dev=1;onThreadUpdate(t);try{m.i
 const ttsBase=()=>(S.media.tts.base||'').trim().replace(/\/+$/,'').replace(/\/audio\/speech$/,'');
 const ttsUrl=()=>ttsBase()+'/audio/speech';
 const isEleven=()=>/elevenlabs\.io/.test(S.media.tts.base||'');
-// MiniMax 语音不是 OpenAI 格式：走 /v1/t2a_v2，音色用 /v1/get_voice 查
 const isMMTts=()=>/minimaxi?\.(cn|com|io|chat)/i.test(S.media.tts.base||'');
 const mmRoot=()=>ttsBase().replace(/\/v1(\/t2a_v2)?$/,'');
 const MM_TTS=['speech-2.8-hd','speech-2.8-turbo','speech-2.6-hd','speech-2.6-turbo','speech-02-hd','speech-02-turbo','speech-01-hd','speech-01-turbo'];
@@ -2781,7 +2758,6 @@ async function listVoices(){const T=S.media.tts,base=ttsBase(),key=(T.key||'').t
   if(isMMTts()){try{const r=await fetch(mmRoot()+'/v1/get_voice',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},body:JSON.stringify({voice_type:'all'})});const d=r.ok?await r.json().catch(()=>null):null;
       for(const k of['voice_cloning','voice_generation','system_voice'])for(const x of(Array.isArray(d?.[k])?d[k]:[]))add(x.voice_id,x.voice_name||(Array.isArray(x.description)?x.description[0]:x.description))}catch(e){}
     TTS_PRESET[1][1]().forEach(([v])=>add(v));
-    // 中文音色排前面，外语的往后放
     const zh=x=>/[\u4e00-\u9fff]/.test(x[1]||'')||/^(male-qn|female-|Chinese|Cantonese)/.test(x[0]);return got.filter(zh).concat(got.filter(x=>!zh(x)))}
   for(const u of isEleven()?[root+'/v1/voices']:[base+'/audio/voice/list',base+'/audio/voices',base+'/voices'+(model?'?model='+encodeURIComponent(model):''),root+'/v1/voices'].filter((x,i,a)=>a.indexOf(x)===i)){
     try{const r=await fetch(u,{headers:/elevenlabs/.test(u)?{'xi-api-key':key}:{Authorization:'Bearer '+key}});if(!r.ok)continue;const d=await r.json().catch(()=>null);if(!d)continue;
@@ -2869,8 +2845,6 @@ const stkJson=(d,k='')=>typeof d==='string'?(/^(https?:|data:image)/.test(d)?[{n
 const stkLines=t=>t.split('\n').map(l=>{const m=l.match(/(https?:\/\/[^\s"'，,|]+|data:image\S+)/);return m&&{name:stkName(l.replace(m[1],'').replace(/[:：,，|\t"']/g,' ')),src:m[1]}}).filter(Boolean);
 const fileBtn=(label,attrs)=>`<span class="btn o filebtn">${label}<input type="file" ${attrs}></span>`;
 const ROLE={system:'系统',user:'用户',assistant:'角色'},MODE={both:'线上+线下',online:'仅线上',offline:'仅线下'};
-// ===== 养成：从刚出生开始养 TA，一点点长成现在的样子。属性随真实时间慢慢掉，照顾得越多长得越快，路上会冒出各种小事 =====
-// 阶段：0 婴儿 1 一到三岁 2 三到十二岁 3 十二到十八岁 4 十八岁以后
 const kidSi=m=>m<12?0:m<36?1:m<144?2:m<216?3:4;
 const KID_TALK=['还不会说话：只写动作、表情和声音（哭、笑、咿咿呀呀、伸手要抱、抓你手指），不写任何能听懂的词',
   '刚学说话：只会单字和叠词（「抱抱」「饭饭」「不要」），常常说错，大部分时候用动作表达',
@@ -2887,7 +2861,6 @@ const KID_ACT={
   sleep:{n:['哄睡','哄睡','哄睡','催TA睡觉','让TA早点睡'],d:['抱着TA轻轻拍着哄睡','哄TA睡觉','哄TA睡觉','催TA早点睡','让TA早点休息'],f:{},g:2,b:1},
   doctor:{n:['看病','看病','看病','看病','看病'],d:['抱TA去看医生','带TA去看医生、喂TA吃药','带TA去看医生、喂TA吃药','带TA去看医生','陪TA去看医生'],f:{health:45,joy:-10},g:1}};
 const KID_TEACH=[[],['叫人','说谢谢','认小动物','数一二三','说自己的名字'],['认字','数数','画画','唱儿歌','系鞋带','认颜色','自己穿衣服','用筷子','写作业','背古诗','算术','拼音','骑自行车','游泳','跳绳'],['数学','英语','物理','作文','化学','历史'],[]];
-// 随机冒出来的事：TA + 下面这句；f 是对属性的影响
 const KID_EV=[
   [['半夜突然哭个不停，怎么哄都不行',{joy:-15,energy:-10}],['有点发烧，小脸红红的',{health:-30}],['吐奶了，弄了你一身',{clean:-30}],['第一次对着你咯咯笑出了声',{joy:10}],['抓住你的手指不肯松开',{}],['一直往嘴里塞东西',{clean:-10}]],
   [['摔了一跤，膝盖磕破了',{joy:-15,health:-10}],['挑食，死活不吃青菜',{food:-10}],['在超市赖在地上要买玩具',{joy:-10}],['拿笔把墙上画得乱七八糟',{clean:-20}],['半夜做噩梦哭醒了',{joy:-15,energy:-10}],['感冒了，一直流鼻涕',{health:-25}],['学会了一个新词，一整天都在说',{joy:10}]],
@@ -2915,11 +2888,9 @@ const bondText=b=>b<20?'跟TA还有点认生':b<50?'跟TA挺亲的':b<80?'很黏
 const kidActs=k=>{const i=kidSi(k.age);return Object.entries(KID_ACT).filter(([x,a])=>a.n[i]&&(x!=='doctor'||k.sick||k.st.health<70))};
 const kidRe=k=>{const v=cur();if(v?.v==='kid'&&v.id===k.id&&isOpen())render(true)};
 const kidOn=k=>k.mode==='on'&&k.age>=36;
-// TA心里的委屈：被冷落、没人管、被吵醒、说话伤人都会攒起来，好好照顾会慢慢消
 const hurtText=h=>h<15?'':h<40?'，心里有点委屈':h<70?'，心里有点怨TA':'，心里对TA有很多怨气';
 const kidFeel=k=>bondText(k.bond||0)+hurtText(k.hurt||0);
 function kidHurt(k,h,b=0){k.hurt=Math.max(0,Math.min(100,(k.hurt||0)+h));if(b)k.bond=Math.max(0,Math.min(100,(k.bond||0)-b))}
-// 成长记忆：从小到大记得的事，单独存，不会被聊天记录冲掉。「我」是TA自己，「你」是把TA带大的人
 const memLine=x=>(x.age!=null?ageText(x.age)+'：':'')+x.text;
 function kidMem(k,text,o={}){(k.mem||=[]).push({id:uid(),t:o.t||Date.now(),age:k.age,text:String(text).slice(0,120),...(o.m?{m:1}:{})});if(k.mem.length>80)kidMemFold(k)}
 function kidMemInit(k){k.mem=(k.log||[]).filter(x=>x.from==='ev'||(x.from==='sys'&&!/睡醒了|手机上聊|回到TA身边|长大了一点|^TA现在/.test(x.text))).map(x=>({id:uid(),t:x.t,age:null,text:x.text.replace(/TA/g,'我')}))}
@@ -2934,7 +2905,6 @@ async function kidMemFold(k){if(kidFolding.has(k.id))return;const c=kidChar(k),o
   catch(e){drop()}
   finally{kidFolding.delete(k.id);save()}}
 const kidRecent=(k,n,me)=>(k.log||[]).slice(-n).map(x=>x.from==='me'?`${x.on?'（手机上）':''}${me}：${x.text}`:x.from==='act'?`（${me}${x.text}）`:x.from==='kid'?(x.nar?`（剧情）${x.text.slice(-200)}`:`${x.on?'（手机上）':''}${kidName(k)}：${x.text}`):`（${x.text}）`).join('\n');
-// 每聊一阵，TA在心里记一笔：记住哪些事、你对TA怎么样
 const kidRefBusy=new Set();
 async function kidReflect(k){if((k.refN||0)<10||kidRefBusy.has(k.id))return;const c=kidChar(k);if(!c||!api(k)?.key)return;k.refN=0;kidRefBusy.add(k.id);
   try{const me=mask(c).name,nm=kidName(k);
@@ -2968,7 +2938,6 @@ function kidMaybeEv(k){const now=Date.now();if(k.ev||k.sleep>now||kidBusy.has(k.
   const use=x=>{if(k.ev||k.sleep>Date.now())return;for(const[a,d]of Object.entries(x[1]))k.st[a]=Math.max(0,Math.min(100,k.st[a]+d));
     k.ev={text:x[0],t:Date.now()};k.evLast=[...last,x[0]].slice(-8);kidLog(k,'ev',`TA${x[0]}`);save();
     kidAsk(k,`这时候发生了一件事：${kidName(k)}${x[0]}。写${kidName(k)}这时候的样子。`,'say')};
-  // 一半多的事不从固定的单子里抽，让模型随机现写；写不出来就退回单子
   if(api(k)?.key&&Math.random()<.65)kidEvGen(k,last).then(x=>use(x||fixed()));else use(fixed())}
 async function kidEvGen(k,last){const c=kidChar(k);if(!c)return null;const nm=kidName(k);
   try{const out=String(await callAI(kidSys(k,c)+'\n\n现在不是在演，是随机出一件事。',[{role:'user',content:`${last.length?`【最近发生过，别重复】${last.join('；')}\n`:''}随便出一件${nm}（${ageText(k.age)}，${kidStage(k.age)}）会碰上的小事，越想不到越好。只输出一行，格式：好/坏/平｜事情（不写名字，动词开头，20字内）`}],{max:200,side:true,tag:'other',temp:1.1,who:c.id})||'').replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
@@ -2987,7 +2956,6 @@ async function kidAsk(k,what,fb,st){const c=kidChar(k);if(!c)return;
   finally{kidBusy.delete(k.id);save();kidRe(k)}}
 function kidKnow(c){const k=(S.raise?.kids||[]).find(x=>x.charId===c.id&&x.share!==false);if(!k)return'';const me=mask(c).name;if(!k.mem)kidMemInit(k);const mt=kidMemText(k,25);
   return`【养成】${me}在手机上的「养成」里把小时候的你一点点带大${k.name&&k.name!==c.name?`（小名${k.name}）`:''}，现在养到${ageText(k.age)}，小时候的你${kidFeel(k).replaceAll('TA',me)}。${mt?`\n你记得小时候的这些事（「我」是你自己，「你」是${me}）：\n${mt}\n`:''}（这些你都知道、都记得，也会影响你现在对${me}的感觉。被问起、聊到小时候、或者正好相关的时候自然带出来，别老提）`}
-// 剧情：一起出去玩、逛街……用小说的写法写一段一段的剧情
 const kidMd=k=>kidOn(k)?'on':k.mode==='story'?'story':'off';
 async function kidStory(k,mine,how){const c=kidChar(k);if(!c||kidBusy.has(k.id))return;
   if(!api(k)?.key){toast('剧情要先在「设置 · 聊天」填好接口');return}
@@ -3021,7 +2989,6 @@ function kidDo(k,key){const a=KID_ACT[key],s=k.st,now=Date.now(),hr=new Date().g
   if(!rep)k.bond=Math.min(100,(k.bond||0)+(a.b||0));kidGrow(k,(a.g||0)*m);
   kidLog(k,'act',note);save();render(true);kidAsk(k,what+extra+'。',key,st)}
 const VIEWS={
-// X 样式的外壳：首页 / 搜索 / 联系人 / 私信
 x(v){
   const tab=['home','search','people','dm'].includes(v.tab)?v.tab:'home',un=S.threads.reduce((n,t)=>n+(t.unread||0),0),F=S.forum;
   const nav=[['home',ICONS.home,'首页'],['search',ICONS.search,'搜索'],['people',ICONS.contacts,'联系人'],['dm',ICONS.messages,'私信']].map(([k,ic,l])=>`<button class="${tab===k?'on':''}" data-a="tab" data-t="${k}" aria-label="${l}">${ic}${k==='dm'&&un?`<i class="wxn">${un>99?'99+':un}</i>`:''}${k==='home'&&tab!=='home'&&feedNew()?'<i class="wxn dot"></i>':''}</button>`).join('');
@@ -3048,7 +3015,7 @@ x(v){
 fmMe(v){return{title:mask().name||'我的',cls:'pfv',right:`<button class="tb" data-a="open" data-v="fmSet">设置</button>`,body:fmProfile(v)}},
 chatInfo(v){const t=thread(v.id);if(!t)return{title:'不见了',body:''};const dm=t.type==='dm',c=dm?charById(t.chars[0]):null,cs=t.chars.map(charById).filter(Boolean);
   const row=(a,ic,l,ex='',side='')=>`<button class="wxr" data-a="${a}" ${ex}><span class="wxi">${ICONS[ic]}</span><b>${l}</b>${side?`<em>${side}</em>`:''}<i class="chev">›</i></button>`;
-  return{title:'',cls:'cinfo',body:`<div class="ci-top">${dm?av(c||{},96):`<span class="grpav big">${cs.slice(0,4).map(x=>av(x,44)).join('')}</span>`}<b>${esc(threadTitle(t))}</b><small>${dm?'@'+esc(c?.name||''):cs.length+1+' 人'}</small></div>
+  return{title:'',cls:'cinfo',body:`<div class="ci-top">${dm?av(c||{},96):(t.avatar?av(t,96):`<span class="grpav big">${cs.slice(0,4).map(x=>av(x,44)).join('')}</span>`)}<b>${esc(threadTitle(t))}</b><small>${dm?'@'+esc(c?.name||''):cs.length+1+' 人'}</small></div>
     <div class="ci-btns"><button data-a="${dm?'openCharFromChat':'openGroupEdit'}"><i>${ICONS.person}</i><span>${dm?'资料':'成员'}</span></button><button data-a="chatMenu"><i>···</i><span>更多</span></button></div>
     <div class="ci-list">${row('chatSet','settings','聊天设置')}${v.off?row('openOffline','pin','见面设置'):''}${row('ctxPeek','eye','记忆')}${row('openSummary','diary','总结')}${row('open','brain','思维链','data-v="think"')}</div>`}},
 threads(v){
@@ -3065,7 +3032,7 @@ threads(v){
     S.masks.map(m=>`<div class="row">${av(m,40)}<button class="meta" data-a="editMask" data-id="${m.id}"><b>${esc(m.name)}</b><small>${(()=>{const b=S.chars.filter(c=>c.mask===m.id).map(dn);return b.length?esc('绑定：'+b.join('、'))+' · ':''})()}${esc(m.persona?m.persona.replace(/\n/g,' '):'还没写人设')}</small></button><span class="side">${m.id===S.activeMask?'<span class="pill fill">戴着</span>':`<button class="tb" data-a="useMask" data-id="${m.id}">戴上</button>`}</span></div>`).join('')+`</div>`};
   const list=S.threads.filter(t=>!(t.type==='dm'&&rel(charById(t.chars[0])||{rel:{}}).youDeleted)).sort((a,b)=>(b.t||0)-(a.t||0));
   const rows=list.map(t=>{const cs=t.chars.map(charById).filter(Boolean);const lm=t.msgs[t.msgs.length-1];
-    return`<button class="row" data-a="openThread" data-id="${t.id}"><span class="wxa">${t.type==='dm'?av(cs[0]||{name:'?'},48):`<span class="grpav">${cs.slice(0,4).map(c=>av(c,22)).join('')}</span>`}${t.unread?`<i class="wxn">${t.unread>99?'99+':t.unread}</i>`:''}</span><span class="meta"><span class="xn"><b>${esc(threadTitle(t))}</b><i>${lm?ago(lm.t):''}</i></span><small>${t.mode==='offline'?'[线下] ':''}${esc(lastPreview(t))}</small></span></button>`}).join('');
+    return`<button class="row" data-a="openThread" data-id="${t.id}"><span class="wxa">${t.type==='dm'?av(cs[0]||{name:'?'},48):(t.avatar?av(t,48):`<span class="grpav">${cs.slice(0,4).map(c=>av(c,22)).join('')}</span>`)}${t.unread?`<i class="wxn">${t.unread>99?'99+':t.unread}</i>`:''}</span><span class="meta"><span class="xn"><b>${esc(threadTitle(t))}</b><i>${lm?ago(lm.t):''}</i></span><small>${t.mode==='offline'?'[线下] ':''}${esc(lastPreview(t))}</small></span></button>`}).join('');
   return{title:un?`聊天(${un})`:'聊天',cls:'wx',right:`<button class="tb" data-a="newThread" aria-label="新建">${ICONS.plus}</button>`,...nav,
     body:rows?`<div class="wxg">${rows}</div>`:`<div class="empty"><big>很安静 T_T</big></div>`};
 },
@@ -3123,7 +3090,8 @@ summaryEdit(v){
 },
 groupEdit(v){
   const t=thread(v.id);
-  return{title:'群设置',body:`<div class="panel"><label class="f">群名<input type="text" id="g-title" data-s="thread" data-k="title" value="${esc(t.title)}"></label></div>
+  return{title:'群设置',body:`<div class="panel"><h2>群头像</h2><div class="inline">${t.avatar?av(t,76):`<span class="grpav big" style="width:76px;height:76px">${t.chars.map(charById).filter(Boolean).slice(0,4).map(x=>av(x,34)).join('')}</span>`}<div class="btns">${fileBtn(t.avatar?'换一张':'选一张','accept="image/*" data-img="gav"')}${t.avatar?'<button class="btn o" data-a="gavClear">用回默认</button>':''}</div></div></div>
+  <div class="panel"><label class="f">群名<input type="text" id="g-title" data-s="thread" data-k="title" value="${esc(t.title)}"></label></div>
   <div class="panel"><h2>成员</h2>${S.chars.map(c=>`<label class="ck"><input type="checkbox" data-a2="member" data-id="${c.id}" ${t.chars.includes(c.id)?'checked':''}>${esc(dn(c))}</label>`).join('')}</div>`};
 },
 plaza(v){
@@ -3692,6 +3660,7 @@ const A={
   sendSticker(el){const t=thread(cur().id);describeSticker(findSticker(el.dataset.n));t.msgs.push({id:uid(),from:'me',type:'sticker',content:el.dataset.n,t:Date.now()});t.t=Date.now();save();closeSheet();refreshChat()},
   meetGo(){closeSheet();const v=cur();if(v?.v==='chat'){v.off=1;render()}else go({v:'chat',id:v.id,off:1})},
   meetEnd(){const id=cur().id;closeSheet();if(cur().v==='offline')stack.pop();const v=cur();if(v?.v==='chat'&&v.id===id){v.off=0;render()}else go({v:'chat',id,off:0});toast('回到线上了')},
+  gavClear(){const t=thread(cur().id);if(!t)return;delete t.avatar;save();render(true)},
   offStyleDef(){const t=thread(cur().id);if(!t)return;(t.offline=t.offline||{...S.offline}).style='';save();render(true)},
   offSet(el){const o=scopeObj('off');if(!o)return;o[el.dataset.k]=el.dataset.v;save();render(true)},
   offDefault(){S.offline={...thread(cur().id).offline};save();toast('设为默认了')},
@@ -4028,7 +3997,6 @@ const A={
     finally{S.api.active=prev;if(el.isConnected){el.disabled=false;el.textContent='测试连接'}}},
   delApi(el){confirmTap(el,()=>{const id=cur().id;S.api.profiles=S.api.profiles.filter(p=>p.id!==id);if(!S.api.profiles.length)S.api.profiles=def().api.profiles;if(S.api.active===id||!S.api.profiles.some(p=>p.id===S.api.active))S.api.active=S.api.profiles[0].id;if(S.api.side===id)S.api.side='';save();back()})},
   clearPhoto(){S.look.photo='';save();render(true)},
-  // 备份：手机上（尤其是加到主屏幕的）<a download> 常常没反应，先走系统分享（能存到「文件」），不行再下载；成功了才记「上次备份」
   async dl(el){const done=()=>{S.lastBackup=Date.now();save();if(cur()?.v==='data')setTimeout(()=>render(true),300)};
     let txt;try{txt=bkJSON()}catch(e){toast('备份没生成出来：'+(e.message||e),6000);return}
     const name='冰雨机备份-'+new Date().toISOString().slice(0,10)+'.json';
@@ -4094,9 +4062,9 @@ document.addEventListener('change',async e=>{const el=e.target;bind(e);
   if(el.dataset.img){const f=el.files?.[0];if(!f)return;const k=el.dataset.img;
     if(k==='homeicon'){readImg(f,1200,url=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas'),n=Math.min(im.width,im.height);c.width=c.height=180;
       c.getContext('2d').drawImage(im,(im.width-n)/2,(im.height-n)/2,n,n,0,0,180,180);S.look.homeIcon=c.toDataURL('image/png');save();setTouchIcon();render(true);toast('换好了，记得重新添加到主屏幕')};im.src=url});return}
-    const max={pphoto:700,appwall:1400,wall:1600,photo:600,icon:200,char:320,mask:320,cwall:1400,cvbg:1200,twall:1400,banner:1200,mocover:1400,chatimg:960}[k]||400;
+    const max={pphoto:700,gav:320,appwall:1400,wall:1600,photo:600,icon:200,char:320,mask:320,cwall:1400,cvbg:1200,twall:1400,banner:1200,mocover:1400,chatimg:960}[k]||400;
     readImg(f,max,url=>{if(k==='chatimg'){closeSheet();pushMine(thread(cur().id),{type:'img',img:url,content:''});return}
-      if(k==='pphoto')charById(cur().id).pphoto=url;else if(k==='appwall')S.look.appWalls[el.dataset.id]=url;else if(k==='cwall')charById(cur().id).wall=url;else if(k==='cvbg')charById(cur().id).vbg=url;else if(k==='twall')thread(cur().id).wall=url;else if(k==='banner')mask().banner=url;else if(k==='mocover')(cur()?.v==='maskEdit'&&maskById(cur().id)||mask()).mocover=url;else if(k==='char'){const c=charById(cur().id);c.avatar=url;delete c.avatarOld}else if(k==='mask')maskById(cur().id).avatar=url;else if(k==='icon')S.look.icons[el.dataset.id]=url;else if(k==='wall')S.look.wallpaper=url;else if(k==='photo')S.look.photo=url;
+      if(k==='pphoto')charById(cur().id).pphoto=url;else if(k==='gav')thread(cur().id).avatar=url;else if(k==='appwall')S.look.appWalls[el.dataset.id]=url;else if(k==='cwall')charById(cur().id).wall=url;else if(k==='cvbg')charById(cur().id).vbg=url;else if(k==='twall')thread(cur().id).wall=url;else if(k==='banner')mask().banner=url;else if(k==='mocover')(cur()?.v==='maskEdit'&&maskById(cur().id)||mask()).mocover=url;else if(k==='char'){const c=charById(cur().id);c.avatar=url;delete c.avatarOld}else if(k==='mask')maskById(cur().id).avatar=url;else if(k==='icon')S.look.icons[el.dataset.id]=url;else if(k==='wall')S.look.wallpaper=url;else if(k==='photo')S.look.photo=url;
       save();applyLook();if(appEl.classList.contains('open'))render(true);else renderHome()})}
   if(el.dataset.stk){const g=S.stickers.groups.find(x=>x.id===cur().gid);let n=0;
     const img=f=>new Promise(ok=>readImg(f,240,url=>{g.items.push({id:uid(),name:base_(f.name).slice(0,24)||'表情',src:url});n++;ok()},'image/png',ok)),isImg=/\.(png|jpe?g|gif|webp|bmp|avif|heic)$/i;
