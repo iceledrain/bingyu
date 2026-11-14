@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.14.8';
+window.BYJ_VER='2026.11.14.9';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -1288,6 +1288,8 @@ const TOKTAG={chat:'聊天',bg:'后台生成',other:'其他'};
 const isMM=model=>/minimax-m3\.1/i.test(model||'');
 const rzOf=d=>d.reasoning_content||(typeof d.reasoning==='string'?d.reasoning:'')||(Array.isArray(d.reasoning_details)?d.reasoning_details.map(x=>x?.text||'').join(''):'')||'';
 const antHdr=(base,key)=>({'x-api-key':key,'anthropic-version':'2023-06-01',...(/anthropic\.com/.test(base)?{'anthropic-dangerous-direct-browser-access':'true'}:{})});
+// 模型写给自己的 <!--笔记--> 这类注释（含全角叹号、没写全的），整条去掉
+const deNote=x=>String(x||'').replace(/<[!！]\s*-{1,2}[\s\S]*?-{1,2}\s*>/g,'').replace(/^[ \t]*<[!！]\s*-{1,2}[^\n]*$/gm,'').replace(/\n{3,}/g,'\n\n');
 const isKimi=base=>/moonshot\.(cn|ai)|kimi\.(com|ai)/.test(base||'');
 function addTok(tag,i,o,c=0,w=0){if(!i&&!o)return;const T=S.tok||(S.tok=def().tok);T.n++;T.i+=i;T.o+=o;T.c=(T.c||0)+c;T.w=(T.w||0)+w;
   const b=T.by[tag]||(T.by[tag]={n:0,i:0,o:0});b.n++;b.i+=i;b.o+=o;if(tag==='chat')T.last={i,o,c,t:Date.now()};save()}
@@ -1357,6 +1359,7 @@ async function callAI0(system,messages,o={}){
     if(!out)throw new Error('回复是空的（'+(c.finishReason||'未知')+'），把接口里的最大长度调大试试')}
   else{out=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');th=(data.content||[]).filter(b=>b.type==='thinking').map(b=>b.thinking||'').join('\n');if(!out&&data.stop_reason==='refusal')throw new Error('Claude 拒绝回答这条，换个说法试试')}
   const cut=p.provider==='openai'?data.choices?.[0]?.finish_reason==='length':p.provider==='gemini'?data.candidates?.[0]?.finishReason==='MAX_TOKENS':data.stop_reason==='max_tokens';
+  out=deNote(out);
   return o.thoughts?{text:out.trim(),thoughts:th.trim(),cut}:out.replace(/<think(?:ing)?>[\s\S]*?<\/think(?:ing)?>/g,'').trim();
 }
 
