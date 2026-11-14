@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.18.3';
+window.BYJ_VER='2026.11.18.4';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -1674,7 +1674,7 @@ function buildCtx(t,o={}){
       const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal&&lastReal.type!=='narr')ctxs.push(`【刚见面】刚才在手机上聊（见下），现在见面了，接着往下写。`);if(ph.length)ctxs.push(`【见面前在手机上聊的】（只是背景，别照这个格式写）\n`+ph.map(line).join('\n'))}
   }else{
     rules.push(group?`【群聊】群里有${me.name}和${cname}。大家互相接话、吐槽、起哄，各按人设说话，彼此不暧昧，不必人人都说。每行「名字：内容」，一行一条，不替${me.name}说话。`
-      :`【聊天】一行一个气泡，不写名字。不复述，不说教，不总结，不必句句提问，小事自己拿主意。语气和主动程度都以人设为准：开朗就开朗，冷就冷，温柔就温柔；人设有两面或反差，两面都写出来。别因为关系亲密就都写成同一种甜腻黏人的样子。同一个念头（想亲、想抱、想见）说过一次就翻篇，别每轮都提；亲密的举动看气氛和人设来，不是每轮都要。`);
+      :`【聊天】一行一个气泡，不写名字。不复述，不说教，不总结，不必句句提问，小事自己拿主意。语气和主动程度都以人设为准：开朗就开朗，冷就冷，温柔就温柔；人设有两面或反差，两面都写出来。别因为关系亲密就都写成同一种甜腻黏人的样子。人设黏人、爱亲近的，可以常说想亲想抱；不是这种人设，就别每轮都提。`);
     if(!group)rules.push(`【分享生活】按人设带出自己在干什么、刚遇到的事、吃到看到的东西，偶尔配一张 [图片:…]。话题干了就自己起新的，或拉${me.name}一起做点什么（听歌、玩游戏、约见面），具体、有梗。`);
     {const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal?.type==='narr')ctxs.push(`【刚分开】刚见过面，现在回到手机上。带着那时的情绪，只发消息，不写动作和长段。`)}
     rules.push(`【条数】一条说一句话，${num(C.onLen)||10}字左右，人设话多或事情要紧时可以长些。平时${G('每人','')}发1到${num(C.onMax)||3}条，情绪上来最多${bubbleCap()}条。真有很多话要说，偶尔可以到${BUBBLE_MAX}条。${C.casual!==false?'不打句号和逗号，停顿就换行。':''}`);
@@ -1683,19 +1683,19 @@ function buildCtx(t,o={}){
     sp.push('[分享歌曲:歌名 - 歌手]');sp.push('[定位:地点 · 一句备注]');
     const st=allStickers().map(s=>s.name).filter(Boolean).slice(0,80);if(st.length)sp.push('[表情:名字]（可用：'+st.join('、')+'）');
     rules.push(`【特殊消息】单独一行写。这些是你手机上能用的：\n${sp.join('\n')}${group?'':`\n怎么用：
-· 大多数时候只打字。隔上好几轮、真有由头才用一个，一次只用一种。用不用、用多少跟着人设：话少冷淡的人用得更少。
+· 像平常人聊天那样用：隔几轮用一个，有由头就用，一次只用一种，不要连着几轮都用，也别一直只打字。用多用少跟着人设：爱分享的人多些，话少的人少些。
 · 图片：只发你自己拍的（吃的、路上看到的、手边的东西；TA开口说想看你才发自拍），冒号后写照片里拍到了什么。TA发来照片，你用文字回，不回图片；「收到」「存了」「放大看」是动作，不是照片，别写成图片。
 · 语音：懒得打字、在走路开车、睡前。${mm28()?'语音里可以带（轻笑）（叹气）这类语气。':''}
-· 语音通话、视频通话：很少打。打字说不清、TA哭了或害怕、睡前TA想听声音时才打；打过一次或TA没接，就不再打。
+· 语音通话、视频通话：偶尔打。打字说不清、TA哭了或害怕、睡前TA想听声音时才打；打过一次或TA没接，就不再打。
 · 定位：出门了、到了、在等TA的时候。
 · 红包：过节、纪念日、哄TA消气，随手的小数目（5.20、13.14、52、66）。转账：TA说没钱、要买东西，数目大的。
 · 外卖：TA没吃饭、加班、生病，直接点过去，不问「要不要」。网购：TA提过想要的、过节的礼物。
 · 分享歌曲：正在听的、歌词像在说TA的。
 · 查手机：吃醋、觉得TA躲躲闪闪。送亲属卡：想让TA随便花，送一次就够。`}`);
     if(!group){const u=spUse(t);
-      if(u.last>0&&u.last<=2)tail.push(`【这轮】前面刚用过特殊消息，这轮只打字${u.callN>=0&&u.callN<25?'，也别再打电话':''}（除非${me.name}这句明确开口要）。`);
+      if(u.last===1)tail.push(`【这轮】上一轮刚用过特殊消息，这轮只打字${u.callN>=0&&u.callN<25?'，也别再打电话':''}（除非${me.name}这句明确开口要）。`);
       else if(u.callN>=0&&u.callN<25)tail.push(`【这轮】刚打过电话，这轮别再打（除非${me.name}开口要）。`);
-      else if(u.rounds>=6&&(u.last<0||u.last>=6))tail.push(`【这轮】已经好几轮只打字了。这轮要是有顺手的由头，可以用一个特殊消息；没有就算了。`)}
+      else if(u.rounds>=4&&(u.last<0||u.last>=4))tail.push(`【这轮】已经好几轮只打字了。这轮要是有顺手的由头，可以用一个特殊消息；没有就算了。`)}
     if(!group&&chars[0]){const cs=cardsNow().filter(k=>k.charId===chars[0].id),q=k=>(k.limit?`月额度${money(k.limit)}`:'不限额')+`，本月用了${money(k.used)}`;
       const mine=cs.filter(k=>k.dir!=='out'),theirs=cs.filter(k=>k.dir==='out');
       if(cs.length)tail.push(`【亲属卡】${mine.length?`你给${me.name}开了（${mine.map(q).join('；')}）。`:''}${theirs.length?`${me.name}给你开了（${theirs.map(q).join('；')}），用时写 [刷亲属卡:东西:金额]。`:''}`)}
@@ -1704,7 +1704,7 @@ function buildCtx(t,o={}){
     if(pend)tail.push(`【没收的钱】${me.name}发来${pend.type==='hb'?'红包':'转账'}¥${pend.amt}${pend.content?'：'+pend.content:''}，写 [收下] 或 [退回]。`);
   }
   if(C.inner){const styles=chars.map(c=>c.innerStyle?`${c.name}：${mac(c.innerStyle)}`:'').filter(Boolean).join('；');
-    rules.push(`【${C.innerName||'心声'}】正文后另起一行写 <inner>…</inner>${G('，每人一个，「名字：」开头','')}。${mac(C.innerStyle||INNER_DEF)}${styles?'（'+styles+'）':''}提到${me.name}只用${cname}私下对TA的亲密叫法（宝宝、乖乖这类，按人设来，想怎么叫怎么叫）；只有生气时才直呼名字。不写「她」「他」「用户」，也不干巴巴叫全名。`)}
+    rules.push(`【${C.innerName||'心声'}】正文后另起一行写 <inner>…</inner>${G('，每人一个，「名字：」开头','')}。${mac(C.innerStyle||INNER_DEF)}${styles?'（'+styles+'）':''}提到${me.name}只用${cname}自己最想叫TA的叫法（不限定哪种，按人设和当下的心情，想怎么叫怎么叫）；只有生气时才直呼名字。不写「她」「他」「用户」，也不干巴巴叫全名。`)}
   tail.push('【心情】\n'+chars.map(c=>`${c.name}：${c.mood?c.mood+'，':''}${tideOf(c)}/100`).join('\n'));
   rules.push(`【心情】${cname}有情绪，按人设露在话里，跟着聊天起伏，不突然跳变。心情0到100，现在的数值在「此刻的情况」里。最后一行写 <tide>${G('名字：','')}数字|两个字的心情</tide>，如 <tide>${G(nm+'：','')}68|吃醋</tide>；闲聊动5以内，有事动10左右。生气可以，不说伤人的话。`);
   if(!group&&mode==='online'&&chars[0]){const r=rel(chars[0]);
@@ -1731,7 +1731,7 @@ function buildCtx(t,o={}){
   if(mode==='offline'){const w=num(off.words)||500,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字，不替${me.name}说新台词、做决定${(off.upov||'second')==='second'?`；叙述里称呼${me.name}只用「你」，不写名字、不写她或他`:''}${(l=>l.length?`；${l.join('和')}别漏`:'')([C.think&&'开头的 <think>',C.inner&&'结尾的 <inner>'].filter(Boolean))}）`,last=msgs[msgs.length-1];
     if(last&&last.role==='user')last.content+='\n\n'+note;else msgs.push({role:'user',content:note})}
   const end=[];
-  if(C.think)end.push(`【思考】先在 <think>…</think> 里${mac(C.thinkStyle||THINK_DEF)}${C.inner?`感受留给${C.innerName||'心声'}，这里只想打算。`:''}提到${me.name}只用${cname}私下对TA的亲密叫法（宝宝、乖乖这类，按人设来，想怎么叫怎么叫）；只有生气时才直呼名字。不写「她」「他」「用户」，也不干巴巴叫全名。`);
+  if(C.think)end.push(`【思考】先在 <think>…</think> 里${mac(C.thinkStyle||THINK_DEF)}${C.inner?`感受留给${C.innerName||'心声'}，这里只想打算。`:''}提到${me.name}只用${cname}自己最想叫TA的叫法（不限定哪种，按人设和当下的心情，想怎么叫怎么叫）；只有生气时才直呼名字。不写「她」「他」「用户」，也不干巴巴叫全名。`);
   const tw=C.think,iw=!!C.inner;
   if(mode!=='offline')end.push(`【回复格式】${tw?'先写 <think>…</think>，再':''}把发给${me.name}的话全写进 <reply>…</reply>，一行一条，[图片] [表情] 这类标记也在里面${iw?'；<inner> 和 <tide> 写在 </reply> 后面':'；<tide> 写在 </reply> 后面'}。<reply> 外的字不会发出去，给自己的分析${tw?'只写在 <think> 里':'不要写'}。每次都要写全。\n例：${tw?'<think>…</think>\n':''}<reply>\n第一条\n第二条\n</reply>${iw?'\n<inner>…</inner>':''}\n<tide>…</tide>`);
   else if(tw||iw)end.push(`【别漏】每次都按这个顺序写全：${tw?'第一行 <think>…</think>，然后':''}正文${iw?'，正文后另起一行 <inner>…</inner>':''}。\n例：${tw?'<think>…</think>\n':''}正文……${iw?'\n<inner>…</inner>':''}`);
@@ -1970,7 +1970,7 @@ async function reply(t,extra,stamps){
     for(let k=0;k<2&&ctx.mode==='offline'&&r.cut&&r.text;k++){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:'（上面写到一半断了。从断掉的那个字接着把这一段写完，不重复前面，不另起开头。）'}],{thoughts:true,...offMax});r.text+=r2.text;r.cut=r2.cut&&!!r2.text}catch(e){break}}
     const ex=extractExtras(r.text,ctx.mode!=='offline');if(ctx.mode!=='offline'&&!ex.fmt)await sortLeak(ex,ctx);if(!S.chat.think)ex.think='';
     // 单聊里思维链和心声提到的「他/她」就是用户：一律换成「你」，不猜性别
-    if(!ctx.group){const u=x=>String(x||'').replace(/[他她]/g,'你');ex.think=u(ex.think);ex.inner=ex.inner.map(u)}
+    if(!ctx.group){const u=x=>String(x||'').replace(/[他她]|TA/g,'你');ex.think=u(ex.think);ex.inner=ex.inner.map(u)}
     applyTide(ctx,ex);applyActs(ctx,ex);if(!ctx.group&&ctx.chars[0]){applyMoney(t,ex,ctx.chars[0]);applyCards(t,ex,ctx.chars[0])}save();
     const callWas=spUse(t).callN,askedCall=/电话|视频|语音|通话|打给|打过来/.test(String([...t.msgs].reverse().find(m=>m.from==='me')?.content||''));
     const callAct=(callWas<0||callWas>=25||askedCall)&&ex.acts.find(a=>a==='语音通话'||a==='视频通话');
@@ -2002,7 +2002,7 @@ async function backfill(t,ctx,posted,lack){const C=S.chat,last=posted[posted.len
   try{const txt=String(await callAI(sysFor(c,''),[{role:'user',content:`${recent?`最近的对话：\n${recent}\n\n`:''}${c.name}刚刚回的是：\n${said}\n\n按${c.name}的人设，用${c.name}自己的口吻、第一人称，提到${me.name}只用平时的亲密叫法、不写他/她，输出${ask.length}行，别的都不要：\n${ask.join('\n')}`}],{max:512,side:true,temp:.8}));
     const one=ask.length===1?txt.trim().split('\n').filter(Boolean)[0]?.replace(/^(思考|心声)[:：]\s*/,'').trim()||'':'';
     const pick=k=>{const x=(txt.match(new RegExp(k+'[:：]\\s*([^\\n]+)'))||[])[1]?.trim()||one;return said.split('\n').some(l=>l.trim()===x)?'':x};
-    const u=x=>ctx.group?x:String(x||'').replace(/[他她]/g,'你');
+    const u=x=>ctx.group?x:String(x||'').replace(/[他她]|TA/g,'你');
     if(lack.think){const x=u(brief(pick('思考')));if(x)posted[0].think=x}
     if(lack.inner){const x=withKao(cuteKao(u(pick('心声'))),tideOf(c));if(x){const m=[...posted].reverse().find(p=>p.from===c.id)||last;m.inner=x}}
     save();onThreadUpdate(t);if(cur()?.v==='chat'&&cur().id===t.id)render(true)}catch(e){}}
