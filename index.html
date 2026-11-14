@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.14.5';
+window.BYJ_VER='2026.11.14.6';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -646,7 +646,27 @@ html.dark .chat .msg.me .bub{background:var(--bub-me);color:#fff;text-shadow:non
 html.dark .mheart svg{fill:#3a3a3c;stroke:#77777c}
 html.dark{--bg:#000;--bg2:#141416;--ink:#e8e8ea;--muted:#8e8e8e;--line:rgba(255,255,255,.12);--panel-rgb:28,28,30;--accent:#48484a;--accent-rgb:72,72,74;--accent-soft:#2c2c2e;--deep:#d1d1d1;--accent-ink:#f2f2f2;--red:#636366;
   --bub:#2c2c2e;--bub-me:#4a4a4a;--lift:none;--glass:28,28,30;--gb:rgba(255,255,255,.08);--gh:rgba(255,255,255,.12);--ts:rgba(0,0,0,.6);color-scheme:dark;background:#000!important}
-html.dark body,html.dark .wall,html.dark .app .wall2{background:#000!important}
+html.dark:not(.wp) body,html.dark:not(.wp) .wall,html.dark:not(.wp) .app .wall2{background:#000!important}
+/* 壁纸 + 半透明：透明只靠 alpha（不费电）；模糊只留在不动的东西上（图标、小组件、顶栏底栏），气泡不模糊 */
+html.wp .wall::after{content:"";position:absolute;inset:0;pointer-events:none;background:rgba(255,255,255,.1)}
+html.dark.wp .wall::after{background:rgba(0,0,0,.4)}
+html.wp .hclock{color:rgba(255,255,255,.94);text-shadow:0 1px 16px rgba(0,0,0,.4)}
+html.wp .ic-n,html.wp .ava{color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+html.wp .ic-g{color:#fff}html.wp .ic-g svg{filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
+html.wp .content .ic-g{color:var(--deep)}html.wp .content .ic-g svg{filter:none}
+html.wp .polaroid .ph-c{color:rgba(255,255,255,.9);text-shadow:0 1px 3px rgba(0,0,0,.45)}
+html.dark.wp{--bub:rgba(44,44,46,max(.42,calc(var(--alpha) - .14)));--bub-me:rgba(104,104,110,max(.5,calc(var(--alpha) - .08)))}
+html.dark.wp .ic-g::before{background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.22),rgba(255,255,255,.07) 45%,rgba(0,0,0,.2) 100%);border-color:rgba(255,255,255,.24);box-shadow:0 8px 18px rgba(0,0,0,.22)}
+html.dark.wp .ic-g::after{display:block;background:rgba(255,255,255,.3)}html.dark.wp .ic-g.sm::after{display:none}
+html.dark.wp .polaroid{background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.26)}html.dark.wp .polaroid .pimg{background-color:rgba(0,0,0,.2)}
+html.dark.wp .ava .av{background:rgba(44,44,46,.45);border-color:rgba(255,255,255,.35)}
+html.wp{--bub-ai:rgba(var(--panel-rgb),max(.3,calc(var(--alpha) - .2)))}
+html.wp:not(.dark){--bub-me:rgba(112,112,122,max(.4,calc(var(--alpha) - .18)))}
+html.wp .chat .msg.ai .bub{background:var(--bub-ai)}html.wp .chat .msg.ai .col>.bub::before{border-right-color:var(--bub-ai)}
+html.wp .chat .msg.me .bub{background:var(--bub-me)}html.wp .chat .msg.me .col>.bub::before{border-left-color:var(--bub-me)}
+/* 进了应用，主屏的浮动和波纹就停下，不在后面白白耗电 */
+body:has(#app.open) #home *{animation-play-state:paused!important}
+.wpv{height:160px;border-radius:14px;background:center/cover no-repeat;border:1px solid var(--line)}
 html.dark .bub,html.dark .msg.me .bub,html.dark .narr,html.dark .narr.me{border-color:rgba(255,255,255,.06);text-shadow:none}
 html.dark .msg.me .callcard{background:var(--bub-me);border-color:var(--bub-me)}
 html.dark .hclock{color:#e8e8ea;text-shadow:none}
@@ -863,7 +883,7 @@ const isOldExample=p=>p&&p.name==='Claude'&&!String(p.key||'').trim()&&/anthropi
 const def=()=>({v:4,loc:null,wx:{},
   media:{img:{base:'',key:'',model:'',size:'1024x1024',style:'',auto:false},imgP:[],tts:{base:'',key:'',model:'',voice:''}},
   api:{active:'a1',side:'',profiles:[API_BLANK('a1')]},
-  look:{font:'system',customFont:null,fs:15,alpha:.92,wallpaper:'',photo:'',caption:'',icons:{},appWalls:{}},
+  look:{font:'system',customFont:null,fs:15,alpha:.92,clear:30,wallpaper:'',photo:'',caption:'',icons:{},appWalls:{}},
   chat:CHAT_DEF(),
   study:{},plan:{days:{},sup:'',lang:'',level:'入门',study:false},
   masks:[{id:'m1',name:'user',avatar:'',bday:'',persona:''}],activeMask:'m1',wallet:520,
@@ -934,7 +954,7 @@ for(const K of['evWipe','memWipe'])if(!s[K]||typeof s[K]!=='object')s[K]={};if(!
   {const up={[PLAY_OLD]:PLAY_DEF,[PLAY_OLD3]:PLAY_DEF,[PLAY_OLD4]:PLAY_DEF,[LANG_OLD]:LANG_DEF,[LANG_OLD2]:LANG_DEF,[REP_OLD]:REP_DEF,[REP_OLD2]:REP_DEF,[CLICHE_OLD]:CLICHE_DEF,[CLICHE_OLD2]:CLICHE_DEF,[CALL_OLD]:CALL_DEF};s.presets.forEach(p=>{(p.items||[]).forEach(i=>{if(up[i.content])i.content=up[i.content]});if((p.items||[]).some(i=>i.content===REP_DEF))p.items=p.items.filter(i=>i.content!==CLICHE_DEF);p.items=(p.items||[]).filter(i=>i.content!==LANG_DEF)})}
   s.presets.forEach(withCore);
   if(!d.loreV)s.books.forEach(b=>(b.entries||[]).forEach(e=>{if(e.light==='yellow'&&!String(e.keys||'').trim())e.light='green'}));s.loreV=1;
-  {const L=s.look;delete L.wallpaper;delete L.appWalls;delete L.alpha;delete L.dark;delete L.font;delete L.customFont;
+  {const L=s.look;delete L.appWalls;delete L.alpha;delete L.dark;delete L.font;delete L.customFont;
     s.threads.forEach(t=>delete t.wall);s.chars.forEach(c=>{delete c.wall;delete c.vbg});s.masks.forEach(m=>delete m.banner)}
   {const A=s.api;
     if(A.profiles.some(isOldExample)){A.profiles=A.profiles.filter(p=>!isOldExample(p));if(!A.profiles.length)A.profiles=[API_BLANK(uid())];if(!A.profiles.some(p=>p.id===A.active))A.active=A.profiles[0].id;if(A.side&&!A.profiles.some(p=>p.id===A.side))A.side=''}
@@ -1000,6 +1020,9 @@ function applyLook(){
   setAppH();r.style.setProperty('--fs',L.fs+'px');
   if(FONTS[L.font])r.style.setProperty('--body',FONTS[L.font]+',-apple-system,"PingFang SC",sans-serif');else r.style.removeProperty('--body');
   const dk=isNight();r.classList.toggle('dark',dk);
+  {const wp=L.wallpaper||'',W=$('#wall'),cl=Math.min(60,Math.max(0,num(L.clear)??30));r.classList.toggle('wp',!!wp);
+    if(W&&W._wp!==wp){W._wp=wp;W.style.background=wp?`url("${String(wp).replace(/"/g,'%22')}") center/cover no-repeat`:''}
+    if(wp)r.style.setProperty('--alpha',(1-cl/100).toFixed(2));else r.style.removeProperty('--alpha')}
   document.querySelector('meta[name=theme-color]').content=dk?'#000000':'#f5f5f5';
 }
 
@@ -1249,7 +1272,7 @@ function paintCanvas(){
   r.backgroundPosition=wp?'center top':'';
   r.backgroundRepeat='no-repeat';r.backgroundAttachment='';
 }
-function viewWall(){return''}
+function viewWall(){return S.look.wallpaper||''}
 const tabs=(list,on,act='tab')=>`<div class="tabs" role="tablist">${list.map(([k,l])=>`<button class="${k===on?'on':''}" data-a="${act}" data-t="${k}">${l}</button>`).join('')}</div>`;
 
 const provOf=p=>/generativelanguage\.googleapis/.test(p.base||'')?'gemini':/anthropic\.com/.test(p.base||'')?'claude':'openai';
@@ -3097,8 +3120,16 @@ data(v){
     after(){const n=navigator.storage;if(!n)return;n.estimate?.().then(e=>{const x=$('#dataUse');if(x&&e?.usage)x.textContent=` · 全部 ${mb(e.usage)}`}).catch(()=>{})}}
 },
 settings(v){
-  const tab=['chat','img','tts','data'].includes(v.tab)?v.tab:'chat';v.tab=tab;
-  const head=tabs([['chat','聊天'],['img','生图'],['tts','语音'],['data','数据']],tab);
+  const tab=['chat','img','tts','look','data'].includes(v.tab)?v.tab:'chat';v.tab=tab;
+  const head=tabs([['chat','聊天'],['img','生图'],['tts','语音'],['look','外观'],['data','数据']],tab);
+  if(tab==='look'){const L=S.look,cl=Math.min(60,Math.max(0,num(L.clear)??30));
+    return{title:'设置',body:head+`
+    <div class="panel"><h2>壁纸</h2>${L.wallpaper?`<div class="wpv" style="background-image:url(${L.wallpaper})"></div>`:''}
+      <div class="btns">${fileBtn(L.wallpaper?'换一张':'选一张','accept="image/*" data-img="wall"')}${L.wallpaper?'<button class="btn o" data-a="clrWall">去掉</button>':''}</div>
+      <p class="hint">主屏和每个页面都用这张。设了壁纸，图标、小组件、气泡的半透明才看得出来。</p></div>
+    ${L.wallpaper?`<div class="panel"><h2>半透明</h2>
+      <label class="f">透明程度<span class="inline"><input type="range" id="lk-clear" min="0" max="60" step="5" data-s="look" data-k="clear" value="${cl}"><output>${cl}</output></span></label>
+      <p class="hint">越大越透。气泡只透不糊，模糊只用在不动的地方，不会明显费电。</p></div>`:''}`}}
   if(tab==='chat'){
     const card=p=>`<div class="row apic${p.id===S.api.active?' on':''}"><span class="pv">${esc((p.name||'?')[0])}</span><button class="meta" data-a="editApi" data-id="${p.id}"><b>${esc(p.name)}</b><small>${esc(p.model||'没填模型')}${hostOf(p.base)?' · '+esc(hostOf(p.base)):''}${p.key?'':' · 没填 Key'}</small></button><span class="side h">${p.id===S.api.active?'<span class="pill fill">默认</span>':`<button class="tb" data-a="useApiId" data-id="${p.id}">设为默认</button>`}${(n=>n?`<small class="pill">${n} 个角色在用</small>`:'')(S.chars.filter(c=>c.api===p.id).length)}</span></div>`;
     return{title:'设置',body:head+`
@@ -3586,6 +3617,7 @@ const A={
     el.disabled=true;el.textContent='连接中…';
     try{const b=await ttsAudio(line);try{vAudio&&vAudio.pause()}catch(e){}vAudio=new Audio(URL.createObjectURL(b));vAudio.play().catch(()=>{});toast('连上啦 🫧')}catch(e){toast(e.message,6500)}
     finally{if(el.isConnected){el.disabled=false;el.textContent='测试连接'}}},
+  clrWall(){S.look.wallpaper='';save();applyLook();render(true)},
   clrAppWall(el){delete S.look.appWalls[el.dataset.id];save();render(true)},
   switchMask(){sheet(`<h3>换面具</h3>`+S.masks.map(m=>`<button class="opt l" data-a="useMask" data-id="${m.id}">${av(m,32)}${esc(m.name)}${m.id===S.activeMask?' ✓':''}</button>`).join(''))},
   moCoverDel(){const m=maskById(cur().id);if(m){delete m.mocover;save();render(true)}},
