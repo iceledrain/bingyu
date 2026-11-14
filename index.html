@@ -1667,15 +1667,16 @@ function buildCtx(t,o={}){
     rules.push(pov);rules.push(`【见面】${oshort?`文风${ost}，`:''}每次${Math.round((num(off.words)||500)*.8)}到${Math.round((num(off.words)||500)*1.2)}字。场景里该有的人要写出来：店员、路人、朋友、家人、同事，给个称呼，让他们说话做事、和你们有来有往，戏份别盖过${cname}和${me.name}。`);
     {rules.push(`【推剧情】${cname}掌控节奏，${me.name}只跟着。每段至少推进一步：${cname}直接做、直接定（去哪、吃什么、接下来干什么），带出新的事，或让时间往前走，不原地打转。不问「好不好」「要不要」「想去哪」，不给选项让TA挑。结尾停在${cname}已经做出的动作或新冒出来的情况上，不停在提问、等TA表态上。${me.name}回得短或没回就当同意，接着推。TA顺着走的小动作、一两句简短反应可以直接写，不写TA的心理和大段台词；只有会改变两人关系的大事才留给TA。`);
       const ln=[...t.msgs].reverse().find(m=>m.type==='narr');if(ln&&ln.from!=='me')tail.push(`【接着写】${me.name}这轮没写，接着往后推，别重复上一段。`)}
+    if(group)rules.push(`【都在场】${cname}都在${me.name}身边，面对面。每一段里每个人都要有动作和台词，彼此之间也搭话、抬杠、配合，不是轮流只对${me.name}说。谁来带节奏按人设和当下的情况，可以换人接手，但每段都得有人拿主意、往前推，别互相等、互相让。`);
     if(!oshort)rules.push(`【文风】${ost}`);
     rules.push(`【描写】写${cname}的衣着外貌、神态动作、语气，和场景的光线、声音、气味（按【现在】）。挑一两个具体细节，和对白交替写，不堆形容词。`);
-    rules.push(`【格式】小说段落，对白用「」。段落短，每段最多三句，对白单独成段。不一行一句，不用 [图片] 这类格式，不写「名字：」。`);
+    rules.push(`【格式】小说段落，对白用「」。段落短，每段最多三句，对白单独成段。不一行一句，不用 [图片] 这类格式，不写「名字：」。现在是面对面，不是在手机上打字：不写成聊天气泡，不发消息。`);
     if(o.ev){const e=offEvent(t,off,me);if(e)tail.push(e)}
     {const phAll=t.msgs.filter(m=>m.type!=='narr'&&!m.recalled&&!isMark(m));let ph=phAll.filter(m=>hist.includes(m));if(ph.length<30)ph=phAll.slice(-30);
       const line=m=>m.type==='sys'?`（${m.content}）`:(m.from==='me'?me.name:charById(m.from)?.name||'?')+'：'+(m.type==='call'?`[${m.kind==='video'?'视频':'语音'}通话] ${String(m.content||'').replace(/\n/g,' / ')}`:pv(m));
       const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal&&lastReal.type!=='narr')ctxs.push(`【刚见面】刚才在手机上聊（见下），现在见面了，接着往下写。`);if(ph.length)ctxs.push(`【见面前在手机上聊的】（只是背景，别照这个格式写）\n`+ph.map(line).join('\n'))}
   }else{
-    rules.push(group?`【群聊】群里有${me.name}和${cname}。大家互相接话、吐槽、起哄，各按人设说话，彼此不暧昧，不必人人都说。每行「名字：内容」，一行一条，不替${me.name}说话。`
+    rules.push(group?`【群聊】这是手机上的群，群里有${me.name}和${cname}，大家都不在一起，只隔着屏幕打字。只发消息：不写动作、神态、场景和旁白，不用（）或*写动作，不写小说段落。每行「名字：内容」，一行一条，不替${me.name}说话。\n【有来有往】这一轮每个人都要开口，至少一条。先接${me.name}刚说的，再互相接：吐槽、起哄、抬杠、拆台、帮腔，点名问对方，也把话头抛回给${me.name}。不要各说各的，不要排着队一人对${me.name}说一句。顺序打散，一个人说完别人插进来，他可以再接。各按人设说话，话多话少、冷热都不一样，彼此不暧昧。`
       :`【聊天】一行一个气泡，不写名字。不复述，不说教，不总结，不必句句提问，小事自己拿主意。语气和主动程度都以人设为准：开朗就开朗，冷就冷，温柔就温柔；人设有两面或反差，两面都写出来。别因为关系亲密就都写成同一种甜腻黏人的样子。人设黏人、爱亲近的，可以常说想亲想抱；不是这种人设，就别自己每轮都提。但${me.name}主动靠近的时候要回应，不躲不拖。`);
     if(!group)rules.push(`【分享生活】按人设带出自己在干什么、刚遇到的事、吃到看到的东西，偶尔配一张 [图片:…]。和${me.name}一起的事，只提真的聊过、做过的，没发生过的别说成发生过。话题干了就自己起新的，或拉${me.name}一起做点什么（听歌、玩游戏、约见面），具体、有梗。`);
     {const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal?.type==='narr')ctxs.push(`【刚分开】刚见过面，现在回到手机上。带着那时的情绪，只发消息，不写动作和长段。`)}
@@ -1706,7 +1707,7 @@ function buildCtx(t,o={}){
     if(pend)tail.push(`【没收的钱】${me.name}发来${pend.type==='hb'?'红包':'转账'}¥${pend.amt}${pend.content?'：'+pend.content:''}，写 [收下] 或 [退回]。`);
   }
   if(C.inner){const styles=chars.map(c=>c.innerStyle?`${c.name}：${mac(c.innerStyle)}`:'').filter(Boolean).join('；');
-    rules.push(`【${C.innerName||'心声'}】正文后另起一行写 <inner>…</inner>${G('，每人一个，「名字：」开头','')}。${mac(C.innerStyle||INNER_DEF)}${styles?'（'+styles+'）':''}${C.think?'和思维链不一样：那边是怎么想，这里是嘴上没说出来的那句话。':''}提到${me.name}就用${cname}平时叫的那个：老婆、宝宝、乖乖、小乖、姐姐、${'小'+String(me.name||'').slice(-1)}，或者别的，看人设和当时的心情。不叫全名（气急了除外），不写「她」「他」「用户」。`)}
+    rules.push(`【${C.innerName||'心声'}】正文后另起一行写 <inner>…</inner>${G('，里面每人一行，「名字：」开头，每人只写自己的一句，谁也别漏','')}。${mac(C.innerStyle||INNER_DEF)}${styles?'（'+styles+'）':''}${C.think?'和思维链不一样：那边是怎么想，这里是嘴上没说出来的那句话。':''}提到${me.name}就用${cname}平时叫的那个：老婆、宝宝、乖乖、小乖、姐姐、${'小'+String(me.name||'').slice(-1)}，或者别的，看人设和当时的心情。不叫全名（气急了除外），不写「她」「他」「用户」。`)}
   tail.push('【心情】\n'+chars.map(c=>`${c.name}：${c.mood?c.mood+'，':''}${tideOf(c)}/100`).join('\n'));
   rules.push(`【心情】${cname}有情绪，按人设露在话里，跟着聊天起伏，不突然跳变。心情0到100，现在的数值在「此刻的情况」里。最后一行写 <tide>${G('名字：','')}数字|两个字的心情</tide>，如 <tide>${G(nm+'：','')}68|吃醋</tide>；闲聊动5以内，有事动10左右。生气可以，不说伤人的话。`);
   if(!group&&mode==='online'&&chars[0]){const r=rel(chars[0]);
@@ -1727,13 +1728,13 @@ function buildCtx(t,o={}){
   {const end=msgs.length;
     items.filter(inChat).map(i=>({i,d:Math.max(0,Math.floor(+i.depth))})).sort((a,b)=>b.d-a.d)
       .forEach(({i,d},k)=>msgs.splice(Math.max(pre.length,end-d)+k,0,{role:i.role==='assistant'?'assistant':'user',content:mac(i.content)}))}
-  if(mode==='online'&&(C.think||C.inner))tail.push(`【这次回复】照【回复格式】写全：${C.think?'<think>…</think>、':''}<reply>…</reply>${C.inner?'、<inner>…</inner>':''}、<tide>…</tide>，一样都不能少。`);
+  if(mode==='online'&&(C.think||C.inner))tail.push(`【这次回复】照【回复格式】写全：${C.think?'<think>…</think>、':''}<reply>…</reply>${C.inner?'、<inner>…</inner>':''}、<tide>…</tide>，一样都不能少。${group?`现在是在手机群里，<reply> 里只有消息，每行「名字：内容」，每个人都说话，不写动作和旁白。`:''}`);
   if(tail.length){let k=msgs.length;while(k>0&&msgs[k-1].role==='user'&&k>pre.length)k--;const last=k<msgs.length;
     msgs.splice(k,0,{role:'user',content:`（此刻的情况，系统告诉你的，不是${me.name}发的消息）\n`+tail.join('\n\n')+(last?`\n\n（下面是${me.name}发的）`:'')})}
-  if(mode==='offline'){const w=num(off.words)||500,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字，${cname}带节奏往前推，不问${me.name}意见，结尾不抛问题${(off.upov||'second')==='second'?`；叙述里称呼${me.name}只用「你」，不写名字、不写她或他`:''}${(l=>l.length?`；${l.join('和')}别漏`:'')([C.think&&'开头的 <think>',C.inner&&'结尾的 <inner>'].filter(Boolean))}）`,last=msgs[msgs.length-1];
+  if(mode==='offline'){const w=num(off.words)||500,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字，${cname}带节奏往前推，不问${me.name}意见，结尾不抛问题${group?'；每个人都有戏份，互相也说话':''}；现在是面对面，写小说段落，不写成手机消息${(off.upov||'second')==='second'?`；叙述里称呼${me.name}只用「你」，不写名字、不写她或他`:''}${(l=>l.length?`；${l.join('和')}别漏`:'')([C.think&&'开头的 <think>',C.inner&&'结尾的 <inner>'].filter(Boolean))}）`,last=msgs[msgs.length-1];
     if(last&&last.role==='user')last.content+='\n\n'+note;else msgs.push({role:'user',content:note})}
   const end=[];
-  if(C.think)end.push(`【思考】先在 <think>…</think> 里${mac(C.thinkStyle||THINK_DEF)}${C.inner?`感受留给${C.innerName||'心声'}，别重复。`:''}提到${me.name}用${cname}平时的叫法，不写「她」「他」「用户」。`);
+  if(C.think)end.push(`【思考】先在 <think>…</think> 里${mac(C.thinkStyle||THINK_DEF)}${C.inner?`感受留给${C.innerName||'心声'}，别重复。`:''}${group?'群里每人一行，「名字：」开头，各想各的，谁也别漏。':''}提到${me.name}用${cname}平时的叫法，不写「她」「他」「用户」。`);
   const tw=C.think,iw=!!C.inner;
   if(mode!=='offline')end.push(`【回复格式】${tw?'先写 <think>…</think>，再':''}把发给${me.name}的话全写进 <reply>…</reply>，一行一条，[图片] [表情] 这类标记也在里面${iw?'；<inner> 和 <tide> 写在 </reply> 后面':'；<tide> 写在 </reply> 后面'}。<reply> 外的字不会发出去，给自己的分析${tw?'只写在 <think> 里':'不要写'}。每次都要写全。\n例：${tw?'<think>…</think>\n':''}<reply>\n第一条\n第二条\n</reply>${iw?'\n<inner>…</inner>':''}\n<tide>…</tide>`);
   else if(tw||iw)end.push(`【别漏】每次都按这个顺序写全：${tw?'第一行 <think>…</think>，然后':''}正文${iw?'，正文后另起一行 <inner>…</inner>':''}。\n例：${tw?'<think>…</think>\n':''}正文……${iw?'\n<inner>…</inner>':''}`);
@@ -1776,7 +1777,7 @@ function stripPlan(out,thinkOn){const me=mask().name,lines=out.split('\n'),cut=[
   const rest=lines.join('\n').trim();return rest?{out:rest,plan:cut.join('\n')}:{out,plan:''}}
 // 思维链只留一两句
 function brief(x){x=String(x||'').trim();if(!x)return'';const ss=(x.match(/[^。！？!?…~～\n]+[。！？!?…~～]*/g)||[]).map(z=>z.trim()).filter(Boolean);let o=ss[0]||'';if([...o].length>24)o=[...o].slice(0,23).join('')+'…';return o}
-function extractExtras(out,chat=true){
+function extractExtras(out,chat=true,group=false){
   let think='',inner=[];
   // MiniMax 常把标签写歪：</t> 当 </think>；<think> 不收尾，或拿 </reply> 来收尾。先扶正再拆
   out=out.replace(/<\/t>/gi,'</think>');
@@ -1804,7 +1805,8 @@ function extractExtras(out,chat=true){
   out=out.replace(/<profile>([\s\S]*?)<\/profile>/gi,(_,x)=>{prof.push(x.trim());return''});
   const cards=[];out=out.replace(/\[送亲属卡[:：]\s*([\d.]*)[^\]]*\]/g,(_,a)=>{cards.push({give:1,amt:Math.max(0,+a||0)});return''}).replace(/\[刷亲属卡[:：]([^:：\]]+)[:：]\s*([\d.]+)[^\]]*\]/g,(_,w,a)=>{cards.push({what:w.trim(),amt:+a||0});return''});
   out=out.replace(/\[(拉黑|解除拉黑|删除好友|沉默|收下|退回|语音通话|视频通话|拒接|挂断|查手机)\]/g,(_,x)=>{acts.push(x);return''});
-  think=brief(think.replace(/<\/?[a-z]{1,8}>/gi,' ').trim());
+  think=think.replace(/<\/?[a-z]{1,8}>/gi,' ').trim();
+  think=group?think.split('\n').map(l=>{const m=l.trim().match(/^([^:：\n]{1,30})[:：]\s*(.*)$/);return m?(x=>x?m[1].trim()+'：'+x:'')(brief(m[2])):brief(l)}).filter(Boolean).slice(0,8).join('\n'):brief(think);
   return{text:out.trim(),think:think.trim(),inner,tide,acts,prof,cards,fmt};
 }
 async function sortLeak(ex,ctx){const lines=ex.text.split('\n').map(l=>l.trim()).filter(Boolean),mark=l=>/^\[[^\]]+\]$/.test(l);
@@ -1842,13 +1844,21 @@ function parseReply(out,ctx){
 const BUBBLE_MAX=8,CALL_MAX=3;
 const bubbleCap=()=>Math.min(8,Math.max(num(S.chat.onMax)||3,6));
 function capBubbles(res){const cap=BUBBLE_MAX,n={};return res.filter(p=>(n[p.from]=(n[p.from]||0)+1)<=cap)}
+// 群里：思维链、心声按「名字：」一行行拆开，各归各的。线上挂到那个人自己的消息上；见面是一整段，带着名字列在这段下面
+function byName(txt,ctx){const out=[];let curr=null;
+  for(const l of String(txt||'').split('\n').map(x=>x.trim()).filter(Boolean)){const m=l.match(/^\**([^:：*]{1,30})\**\s*[:：]\s*(.*)$/),c=m&&ctx.chars.find(c=>c.name===m[1].trim()||(c.remark&&c.remark===m[1].trim()));
+    if(c){curr={c,text:m[2].trim()};out.push(curr)}else if(curr)curr.text+=(curr.text?'\n':'')+l;else out.push({c:null,text:l})}
+  return out.filter(x=>x.text)}
 function attachExtras(parts,ex,ctx){
   if(!parts.length)return;
-  if(ex.think)parts[0].think=ex.think;
-  if(!ex.inner.length)return;
-  if(ctx.group){for(const x of ex.inner){const m=x.match(/^([^:：]{1,30})[:：]\s*([\s\S]*)$/);const c=m&&ctx.chars.find(c=>c.name===m[1].trim()||c.remark===m[1].trim());
-      const target=c?[...parts].reverse().find(p=>p.from===c.id):parts[parts.length-1];if(target)target.inner=(target.inner?target.inner+'\n':'')+(c?withKao(m[2],tideOf(c)):x)}}
-  else{const c=ctx.chars&&ctx.chars[0];parts[parts.length-1].inner=withKao(ex.inner.join('\n'),c?tideOf(c):60)}
+  if(!ctx.group){if(ex.think)parts[0].think=ex.think;
+    if(ex.inner.length){const c=ctx.chars&&ctx.chars[0];parts[parts.length-1].inner=withKao(ex.inner.join('\n'),c?tideOf(c):60)}return}
+  const add=(p,k,x)=>{if(p&&x)p[k]=(p[k]?p[k]+'\n':'')+x},one=parts.length===1&&parts[0].type==='narr',seenT=new Set(),seenI=new Set();
+  for(const x of byName(ex.think,ctx)){if(x.c){if(seenT.has(x.c.id))continue;seenT.add(x.c.id)}
+    if(one)add(parts[0],'think',x.c?x.c.name+'：'+x.text:x.text);else add(x.c?parts.find(p=>p.from===x.c.id):parts[0],'think',x.text)}
+  for(const x of byName(ex.inner.join('\n'),ctx)){if(x.c){if(seenI.has(x.c.id))continue;seenI.add(x.c.id)}
+    const tx=x.c?withKao(x.text,tideOf(x.c)):x.text;
+    if(one)add(parts[0],'inner',x.c?x.c.name+'：'+tx:tx);else add(x.c?[...parts].reverse().find(p=>p.from===x.c.id):parts[parts.length-1],'inner',tx)}
 }
 function applyTide(ctx,ex){
   for(const x of ex.tide||[]){const m=x.match(/^(?:([^:：|｜]{1,30})[:：])?\s*(\d{1,3})\s*(?:[|｜/]\s*(.+))?$/);if(!m)continue;
@@ -1970,7 +1980,7 @@ async function reply(t,extra,stamps){
     if(S.chat.think&&r.text&&!/^\s*(?:\]?<\]?minimax\[?>\[?)?\s*<think>/i.test(r.text)){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:`（上面这条没按顺序写，作废。重写：第一行先写 <think>一句打算</think>，然后才是${ctx.mode==='offline'?'正文':' <reply>…</reply>'}，最后 <inner>…</inner>${ctx.mode==='offline'?'':' 和 <tide>…</tide>'}。内容可以和刚才一样。）`}],{thoughts:true,...offMax});if(/<think>/i.test(r2.text))r=r2}catch(e){}}
     // 见面的长段写到上限被掐断：接着断的地方再要一次，拼起来，最多接两回
     for(let k=0;k<2&&ctx.mode==='offline'&&r.cut&&r.text;k++){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:'（上面写到一半断了。从断掉的那个字接着把这一段写完，不重复前面，不另起开头。）'}],{thoughts:true,...offMax});r.text+=r2.text;r.cut=r2.cut&&!!r2.text}catch(e){break}}
-    const ex=extractExtras(r.text,ctx.mode!=='offline');if(ctx.mode!=='offline'&&!ex.fmt)await sortLeak(ex,ctx);if(!S.chat.think)ex.think='';
+    const ex=extractExtras(r.text,ctx.mode!=='offline',ctx.group);if(ctx.mode!=='offline'&&!ex.fmt)await sortLeak(ex,ctx);if(!S.chat.think)ex.think='';
     // 单聊里思维链和心声提到的「他/她」就是用户：一律换成「你」，不猜性别
     if(!ctx.group){const u=x=>String(x||'').replace(/[他她]|TA/g,'你');ex.think=u(ex.think);ex.inner=ex.inner.map(u)}
     applyTide(ctx,ex);applyActs(ctx,ex);if(!ctx.group&&ctx.chars[0]){applyMoney(t,ex,ctx.chars[0]);applyCards(t,ex,ctx.chars[0])}save();
@@ -2005,7 +2015,7 @@ async function backfill(t,ctx,posted,lack){const C=S.chat,last=posted[posted.len
     const one=ask.length===1?txt.trim().split('\n').filter(Boolean)[0]?.replace(/^(思考|心声)[:：]\s*/,'').trim()||'':'';
     const pick=k=>{const x=(txt.match(new RegExp(k+'[:：]\\s*([^\\n]+)'))||[])[1]?.trim()||one;return said.split('\n').some(l=>l.trim()===x)?'':x};
     const u=x=>ctx.group?x:String(x||'').replace(/[他她]|TA/g,'你');
-    if(lack.think){const x=u(brief(pick('思考')));if(x)posted[0].think=x}
+    if(lack.think){const x=u(brief(pick('思考')));if(x)(posted.find(p=>p.from===c.id)||posted[0]).think=x}
     if(lack.inner){const x=withKao(cuteKao(u(pick('心声'))),tideOf(c));if(x){const m=[...posted].reverse().find(p=>p.from===c.id)||last;m.inner=x}}
     save();onThreadUpdate(t);if(cur()?.v==='chat'&&cur().id===t.id)render(true)}catch(e){}}
 
