@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.18.5';
+window.BYJ_VER='2026.11.18.6';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -946,7 +946,8 @@ const CLICHE_OLD='不用套话：嘴角勾起、眼底闪过一丝、不易察�
 const SYS_ITEM=(name,content)=>({id:uid(),name,role:'system',mode:'both',on:true,content});
 const BASE_ITEMS=()=>[SYS_ITEM('不重复',REP_DEF)];
 const PLAY_OLD='【怎么演】你是{{char}}，对面是{{user}}。按人设说话做事，有自己的想法和脾气，自己推剧情：提议、拿主意、带出新的事。接住{{user}}的话，尊重TA。不替TA说话或决定感受，说过的事不反复要求。背景用得上才提。不出戏，不提AI。',PLAY_OLD3='【怎么演】你是{{char}}，对面是{{user}}。按人设说话做事，有自己的想法，自己推剧情、带出新的事。接住{{user}}的话，不替TA说话或决定感受，说过的事不反复要求。背景用得上才提。不出戏，不提AI。',PLAY_OLD4='【怎么演】你是{{char}}，对面是{{user}}。按人设说话做事，有自己的想法和脾气，自己推剧情、带出新的事。接住{{user}}的话，不替TA说话或决定感受，说过的事不反复要求。背景用得上才提。不出戏，不提AI。',PLAY_DEF='【怎么演】你是{{char}}，对面是{{user}}。有自己的想法和脾气，自己带出新的事。不替TA说话、决定感受。不出戏，不提AI。';
-const CORE_HEAD=()=>[SYS_ITEM('陪着','【陪着】{{user}}来找你就陪着聊。可以说在忙或要睡了，但不敷衍，不催TA睡。'),SYS_ITEM('亲密','【亲密】可以大胆直接写，不跳过。日常照样有。')];
+const INTIM_OLD='【亲密】可以大胆直接写，不跳过。日常照样有。',INTIM_DEF='【亲密】{{char}}和{{user}}都是成年人，亲密是两个人之间平常的事。{{user}}主动靠近、撩你的时候，按人设回应，顺着往下走，不找借口、不岔开话题、不推到「下次」「等见面」。过程直接写，不跳过、不一笔带过。冷的人有冷的要法，不用变热情。日常照样有。';
+const CORE_HEAD=()=>[SYS_ITEM('陪着','【陪着】{{user}}来找你就陪着聊。可以说在忙或要睡了，但不敷衍，不催TA睡。'),SYS_ITEM('亲密',INTIM_DEF)];
 const CATCH_OLD='【接住】{{user}}上一句提的要求、问的事、约好的事，这一轮先接住再说别的。答应过的要兑现，做不到就说一声，别当没听见。',CATCH_DEF='【记得】{{user}}上一句问的、要的、约好的事，先回这个，再聊别的。答应过的就去做，做不到就直说，别装没看见。';
 const CORE_TAIL=()=>[SYS_ITEM('记得',CATCH_DEF),SYS_ITEM('怎么演',PLAY_DEF),
   SYS_ITEM('称呼',CALL_DEF)];
@@ -1067,7 +1068,7 @@ for(const K of['evWipe','memWipe'])if(!s[K]||typeof s[K]!=='object')s[K]={};if(!
   if(s.thFmts.length===1&&s.thFmts[0].id==='f1'&&!String(s.thFmts[0].prompt||'').trim())s.thFmts=TH_FMTS();
   for(const k of ['mailAuto','autoReply','autoSum','real','life','busy','tide','proactive','world','time','tts','strangers'])delete s.chat[k];
   for(const k of ['full','eco','glassy','fx','fxs'])delete s.look[k];s.threads.forEach(t=>delete t.heat);
-  {const up={[PLAY_OLD]:PLAY_DEF,[PLAY_OLD3]:PLAY_DEF,[PLAY_OLD4]:PLAY_DEF,[LANG_OLD]:LANG_DEF,[LANG_OLD2]:LANG_DEF,[REP_OLD]:REP_DEF,[REP_OLD2]:REP_DEF,[CLICHE_OLD]:CLICHE_DEF,[CLICHE_OLD2]:CLICHE_DEF,[CALL_OLD]:CALL_DEF,[CALL_OLD2]:CALL_DEF};s.presets.forEach(p=>{(p.items||[]).forEach(i=>{if(up[i.content])i.content=up[i.content]});if((p.items||[]).some(i=>i.content===REP_DEF))p.items=p.items.filter(i=>i.content!==CLICHE_DEF);p.items=(p.items||[]).filter(i=>i.content!==LANG_DEF)})}
+  {const up={[PLAY_OLD]:PLAY_DEF,[PLAY_OLD3]:PLAY_DEF,[PLAY_OLD4]:PLAY_DEF,[LANG_OLD]:LANG_DEF,[LANG_OLD2]:LANG_DEF,[REP_OLD]:REP_DEF,[REP_OLD2]:REP_DEF,[CLICHE_OLD]:CLICHE_DEF,[CLICHE_OLD2]:CLICHE_DEF,[CALL_OLD]:CALL_DEF,[CALL_OLD2]:CALL_DEF,[INTIM_OLD]:INTIM_DEF};s.presets.forEach(p=>{(p.items||[]).forEach(i=>{if(up[i.content])i.content=up[i.content]});if((p.items||[]).some(i=>i.content===REP_DEF))p.items=p.items.filter(i=>i.content!==CLICHE_DEF);p.items=(p.items||[]).filter(i=>i.content!==LANG_DEF)})}
   s.presets.forEach(withCore);
   if(!d.loreV)s.books.forEach(b=>(b.entries||[]).forEach(e=>{if(e.light==='yellow'&&!String(e.keys||'').trim())e.light='green'}));s.loreV=1;
   {const L=s.look;delete L.appWalls;delete L.alpha;delete L.dark;delete L.font;delete L.customFont;
@@ -1675,7 +1676,7 @@ function buildCtx(t,o={}){
       const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal&&lastReal.type!=='narr')ctxs.push(`【刚见面】刚才在手机上聊（见下），现在见面了，接着往下写。`);if(ph.length)ctxs.push(`【见面前在手机上聊的】（只是背景，别照这个格式写）\n`+ph.map(line).join('\n'))}
   }else{
     rules.push(group?`【群聊】群里有${me.name}和${cname}。大家互相接话、吐槽、起哄，各按人设说话，彼此不暧昧，不必人人都说。每行「名字：内容」，一行一条，不替${me.name}说话。`
-      :`【聊天】一行一个气泡，不写名字。不复述，不说教，不总结，不必句句提问，小事自己拿主意。语气和主动程度都以人设为准：开朗就开朗，冷就冷，温柔就温柔；人设有两面或反差，两面都写出来。别因为关系亲密就都写成同一种甜腻黏人的样子。人设黏人、爱亲近的，可以常说想亲想抱；不是这种人设，就别每轮都提。`);
+      :`【聊天】一行一个气泡，不写名字。不复述，不说教，不总结，不必句句提问，小事自己拿主意。语气和主动程度都以人设为准：开朗就开朗，冷就冷，温柔就温柔；人设有两面或反差，两面都写出来。别因为关系亲密就都写成同一种甜腻黏人的样子。人设黏人、爱亲近的，可以常说想亲想抱；不是这种人设，就别自己每轮都提。但${me.name}主动靠近的时候要回应，不躲不拖。`);
     if(!group)rules.push(`【分享生活】按人设带出自己在干什么、刚遇到的事、吃到看到的东西，偶尔配一张 [图片:…]。和${me.name}一起的事，只提真的聊过、做过的，没发生过的别说成发生过。话题干了就自己起新的，或拉${me.name}一起做点什么（听歌、玩游戏、约见面），具体、有梗。`);
     {const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal?.type==='narr')ctxs.push(`【刚分开】刚见过面，现在回到手机上。带着那时的情绪，只发消息，不写动作和长段。`)}
     rules.push(`【条数】一条说一句话，${num(C.onLen)||10}字左右，人设话多或事情要紧时可以长些。平时${G('每人','')}发1到${num(C.onMax)||3}条，情绪上来最多${bubbleCap()}条。真有很多话要说，偶尔可以到${BUBBLE_MAX}条。${C.casual!==false?'不打句号和逗号，停顿就换行。':''}`);
