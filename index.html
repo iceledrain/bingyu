@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.15.8';
+window.BYJ_VER='2026.11.15.9';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -1030,7 +1030,7 @@ function mergeState(d){
   s.wx=s.wx&&typeof s.wx==='object'?s.wx:{};s.hol=s.hol&&typeof s.hol==='object'?s.hol:{};
   if(!Array.isArray(s.cards))s.cards=[];if(!Array.isArray(s.personaTpls))s.personaTpls=def().personaTpls;delete s.notes;delete s.caps;delete s.health;
   s.presets.forEach(p=>(p.items||[]).forEach(i=>{if(i.content===LANG_OLD)i.content=LANG_DEF}));
-  delete s.chat.thinkSrc;delete s.chat.deep;s.chat.effort='';s.chat.think=true;s.chat.inner=true;
+  delete s.chat.thinkSrc;delete s.chat.deep;delete s.chat.web;delete s.look.shell;delete s.look.night;delete s.look.hide;s.chat.effort='';s.chat.think=true;s.chat.inner=true;
   if([THINK_OLD,THINK_OLD2,THINK_OLD3,THINK_OLD4,THINK_OLD5,THINK_OLD6,THINK_OLD7,THINK_OLD8,THINK_OLD9,THINK_OLD10].includes(s.chat.thinkStyle))s.chat.thinkStyle=THINK_DEF;
   if(!s.presetV){const old=new Set([OLD_MAIN,ONLINE_OLD,ONLINE_DEF,OFFLINE_OLD,OFFLINE_DEF]);
     s.presets.forEach(p=>{const n=(p.items||[]).length;p.items=(p.items||[]).filter(i=>!old.has(i.content));if(p.items.length<n)BASE_ITEMS().slice(1).forEach(x=>p.items.push(x))});s.presetV=2}
@@ -1125,7 +1125,7 @@ async function loadFont(){const F=S.look.customFont;if(!F)return;const sig=F.loc
     applyLook()}catch(e){fontLoaded='';toast('字体加载不了')}}
 const isNight=()=>{const h=new Date().getHours();return h<7||h>=19};
 // 样式：desk = 经典桌面（默认），x = 信息流外壳（可选）。深色：on / off / auto（跟时间）；X 样式默认一直深色
-const xOn=()=>S.look.shell==='x';
+const xOn=()=>false;
 const darkOn=()=>{const n=S.look.night||(xOn()?'on':'auto');return n==='on'||(n==='auto'&&isNight())};
 function applyLook(){
   const L=S.look,r=document.documentElement;r.classList.toggle('full',!!(navigator.standalone||matchMedia('(display-mode: standalone)').matches));
@@ -1194,12 +1194,10 @@ const ICONS={
   preset:SV('<path d="M5 6h14M5 12h14M5 18h14"/><circle cx="9" cy="6" r="1.8" fill="currentColor"/><circle cx="15" cy="12" r="1.8" fill="currentColor"/><circle cx="8" cy="18" r="1.8" fill="currentColor"/>'),
 };
 const APPS=[
-  {id:'messages',name:'聊天',v:'threads'},{id:'forum',name:'论坛',v:'forum'},{id:'theater',name:'小剧场',v:'theaters'},{id:'diary',name:'日记',v:'diary'},
-  {id:'music',name:'音乐',v:'music'},{id:'raise',name:'养成',v:'raise'},{id:'code',name:'代码',v:'codes'},{id:'shop',name:'购物',v:'shop'},
-  {id:'library',name:'世界书',v:'books'},{id:'preset',name:'预设',v:'presets'},{id:'think',name:'思维链',v:'think',ic:'brain'},{id:'settings',name:'设置',v:'settings'}];
+  {id:'messages',name:'聊天',v:'threads'},{id:'library',name:'世界书',v:'books'},{id:'preset',name:'预设',v:'presets'},{id:'think',name:'思维链',v:'think',ic:'brain'},{id:'settings',name:'设置',v:'settings'}];
 // 主屏只摆没收起来的；设置永远在，不然进不去
 const HIDE_DEF=['forum','theater','diary','music','raise','code','shop'];
-const appHidden=id=>id!=='settings'&&(S.look.hide||HIDE_DEF).includes(id);
+const appHidden=()=>false;
 const appsOrdered=()=>APPS.filter(a=>!appHidden(a.id));
 function appIcon(a){const img=0;const n=a.id==='messages'?S.threads.reduce((s,t)=>s+(t.unread||0),0):0;
   return`<button class="ic-app" data-a="open" data-v="${a.v}"${a.t?` data-t="${a.t}"`:''} aria-label="${a.name}"><span class="ic-g">${img?`<img src="${esc(img)}" alt="">`:ICONS[a.ic||a.id]}${n?`<span class="badge">${n>99?'99+':n}</span>`:''}</span><span class="ic-n">${a.name}</span></button>`}
@@ -1415,7 +1413,7 @@ const antHdr=(base,key)=>/anthropic\.com/.test(base)?{'x-api-key':key,'anthropic
 const deNote=x=>String(x||'').replace(/<[!！]\s*-{1,2}[\s\S]*?-{1,2}\s*>/g,'').replace(/^[ \t]*<[!！]\s*-{1,2}[^\n]*$/gm,'').replace(/\n{3,}/g,'\n\n');
 // 联网搜索：服务商自己搜、一次请求里搜完。只有 Claude 协议有（官方 Claude、MiniMax 的 /anthropic）
 const isMMBase=b=>/api\.minimaxi?\.(cn|com|io|chat)/i.test(b||'');
-const webOk=p=>!!p&&(provOf(p)==='claude'||isMMBase(p.base)||/api\.deepseek\.com/i.test(p.base||''));
+const webOk=p=>!!p&&(isMMBase(p.base)||/api\.deepseek\.com/i.test(p.base||''));
 // 显示的只有角色自己写的思维链。模型自带的思考只在后台跑、不显示：DeepSeek 聊天时开着，杂活一律关；MiniMax 关不了，压到最低档
 const isDS=p=>/deepseek/i.test((p?.base||'')+' '+(p?.model||''));
 const isKimi=base=>/moonshot\.(cn|ai)|kimi\.(com|ai)/.test(base||'');
@@ -1438,7 +1436,7 @@ async function callAI1(system,messages,o={}){let hid=document.hidden;const vh=()
 async function callAI0(system,messages,o={}){
   let p=api(o.who||whoOf(system));if(!p)throw new Error('先在「设置 · 聊天」里添加一个模型');p={...p,provider:provOf(p)};
   const key=(p.key||'').trim(),model=(p.model||'').trim();let base=(p.base||'').trim().replace(/\/+$/,'');
-  const web=!!(o.web&&S.chat.web&&webOk(p));
+  const web=!!(o.web&&webOk(p));
   // 联网时不走流式（要拿到完整的内容块）；MiniMax 填的是 /v1 也自动换到它的 /anthropic 地址
   if(web){p.stream=false;if(p.provider==='openai'&&isMMBase(base)){p.provider='claude';base=base.replace(/\/v1$/,'')+'/anthropic'}}
   if(!key)throw new Error('先在「设置 · 聊天」填 API Key');
@@ -1703,7 +1701,7 @@ function buildCtx(t,o={}){
   if(mode!=='offline')end.push(`【回复格式】${tw?'先写 <think>…</think>，再':''}把发给${me.name}的话全写进 <reply>…</reply>，一行一条，[图片] [表情] 这类标记也在里面${iw?'；<inner> 和 <tide> 写在 </reply> 后面':'；<tide> 写在 </reply> 后面'}。<reply> 外的字不会发出去，给自己的分析${tw?'只写在 <think> 里':'不要写'}。每次都要写全。\n例：${tw?'<think>…</think>\n':''}<reply>\n第一条\n第二条\n</reply>${iw?'\n<inner>…</inner>':''}\n<tide>…</tide>`);
   else if(tw||iw)end.push(`【别漏】每次都按这个顺序写全：${tw?'第一行 <think>…</think>，然后':''}正文${iw?'，正文后另起一行 <inner>…</inner>':''}。\n例：${tw?'<think>…</think>\n':''}正文……${iw?'\n<inner>…</inner>':''}`);
   // 联网规则放在最后、说死「先调用再写」：实测放前面时模型会嘴上说查、其实直接编
-  if(C.web&&webOk(api(t.id)))end.push(`【联网工具】你有一个真的联网搜索工具。${me.name}问到天气、新闻、价格、某样东西是什么或怎么做这类现实里的事，必须先调用它拿到结果，再写${mode==='offline'?'正文':' <think> 和 <reply>'}；没调用就不知道答案，不要假装查过。纯闲聊不用查。查到的用你自己的口吻说，不贴链接，不写引用编号，不说「搜索结果显示」。`);
+  if(webOk(api(t.id)))end.push(`【联网工具】你有一个真的联网搜索工具。${me.name}问到天气、新闻、价格、某样东西是什么或怎么做这类现实里的事，必须先调用它拿到结果，再写${mode==='offline'?'正文':' <think> 和 <reply>'}；没调用就不知道答案，不要假装查过。纯闲聊不用查。查到的用你自己的口吻说，不贴链接，不写引用编号，不说「搜索结果显示」。`);
   const sys=[...pr,...lore,...who,`【下面只管格式】性格、语气、怎么对${me.name}，都按上面的人设来；和下面的规则冲突时，听人设的。`,...rules,...ctxs,...end];
   return{system:whoTag(sys.join('\n\n'),t.id),msgs,chars,group,mode,t};
 }
@@ -3035,7 +3033,7 @@ chat(v){
 },
 think(){const C=S.chat;
   return{title:'思维链',body:`<div class="panel"><h2>心声</h2>
-      ${C.inner?`<label class="ck"><input type="checkbox" id="ch-open" data-s="chat" data-k="innerOpen" ${C.innerOpen?'checked':''}>默认展开</label>
+      ${C.inner?`
       <label class="f">叫什么<input type="text" id="ch-iname" data-s="chat" data-k="innerName" value="${esc(C.innerName)}" placeholder="心声 / 内心OS"></label>
       <label class="f">写什么<textarea id="ch-istyle" data-s="chat" data-k="innerStyle">${esc(C.innerStyle)}</textarea></label><button class="tb" data-a="setChat" data-k="innerStyle" data-v="${esc(CHAT_DEF().innerStyle)}" style="align-self:flex-start">恢复默认</button>`:''}</div>
     <div class="panel"><h2>思维链</h2>
@@ -3330,14 +3328,6 @@ settings(v){
   const head=tabs([['chat','聊天'],['img','生图'],['tts','语音'],['look','外观'],['data','数据']],tab);
   if(tab==='look'){const L=S.look,cl=Math.min(60,Math.max(0,num(L.clear)??30));
     return{title:'设置',body:head+`
-    <div class="panel"><h2>样式</h2>
-      <div class="seg">${[['desk','经典桌面'],['x','X 样式']].map(([k,l])=>`<button class="${(L.shell||'desk')===k?'on':''}" data-a="setLook" data-k="shell" data-v="${k}">${l}</button>`).join('')}</div>
-      <div class="f">深色模式<div class="seg">${[['on','一直深色'],['auto','跟时间'],['off','一直浅色']].map(([k,l])=>`<button class="${(L.night||(xOn()?'on':'auto'))===k?'on':''}" data-a="setLook" data-k="night" data-v="${k}">${l}</button>`).join('')}</div></div>
-      <p class="hint">经典桌面：原来的图标主屏。X 样式：打开就是信息流，头像点开是菜单，别的应用都在菜单里。</p></div>
-    ${xOn()?'':`<div class="panel"><h2>主屏图标</h2>
-      <div class="chips">${APPS.filter(a=>a.id!=='settings').map(a=>`<button class="${appHidden(a.id)?'':'on'}" data-a="togApp" data-id="${a.id}">${a.name}</button>`).join('')}</div>
-      <p class="hint">点一下收起或放回，现在主屏上有 ${appsOrdered().length} 个。设置一直在。</p>
-      ${APPS.some(a=>appHidden(a.id))?`<h2>收起来的</h2><div class="btns">${APPS.filter(a=>appHidden(a.id)).map(a=>`<button class="btn o" data-a="open" data-v="${a.v}">${a.name}</button>`).join('')}</div><p class="hint">收起来的没删，从这里点开。</p>`:''}</div>`}
     <div class="panel"><h2>壁纸</h2>${L.wallpaper?`<div class="wpv" style="background-image:url(${L.wallpaper})"></div>`:''}
       <div class="btns">${fileBtn(L.wallpaper?'换一张':'选一张','accept="image/*" data-img="wall"')}${L.wallpaper?'<button class="btn o" data-a="clrWall">去掉</button>':''}</div>
       <p class="hint">${xOn()?'X 样式下只当聊天页的背景。':'主屏和每个页面都用这张。设了壁纸，图标、小组件、时间条、气泡的毛玻璃才看得出来。'}</p></div>
