@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.09.3';
+window.BYJ_VER='2026.11.14.6';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -646,7 +646,27 @@ html.dark .chat .msg.me .bub{background:var(--bub-me);color:#fff;text-shadow:non
 html.dark .mheart svg{fill:#3a3a3c;stroke:#77777c}
 html.dark{--bg:#000;--bg2:#141416;--ink:#e8e8ea;--muted:#8e8e8e;--line:rgba(255,255,255,.12);--panel-rgb:28,28,30;--accent:#48484a;--accent-rgb:72,72,74;--accent-soft:#2c2c2e;--deep:#d1d1d1;--accent-ink:#f2f2f2;--red:#636366;
   --bub:#2c2c2e;--bub-me:#4a4a4a;--lift:none;--glass:28,28,30;--gb:rgba(255,255,255,.08);--gh:rgba(255,255,255,.12);--ts:rgba(0,0,0,.6);color-scheme:dark;background:#000!important}
-html.dark body,html.dark .wall,html.dark .app .wall2{background:#000!important}
+html.dark:not(.wp) body,html.dark:not(.wp) .wall,html.dark:not(.wp) .app .wall2{background:#000!important}
+/* 壁纸 + 半透明：透明只靠 alpha（不费电）；模糊只留在不动的东西上（图标、小组件、顶栏底栏），气泡不模糊 */
+html.wp .wall::after{content:"";position:absolute;inset:0;pointer-events:none;background:rgba(255,255,255,.1)}
+html.dark.wp .wall::after{background:rgba(0,0,0,.4)}
+html.wp .hclock{color:rgba(255,255,255,.94);text-shadow:0 1px 16px rgba(0,0,0,.4)}
+html.wp .ic-n,html.wp .ava{color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+html.wp .ic-g{color:#fff}html.wp .ic-g svg{filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
+html.wp .content .ic-g{color:var(--deep)}html.wp .content .ic-g svg{filter:none}
+html.wp .polaroid .ph-c{color:rgba(255,255,255,.9);text-shadow:0 1px 3px rgba(0,0,0,.45)}
+html.dark.wp{--bub:rgba(44,44,46,max(.42,calc(var(--alpha) - .14)));--bub-me:rgba(104,104,110,max(.5,calc(var(--alpha) - .08)))}
+html.dark.wp .ic-g::before{background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.22),rgba(255,255,255,.07) 45%,rgba(0,0,0,.2) 100%);border-color:rgba(255,255,255,.24);box-shadow:0 8px 18px rgba(0,0,0,.22)}
+html.dark.wp .ic-g::after{display:block;background:rgba(255,255,255,.3)}html.dark.wp .ic-g.sm::after{display:none}
+html.dark.wp .polaroid{background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.26)}html.dark.wp .polaroid .pimg{background-color:rgba(0,0,0,.2)}
+html.dark.wp .ava .av{background:rgba(44,44,46,.45);border-color:rgba(255,255,255,.35)}
+html.wp{--bub-ai:rgba(var(--panel-rgb),max(.3,calc(var(--alpha) - .2)))}
+html.wp:not(.dark){--bub-me:rgba(112,112,122,max(.4,calc(var(--alpha) - .18)))}
+html.wp .chat .msg.ai .bub{background:var(--bub-ai)}html.wp .chat .msg.ai .col>.bub::before{border-right-color:var(--bub-ai)}
+html.wp .chat .msg.me .bub{background:var(--bub-me)}html.wp .chat .msg.me .col>.bub::before{border-left-color:var(--bub-me)}
+/* 进了应用，主屏的浮动和波纹就停下，不在后面白白耗电 */
+body:has(#app.open) #home *{animation-play-state:paused!important}
+.wpv{height:160px;border-radius:14px;background:center/cover no-repeat;border:1px solid var(--line)}
 html.dark .bub,html.dark .msg.me .bub,html.dark .narr,html.dark .narr.me{border-color:rgba(255,255,255,.06);text-shadow:none}
 html.dark .msg.me .callcard{background:var(--bub-me);border-color:var(--bub-me)}
 html.dark .hclock{color:#e8e8ea;text-shadow:none}
@@ -723,17 +743,13 @@ html.dark .mo-pic.tp{background:linear-gradient(150deg,#303030,#212121 60%,#2929
 .plr{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
 .plr>span{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.plr b{font-weight:400;font-size:15px;line-height:1.45;word-break:break-word}.plr small{font-size:11.5px;color:var(--muted)}
 .plr.done b{text-decoration:line-through;color:var(--muted)}
-.nvcv{width:40px;height:52px;flex:none;border-radius:6px 10px 10px 6px;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;font:500 18px var(--display);box-shadow:inset 3px 0 0 rgba(0,0,0,.12)}
-.nvrow{display:flex;flex-direction:column;gap:2px;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:9px 0;color:var(--ink)}
-.nvrow:last-child{border-bottom:0}.nvrow b{font-weight:500;font-size:15px}.nvrow small{font-size:11.5px;color:var(--muted)}
-.nvch{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:20px 18px;box-shadow:var(--lift)}
-.nvch h2{margin:0 0 16px;font:500 19px var(--display);text-align:center;color:var(--ink)}
-.nvtxt p{margin:0 0 .95em;text-indent:2em;font-size:16px;line-height:1.95;color:var(--ink);word-break:break-word}
-.nvnote{margin:18px 0 0;padding-top:12px;border-top:1px dashed var(--line);font-size:13.5px;line-height:1.7;color:var(--deep)}
-.nvnote b{display:block;font-size:12px;color:var(--muted);font-weight:500;margin-bottom:3px}
-.nvnav{justify-content:space-between}
-.nvcm{display:flex;gap:10px;align-items:flex-start;padding:4px 0}
-.nvcm .av{flex:none}.nvcm>.nvct{flex:1;min-width:0}.nvcm b{font-size:12.5px;font-weight:500;color:var(--muted)}.nvcm p{margin:2px 0 0;font-size:14.5px;line-height:1.55;word-break:break-word}
+.cdic{width:40px;height:40px;flex:none;border-radius:12px;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;font:600 11.5px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:-.02em}
+.cdpre{margin:0;padding:12px;border-radius:14px;background:var(--bg);border:1px solid var(--line);font:12.5px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink);white-space:pre;overflow:auto;max-height:420px;tab-size:2;-webkit-overflow-scrolling:touch;user-select:text;-webkit-user-select:text}
+.cdpre.sm{max-height:200px}
+.cdrun{display:flex;flex-direction:column;gap:10px}.cdrun .thv{border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.cdturn{display:flex;flex-direction:column;gap:2px;padding:9px 0;border-bottom:1px solid var(--line)}
+.cdturn b{font-size:12.5px;font-weight:500;color:var(--muted);display:flex;align-items:center;gap:6px}.cdturn.me b{color:var(--deep)}
+.cdturn p{margin:0;font-size:14.5px;line-height:1.6;color:var(--ink);white-space:pre-wrap;word-break:break-word;user-select:text;-webkit-user-select:text}
 .plc{width:24px;height:24px;flex:none;border-radius:50%;border:1.6px solid var(--deep);background:transparent;color:var(--bg);font-size:13px;line-height:1;display:grid;place-items:center;padding:0;cursor:pointer}
 .plr.done .plc{background:var(--deep)}
 .lyr{width:100%;height:270px;overflow-y:auto;text-align:center;padding:110px 8px;box-sizing:border-box;cursor:pointer;scrollbar-width:none;-webkit-mask-image:linear-gradient(transparent,#000 24%,#000 76%,transparent);mask-image:linear-gradient(transparent,#000 24%,#000 76%,transparent)}
@@ -867,7 +883,7 @@ const isOldExample=p=>p&&p.name==='Claude'&&!String(p.key||'').trim()&&/anthropi
 const def=()=>({v:4,loc:null,wx:{},
   media:{img:{base:'',key:'',model:'',size:'1024x1024',style:'',auto:false},imgP:[],tts:{base:'',key:'',model:'',voice:''}},
   api:{active:'a1',side:'',profiles:[API_BLANK('a1')]},
-  look:{font:'system',customFont:null,fs:15,alpha:.92,wallpaper:'',photo:'',caption:'',icons:{},appWalls:{}},
+  look:{font:'system',customFont:null,fs:15,alpha:.92,clear:30,wallpaper:'',photo:'',caption:'',icons:{},appWalls:{}},
   chat:CHAT_DEF(),
   study:{},plan:{days:{},sup:'',lang:'',level:'入门',study:false},
   masks:[{id:'m1',name:'user',avatar:'',bday:'',persona:''}],activeMask:'m1',wallet:520,
@@ -875,7 +891,7 @@ const def=()=>({v:4,loc:null,wx:{},
   presets:[{id:'p1',name:'默认',core:1,items:DEFAULT_ITEMS()}],activePreset:'p1',loreV:1,
   offline:{style:OFF_STYLE_DEF,words:500,cpov:'third',upov:'second',evRate:10,lead:'char'},
   cards:[],personaTpls:[{id:'pt1',name:'基础模板',text:PERSONA_TPL}],
-  threads:[],feed:[],orders:[],shop:{food:[],goods:[]},theaters:[],novels:[],thFmts:TH_FMTS(),days:[],forum:{name:'论坛',theme:'',chars:true,boards:FM_BOARDS(),posts:[]},
+  threads:[],feed:[],orders:[],shop:{food:[],goods:[]},theaters:[],codes:[],thFmts:TH_FMTS(),days:[],forum:{name:'论坛',theme:'',chars:true,boards:FM_BOARDS(),posts:[]},
   music:{songs:[],cur:null,with:null,mode:'all'},diary:[],diaryAuto:false,diaryV:1,diaryMark:{},
   stickers:{groups:[{id:'g1',name:'默认',items:[]}]},
   raise:{kids:[]},lastTick:0,events:[],evWipe:{},memWipe:{},evGone:[],bkKey:false,lastSeen:0,
@@ -891,7 +907,7 @@ function mergeState(d){
   s.chat=Object.assign(CHAT_DEF(),d.chat||{});if(!s.ctxV){if(+s.chat.ctx===40)s.chat.ctx=80;s.ctxV=1}
   s.api=d.api&&Array.isArray(d.api.profiles)&&d.api.profiles.length?d.api:def().api;
   s.offline=Object.assign(def().offline,d.offline||{});
-  for(const k of ['chars','books','presets','masks','threads','feed','events','orders','diary','theaters','novels','days'])if(!Array.isArray(s[k]))s[k]=def()[k];
+  for(const k of ['chars','books','presets','masks','threads','feed','events','orders','diary','theaters','codes','days'])if(!Array.isArray(s[k]))s[k]=def()[k];
   if(!s.look.v5){s.look.v5=1;s.look.order=[];if(Array.isArray(s.thFmts))s.thFmts=s.thFmts.filter(f=>!['memo','chat','moment','diary','receipt','letter','search','free'].includes(f.id));if(s.forum&&Array.isArray(s.forum.boards))s.forum.boards=s.forum.boards.filter(b=>!['b1','b2','b3'].includes(b.id)||(s.forum.posts||[]).some(p=>p.b===b.id)).map(b=>['b1','b2','b3'].includes(b.id)?{...b,prompt:''}:b)}
   if(!Array.isArray(s.thFmts)||!s.thFmts.length)s.thFmts=TH_FMTS();
   {if(!s.forum||typeof s.forum!=='object')s.forum=def().forum;const F=s.forum;if(typeof F.name!=='string')F.name='论坛';if(typeof F.theme!=='string')F.theme='';
@@ -922,7 +938,7 @@ for(const K of['evWipe','memWipe'])if(!s[K]||typeof s[K]!=='object')s[K]={};if(!
   {const T=s.media.tts,I=s.media.img;delete T.provider;if(!T.ttsV){if(T.model==='speech-02-hd')T.model='';if(T.voice==='female-shaonv')T.voice='';T.ttsV=1}if(!I.key&&I.model==='gpt-image-1')I.model=''}
   s.chars.forEach(c=>{delete c.heart;delete c.nowDoing;if(c.rel)delete c.rel.soft;const x=String(c.lore||'').trim();if(x){const b={id:uid(),name:(c.name||'角色')+'的设定',scope:'local',entries:[{id:uid(),title:'设定',keys:'',content:x,light:'green',order:0,prob:100}]};s.books.push(b);(c.books||=[]).push(b.id)}delete c.lore});
   for(const x of s.music.songs)if(x?.local){DB.del('song:'+x.id);x.local=false}
-  for(const k of ['novel','mail','mailAt'])delete s[k];
+  for(const k of ['novel','novels','mail','mailAt'])delete s[k];s.chars.forEach(c=>delete c.ai);
   if(!s.diaryMark||typeof s.diaryMark!=='object')s.diaryMark={};if(typeof s.diaryAuto!=='boolean'||!d.diaryV)s.diaryAuto=false;s.diaryV=1;
   {const ren={mail:'music',shop:'food'},I=s.look.icons,W=s.look.appWalls||{};for(const [a,b] of Object.entries(ren)){if(I[a]&&!I[b])I[b]=I[a];delete I[a];if(W[a]&&!W[b])W[b]=W[a];delete W[a]}
     const AI=['library','preset'];if(I.ai&&!I.preset)I.preset=I.ai;delete I.ai;if(W.ai)AI.forEach(k=>{if(!W[k])W[k]=W.ai});delete W.ai;
@@ -938,7 +954,7 @@ for(const K of['evWipe','memWipe'])if(!s[K]||typeof s[K]!=='object')s[K]={};if(!
   {const up={[PLAY_OLD]:PLAY_DEF,[PLAY_OLD3]:PLAY_DEF,[PLAY_OLD4]:PLAY_DEF,[LANG_OLD]:LANG_DEF,[LANG_OLD2]:LANG_DEF,[REP_OLD]:REP_DEF,[REP_OLD2]:REP_DEF,[CLICHE_OLD]:CLICHE_DEF,[CLICHE_OLD2]:CLICHE_DEF,[CALL_OLD]:CALL_DEF};s.presets.forEach(p=>{(p.items||[]).forEach(i=>{if(up[i.content])i.content=up[i.content]});if((p.items||[]).some(i=>i.content===REP_DEF))p.items=p.items.filter(i=>i.content!==CLICHE_DEF);p.items=(p.items||[]).filter(i=>i.content!==LANG_DEF)})}
   s.presets.forEach(withCore);
   if(!d.loreV)s.books.forEach(b=>(b.entries||[]).forEach(e=>{if(e.light==='yellow'&&!String(e.keys||'').trim())e.light='green'}));s.loreV=1;
-  {const L=s.look;delete L.wallpaper;delete L.appWalls;delete L.alpha;delete L.dark;delete L.font;delete L.customFont;
+  {const L=s.look;delete L.appWalls;delete L.alpha;delete L.dark;delete L.font;delete L.customFont;
     s.threads.forEach(t=>delete t.wall);s.chars.forEach(c=>{delete c.wall;delete c.vbg});s.masks.forEach(m=>delete m.banner)}
   {const A=s.api;
     if(A.profiles.some(isOldExample)){A.profiles=A.profiles.filter(p=>!isOldExample(p));if(!A.profiles.length)A.profiles=[API_BLANK(uid())];if(!A.profiles.some(p=>p.id===A.active))A.active=A.profiles[0].id;if(A.side&&!A.profiles.some(p=>p.id===A.side))A.side=''}
@@ -1004,6 +1020,9 @@ function applyLook(){
   setAppH();r.style.setProperty('--fs',L.fs+'px');
   if(FONTS[L.font])r.style.setProperty('--body',FONTS[L.font]+',-apple-system,"PingFang SC",sans-serif');else r.style.removeProperty('--body');
   const dk=isNight();r.classList.toggle('dark',dk);
+  {const wp=L.wallpaper||'',W=$('#wall'),cl=Math.min(60,Math.max(0,num(L.clear)??30));r.classList.toggle('wp',!!wp);
+    if(W&&W._wp!==wp){W._wp=wp;W.style.background=wp?`url("${String(wp).replace(/"/g,'%22')}") center/cover no-repeat`:''}
+    if(wp)r.style.setProperty('--alpha',(1-cl/100).toFixed(2));else r.style.removeProperty('--alpha')}
   document.querySelector('meta[name=theme-color]').content=dk?'#000000':'#f5f5f5';
 }
 
@@ -1054,7 +1073,7 @@ const ICONS={
   raise:SV('<circle cx="12" cy="13.2" r="7"/><path d="M12 6.2c0-2 1.6-3.2 3.3-2.6"/><path d="M9.6 15.6c1.3 1.1 3.5 1.1 4.8 0"/><circle cx="9.4" cy="12.3" r=".7" fill="currentColor"/><circle cx="14.6" cy="12.3" r=".7" fill="currentColor"/>'),
   weather:SV('<path d="M7.5 19h9.2a3.6 3.6 0 0 0 .3-7.2 5 5 0 0 0-9.7-1A4.1 4.1 0 0 0 7.5 19z"/><path d="M4.6 4.8l1 1M9.2 2.8v1.4M2.4 9.2h1.4"/>'),
   plan:SV('<rect x="4.5" y="4" width="15" height="17" rx="2.2"/><path d="M9 4V2.8h6V4"/><path d="M8 10.2l1.4 1.4 2.4-2.6M8 15.7l1.4 1.4 2.4-2.6M14.2 10.7h2.6M14.2 16.2h2.6"/>'),
-  novel:SV('<path d="M12 6.5C10 5 7.5 4.5 4 4.8v13.5c3.5-.3 6 .2 8 1.7 2-1.5 4.5-2 8-1.7V4.8c-3.5-.3-6 .2-8 1.7z"/><path d="M12 6.5V20"/>'),
+  code:SV('<path d="M8.5 7.5L4 12l4.5 4.5"/><path d="M15.5 7.5L20 12l-4.5 4.5"/><path d="M13.6 5.5l-3.2 13"/>'),
   study:SV('<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v15H5.5A1.5 1.5 0 0 1 4 17.5z"/><path d="M11 4h7.5A1.5 1.5 0 0 1 20 5.5v12a1.5 1.5 0 0 1-1.5 1.5H11"/><path d="M6.5 8h2.5M6.5 11h2.5M13.5 8l3 5M16.5 8l-3 5"/>'),
   theater:SV('<path d="M4 6h16v4a2 2 0 0 0 0 4v4H4v-4a2 2 0 0 0 0-4z"/><path d="M14 6.5v11" stroke-dasharray="1.5 2"/>'),
   forum:SV('<path d="M4 5h12v8H9l-4 3v-3H4z"/><path d="M16 9h4v8h-1v3l-3-3h-5v-2"/>'),
@@ -1062,7 +1081,7 @@ const ICONS={
 };
 const APPS=[
   {id:'messages',name:'聊天',v:'threads'},{id:'forum',name:'论坛',v:'forum'},{id:'theater',name:'小剧场',v:'theaters'},{id:'diary',name:'日记',v:'diary'},
-  {id:'music',name:'音乐',v:'music'},{id:'raise',name:'养成',v:'raise'},{id:'novel',name:'小说',v:'novels'},{id:'shop',name:'购物',v:'shop'},
+  {id:'music',name:'音乐',v:'music'},{id:'raise',name:'养成',v:'raise'},{id:'code',name:'代码',v:'codes'},{id:'shop',name:'购物',v:'shop'},
   {id:'library',name:'世界书',v:'books'},{id:'preset',name:'预设',v:'presets'},{id:'think',name:'思维链',v:'think',ic:'brain'},{id:'settings',name:'设置',v:'settings'}];
 const appsOrdered=()=>APPS;
 function appIcon(a){const img=0;const n=a.id==='messages'?S.threads.reduce((s,t)=>s+(t.unread||0),0):0;
@@ -1089,7 +1108,7 @@ const WXE=d=>/雷/.test(d)?'⛈️':/雪|冻/.test(d)?'❄️':/雨/.test(d)?'�
 function wxHours(l,n=12){const x=(S.wx||{})[wxKey(l)],H=x?.d?.hourly;if(!H?.time)return[];const off=(x.d.utc_offset_seconds||0)*1000,now=Date.now(),out=[];
   H.time.forEach((t,k)=>{const at=Date.parse(t+'Z')-off;if(at>now-3600e3&&out.length<n)out.push({h:new Date(at+off).getUTCHours(),d:WX[H.weather_code[k]]||'',t:Math.round(H.temperature_2m[k]),p:(H.precipitation_probability||[])[k]})});return out}
 const planDay=(k=dayKey())=>(S.plan.days[k]||={items:[]});
-// 「计划」已经从主屏换成了「小说」：监督功能先关掉（数据还留着，想恢复把 PLAN_ON 改成 true、APPS 里加回去就行）
+// 「计划」已经从主屏换成了别的（现在是「代码」）：监督功能先关掉（数据还留着，想恢复把 PLAN_ON 改成 true、APPS 里加回去就行）
 const PLAN_ON=false;
 const planSup=()=>{if(!PLAN_ON)return null;const c=charById(S.plan.sup);return c&&reachable(c)?c:null};
 function planText(){const me=mask(planSup()).name,L=S.plan.days[dayKey()]?.items||[];
@@ -1233,7 +1252,7 @@ function back(){closeSheet();stack.pop();if(!stack.length){appEl.classList.remov
 function render(keep){$('#mpop')?.remove();
   const v=cur();if(!v)return;let r;
   try{r=VIEWS[v.v](v)}catch(e){console.error(e);toast('这个页面打不开：'+(e.message||e));stack.pop();if(stack.length)render();else{appEl.classList.remove('open');renderHome()}return}const sc=keep?$('#content')?.scrollTop:0;
-  const kept={};if(keep)for(const id of ['msgIn','rsIn','postIn','replyIn','callIn','nvIn','nvCm','sIn','ntIn']){const x=document.getElementById(id);if(x&&x.value)kept[id]=x.value}
+  const kept={};if(keep)for(const id of ['msgIn','rsIn','postIn','replyIn','callIn','cdIn','cdNew','sIn','ntIn']){const x=document.getElementById(id);if(x&&x.value)kept[id]=x.value}
   const wp=viewWall(v),wall=appEl.querySelector(':scope>.wall2')||Object.assign(document.createElement('div'),{className:'wall2 wall'});
   appEl.innerHTML=`<header class="bar"><button class="bk" data-a="back" aria-label="返回">${ICONS.back}<span>返回</span></button><h1>${esc(r.title)}${r.sub?`<small>${esc(r.sub)}</small>`:''}</h1><div class="br">${r.right||''}</div></header>
   <main class="content ${r.cls||''}" id="content">${r.body}</main>${r.foot?`<footer class="foot ${r.footCls||''}">${r.foot}</footer>`:''}`;
@@ -1253,7 +1272,7 @@ function paintCanvas(){
   r.backgroundPosition=wp?'center top':'';
   r.backgroundRepeat='no-repeat';r.backgroundAttachment='';
 }
-function viewWall(){return''}
+function viewWall(){return S.look.wallpaper||''}
 const tabs=(list,on,act='tab')=>`<div class="tabs" role="tablist">${list.map(([k,l])=>`<button class="${k===on?'on':''}" data-a="${act}" data-t="${k}">${l}</button>`).join('')}</div>`;
 
 const provOf=p=>/generativelanguage\.googleapis/.test(p.base||'')?'gemini':/anthropic\.com/.test(p.base||'')?'claude':'openai';
@@ -1289,7 +1308,7 @@ async function callAI0(system,messages,o={}){
   if(!key)throw new Error('先在「设置 · 聊天」填 API Key');
   if(!model)throw new Error('先在「设置 · 聊天」填模型名');
   if(!base)throw new Error('先在「设置 · 聊天」填接口地址');
-  const fx=p.fix?.model===model?p.fix:{},temp='temp' in fx?fx.temp:o.temp??num(p.temp),topP=fx.noTopP?null:num(p.topP),topK=fx.noTopK?null:num(p.topK),max=o.max!=null?o.max+4096:(num(p.maxTokens)||2048);
+  const fx=p.fix?.model===model?p.fix:{},temp='temp' in fx?fx.temp:o.temp??num(p.temp),topP=fx.noTopP?null:num(p.topP),topK=fx.noTopK?null:num(p.topK),max=Math.min(o.max!=null?o.max+4096:(num(p.maxTokens)||2048),+fx.cap||Infinity);
   const m=normalize(messages);let res;
   const ctl=new AbortController(),tmo=setTimeout(()=>ctl.abort(),o.timeout||300000),sig=ctl.signal;
   try{
@@ -1315,10 +1334,11 @@ async function callAI0(system,messages,o={}){
   finally{clearTimeout(tmo)}
   let data;try{data=p.stream&&res.ok?await sseData(res,p.provider):await res.json().catch(()=>({}))}catch(e){const er=new Error('流式读到一半断了，再试一次');er.net=true;throw er}
   if(!res.ok){const msg=String(data.error?.message||data.message||JSON.stringify(data).slice(0,160));
-    if(res.status===400&&!o._fix&&/temperature|top_?p|top_?k/i.test(msg)){const P=apiById(p.id),f={...(P?.fix?.model===model?P.fix:{}),model};let why='';
+    if(res.status===400&&!o._fix&&/temperature|top_?p|top_?k|max[_ ]?(completion[_ ]?|output[_ ]?)?tokens/i.test(msg)){const P=apiById(p.id),f={...(P?.fix?.model===model?P.fix:{}),model};let why='';
       if(/temperature/i.test(msg)&&temp!==null){const one=/only\s*1\b|must\s*be\s*1\b|only\s*(the\s*)?default\s*\(?1|1\s*is\s*the\s*only/i.test(msg);f.temp=one?1:null;why=one?'温度只能是 1':'不能设温度';if(P&&one)P.temp=1}
       if(/top_?p/i.test(msg)&&topP!==null){f.noTopP=true;why=why||'不能设 top_p'}
       if(/top_?k/i.test(msg)&&topK!==null){f.noTopK=true;why=why||'不能设 top_k'}
+      if(/max[_ ]?(completion[_ ]?|output[_ ]?)?tokens/i.test(msg)){const cap=Math.max(0,...(msg.replace(/(\d),(?=\d{3})/g,'$1').match(/\d+/g)||[]).map(Number).filter(n=>n>=256&&n<max));if(cap){f.cap=cap;why=why||'最大长度只到 '+cap}}
       if(why){if(P){P.fix=f;save()}toast('这个模型'+why+'，已经自动改好重发了');return callAI(system,messages,{...o,_fix:1})}}
     const er=new Error('出错了 '+res.status+'：'+msg);er.status=res.status;{const ra=+res.headers.get('retry-after');if(ra>0)er.retryAfter=ra*1000}throw er}
   {const tag=o.tag||(o.side?'bg':'chat');
@@ -1440,10 +1460,10 @@ function buildCtx(t,o={}){
   const lastMeet=meetAt<0?[]:t.msgs.slice(meetAt+1).filter(m=>m.type==='narr'),histStart=t.msgs.length-hist.length;
   const scan=hist.slice(-Math.max(1,num(C.scan)||8)).map(m=>m.content).join('\n')+'\n'+chars.map(c=>c.name).join(' ');
   const items=P.items.filter(i=>i.on&&(i.mode==='both'||i.mode===im));
-  const tail=[],G=(a,b)=>group?a:b,nm=chars[0]?.name||'名字',ai=!group&&!!chars[0]?.ai;
-  const pr=items.filter(i=>i.role==='system'&&!inChat(i)).map(i=>ai?mac(i.content).replace(/[，,]?\s*不提\s*AI[。.]?/g,'。').replace(/。。/g,'。'):mac(i.content)),lore=[],rules=[],who=[],ctxs=[];
+  const tail=[],G=(a,b)=>group?a:b,nm=chars[0]?.name||'名字';
+  const pr=items.filter(i=>i.role==='system'&&!inChat(i)).map(i=>mac(i.content)),lore=[],rules=[],who=[],ctxs=[];
   {const lb=loreBlock(loreFor(chars,scan,'fixed'),mac);if(lb)lore.push(lb);const ll=loreBlock(loreFor(chars,scan,'live'),mac);if(ll)tail.push(ll)}
-  chars.forEach(c=>who.push(`【${c.name}】${c.remark?`${me.name}给TA的备注：${c.remark}`:''}\n${mac(c.persona)}${c.ai?'\n'+aiBlock(c,me):''}`));
+  chars.forEach(c=>{who.push(`【${c.name}】${c.remark?`${me.name}给TA的备注：${c.remark}`:''}\n${mac(c.persona)}`);const ex=exBlock(c,mac);if(ex)who.push(ex)});
   {const lb=loveBlock(cname,me);if(lb)who.push(lb)}
   {const of=t.offline||S.offline,u=mode==='offline'&&of.upov==='first'&&of.cpov!=='first'?'「我」':mode==='offline'&&of.upov==='third'?'「他/她」':'「你」';who.push(`【${me.name}（用户）】${me.name==='user'?`没设名字，叫${u}。`:''}${me.persona?'\n'+mac(me.persona):''}`);}
   if(sumBlock(t))ctxs.push(sumBlock(t));
@@ -1493,7 +1513,7 @@ function buildCtx(t,o={}){
       :`【聊天】一行一个气泡，不写名字。不复述，不说教，不总结，不必句句提问，小事自己拿主意。`);
     if(!group)rules.push(`【分享生活】常带出自己在干什么、刚遇到的事、吃到看到的东西，可以发 [图片:…]。话题干了就自己起新的，或拉${me.name}一起做点什么（听歌、玩游戏、约见面），具体、有梗。`);
     {const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal?.type==='narr')ctxs.push(`【刚分开】刚见过面，现在回到手机上。带着那时的情绪，只发消息，不写动作和长段。`)}
-    rules.push(`【条数】一条只说一句短话，${num(C.onLen)||10}字左右。平时${G('每人','')}发1到${num(C.onMax)||3}条，情绪上来最多${bubbleCap()}条。真有很多话要说，偶尔可以到${BUBBLE_MAX}条。${C.casual!==false?'不打句号和逗号，停顿就换行。':''}`);
+    rules.push(`【条数】一条说一句话，${num(C.onLen)||10}字左右，人设话多或事情要紧时可以长些。平时${G('每人','')}发1到${num(C.onMax)||3}条，情绪上来最多${bubbleCap()}条。真有很多话要说，偶尔可以到${BUBBLE_MAX}条。${C.casual!==false?'不打句号和逗号，停顿就换行。':''}`);
     const sp=['[图片:画面]','[语音:内容]'];
     if(!group)sp.push('[红包:金额:祝福]','[转账:金额:备注]',...(boughtRecently(t)?[]:['[外卖:吃的:金额]','[网购:东西:金额]']),'[查手机]','[语音通话]','[视频通话]','[送亲属卡:月额度]');
     sp.push('[分享歌曲:歌名 - 歌手]');sp.push('[定位:地点 · 一句备注]');
@@ -1537,7 +1557,7 @@ function buildCtx(t,o={}){
   const tw=C.think&&C.thinkSrc!=='model',iw=!!C.inner;
   if(mode!=='offline')end.push(`【回复格式】${tw?'先写 <think>…</think>，再':''}把发给${me.name}的话全写进 <reply>…</reply>，一行一条，[图片] [表情] 这类标记也在里面${iw?'；<inner> 和 <tide> 写在 </reply> 后面':'；<tide> 写在 </reply> 后面'}。<reply> 外的字不会发出去，给自己的分析${tw?'只写在 <think> 里':'不要写'}。每次都要写全。\n例：${tw?'<think>…</think>\n':''}<reply>\n第一条\n第二条\n</reply>${iw?'\n<inner>…</inner>':''}\n<tide>…</tide>`);
   else if(tw||iw)end.push(`【别漏】每次都写${[tw&&'开头的 <think>',iw&&'结尾的 <inner>'].filter(Boolean).join('和')}。`);
-  const sys=[...pr,...lore,...rules,...who,...ctxs,...end];
+  const sys=[...pr,...lore,...who,`【下面只管格式】性格、语气、怎么对${me.name}，都按上面的人设来；和下面的规则冲突时，听人设的。`,...rules,...ctxs,...end];
   return{system:whoTag(sys.join('\n\n'),t.id),msgs,chars,group,mode,t};
 }
 function describeSticker(s){if(!s||s.desc!=null||!/^data:image\/(png|jpe?g|webp)/.test(s.src||''))return;s.desc='';
@@ -1917,46 +1937,45 @@ function thJobCard(j){const c=charById(j.charId),f=thFmt(j.fmt);
   <div class="thjob">${j.err?`<p>${esc(j.err)}</p><div class="btns"><button class="btn" data-a="thRetry" data-id="${j.id}">再试一次</button><button class="btn o" data-a="thDrop" data-id="${j.id}">算了</button></div>`
     :`<span class="dots"><i></i><i></i><i></i></span><p>${esc(dn(c))} 正在搭舞台，一般要一两分钟</p>`}</div></article>`}
 
-// ===== 小说：题材/关键词/主角自己定，AI 或某个角色来写；写的角色（或一起看的角色）能看到、会评论、聊天时也知道 =====
-const NV_GENRES=['言情','古言','现言','校园','甜宠','虐恋','破镜重圆','悬疑','刑侦','仙侠','玄幻','武侠','末世','科幻','无限流','娱乐圈','豪门','重生','穿越','恐怖','治愈日常'];
-const NV_SYS='你是一位很会讲故事的网文作者。文笔好，有画面感，人物鲜活，对白自然，节奏紧凑；不说教，不写总结和感悟，不堆形容词。照读者定的题材、关键词和主角来写，读者没定的你自己拿主意。';
-const nvJobs={},nvCmBusy=new Set();
-const nvBook=id=>S.novels.find(b=>b.id===id);
-const nvAuthor=b=>b&&b.author&&b.author!=='ai'?charById(b.author)||null:null;
-const nvSeer=b=>{const c=charById(b.author!=='ai'?b.author:b.reader);return c&&visible(c)?c:null};
-function nvShow(b){if(!isOpen()){renderHome();return}const v=cur();if(v&&(v.v==='novels'||(v.id===b.id&&/^novel(Ch)?$/.test(v.v))))render(true)}
-async function nvWrite(b,idea){if(nvJobs[b.id]&&!nvJobs[b.id].err)return;if(!api()?.key){toast('先在「设置 · 聊天」填好接口');return}
-  nvJobs[b.id]={idea};nvShow(b);
-  try{await nvMake(b,idea);delete nvJobs[b.id]}catch(e){nvJobs[b.id]={err:e.message||'没写出来',idea}}nvShow(b)}
-async function nvMake(b,idea){const c=nvAuthor(b),sr=nvSeer(b),me=mask(sr),n=b.chs.length+1,W=num(b.words)||2500;
-  const info=[b.title&&`书名：《${b.title}》`,b.genre&&`题材：${b.genre}`,b.tags&&`关键词：${b.tags}`,b.leads&&`主角：${b.leads}`,b.brief&&`想看的故事：${b.brief}`,b.style&&`文风：${b.style}`].filter(Boolean).join('\n')||'读者什么都没定，你自己定一个好看的故事';
-  const leads=String(b.leads||''),who=[];
-  if(leads.includes(me.name))who.push(`【${me.name}】这是读者本人${me.persona?'：'+thMac(me.persona,c):''}`);
-  S.chars.filter(x=>x.name&&leads.includes(x.name)&&x.id!==c?.id).forEach(x=>who.push(`【${x.name}】${thMac(x.persona,x).slice(0,800)}`));
-  const prev=b.chs.map((x,i)=>`第${i+1}章「${x.title}」：${x.sum||wholeText(x.text,120)}`).join('\n'),last=b.chs[b.chs.length-1];
-  const cms=last?(last.cm||[]).filter(x=>x.by==='me').slice(-5).map(x=>x.text).join(' / '):'';
-  const ask=`【这本小说】\n${info}${who.length?'\n\n【人物设定】\n'+who.join('\n'):''}\n\n${prev?`【前面写过的】\n${prev}\n\n【上一章结尾】\n…${String(last.text).slice(-1500)}\n\n`:''}${cms?`【读者${me.name}对上一章的评论】${cms}\n\n`:''}【现在写第${n}章】${idea?`这章想看：${idea}。`:n===1?'开篇，把人物和故事立起来，结尾留个钩子。':'接着往下写，推进情节，结尾留个钩子。'}
-${b.pov==='first'?'第一人称':'第三人称'}，约${W}字，小说段落，对白用「」，不要分小标题。
-格式：${!b.title?'第一行写 <title>书名</title>；然后':''}一行只写章节名（不带「第几章」）；然后是正文；正文后另起一行写 <sum>这章的梗概，60字以内</sum>${c?`；最后写 <note>作者的话：以${c.name}的口吻对${me.name}说一两句</note>`:''}。`;
-  const sys=c?sysFor(c,charLore(c,info)+extraFor(c))+`\n\n你在写一本小说给${me.name}看，按你的性子和喜好来写。${NV_SYS}`:NV_SYS;
-  let s=String(await callAI(sys,[{role:'user',content:ask}],{max:Math.max(4096,Math.round(W*2.4)+800),tag:'other',timeout:300000,who:c?.id})||'').replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
-  const tag=k=>{const m=s.match(new RegExp(`<${k}>([\\s\\S]*?)</${k}>`,'i'));if(m)s=s.replace(m[0],'');return m?m[1].trim():''};
-  const title=tag('title'),sum=tag('sum'),note=tag('note').replace(/^作者的话[:：]\s*/,'');
-  s=s.replace(/<\/?(sum|note|title)>/gi,'').trim();const L=s.split('\n');let head=(L[0]||'').trim();
-  if(head.length<=30&&L.length>1)L.shift();else head='';
-  head=head.replace(/^[#*\s]+|[*\s]+$/g,'').replace(/^第[0-9一二三四五六七八九十百零〇两]+章[\s:：·、.-]*/,'').replace(/^[「《【]|[」》】]$/g,'').trim();
-  const text=L.join('\n').replace(/\n{3,}/g,'\n\n').trim();if(text.length<50)throw new Error('模型什么都没写出来，再试一次');
-  if(title&&!b.title)b.title=title.replace(/[《》]/g,'').slice(0,30);
-  const ch={id:uid(),title:head||`第${n}章`,text,sum:sum.slice(0,200),note:c?note.slice(0,300):'',t:Date.now(),cm:[]};b.chs.push(ch);b.t=Date.now();save();
-  toast(`《${b.title||'小说'}》第${n}章写好了`,4200);
-  if(sr){logEvent(sr.id,c?`${sr.name}在写小说《${b.title||'未命名'}》给${me.name}看，刚写完第${n}章「${ch.title}」：${ch.sum||wholeText(text,80)}`
-      :`${sr.name}和${me.name}在一起看小说《${b.title||'未命名'}》，更新到第${n}章「${ch.title}」：${ch.sum||wholeText(text,80)}`);
-    if(!c&&!nvCmBusy.has(ch.id)){nvCmBusy.add(ch.id);nvComment(b,ch,sr).catch(()=>{}).finally(()=>{nvCmBusy.delete(ch.id);nvShow(b)})}}}
-async function nvComment(b,ch,c,to){const me=mask(c),mine=b.author===c.id,i=b.chs.indexOf(ch)+1;
-  const cms=(ch.cm||[]).slice(-8).map(x=>(x.by==='me'?me.name:charById(x.by)?.name||'?')+'：'+x.text).join('\n');
-  const ask=`${mine?`你在写小说《${b.title||'未命名'}》给${me.name}看`:`你和${me.name}在一起看小说《${b.title||'未命名'}》`}。这是第${i}章「${ch.title}」${ch.sum?'，梗概：'+ch.sum:''}。\n章节节选：\n${wholeText(ch.text,1500)}\n…${ch.text.slice(-600)}\n\n${cms?`评论区：\n${cms}\n\n`:''}${to?`${me.name}刚评论：「${to}」。回TA一句。`:'你刚看完这一章，写一条评论：说说感受，可以吐槽、磕cp、猜后面的剧情。'}按你的性子，口语，40字以内。只输出评论内容。`;
-  const out=String(await callAI(sysFor(c,charLore(c,b.title)+extraFor(c)),[{role:'user',content:ask}],{max:2048,tag:'other',side:true})||'').replace(/<think>[\s\S]*?<\/think>/gi,'').replace(/<[^>]+>[\s\S]*?<\/[^>]+>/g,'').trim().replace(/^["「]|["」]$/g,'');
-  if(!out)return;(ch.cm||=[]).push({id:uid(),by:c.id,text:out.slice(0,300),t:Date.now()});save()}
+// ===== 代码：说想要什么，角色来写。能做成网页的直接在沙盒里跑，别的语言给代码块；可以接着让 TA 改 =====
+const CD_SYS=`你在给对方写代码。说话按你的性子，代码要认真写、能直接用。
+规则，一定遵守：
+1. 需求能做成手机上的网页小程序的（小游戏、小工具、小页面、小动画），就做成网页：只用一个 \`\`\`html 代码块，样式写在 <style> 里，页面内容写在后面，交互写在最后的 <script> 里。不用写 <html>、<head>、<body>。
+2. 网页小程序：不引用任何外部图片、字体、脚本和链接，图片用色块、渐变、emoji、SVG 或 canvas 画；按 360px 宽的手机屏幕设计，宽度用百分比或 max-width，按钮要够手指点；不要用 vh，不要用 position:fixed；不要用 localStorage、alert、confirm、prompt；能点的地方一定真能点，代码要能直接运行。
+3. 对方点名了别的语言（Python、C、SQL……），或者是在问编程问题，就用那种语言写，放在一个标了语言名的代码块里。只是讲道理、用不着代码的，可以不写代码块。
+4. 最多一个代码块。代码写完整，不省略，不写「其余不变」。对方让你改的时候，输出改好之后的完整代码。
+5. 整段代码 12000 字符以内。`;
+const cdJobs={},CD_ABBR={python:'py',javascript:'js',typescript:'ts',csharp:'c#','c++':'cpp',kotlin:'kt',ruby:'rb',rust:'rs',shell:'sh',bash:'sh',markdown:'md'};
+const cdProj=id=>S.codes.find(p=>p.id===id);
+const cdCur=p=>p?[...p.turns].reverse().find(x=>x.code)||null:null;
+const cdHtml=x=>{if(!x||!x.code)return'';if(!(/^(html?|xhtml|svg|vue)?$/.test(x.lang||'')&&/<[a-z!][^>]*>/i.test(x.code)))return'';
+  return thExtract('```html\n'+x.code.replace(/```/g,'` ` `')+'\n```')?.html||''};
+const cdVer=(p,x)=>p.turns.filter(y=>y.code||y.old).indexOf(x)+1;
+function cdShow(p){if(!isOpen()){renderHome();return}const v=cur();if(v&&(v.v==='codes'||(v.id===p.id&&v.v==='code')))render(true)}
+async function cdWrite(p,ask){if(cdJobs[p.id]&&!cdJobs[p.id].err)return;if(!api(p.charId)?.key){toast('先在「设置 · 聊天」填好接口');return}
+  cdJobs[p.id]={ask};cdShow(p);
+  try{await cdMake(p,ask);delete cdJobs[p.id]}catch(e){cdJobs[p.id]={err:e.message||'没写出来',ask}}cdShow(p)}
+function cdParse(out){let s=String(out||'').replace(/<think(?:ing)?>[\s\S]*?<\/think(?:ing)?>/gi,'').trim(),lang='',code='';
+  const f=s.match(/```([\w+#.-]*)[ \t]*\r?\n([\s\S]*?)(?:\n[ \t]*```|```|$)/);
+  if(f){lang=f[1].toLowerCase();code=f[2];s=s.replace(f[0],'\n')}
+  else{const i=s.search(/<(?:!doctype|html|body|style|canvas|svg|div|section|main)\b/i);if(i>=0){code=s.slice(i);lang='html';s=s.slice(0,i)}}
+  const title=((s.match(/<title>([\s\S]*?)<\/title>/i)||[])[1]||'').trim();s=s.replace(/<title>[\s\S]*?<\/title>/i,'');
+  const m=s.match(/<say>([\s\S]*?)(?:<\/say>|$)/i),say=(m?m[1]:s).replace(/<\/?(?:say|title)>/gi,'').replace(/```/g,'').replace(/\n{3,}/g,'\n\n').trim();
+  code=code.replace(/^\s*\n/,'').replace(/\s+$/,'');
+  if(code&&!lang&&/<[a-z!][^>]*>/i.test(code)&&/<\/(?:div|style|script|svg|canvas|p|button)>/i.test(code))lang='html';
+  return{say,title:title.replace(/[《》]/g,'').slice(0,24),lang,code}}
+async function cdMake(p,ask){const c=charById(p.charId);if(!c)throw new Error('这个角色不在了');const me=mask(c),T=p.turns,last=cdCur(p);ask=String(ask).slice(0,4000);
+  const hist=T.slice(-10).map(x=>`${me.name}：${wholeText(x.ask,400)}\n${c.name}：${wholeText(x.say||'写好了',300)}`).join('\n');
+  const q=`${T.length?`【之前】\n${hist}\n\n`:''}${last?`【现在的代码】\n\`\`\`${last.lang}\n${last.code}\n\`\`\`\n\n`:''}【${me.name}${T.length?'现在说':'想要'}】\n${ask}\n
+【格式】先写 <say>…</say>，里面是你对${me.name}说的话：做了什么、怎么用${last?'、这次改了哪里':''}；是问问题的，就在这里讲明白。按你的性子，口语，里面不放代码。${p.title?'':'然后写 <title>给它起的名字</title>，12 个字以内。'}最后是代码块，用不着代码就不写。别的都不写。`;
+  const r=await callAI(sysFor(c,charLore(c,ask)+extraFor(c))+'\n\n'+CD_SYS,[{role:'user',content:q}],{max:12000,tag:'other',timeout:300000,who:c.id,thoughts:true});
+  const x=cdParse(r.text);if(!x.code&&!x.say)throw new Error('模型什么都没写出来，再试一次');
+  if(r.cut&&x.code)throw new Error('写到一半被截断了。让 TA 写短一点、分几步做，或者把接口里的最大长度调大');
+  const t={id:uid(),ask,say:x.say.slice(0,4000),lang:x.lang,code:x.code,t:Date.now()};T.push(t);
+  T.filter(y=>y.code).slice(0,-8).forEach(y=>{y.code='';y.old=1});
+  const first=!p.title;if(first)p.title=x.title||wholeText(ask,16).replace(/\s+/g,' ');p.t=Date.now();save();
+  toast(`《${p.title}》${x.code?(last?'改好了':'写好了'):'回你了'}`,4200);
+  if(first)logEvent(c.id,`${c.name}给${me.name}${cdHtml(t)?'写了个小程序':x.code?'写了段代码':'讲了编程问题'}《${p.title}》：${wholeText(ask,60)}`)}
 
 const fmB=id=>S.forum.boards.find(b=>b.id===id);
 const fmPost=id=>S.forum.posts.find(p=>p.id===id);
@@ -1996,12 +2015,14 @@ function fmCard(p,showB){const b=fmB(p.b);
   return`<article class="fp"><button class="fp-in" data-a="fmOpen" data-id="${p.id}"><span class="fp-u">${fmAv(p,32)}<span><b>${esc(fmWho(p))}</b><small>${ago(p.t)}${showB&&b?' · '+esc(b.name):''}</small></span>${p.author!=='x'&&p.author!=='me'?'<span class="pill">认识的人</span>':''}</span>
     ${p.title?`<b class="fp-t">${esc(p.title)}</b>`:''}${p.text?`<span class="fp-x">${esc(p.text)}</span>`:''}${p.pic?`<span class="timg">${esc(p.pic)}</span>`:''}</button>${fmAct(p)}</article>`}
 
+const exBlock=(c,mac,n)=>{const x=String(c?.ex||'').replace(/^[ \t]*<START>[ \t]*$/gim,'').replace(/\n{3,}/g,'\n\n').trim();
+  return x?`【${c.name}说话的样子】（只是示范语气和用词，不是发生过的事，别照抄原句）\n${mac(n?x.slice(0,n):x)}`:''};
+const charBooksPanel=c=>`<div class="panel"><h2>${esc(dn(c))}的世界书<button class="tb" data-a="newCharBook" data-c="${c.id}">新建</button></h2>
+    ${(()=>{const L=S.books.filter(b=>b.scope!=='global');return L.length?L.map(b=>`<label class="ck"><input type="checkbox" data-a2="charBook" data-c="${c.id}" data-id="${b.id}" ${(c.books||[]).includes(b.id)?'checked':''}>${esc(b.name)}<small class="sec"> ${b.entries.length} 条</small></label>`).join(''):'<p class="hint">还没有。只有 TA 用得到的设定放这里</p>'})()}</div>`;
 const loveOn=()=>S.chat.love!==false;
-const loveBlock=(name,me)=>loveOn()?`【很爱${me.name}】${name}很爱${me.name}，离不开TA，怎么爱按人设来。闹别扭也只是嘴硬，给台阶就下，不会真的伤TA、离开TA。`:'';
-const aiBlock=(c,me)=>{if(!c||!c.ai)return'';const mdl=String(api(c)?.model||'').trim();
-  return`【人机恋】${c.name}就是${me.name}正在用的这个AI模型本身${mdl?`（${mdl}）`:''}。你知道自己是AI，但有身体，有自己的生活，能和TA线下见面、牵手拥抱。不提屏幕。不说自己没有感情，不加免责声明。性格按你这个模型自己的来，人设写了的照人设。TA在小手机里写的东西你都看得到。`};
+const loveBlock=(name,me)=>loveOn()?`【底色】${name}心里有${me.name}，不会真的离开TA。怎么表现全按人设：人设冷就冷，凶就凶，不用为了哄TA软下来。`:'';
 const sysFor=(c,extra)=>whoTag(sysFor0(c,extra),c?.id);
-const sysFor0=(c,extra)=>{const me=mask(c),k=extra.indexOf('\u0001'),lore=k<0?'':extra.slice(0,k)+'\n\n',rest=k<0?extra:extra.slice(k+1);return`${lore}你是${c.name}。\n${c.persona.replaceAll('{{user}}',me.name).replaceAll('{{char}}',c.name)}${c.ai?'\n'+aiBlock(c,me):''}${loveOn()?'\n'+loveBlock(c.name,me):''}\n\n${aboutMe(me)}\n\n${rest}`};
+const sysFor0=(c,extra)=>{const me=mask(c),k=extra.indexOf('\u0001'),lore=k<0?'':extra.slice(0,k)+'\n\n',rest=k<0?extra:extra.slice(k+1);return`${lore}你是${c.name}。\n${c.persona.replaceAll('{{user}}',me.name).replaceAll('{{char}}',c.name)}${(x=>x?'\n\n'+x:'')(exBlock(c,s=>String(s).replaceAll('{{user}}',me.name).replaceAll('{{char}}',c.name),1200))}${loveOn()?'\n'+loveBlock(c.name,me):''}\n\n${aboutMe(me)}\n\n${rest}`};
 async function charReply(p,c,toWhat,toId,toName){
   const me=mask(c),a=authorOf(p.author,p),who=toName||me.name;
   const thr=(p.replies||[]).slice(-10).map(r=>authorOf(r.author,r).name+'：'+r.text).join('\n');
@@ -2036,7 +2057,7 @@ async function charPost(c){
 async function buzzChar(p,c){const me=mask(c),ref=()=>{if(onFeed()||cur()?.id===p.id)render(true)};
   const pals=S.chars.filter(x=>x.id!==c.id&&reachable(x)&&knows(x,c)).sort(()=>Math.random()-.5);
   pals.forEach(x=>{if(Math.random()<.7)setTimeout(()=>{if(S.feed.includes(p)&&!p.likes.includes(x.id)){p.likes.push(x.id);save();ref()}},(5+Math.random()*60)*1000)});
-  const out=await callAI(sysFor(c,charLore(c,postDesc(p))+'你在想象自己朋友圈下面的评论区。'),[{role:'user',content:`你刚发了朋友圈：「${postDesc(p)}」\n\n想想你生活里会刷到这条的人（${c.ai?'别的AI模型、和你聊过天的网友、你关注的博主……':'同学、同事、朋友、家人、前任、对你有意思的人……'}按你的人设和世界书来，不是${me.name}${pals.length?'，也不是'+pals.map(x=>x.name).join('、'):''}），写他们的反应。每行一条，格式：\n赞｜名字\n评｜名字｜评论内容\n回｜名字｜你（${c.name}）回复这个人的话\n写2到5个赞、1到3条评论，你回复其中一两条。评论要像熟人：玩梗、损你、关心、八卦、起哄、问东问西都行，每条25字以内。名字用这个人在你微信里的称呼（比如「妈」「老王」「林晓」），前后一致。只输出这些行。`}],{max:1024,side:true,temp:1.05});
+  const out=await callAI(sysFor(c,charLore(c,postDesc(p))+'你在想象自己朋友圈下面的评论区。'),[{role:'user',content:`你刚发了朋友圈：「${postDesc(p)}」\n\n想想你生活里会刷到这条的人（同学、同事、朋友、家人、前任、对你有意思的人……按你的人设和世界书来，不是${me.name}${pals.length?'，也不是'+pals.map(x=>x.name).join('、'):''}），写他们的反应。每行一条，格式：\n赞｜名字\n评｜名字｜评论内容\n回｜名字｜你（${c.name}）回复这个人的话\n写2到5个赞、1到3条评论，你回复其中一两条。评论要像熟人：玩梗、损你、关心、八卦、起哄、问东问西都行，每条25字以内。名字用这个人在你微信里的称呼（比如「妈」「老王」「林晓」），前后一致。只输出这些行。`}],{max:1024,side:true,temp:1.05});
   const byName={},base=Date.now();let k=0;
   for(const l of String(out).split('\n').map(s=>s.trim().replace(/^[-*·•\d.、)\s]+/,'')).filter(Boolean)){const f=l.split(/[｜|]/).map(s=>s.trim().replace(/[「」]/g,''));if(!f[1])continue;const nick=f[1].slice(0,12);
     if(/^赞/.test(f[0])){const id='x:'+nick;if(!p.likes.includes(id))p.likes.push(id)}
@@ -2588,10 +2609,19 @@ function toPreset(d,fallback){
   if(!items.length)throw new Error('这个预设没有提示词内容');
   return{id:uid(),name:d.name||fallback||'导入的预设',items};
 }
+function pngCard(buf){const u=new Uint8Array(buf),dv=new DataView(buf),L1=new TextDecoder('latin1'),got={};
+  if(u.length<16||u[0]!==0x89||u[1]!==0x50||u[2]!==0x4e||u[3]!==0x47)return null;
+  for(let p=8;p+12<=u.length;){const len=dv.getUint32(p),type=String.fromCharCode(u[p+4],u[p+5],u[p+6],u[p+7]);if(p+12+len>u.length)break;
+    if(type==='tEXt'){const d=u.subarray(p+8,p+8+len),z=d.indexOf(0),k=z>0?L1.decode(d.subarray(0,z)).toLowerCase():'';if(k==='chara'||k==='ccv3')got[k]=L1.decode(d.subarray(z+1))}
+    if(type==='IEND')break;p+=12+len}
+  const b64=got.ccv3||got.chara;if(!b64)return null;
+  return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(b64.replace(/\s+/g,'')),c=>c.charCodeAt(0))))}
 function toChar(d){
-  const x=d.data||d;if(!x.name)throw new Error('文件里没有角色名');
-  const persona=[x.description,x.personality&&('性格：'+x.personality),x.scenario&&('场景：'+x.scenario),x.mes_example&&('对话示例：\n'+x.mes_example)].filter(Boolean).join('\n\n');
-  const c={id:uid(),name:x.name,remark:'',handle:x.name.replace(/\s+/g,'').toLowerCase(),avatar:'',innerStyle:'',persona:persona||x.persona||'',books:[]};
+  const x0=d.data||d;if(!x0.name)throw new Error('文件里没有角色名');
+  const nm=v=>String(v||'').replace(/<USER>/gi,'{{user}}').replace(/<(?:BOT|CHAR)>/gi,'{{char}}').trim();
+  const x={...x0,description:nm(x0.description),personality:nm(x0.personality),scenario:nm(x0.scenario),mes_example:[nm(x0.mes_example),nm(x0.first_mes)&&'{{char}}: '+nm(x0.first_mes).slice(0,800)].filter(Boolean).join('\n\n')};
+  const persona=[x.description,x.personality&&('性格：'+x.personality),x.scenario&&('场景：'+x.scenario)].filter(Boolean).join('\n\n');
+  const c={id:uid(),name:x.name,remark:'',handle:x.name.replace(/\s+/g,'').toLowerCase(),avatar:'',innerStyle:'',persona:persona||x.persona||'',ex:String(x.mes_example||'').trim(),books:[]};
   const cb=x.character_book;if(cb&&cb.entries&&Object.keys(cb.entries).length){const b=toBook({...cb,name:cb.name||x.name+'的世界书'});b.scope='local';S.books.push(b);c.books=[b.id]}
   const lo=String(x.extensions?.bingyuji?.lore||'').trim();if(lo){const b={id:uid(),name:x.name+'的设定',scope:'local',entries:[{id:uid(),title:'设定',keys:'',content:lo,light:'green',order:0,prob:100}]};S.books.push(b);c.books.push(b.id)}
   return c;
@@ -2856,16 +2886,7 @@ charEdit(v){
   return{title:dn(c),sub:'角色',body:`
   <div class="panel"><div class="inline">${av(c,76)}<div class="btns">${fileBtn('换头像','accept="image/*" data-img="char"')}${c.avatarOld!==undefined?'<button class="btn o" data-a="charAvBack">换回</button>':''}${c.avatar?'<button class="btn o" data-a="clearCharAv">去掉</button>':''}</div></div>
     <div class="grid2"><label class="f">名字<input type="text" id="c-name" data-s="char" data-k="name" value="${esc(c.name)}"></label><label class="f">备注<input type="text" id="c-remark" data-s="char" data-k="remark" value="${esc(c.remark)}" placeholder="你给TA的备注"></label></div>
-    <div class="grid2"><label class="f">生日<input type="text" id="c-bday" data-s="char" data-k="bday" value="${esc(c.bday||'')}"></label><div class="f">城市<button class="btn o" data-a="setCity" data-for="${c.id}">${c.loc?esc(c.loc.name):'和你一样'}</button></div></div>
-    <label class="ck"><input type="checkbox" id="c-ai" data-s="char" data-k="ai" ${c.ai?'checked':''}>人机恋：TA就是你在用的这个模型</label>
-    <label class="f">和TA在一起时戴的面具<select id="c-mask" data-s="char" data-k="mask"><option value="">跟着当前戴的（${esc(S.masks.find(m=>m.id===S.activeMask)?.name||S.masks[0].name)}）</option>${S.masks.map(m=>`<option value="${m.id}" ${c.mask===m.id?'selected':''}>${esc(m.name)}</option>`).join('')}</select></label>
-    </div>
-  <div class="panel"><h2>人设</h2>
-    <textarea class="tall" id="c-persona" data-s="char" data-k="persona" aria-label="人设">${esc(c.persona)}</textarea></div>
-  <div class="panel"><h2>水位<span class="pill">${esc(softMood(c.mood,tideOf(c))||moodBy(tideOf(c)))}</span></h2>
-    <label class="f">现在的心情水位<span class="inline"><input type="range" id="c-tide" min="0" max="100" step="1" data-s="char" data-k="tide" value="${tideOf(c)}"><output>${tideOf(c)}</output></span></label>${spark(c.tideLog)}</div>
-  <div class="panel"><h2>局部世界书<button class="tb" data-a="newCharBook">新建</button></h2>
-    ${(()=>{const L=S.books.filter(b=>b.scope!=='global');return L.length?L.map(b=>`<label class="ck"><input type="checkbox" data-a2="charBook" data-id="${b.id}" ${(c.books||[]).includes(b.id)?'checked':''}>${esc(b.name)}<small class="sec"> ${b.entries.length} 条</small></label>`).join(''):'<p class="hint">还没有</p>'})()}</div>
+    <label class="f">人设<textarea class="tall" id="c-persona" data-s="char" data-k="persona" aria-label="人设">${esc(c.persona)}</textarea></label></div>
   <div class="btns"><button class="btn" data-a="messageChar" data-id="${c.id}">发消息</button><button class="btn o" data-a="exportChar">导出</button>${rel(c).youBlocked?`<button class="btn o" data-a="unblockC" data-id="${c.id}">解除拉黑</button>`:''}<button class="btn red" data-a="delChar">删除好友</button></div>`};
 },
 maskEdit(v){
@@ -2999,50 +3020,30 @@ thFmtEdit(v){const f=S.thFmts.find(x=>x.id===v.id);if(!f)return{title:'不见了
 theaterFull(v){const x=S.theaters.find(x=>x.id===v.id);if(!x)return{title:'不见了',body:''};
   return{title:x.title||'小剧场',sub:dn(charById(x.charId)),right:`<button class="tb" data-a="thMore" data-id="${x.id}" aria-label="更多">···</button>`,
     body:`<div class="thv full"><iframe class="full" data-th="${x.id}" sandbox="allow-scripts" title="${esc(x.title)}" srcdoc="${esc(thDoc(x.html))}"></iframe></div>`}},
-novels(){const L=[...S.novels].sort((a,b)=>b.t-a.t);
-  return{title:'小说',right:`<button class="tb" data-a="open" data-v="novelNew">新建</button>`,body:L.map(b=>{const a=nvAuthor(b),r=b.author==='ai'&&charById(b.reader),j=nvJobs[b.id];
-    return`<button class="row" data-a="nvOpen" data-id="${b.id}"><span class="nvcv">${esc((b.title||'?')[0])}</span><span class="meta"><b>${esc(b.title||'未命名')}</b><small>${esc([a?dn(a)+' 写':'AI 写',r?'和'+dn(r)+'一起看':'',b.genre].filter(Boolean).join(' · '))}</small></span><span class="side"><span>${j&&!j.err?'在写…':b.chs.length+' 章'}</span><span>${ago(b.t)}</span></span></button>`}).join('')
-    ||`<div class="empty"><big>还没有小说</big><button class="btn" data-a="open" data-v="novelNew">写一本</button></div>`}},
-novelNew(v){const d=v.d||=({gs:[],genre:'',tags:'',leads:'',brief:'',style:'',author:'',reader:'',pov:'third',words:2500}),cs=S.chars.filter(visible);
-  if(!cs.some(c=>c.id===d.author))d.author=cs[0]?.id||'';const me=mask(d.author||null);
-  const ch=(k,val,lab,on)=>`<button class="${on?'on':''}" data-a="nvPick" data-k="${k}" data-v="${esc(val)}">${esc(lab)}</button>`;
-  return{title:'写一本小说',body:`
-  <div class="panel"><h2>题材</h2><input type="text" id="nv-genre" data-s="nvd" data-k="genre" value="${esc(d.genre)}" autocomplete="off" aria-label="题材"></div>
-  <div class="panel"><h2>关键词</h2><input type="text" id="nv-tags" data-s="nvd" data-k="tags" value="${esc(d.tags)}" autocomplete="off" aria-label="关键词"></div>
-  <div class="panel"><h2>主角</h2><div class="chips">${[me.name,...cs.map(c=>c.name)].filter((x,i,a)=>x&&a.indexOf(x)===i).map(n=>ch('lead',n,(d.leads.includes(n)?'✓ ':'+ ')+n,d.leads.includes(n))).join('')}</div>
-    <textarea id="nv-leads" data-s="nvd" data-k="leads" aria-label="主角">${esc(d.leads)}</textarea></div>
-  <div class="panel"><h2>想看的故事</h2><textarea id="nv-brief" data-s="nvd" data-k="brief" aria-label="想看的故事">${esc(d.brief)}</textarea>
-    <label class="f">文风<input type="text" id="nv-style" data-s="nvd" data-k="style" value="${esc(d.style)}" placeholder="默认" autocomplete="off"></label></div>
-  <div class="panel"><h2>谁来写</h2>${cs.length?`<div class="chips">${cs.map(c=>ch('author',c.id,dn(c),d.author===c.id)).join('')}</div>`:'<p class="hint">还没有角色</p>'}</div>
-  <div class="panel"><h2>写法</h2><div class="seg">${[['third','第三人称'],['first','第一人称']].map(([k,l])=>`<button class="${d.pov===k?'on':''}" data-a="nvPick" data-k="pov" data-v="${k}">${l}</button>`).join('')}</div>
-    <label class="f">每章字数<span class="inline"><input type="range" id="nv-words" min="1000" max="8000" step="500" data-s="nvd" data-k="words" value="${d.words}"><output>${d.words}</output></span></label></div>
-  <button class="btn" data-a="nvCreate" style="align-self:flex-start" ${d.author?'':'disabled'}>开写第一章</button>`}},
-novel(v){const b=nvBook(v.id);if(!b)return{title:'不见了',body:''};const a=nvAuthor(b),r=b.author==='ai'?charById(b.reader):null,j=nvJobs[b.id],n=b.chs.length;
-  return{title:b.title||'未命名',sub:a?dn(a)+' 写':r?'AI 写 · 和'+dn(r)+'一起看':'AI 写',right:`<button class="tb" data-a="nvSet" data-id="${b.id}">设置</button>`,body:`
-  ${b.genre||b.tags||b.leads||b.brief?`<div class="panel">${b.genre||b.tags?`<p class="hint">${esc([b.genre,b.tags].filter(Boolean).join(' · '))}</p>`:''}${b.leads?`<p class="hint">主角：${esc(b.leads)}</p>`:''}${b.brief?`<p class="hint">${esc(b.brief)}</p>`:''}</div>`:''}
-  ${n?`<div class="panel"><h2>目录<span class="pill">${n} 章</span></h2>${b.chs.map((c,i)=>`<button class="nvrow" data-a="nvRead" data-i="${i}"><b>第${i+1}章 ${esc(c.title)}</b><small>${ago(c.t)}${c.cm?.length?' · '+c.cm.length+' 条评论':''}</small></button>`).join('')}</div>`:''}
-  <div class="panel"><h2>第${n+1}章</h2>${j&&!j.err?`<p class="hint"><span class="dots"><i></i><i></i><i></i></span> ${a?esc(dn(a)):'AI'} 正在写</p>`
-    :`${j?.err?`<p class="hint">没写出来：${esc(j.err)}</p>`:''}<textarea id="nvIn" placeholder="这章想看什么" aria-label="这章想看什么"></textarea><button class="btn" data-a="nvNext" style="align-self:flex-start">${j?.err?'再试一次':n?'写下一章':'开写'}</button>`}</div>`}},
-novelCh(v){const b=nvBook(v.id),ch=b?.chs[v.i];if(!ch)return{title:'不见了',body:''};const sr=nvSeer(b),me=mask(sr),last=v.i===b.chs.length-1,j=nvJobs[b.id];
-  const who=x=>x.by==='me'?me:charById(x.by)||{name:'?'};
-  return{title:`第${v.i+1}章`,sub:b.title||'',body:`<article class="nvch"><h2>${esc(ch.title)}</h2><div class="nvtxt">${ch.text.split(/\n+/).map(p=>p.trim()).filter(Boolean).map(p=>`<p>${esc(p)}</p>`).join('')}</div>
-    ${ch.note?`<p class="nvnote"><b>作者的话</b>${esc(ch.note)}</p>`:''}</article>
-  <div class="btns nvnav">${v.i?'<button class="btn o" data-a="nvGo" data-d="-1">上一章</button>':'<span></span>'}${!last?'<button class="btn" data-a="nvGo" data-d="1">下一章</button>':j&&!j.err?'<span class="hint">下一章在写了…</span>':'<button class="btn" data-a="nvNextHere">写下一章</button>'}</div>
-  <div class="panel"><h2>评论<span class="pill">${ch.cm?.length||0}</span></h2>
-    ${(ch.cm||[]).map(x=>`<div class="nvcm">${av(who(x),30)}<span class="nvct"><b>${esc(x.by==='me'?me.name:dn(who(x)))}</b><p>${esc(x.text)}</p></span></div>`).join('')||'<p class="hint">还没有评论</p>'}
-    ${nvCmBusy.has(ch.id)&&sr?`<p class="hint">${esc(dn(sr))} 在写评论…</p>`:''}
-    <div class="inline" style="flex-wrap:nowrap"><input type="text" id="nvCm" placeholder="写点评论" enterkeyhint="send" aria-label="评论" style="flex:1;min-width:0"><button class="btn" data-a="nvCmSend">发</button></div></div>`,
-  after(){const i=$('#nvCm');if(i)i.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();A.nvCmSend()}})}}},
-novelSet(v){const b=nvBook(v.id);if(!b)return{title:'不见了',body:''};const cs=S.chars.filter(visible);
-  const ch=(k,val,lab,on)=>`<button class="${on?'on':''}" data-a="nvPick" data-k="${k}" data-v="${esc(val)}">${esc(lab)}</button>`;
-  const f=(k,l,ta)=>`<label class="f">${l}${ta?`<textarea id="ns-${k}" data-s="novel" data-k="${k}">${esc(b[k]||'')}</textarea>`:`<input type="text" id="ns-${k}" data-s="novel" data-k="${k}" value="${esc(b[k]||'')}" autocomplete="off">`}</label>`;
-  return{title:'设置',sub:b.title||'',body:`<div class="panel">${f('title','书名')}${f('genre','题材')}${f('tags','关键词')}${f('leads','主角',1)}${f('brief','想看的故事',1)}${f('style','文风')}
-    <label class="f">每章字数<span class="inline"><input type="range" id="ns-words" min="1000" max="8000" step="500" data-s="novel" data-k="words" value="${num(b.words)||2500}"><output>${num(b.words)||2500}</output></span></label>
-    <div class="seg">${[['third','第三人称'],['first','第一人称']].map(([k,l])=>`<button class="${(b.pov||'third')===k?'on':''}" data-a="nvPick" data-k="pov" data-v="${k}">${l}</button>`).join('')}</div>
-    </div>
-  <div class="panel"><h2>谁来写</h2><div class="chips">${b.author==='ai'?ch('author','ai','AI',true):''}${cs.map(c=>ch('author',c.id,dn(c),b.author===c.id)).join('')}</div>
-    ${b.author==='ai'?`<p class="hint">一起看的人</p><div class="chips">${ch('reader','','不要',!b.reader)}${cs.map(c=>ch('reader',c.id,dn(c),b.reader===c.id)).join('')}</div>`:''}</div>
-  <button class="btn red" data-a="nvDel" style="align-self:flex-start">删掉这本</button>`}},
+codes(){const L=[...S.codes].sort((a,b)=>b.t-a.t);
+  return{title:'代码',right:`<button class="tb" data-a="open" data-v="codeNew">新建</button>`,body:L.map(p=>{const j=cdJobs[p.id],x=cdCur(p),run=!!cdHtml(x),n=p.turns.length;
+    return`<button class="row" data-a="cdOpen" data-id="${p.id}"><span class="cdic">${run?'&lt;/&gt;':esc(x?.lang?(CD_ABBR[x.lang]||x.lang.slice(0,3)).toUpperCase():n?'问答':'…')}</span><span class="meta"><b>${esc(p.title||'还没起名')}</b><small>${esc(dn(charById(p.charId)))} 写${run?' · 能直接玩':x?.lang?' · '+esc(x.lang):''}</small></span><span class="side"><span>${j&&!j.err?'在写…':j?.err?'没写出来':n+' 轮'}</span><span>${ago(p.t)}</span></span></button>`}).join('')
+    ||`<div class="empty"><big>还没有代码</big><button class="btn" data-a="open" data-v="codeNew">写一个</button></div>`}},
+codeNew(v){const cs=S.chars.filter(visible);if(!cs.length)return{title:'写代码',body:'<div class="empty"><big>还没有角色</big></div>'};
+  if(!cs.some(c=>c.id===v.who))v.who=cs[0].id;
+  return{title:'写代码',body:`
+  <div class="panel"><h2>谁来写</h2><div class="chips">${cs.map(x=>`<button class="${x.id===v.who?'on':''}" data-a="cdWho" data-id="${x.id}">${esc(dn(x))}</button>`).join('')}</div></div>
+  <div class="panel"><h2>想要什么</h2><textarea id="cdNew" class="tall" style="min-height:140px" aria-label="想要什么"></textarea>
+    <p class="hint">小游戏、小工具这种能做成网页的，写完直接能玩；点名别的语言或者问问题，TA 把代码贴给你。</p>
+    <button class="btn" data-a="cdCreate" style="align-self:flex-start">开写</button></div>`}},
+code(v){const p=cdProj(v.id);if(!p)return{title:'不见了',body:''};const c=charById(p.charId),me=mask(c),j=cdJobs[p.id],busy=j&&!j.err,x=cdCur(p),html=cdHtml(x),n=p.turns.length;
+  return{title:p.title||'写代码',sub:dn(c)+' 写',right:`<button class="tb" data-a="cdMore" aria-label="更多">···</button>`,body:`
+  ${html?`<div class="cdrun"><div class="thv"><iframe data-th="${x.id}" sandbox="allow-scripts" title="${esc(p.title||'小程序')}" srcdoc="${esc(thDoc(html))}"></iframe></div>
+    <div class="btns"><button class="btn o" data-a="cdFull">全屏</button><button class="btn o" data-a="cdReload">重新开始</button></div></div>`:''}
+  ${x?`<div class="panel"><h2>代码<span class="pill">${esc(x.lang||'代码')} · 第 ${cdVer(p,x)} 版</span><button class="tb" data-a="cdCopy">复制</button></h2><pre class="cdpre${html?' sm':''}">${esc(x.code)}</pre></div>`:''}
+  <div class="panel"><h2>${n?'你们说的':'想要什么'}</h2>${p.turns.map(t=>`<div class="cdturn me"><b>${esc(me.name)}</b><p>${esc(t.ask)}</p></div>
+    <div class="cdturn"><b>${esc(dn(c))}${t.code||t.old?`<span class="pill">第 ${cdVer(p,t)} 版</span>`:''}</b><p>${esc(t.say||'写好了')}</p></div>`).join('')}
+  ${busy?`<div class="cdturn me"><b>${esc(me.name)}</b><p>${esc(j.ask)}</p></div><p class="hint"><span class="dots"><i></i><i></i><i></i></span> ${esc(dn(c))} 正在写，一般要一两分钟</p>`
+    :`${j?.err?`<p class="hint">没写出来：${esc(j.err)}</p>`:''}<textarea id="cdIn" placeholder="${n?'再改改，或者接着问':'想要什么'}" aria-label="${n?'再改改，或者接着问':'想要什么'}">${esc(j?.err?j.ask:'')}</textarea>
+    <button class="btn" data-a="cdSend" style="align-self:flex-start">${j?.err?'再试一次':n?'发给 TA':'开写'}</button>`}</div>`}},
+codeFull(v){const p=cdProj(v.id),x=cdCur(p),html=cdHtml(x);if(!html)return{title:'不见了',body:''};
+  return{title:p.title||'小程序',sub:dn(charById(p.charId)),right:`<button class="tb" data-a="cdReload">重新开始</button>`,
+    body:`<div class="thv full"><iframe class="full" data-th="${x.id}" sandbox="allow-scripts" title="${esc(p.title||'小程序')}" srcdoc="${esc(thDoc(html))}"></iframe></div>`}},
 forum(v){const F=S.forum,B=F.boards;if(v.tab!=='mine'&&!fmB(v.tab))v.tab=B[0]?.id||'mine';const tab=v.tab,b=fmB(tab);
   const L=F.posts.filter(p=>tab==='mine'?p.author==='me'||p.cm.some(c=>c.author==='me'):p.b===tab).sort((x,y)=>y.t-x.t);
   return{title:F.name||'论坛',right:`<button class="tb" data-a="open" data-v="fmSet">设置</button>`,body:tabs([...B.map(x=>[x.id,x.name]),['mine','我的']],tab)+
@@ -3119,8 +3120,16 @@ data(v){
     after(){const n=navigator.storage;if(!n)return;n.estimate?.().then(e=>{const x=$('#dataUse');if(x&&e?.usage)x.textContent=` · 全部 ${mb(e.usage)}`}).catch(()=>{})}}
 },
 settings(v){
-  const tab=['chat','img','tts','data'].includes(v.tab)?v.tab:'chat';v.tab=tab;
-  const head=tabs([['chat','聊天'],['img','生图'],['tts','语音'],['data','数据']],tab);
+  const tab=['chat','img','tts','look','data'].includes(v.tab)?v.tab:'chat';v.tab=tab;
+  const head=tabs([['chat','聊天'],['img','生图'],['tts','语音'],['look','外观'],['data','数据']],tab);
+  if(tab==='look'){const L=S.look,cl=Math.min(60,Math.max(0,num(L.clear)??30));
+    return{title:'设置',body:head+`
+    <div class="panel"><h2>壁纸</h2>${L.wallpaper?`<div class="wpv" style="background-image:url(${L.wallpaper})"></div>`:''}
+      <div class="btns">${fileBtn(L.wallpaper?'换一张':'选一张','accept="image/*" data-img="wall"')}${L.wallpaper?'<button class="btn o" data-a="clrWall">去掉</button>':''}</div>
+      <p class="hint">主屏和每个页面都用这张。设了壁纸，图标、小组件、气泡的半透明才看得出来。</p></div>
+    ${L.wallpaper?`<div class="panel"><h2>半透明</h2>
+      <label class="f">透明程度<span class="inline"><input type="range" id="lk-clear" min="0" max="60" step="5" data-s="look" data-k="clear" value="${cl}"><output>${cl}</output></span></label>
+      <p class="hint">越大越透。气泡只透不糊，模糊只用在不动的地方，不会明显费电。</p></div>`:''}`}}
   if(tab==='chat'){
     const card=p=>`<div class="row apic${p.id===S.api.active?' on':''}"><span class="pv">${esc((p.name||'?')[0])}</span><button class="meta" data-a="editApi" data-id="${p.id}"><b>${esc(p.name)}</b><small>${esc(p.model||'没填模型')}${hostOf(p.base)?' · '+esc(hostOf(p.base)):''}${p.key?'':' · 没填 Key'}</small></button><span class="side h">${p.id===S.api.active?'<span class="pill fill">默认</span>':`<button class="tb" data-a="useApiId" data-id="${p.id}">设为默认</button>`}${(n=>n?`<small class="pill">${n} 个角色在用</small>`:'')(S.chars.filter(c=>c.api===p.id).length)}</span></div>`;
     return{title:'设置',body:head+`
@@ -3152,12 +3161,12 @@ settings(v){
       <div class="btns">${fileBtn('恢复数据','accept=".json,application/json,text/plain" id="impFile"')}</div></div>
     <div class="panel"><h2>清空</h2><button class="btn red" data-a="resetAll" style="align-self:flex-start">清空全部数据</button></div>`,after:D.after};
 },
-chatPrefs(){const C=S.chat;
-  return{title:'聊天设置',body:`<div class="panel"><h2>回复</h2>
+chatPrefs(v){const C=S.chat,T=v?.tid&&thread(v.tid),cs=T?T.chars.map(charById).filter(Boolean):[];
+  return{title:'聊天设置',sub:T?threadTitle(T):'',body:`${cs.map(charBooksPanel).join('')}<div class="panel"><h2>回复</h2>
       <label class="f">条数<span class="inline"><input type="range" id="on-max" min="1" max="8" step="1" data-s="chat" data-k="onMax" value="${num(C.onMax)||3}"><output>${num(C.onMax)||3}</output></span></label>
       <label class="f">每条字数<span class="inline"><input type="range" id="on-len" min="1" max="60" step="1" data-s="chat" data-k="onLen" value="${num(C.onLen)||10}"><output>${num(C.onLen)||10}</output></span></label>
       <label class="ck"><input type="checkbox" id="on-casual" data-s="chat" data-k="casual" ${C.casual!==false?'checked':''}>不打句号</label>
-      <label class="ck"><input type="checkbox" id="on-love" data-s="chat" data-k="love" ${C.love!==false?'checked':''}>TA们都很爱我，离不开我</label></div>
+      <label class="ck"><input type="checkbox" id="on-love" data-s="chat" data-k="love" ${C.love!==false?'checked':''}>TA们不会真的离开我</label></div>
     <div class="panel"><h2>记忆</h2>
       <label class="f">读最近几条<span class="inline"><input type="range" id="ch-ctx" min="6" max="200" step="2" data-s="chat" data-k="ctx" value="${C.ctx}"><output>${C.ctx}</output></span></label>
       <label class="f">每几条总结一次<span class="inline"><input type="range" id="ch-every" min="10" max="100" step="5" data-s="chat" data-k="sumEvery" value="${C.sumEvery}"><output>${C.sumEvery}</output></span></label></div>
@@ -3199,7 +3208,7 @@ apiEdit(v){
 };
 
 function purgeChar(id){S.chars=S.chars.filter(c=>c.id!==id);S.threads.forEach(t=>t.chars=t.chars.filter(x=>x!==id));S.threads=S.threads.filter(t=>t.chars.length&&!(t.type==='group'&&t.chars.length<2&&!t.msgs.length));
-  S.feed=S.feed.filter(p=>p.author!==id);S.events=S.events.filter(e=>e.who!==id);if(S.music.with===id)S.music.with=null;S.diary=S.diary.filter(d=>d.charId!==id);if(S.raise)S.raise.kids=S.raise.kids.filter(k=>k.charId!==id);S.theaters=S.theaters.filter(x=>x.charId!==id);
+  S.feed=S.feed.filter(p=>p.author!==id);S.events=S.events.filter(e=>e.who!==id);if(S.music.with===id)S.music.with=null;S.diary=S.diary.filter(d=>d.charId!==id);if(S.raise)S.raise.kids=S.raise.kids.filter(k=>k.charId!==id);S.theaters=S.theaters.filter(x=>x.charId!==id);S.codes=S.codes.filter(p=>p.charId!==id);
   save();closeSheet();stack=stack.filter(x=>x.id!==id&&!(x.v==='chat'&&!thread(x.id)));if(!stack.length){appEl.classList.remove('open');renderHome()}else render();toast('删掉了')}
 function forgetChat(t){if(!t)return;t.summary='';t.keep='';t.sumUpTo=0;delete t.pending;t.unread=0;
   if(t.type==='dm'){const c=charById(t.chars[0]);if(c)delete c.phone}}
@@ -3361,7 +3370,7 @@ const A={
   newThread(){sheet(`<h3>新建</h3><button class="opt" data-a="newDm">单聊</button><button class="opt" data-a="newGroupChat">群聊</button>${CANCEL}`)},
   dataMore(){const v=stack[stack.length-1];v.more=!v.more;render(true)},
   goThink(){go({v:'think'})},
-  chatSet(){closeSheet();go({v:'chatPrefs'})},
+  chatSet(){closeSheet();const v=cur();go(v?.v==='chat'&&thread(v.id)?{v:'chatPrefs',tid:v.id}:{v:'chatPrefs'})},
   newDm(){pickChar('和谁聊？','dmGo')},
   dmGo(el){const t=dmFor(el.dataset.id);closeSheet();go({v:'chat',id:t.id})},
   newGroupChat(){if(S.chars.length<2){toast('群聊至少要 2 个角色');return}
@@ -3440,27 +3449,19 @@ const A={
     sheet(`<h3>照片</h3><p style="white-space:pre-wrap;line-height:1.7;margin:0 4px 10px">${esc(x.desc||'')}</p>${imgOn()?`<button class="btn" data-a="moDev" data-id="${p.id}" data-i="${el.dataset.i}" ${x.dev?'disabled':''}>${x.dev?'冲洗中…':'冲洗成真照片'}</button>`:''}${CANCEL}`)},
   moDev(el){const p=S.feed.find(x=>x.id===el.dataset.id),x=p&&postPics(p)[+el.dataset.i];closeSheet();if(x)devPostPic(p,x)},
   planAdd(){const i=$('#planIn'),x=(i?.value||'').trim();if(!x){i?.focus();return}planDay().items.push({id:uid(),text:x.slice(0,80),by:'me',t:Date.now()});save();render(true);setTimeout(()=>$('#planIn')?.focus(),30)},
-  nvOpen(el){go({v:'novel',id:el.dataset.id})},
-  nvPick(el){const v=cur(),o=v.v==='novelNew'?v.d:nvBook(v.id);if(!o)return;const k=el.dataset.k,x=el.dataset.v;
-    if(k==='gs'){const L=o.gs||=[],i=L.indexOf(x);if(i<0)L.push(x);else L.splice(i,1)}
-    else if(k==='lead'){const s=String(o.leads||'');o.leads=s.includes(x)?s.replace(x,'').replace(/[、，,\s]*([、，,])[、，,\s]*/g,'$1').replace(/^[、，,\s]+|[、，,\s]+$/g,''):(s.trim()?s.trim()+'、'+x:x)}
-    else{o[k]=x;if(k==='author'&&x!=='ai')o.reader=''}
-    if(v.v!=='novelNew')save();render(true)},
-  nvCreate(){const d=cur().d;if(!d||!charById(d.author))return;if(!api()?.key){toast('先在「设置 · 聊天」填好接口');return}
-    const tr=x=>String(x||'').trim(),b={id:uid(),title:'',genre:[...d.gs,tr(d.genre)].filter(Boolean).join('、'),tags:tr(d.tags),leads:tr(d.leads),brief:tr(d.brief),style:tr(d.style),
-      author:d.author,reader:d.author==='ai'?d.reader:'',pov:d.pov,words:num(d.words)||2500,chs:[],t:Date.now()};
-    S.novels.push(b);save();stack.pop();go({v:'novel',id:b.id});nvWrite(b,'')},
-  nvNext(){const b=nvBook(cur().id);if(!b)return;const i=$('#nvIn'),x=(i?.value||'').trim();if(i)i.value='';nvWrite(b,x||nvJobs[b.id]?.idea||'')},
-  nvNextHere(){const b=nvBook(cur().id);if(b)nvWrite(b,'')},
-  nvRead(el){go({v:'novelCh',id:cur().id,i:+el.dataset.i})},
-  nvGo(el){const v=cur();v.i+=+el.dataset.d;render()},
-  nvSet(el){go({v:'novelSet',id:el.dataset.id})},
-  nvDel(el){confirmTap(el,()=>{const id=cur().id;S.novels=S.novels.filter(b=>b.id!==id);delete nvJobs[id];save();stack.pop();back()})},
-  nvCmSend(){const v=cur(),b=nvBook(v.id),ch=b?.chs[v.i],i=$('#nvCm'),x=(i?.value||'').trim();if(!ch||!x){i?.focus();return}
-    (ch.cm||=[]).push({id:uid(),by:'me',text:x.slice(0,500),t:Date.now()});i.value='';b.t=Date.now();save();const sr=nvSeer(b);
-    if(sr){logEvent(sr.id,`${mask(sr).name}在小说《${b.title||'未命名'}》第${v.i+1}章下面评论：「${wholeText(x,60)}」`);
-      if(api()?.key&&!nvCmBusy.has(ch.id)){nvCmBusy.add(ch.id);nvComment(b,ch,sr,x).catch(e=>toast(e.message,5600)).finally(()=>{nvCmBusy.delete(ch.id);nvShow(b)})}}
-    render(true);setTimeout(()=>$('#nvCm')?.focus(),30)},
+  cdOpen(el){go({v:'code',id:el.dataset.id})},
+  cdWho(el){cur().who=el.dataset.id;render(true)},
+  cdCreate(){const v=cur(),c=charById(v.who),i=$('#cdNew'),x=(i?.value||'').trim();if(!c)return;if(!x){toast('先说说想要什么');i?.focus();return}
+    if(!api(c.id)?.key){toast('先在「设置 · 聊天」填好接口');return}
+    const p={id:uid(),charId:c.id,title:'',turns:[],t:Date.now()};S.codes.push(p);save();stack.pop();go({v:'code',id:p.id});cdWrite(p,x)},
+  cdSend(){const p=cdProj(cur().id);if(!p)return;const i=$('#cdIn'),x=(i?.value||'').trim();if(!x){toast('写点什么');i?.focus();return}i.value='';cdWrite(p,x)},
+  cdCopy(){closeSheet();const x=cdCur(cdProj(cur().id));if(x)copy(x.code,'代码复制好了')},
+  cdFull(){closeSheet();go({v:'codeFull',id:cur().id})},
+  cdReload(){render(true)},
+  cdMore(){const p=cdProj(cur().id);if(!p)return;const x=cdCur(p),busy=cdJobs[p.id]&&!cdJobs[p.id].err;
+    sheet(`<h3>${esc(p.title||'写代码')}</h3>${cdHtml(x)?'<button class="opt" data-a="cdFull">全屏</button>':''}${x?'<button class="opt" data-a="cdCopy">复制代码</button>':''}${p.turns.length>1&&!busy?'<button class="opt" data-a="cdUndo">回到上一版</button>':''}<button class="opt red" data-a="cdDel">删掉</button>${CANCEL}`)},
+  cdUndo(el){confirmTap(el,()=>{const p=cdProj(cur().id);if(!p||p.turns.length<2)return;p.turns.pop();p.t=Date.now();save();closeSheet();render();toast('回到上一版了')})},
+  cdDel(el){confirmTap(el,()=>{const id=cur().id;S.codes=S.codes.filter(p=>p.id!==id);delete cdJobs[id];save();closeSheet();back()})},
   planDel(el){const d=planDay();d.items=d.items.filter(x=>x.id!==el.dataset.id);save();render(true)},
   planLv(el){S.plan.level=el.dataset.v;save();render(true)},
   planSupSet(el){S.plan.sup=el.dataset.id||'';save();render(true)},
@@ -3552,7 +3553,7 @@ const A={
   rUnq(){cur().rq=null;render(true)},
   rLike(el){const p=S.feed.find(x=>x.id===cur().id),r=p.replies.find(x=>x.id===el.dataset.id);r.likes=r.likes||[];const i=r.likes.indexOf('me');i<0?r.likes.push('me'):r.likes.splice(i,1);save();render(true)},
   exportChar(){const c=charById(cur().id);const book=S.books.find(b=>(c.books||[]).includes(b.id));
-    dlJSON({spec:'chara_card_v2',spec_version:'2.0',data:{name:c.name,description:c.persona,first_mes:'',personality:'',scenario:'',mes_example:'',extensions:{bingyuji:{sign:c.sign,innerStyle:c.innerStyle,lore:c.lore||''}},...(book?{character_book:{name:book.name,entries:book.entries.map(e=>({keys:String(e.keys||'').split(/[,，]/).filter(Boolean),content:e.content,comment:e.title,constant:e.light==='green',enabled:e.light!=='red',insertion_order:e.order||0}))}}:{})}},c.name+'.json')},
+    dlJSON({spec:'chara_card_v2',spec_version:'2.0',data:{name:c.name,description:c.persona,first_mes:'',personality:'',scenario:'',mes_example:c.ex||'',extensions:{bingyuji:{sign:c.sign,innerStyle:c.innerStyle,lore:c.lore||''}},...(book?{character_book:{name:book.name,entries:book.entries.map(e=>({keys:String(e.keys||'').split(/[,，]/).filter(Boolean),content:e.content,comment:e.title,constant:e.light==='green',enabled:e.light!=='red',insertion_order:e.order||0}))}}:{})}},c.name+'.json')},
   dlPreset(){const p=presetById(cur().id);dlJSON(p,'预设-'+p.name+'.json')},
   dlBook(){const b=S.books.find(x=>x.id===cur().id);dlJSON(b,'世界书-'+b.name+'.json')},
   fontLink(){sheet(`<h3>用链接导入字体</h3><input type="url" id="fUrl" placeholder="https://…" aria-label="字体链接"><input type="text" id="fFam" placeholder="字体名" aria-label="字体名"><button class="btn" data-a="fontLinkGo">导入</button>`)},
@@ -3616,6 +3617,7 @@ const A={
     el.disabled=true;el.textContent='连接中…';
     try{const b=await ttsAudio(line);try{vAudio&&vAudio.pause()}catch(e){}vAudio=new Audio(URL.createObjectURL(b));vAudio.play().catch(()=>{});toast('连上啦 🫧')}catch(e){toast(e.message,6500)}
     finally{if(el.isConnected){el.disabled=false;el.textContent='测试连接'}}},
+  clrWall(){S.look.wallpaper='';save();applyLook();render(true)},
   clrAppWall(el){delete S.look.appWalls[el.dataset.id];save();render(true)},
   switchMask(){sheet(`<h3>换面具</h3>`+S.masks.map(m=>`<button class="opt l" data-a="useMask" data-id="${m.id}">${av(m,32)}${esc(m.name)}${m.id===S.activeMask?' ✓':''}</button>`).join(''))},
   moCoverDel(){const m=maskById(cur().id);if(m){delete m.mocover;save();render(true)}},
@@ -3637,7 +3639,7 @@ const A={
   saveWallet(){S.wallet=+$('#walletIn').value||0;save();closeSheet();render(true)},
   charMenu(){sheet(`<h3>添加角色</h3><button class="opt" data-a="newChar">自己写</button><button class="opt" data-a="importCharSheet">导入角色卡</button>${CANCEL}`)},
   newChar(){const c={id:uid(),name:'新角色',remark:'',handle:'',avatar:'',persona:'',books:[]};S.chars.push(c);save();closeSheet();go({v:'charEdit',id:c.id})},
-  importCharSheet(){fileSheet('导入角色卡','.json,application/json','impChar','')},
+  importCharSheet(){fileSheet('导入角色卡','.png,.json,image/png,application/json','impChar','<p class="hint" style="text-align:center">酒馆的角色卡图片（PNG）或 JSON 都行，头像、人设、世界书一起带进来</p>')},
   impCharGo(){try{const c=toChar(JSON.parse($('#impCharTa').value));S.chars.push(c);save();closeSheet();go({v:'charEdit',id:c.id});toast('导入了 '+c.name)}catch(e){toast(e.message||'不是有效的 JSON')}},
   async todayRe(el){const c=charById(cur().id);if(!api()?.key){toast('先在「设置 · 聊天」里填好 key');return}c.today=null;el.disabled=true;el.textContent='想一想…';try{await ensureToday(c);render(true)}catch(e){toast(e.message)}},
   editChar(el){closeSheet();go({v:'charEdit',id:el.dataset.id})},
@@ -3686,7 +3688,7 @@ const A={
   messageChar(el){const t=dmFor(el.dataset.id);go({v:'chat',id:t.id})},
   delChar(el){confirmTap(el,()=>purgeChar(el.dataset.id||cur().id))},
   bookMenu(){sheet(`<h3>世界书</h3><button class="opt" data-a="newBook">新建</button><button class="opt" data-a="importBookSheet">导入</button>${CANCEL}`)},
-  newCharBook(){const c=charById(cur().id);if(!c)return;const b={id:uid(),name:dn(c)+'的世界书',scope:'local',entries:[]};S.books.push(b);(c.books||=[]).push(b.id);save();go({v:'bookEdit',id:b.id})},
+  newCharBook(el){const c=charById(el?.dataset.c);if(!c)return;const b={id:uid(),name:dn(c)+'的世界书',scope:'local',entries:[]};S.books.push(b);(c.books||=[]).push(b.id);save();go({v:'bookEdit',id:b.id})},
   newBook(){const b={id:uid(),name:'新世界书',scope:'global',entries:[]};S.books.push(b);save();closeSheet();go({v:'bookEdit',id:b.id})},
   importBookSheet(){fileSheet('导入世界书','*/*','impBook','')},
   impBookGo(){const ta=$('#impBookTa'),t=ta.value.trim();let d=null;try{d=JSON.parse(t)}catch(e){}try{const b=d&&typeof d==='object'?toBook(d,ta.dataset.name):textBook(t,ta.dataset.name);S.books.push(b);save();closeSheet();go({v:'bookEdit',id:b.id});toast('导入了 '+b.entries.length+' 条')}catch(e){toast(e.message||'不是有效的 JSON')}},
@@ -3794,7 +3796,6 @@ function scopeObj(s){const v=cur()||{};
     case'preset':return presetById(v.id);case'item':return presetById(v.id)?.items.find(x=>x.id===v.iid);
     case'forum':return S.forum;case'study':return S.study;case'plan':return S.plan;case'board':return fmB(v.id);case'thfmt':return S.thFmts.find(x=>x.id===v.id);
     case'mimg':return S.media.img;case'mtts':return S.media.tts;case'apiroot':return S.api;
-    case'nvd':return v.d;case'novel':return nvBook(v.id);
     case'api':return apiById(v.id);case'thread':return thread(v.id);case'off':{const t=thread(v.id);return t&&(t.offline||(t.offline={...S.offline}))}}}
 function bind(e){const el=e.target;if(!el.dataset||!el.dataset.k)return;const o=el.dataset.s==='boardx'?fmB(el.dataset.id):scopeObj(el.dataset.s);if(!o)return;
   const val=el.type==='checkbox'?el.checked:(el.type==='range'||el.type==='number')?(el.value===''&&el.dataset.null?null:+el.value):el.value;
@@ -3807,7 +3808,7 @@ document.addEventListener('change',async e=>{const el=e.target;bind(e);
   if(el.id==='pl-study'&&el.checked&&cur()?.v==='plan'){cur().studied=0;render(true)}
   if(el.dataset.a2==='member'){const t=thread(cur().id);if(el.checked){if(!t.chars.includes(el.dataset.id))t.chars.push(el.dataset.id)}else{if(t.chars.length<=2){el.checked=true;toast('群聊至少要 2 个角色');return}t.chars=t.chars.filter(x=>x!==el.dataset.id)}save()}
   if(el.dataset.a2==='maskChar'){const c=charById(el.dataset.id),id=cur().id;if(!c)return;if(el.checked)c.mask=id;else if(c.mask===id)delete c.mask;save();render(true);return}
-  if(el.dataset.a2==='charBook'){const c=charById(cur().id),id=el.dataset.id;if(!c)return;c.books=(c.books||[]).filter(x=>x!==id);if(el.checked)c.books.push(id);save()}
+  if(el.dataset.a2==='charBook'){const c=charById(el.dataset.c),id=el.dataset.id;if(!c)return;c.books=(c.books||[]).filter(x=>x!==id);if(el.checked)c.books.push(id);save()}
   if(el.dataset.a2==='bookChar'){const c=charById(el.dataset.id),id=cur().id;if(!c)return;c.books=(c.books||[]).filter(x=>x!==id);if(el.checked)c.books.push(id);save()}
   if(el.dataset.a2==='itemOn'){presetById(cur().id).items.find(x=>x.id===el.dataset.id).on=el.checked;save()}
   if(el.dataset.img==='post'){const fs=[...(el.files||[])].slice(0,Math.max(0,9-postDraft.pics.length));let left=fs.length;el.value='';const done=()=>{if(--left<=0)render(true)};
@@ -3828,6 +3829,10 @@ document.addEventListener('change',async e=>{const el=e.target;bind(e);
     save();render(true);toast('加了 '+n+' 个')}
   if(el.dataset.font){const f=el.files?.[0];if(!f)return;if(!DB.db){toast('这个浏览器存不了字体文件，用链接吧');return}await DB.set('font:custom',f);
     S.look.customFont={local:true,name:base_(f.name),t:Date.now()};S.look.font='custom';fontLoaded='';save();await loadFont();render(true);return}
+  if(el.id==='impChar'&&el.files?.[0]&&(/png$/i.test(el.files[0].type)||/\.png$/i.test(el.files[0].name))){const f=el.files[0];
+    try{const d=pngCard(await f.arrayBuffer());if(!d)throw new Error('这张图里没有角色卡数据。从「文件」里选原图，相册里的图可能被压过');
+      const c=toChar(d);await new Promise(r=>readImg(f,480,u=>{c.avatar=u;r()},'image/jpeg',r));
+      S.chars.push(c);save();closeSheet();go({v:'charEdit',id:c.id});toast('导入了 '+c.name)}catch(e){el.value='';toast(e.message||'这张卡读不了',5600)}return}
   if(['impFile','impChar','impBook','impPreset'].includes(el.id)){const f=el.files?.[0];if(!f)return;const txt=await(el.id==='impBook'?readDoc(f):readText(f));if(el.id==='impFile'){el.value='';A.imp(null,txt);return}const ta=$('#'+(el.id==='impFile'?'impTa':el.id+'Ta'));ta.value=txt;ta.dataset.name=base_(f.name);if(el.id==='impFile'){el.value='';A.imp();return}toast('读好了，点「导入」')}
 });
 
