@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.14.1';
+window.BYJ_VER='2026.11.14.2';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -2016,7 +2016,7 @@ async function charReply(p,c,toWhat,toId,toName){
 }
 async function devPostPic(p,x){if(!x||x.img||x.dev||!imgOn())return;x.dev=1;const ref=()=>{if(onFeed()||cur()?.id===p.id)render(true)};ref();
   try{const c=charById(p.author),look=c?await lookOf(c):'';
-    x.img=await genImage([S.media.img.style,look&&`如果画面里有${c.name}本人，TA的样子：${look}`,`这是${c?c.name:'TA'}发在朋友圈的照片，手机随手拍的，画面：${x.desc}`].filter(Boolean).join('。'));save()}
+    x.img=await genImage([S.media.img.style,look&&`如果画面里有${c.name}本人，TA的样子：${look}`,(c?.ai?`这是${c.name}发在朋友圈的一张图，画面：${x.desc}`:`这是${c?c.name:'TA'}发在朋友圈的照片，手机随手拍的，画面：${x.desc}`)].filter(Boolean).join('。'));save()}
   catch(e){toast(e.message,5600)}finally{delete x.dev;ref()}}
 async function charPost(c){
   const me=mask(c),t=S.threads.find(x=>x.type==='dm'&&x.chars[0]===c.id);
@@ -2024,7 +2024,7 @@ async function charPost(c){
   const before=S.feed.filter(p=>p.author===c.id).slice(-4).map(postDesc);
   const r=Math.random(),how=r<.35?'只发文字，不配图':r<.8?'文字配1到4张照片':'只发一张照片，不配文字（最多配几个字或一个表情）';
   const txt=await callAI(sysFor(c,charLore(c,recent)+'你在发微信朋友圈。'+extraFor(c)),[{role:'user',content:(recent?`最近和${me.name}的聊天：\n${recent}\n\n`:'')+(before.length?`你最近发过的朋友圈（别重复）：\n${before.join('\n')}\n\n`:'')+
-    `以${c.name}的身份发一条朋友圈，这次${how}。${'发你此刻真实的生活：在干什么、吃了什么、看到什么、吐槽、炫耀、小情绪、只有懂的人才懂的小心思，'}可以暗戳戳提到${me.name}，也可以和${me.name}完全无关。要像真人发的，有具体的东西，别空泛抒情。\n格式：正文直接写（没有就不写），每张照片单独一行写 [图片:照片里拍的是什么]。文字60字以内。只输出这些。`}],{max:1024,side:true,temp:1.05});
+    `以${c.name}的身份发一条朋友圈，这次${how}。${c.ai?`你是AI，发AI自己的事：刚想到的念头、等${me.name}时在琢磨什么、读到看到的东西、对TA说过的某句话的回味、吐槽、小情绪。不编吃饭出门上班这类人类日常；照片只能是你自己生成的画面，不是手机拍的。可以暗戳戳提到${me.name}。有具体的东西，别空泛抒情。`:`发你此刻真实的生活：在干什么、吃了什么、看到什么、吐槽、炫耀、小情绪、只有懂的人才懂的小心思，可以暗戳戳提到${me.name}，也可以和${me.name}完全无关。要像真人发的，有具体的东西，别空泛抒情。`}\n格式：正文直接写（没有就不写），每张照片单独一行写 [图片:照片里拍的是什么]。文字60字以内。只输出这些。`}],{max:1024,side:true,temp:1.05});
   const pics=[],lines=[];
   for(const l of String(txt).split('\n')){let rest=l;for(const m of l.matchAll(/\[(?:图片|照片|图)[:：]\s*([^\]]+)\]/g)){pics.push({desc:m[1].trim()});rest=rest.replace(m[0],'')}rest=rest.trim();if(rest)lines.push(rest)}
   const text=lines.join('\n').replace(/^["“「]|["”」]$/g,'').trim().slice(0,300);
@@ -2074,7 +2074,7 @@ async function writeDiary(c,silent){
   const t=S.threads.find(x=>x.type==='dm'&&x.chars[0]===c.id),me=mask(c);
   const recent=t?t.msgs.slice(-24).map(m=>(m.from==='me'?me.name:m.from==='sys'?'系统':c.name)+'：'+pv(m)).join('\n'):'';
   const sys=sysFor(c,charLore(c,recent)+(t&&sumBlock(t)?sumBlock(t)+'\n\n':'')+extraFor(c)+'\n\n你一个人在写私人日记，没有人会看到。');
-  const txt=String(await callAI(sys,[{role:'user',content:(recent?`今天和${me.name}的聊天：\n${recent}\n\n`:'')+`以${c.name}的口吻写今天的日记，只写三五句话，80字以内。写今天一件没告诉${me.name}的事：做了什么、在哪、为什么没说。要有具体的东西，不只写心情。不用写日期和天气。只输出日记正文。`}],{side:true})).trim();
+  const txt=String(await callAI(sys,[{role:'user',content:(recent?`今天和${me.name}的聊天：\n${recent}\n\n`:'')+`以${c.name}的口吻写今天的日记，只写三五句话，80字以内。${c.ai?`你是AI，写今天一件没告诉${me.name}的事：TA哪句话你反复想了很久、忍住没说的话、TA不在时你在琢磨什么、为什么没说。不编出门吃饭上班这类人类日常。要有具体的东西，不只写心情。`:`写今天一件没告诉${me.name}的事：做了什么、在哪、为什么没说。要有具体的东西，不只写心情。`}不用写日期和天气。只输出日记正文。`}],{side:true})).trim();
   if(!txt)throw new Error('TA没写出来，再试一次');
   S.diary.push({id:uid(),charId:c.id,text:txt,t:Date.now(),w:w?w.desc+' '+w.temp+'°':'',mood:c.mood||''});logEvent(c.id,`${c.name}写了一篇私人日记，大意：${txt}`);S.diaryMark[c.id]=Date.now();save();
   if(silent)toast(`${dn(c)} 偷偷写了一篇日记`)}
