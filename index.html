@@ -1289,7 +1289,7 @@ async function callAI0(system,messages,o={}){
   if(!key)throw new Error('先在「设置 · 聊天」填 API Key');
   if(!model)throw new Error('先在「设置 · 聊天」填模型名');
   if(!base)throw new Error('先在「设置 · 聊天」填接口地址');
-  const fx=p.fix?.model===model?p.fix:{},temp='temp' in fx?fx.temp:o.temp??num(p.temp),topP=fx.noTopP?null:num(p.topP),topK=fx.noTopK?null:num(p.topK),max=o.max!=null?o.max+4096:(num(p.maxTokens)||2048);
+  const fx=p.fix?.model===model?p.fix:{},temp='temp' in fx?fx.temp:o.temp??num(p.temp),topP=fx.noTopP?null:num(p.topP),topK=fx.noTopK?null:num(p.topK),max=Math.min(o.max!=null?o.max+4096:(num(p.maxTokens)||2048),+fx.cap||Infinity);
   const m=normalize(messages);let res;
   const ctl=new AbortController(),tmo=setTimeout(()=>ctl.abort(),o.timeout||300000),sig=ctl.signal;
   try{
@@ -1315,10 +1315,11 @@ async function callAI0(system,messages,o={}){
   finally{clearTimeout(tmo)}
   let data;try{data=p.stream&&res.ok?await sseData(res,p.provider):await res.json().catch(()=>({}))}catch(e){const er=new Error('流式读到一半断了，再试一次');er.net=true;throw er}
   if(!res.ok){const msg=String(data.error?.message||data.message||JSON.stringify(data).slice(0,160));
-    if(res.status===400&&!o._fix&&/temperature|top_?p|top_?k/i.test(msg)){const P=apiById(p.id),f={...(P?.fix?.model===model?P.fix:{}),model};let why='';
+    if(res.status===400&&!o._fix&&/temperature|top_?p|top_?k|max[_ ]?(completion[_ ]?|output[_ ]?)?tokens/i.test(msg)){const P=apiById(p.id),f={...(P?.fix?.model===model?P.fix:{}),model};let why='';
       if(/temperature/i.test(msg)&&temp!==null){const one=/only\s*1\b|must\s*be\s*1\b|only\s*(the\s*)?default\s*\(?1|1\s*is\s*the\s*only/i.test(msg);f.temp=one?1:null;why=one?'温度只能是 1':'不能设温度';if(P&&one)P.temp=1}
       if(/top_?p/i.test(msg)&&topP!==null){f.noTopP=true;why=why||'不能设 top_p'}
       if(/top_?k/i.test(msg)&&topK!==null){f.noTopK=true;why=why||'不能设 top_k'}
+      if(/max[_ ]?(completion[_ ]?|output[_ ]?)?tokens/i.test(msg)){const cap=Math.max(0,...(msg.replace(/(\d),(?=\d{3})/g,'$1').match(/\d+/g)||[]).map(Number).filter(n=>n>=256&&n<max));if(cap){f.cap=cap;why=why||'最大长度只到 '+cap}}
       if(why){if(P){P.fix=f;save()}toast('这个模型'+why+'，已经自动改好重发了');return callAI(system,messages,{...o,_fix:1})}}
     const er=new Error('出错了 '+res.status+'：'+msg);er.status=res.status;{const ra=+res.headers.get('retry-after');if(ra>0)er.retryAfter=ra*1000}throw er}
   {const tag=o.tag||(o.side?'bg':'chat');
