@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.17.1';
+window.BYJ_VER='2026.11.18.1';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -1427,6 +1427,8 @@ const deNote=x=>String(x||'').replace(/\]?<\]?minimax\[?>\[?/gi,'').replace(/<\/
 // 显示的只有角色自己写的思维链。模型自带的思考只在后台跑、不显示：DeepSeek 聊天时开着，杂活一律关；MiniMax 关不了，压到最低档
 const isDS=p=>/deepseek/i.test((p?.base||'')+' '+(p?.model||''));
 const isKimi=base=>/moonshot\.(cn|ai)|kimi\.(com|ai)/.test(base||'');
+// 智谱 GLM：普通聊天地址不让网页直接访问（浏览器会拦），异步地址可以。所以走「先提交、再取结果」
+const isGLM=base=>/bigmodel\.cn/.test(base||'');
 function addTok(tag,i,o,c=0,w=0){if(!i&&!o)return;const T=S.tok||(S.tok=def().tok);T.n++;T.i+=i;T.o+=o;T.c=(T.c||0)+c;T.w=(T.w||0)+w;
   const b=T.by[tag]||(T.by[tag]={n:0,i:0,o:0});b.n++;b.i+=i;b.o+=o;if(tag==='chat')T.last={i,o,c,t:Date.now()};save()}
 const RETRY_ST=new Set([408,409,425,429,500,502,503,504,520,521,522,523,524,525,526,527,529,530]);
@@ -1450,14 +1452,21 @@ async function callAI0(system,messages,o={}){
   if(!model)throw new Error('先在「设置 · 聊天」填模型名');
   if(!base)throw new Error('先在「设置 · 聊天」填接口地址');
   const fx=p.fix?.model===model?p.fix:{},temp='temp' in fx?fx.temp:o.temp??num(p.temp),topP=fx.noTopP?null:num(p.topP),topK=fx.noTopK?null:num(p.topK),max=Math.min(o.max!=null?o.max+4096:(num(p.maxTokens)||2048),+fx.cap||Infinity);
-  const m=normalize(messages);let res;
+  const m=normalize(messages);let res,glm=null;
   const ctl=new AbortController(),tmo=setTimeout(()=>ctl.abort(),o.timeout||300000),sig=ctl.signal;
   try{
     if(p.provider==='openai'){
       const b={model,max_tokens:max,...(p.stream?{stream:true,stream_options:{include_usage:true}}:{}),...(isKimi(base)?{prompt_cache_options:{mode:'implicit',ttl:p.cache==='1h'?'1h':'5m'}}:{}),messages:[{role:'system',content:system},...m.map(x=>({role:x.role,content:x.imgs&&x.imgs.length?[{type:'text',text:x.content},...x.imgs.map(u=>({type:'image_url',image_url:{url:u}}))]:x.content}))]};if(temp!==null)b.temperature=temp;if(topP!==null)b.top_p=topP;if(topK!==null)b.top_k=topK;
       if(isMM(model))b.reasoning_effort=(o.thoughts&&S.chat.effort&&S.chat.effort!=='none'&&S.chat.effort)||'low';
       if(isDS(p)&&!o.thoughts)b.thinking={type:'disabled'};
-      res=await fetch(base+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},body:JSON.stringify(b),signal:sig});
+      if(isGLM(base)){delete b.stream;delete b.stream_options;
+        // 5 系列的思考关不掉，压到最低档；老型号杂活时关掉
+        if(/^glm-5/i.test(model))b.reasoning_effort='low';else if(!o.thoughts)b.thinking={type:'disabled'};
+        const H={Authorization:'Bearer '+key};
+        res=await fetch(base+'/async/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',...H},body:JSON.stringify(b),signal:sig});
+        if(res.ok){glm=await res.json().catch(()=>({}));const id=glm.id;
+          for(let n=0;id&&glm.task_status==='PROCESSING';n++){await sleep(n<8?700:1500);const q=await fetch(base+'/async-result/'+encodeURIComponent(id),{headers:H,signal:sig});if(!q.ok){res=q;glm=null;break}glm=await q.json().catch(()=>({}))}}
+      }else res=await fetch(base+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},body:JSON.stringify(b),signal:sig});
     }else if(p.provider==='gemini'){
       const g={maxOutputTokens:max};if(temp!==null)g.temperature=temp;if(topP!==null)g.topP=topP;if(topK!==null)g.topK=topK;
       res=await fetch(`${base}/models/${encodeURIComponent(model)}:${p.stream?'streamGenerateContent?alt=sse&':'generateContent?'}key=${encodeURIComponent(key)}`,{method:'POST',headers:{'Content-Type':'application/json'},
@@ -1471,9 +1480,10 @@ async function callAI0(system,messages,o={}){
       if(isMM(model))b.output_config={effort:(o.thoughts&&S.chat.effort&&S.chat.effort!=='none'&&S.chat.effort)||'low'};
       res=await fetch(base.replace(/\/v1$/,'')+'/v1/messages',{method:'POST',headers:{'content-type':'application/json',...antHdr(base,key),...(fb?{'anthropic-beta':'server-side-fallback-2026-07-01'}:{})},body:JSON.stringify(b),signal:sig});
     }
-  }catch(e){const er=new Error(e?.name==='AbortError'?'五分钟没回应，再试一次（会思考的模型写长文很慢）':'连不上：检查网络和接口地址，或中转站不允许网页访问');er.net=true;if(e?.name==='AbortError')er.timeout=true;throw er}
+  }catch(e){if(e instanceof ReferenceError||e instanceof SyntaxError||e instanceof RangeError||(e instanceof TypeError&&/is not a function|is not defined|undefined|null|Cannot read|is not iterable/i.test(e.message)))throw new Error('小手机自己出错了：'+e.message);
+    const er=new Error(e?.name==='AbortError'?'五分钟没回应，再试一次（会思考的模型写长文很慢）':'连不上：检查网络和接口地址，或中转站不允许网页访问');er.net=true;if(e?.name==='AbortError')er.timeout=true;throw er}
   finally{clearTimeout(tmo)}
-  let data;try{data=p.stream&&res.ok?await sseData(res,p.provider):await res.json().catch(()=>({}))}catch(e){const er=new Error('流式读到一半断了，再试一次');er.net=true;throw er}
+  let data;try{data=glm||(p.stream&&res.ok?await sseData(res,p.provider):await res.json().catch(()=>({})))}catch(e){const er=new Error('流式读到一半断了，再试一次');er.net=true;throw er}
   if(!res.ok){const msg=String(data.error?.message||data.message||JSON.stringify(data).slice(0,160));
     if(res.status===400&&!o._fix&&/temperature|top_?p|top_?k|max[_ ]?(completion[_ ]?|output[_ ]?)?tokens/i.test(msg)){const P=apiById(p.id),f={...(P?.fix?.model===model?P.fix:{}),model};let why='';
       if(/temperature/i.test(msg)&&temp!==null){const one=/only\s*1\b|must\s*be\s*1\b|only\s*(the\s*)?default\s*\(?1|1\s*is\s*the\s*only/i.test(msg);f.temp=one?1:null;why=one?'温度只能是 1':'不能设温度';if(P&&one)P.temp=1}
@@ -1481,6 +1491,9 @@ async function callAI0(system,messages,o={}){
       if(/top_?k/i.test(msg)&&topK!==null){f.noTopK=true;why=why||'不能设 top_k'}
       if(/max[_ ]?(completion[_ ]?|output[_ ]?)?tokens/i.test(msg)){const cap=Math.max(0,...(msg.replace(/(\d),(?=\d{3})/g,'$1').match(/\d+/g)||[]).map(Number).filter(n=>n>=256&&n<max));if(cap){f.cap=cap;why=why||'最大长度只到 '+cap}}
       if(why){if(P){P.fix=f;save()}toast('这个模型'+why+'，已经自动改好重发了');return callAI(system,messages,{...o,_fix:1})}}
+    if(isGLM(base)){const c=+data.error?.code||0,G={1000:'Key 不对，检查一下',1001:'Key 没带上，检查一下',1003:'Key 过期了，去智谱后台重新生成',1113:'智谱账户欠费了，去充一下',1211:'没有这个模型，检查模型名',1212:'这个模型不能这样用，换一个',1220:'这个 Key 没有权限用它',1261:'内容太长了，把记忆条数调小一点',1301:'被智谱的内容审核拦了，换个说法',1302:'发太快被限流了，等几秒再发',1305:'这个模型现在人太多，稍后再试',1309:'编码套餐到期了',1311:'你的套餐用不了这个模型，换一个',1315:'这个 Key 是企业编程套餐专用的，换一个普通的 Key'};
+      const t=G[c]||([1308,1310,1316,1317,1318,1319,1320,1321].includes(c)?'额度用完了：'+msg:'');
+      if(t){const er=new Error(t);if(c===1302||c===1305)er.status=res.status;throw er}}
     const er=new Error('出错了 '+res.status+'：'+msg);er.status=res.status;{const ra=+res.headers.get('retry-after');if(ra>0)er.retryAfter=ra*1000}throw er}
   {const tag=o.tag||(o.side?'bg':'chat');
     if(p.provider==='gemini'){const u=data.usageMetadata||{};addTok(tag,+u.promptTokenCount||0,(+u.candidatesTokenCount||0)+(+u.thoughtsTokenCount||0),+u.cachedContentTokenCount||0)}
@@ -1490,11 +1503,12 @@ async function callAI0(system,messages,o={}){
   {const br=data.base_resp,sc=+br?.status_code||0;if(sc){const M={1002:'发太快被限流了，等几秒再发',1004:'Key 不对，检查一下',2049:'Key 不对，检查一下',1008:'余额不够了，去充一下',2053:'积分不够了',2067:'套餐额度用完了',1026:'这句被内容审核拦了，换个说法',1027:'他的回复被内容审核拦了，换个说法或重试',1039:'太长了，把最大长度调小一点',2013:'参数不对：'+(br.status_msg||''),2064:'那边太忙，稍后再试',2066:'那边超时了，再试一次',1001:'那边超时了，再试一次',1000:'那边出了点问题，再试一次',1024:'那边出了点问题，再试一次',1033:'那边出了点问题，再试一次'};
     const er=new Error(M[sc]||('接口报错 '+sc+'：'+(br.status_msg||'')));if([1000,1001,1002,1024,1033,2064,2066].includes(sc))er.status=sc===1002?429:503;throw er}
     if((data.input_sensitive||data.output_sensitive)&&!(data.choices?.[0]?.message?.content))throw new Error(data.input_sensitive?'这句被内容审核拦了，换个说法':'他的回复被内容审核拦了，换个说法或重试')}
+  if(glm&&glm.task_status&&glm.task_status!=='SUCCESS'){const er=new Error(glm.task_status==='PROCESSING'?'智谱那边一直没写完，再试一次':'智谱那边这条没写出来'+(glm.error?.message?'：'+glm.error.message:'，再试一次'));er.status=503;throw er}
   let out='',th='';
   if(p.provider==='openai'){const mm=data.choices?.[0]?.message||{},fr=data.choices?.[0]?.finish_reason;out=mm.content||'';th=rzOf(mm);
     // DeepSeek 偶尔把 <think>…</think> 连同正文整段写进思考通道、正文留空（实测约五分之一）：捞回来当正文
     if(!out&&fr==='stop'&&/<\/think>|<reply>/i.test(th)){out=th;th=''}
-    if(!out&&fr==='content_filter')throw new Error('这条被接口那边的内容审核拦了，换个说法试试');if(!out&&(fr==='insufficient_system_resource'||fr==='aborted'))throw new Error('接口那边太忙，写到一半断了，再试一次')}
+    if(!out&&(fr==='content_filter'||fr==='sensitive'))throw new Error('这条被接口那边的内容审核拦了，换个说法试试');if(!out&&fr==='network_error'){const er=new Error('接口那边写到一半断了，再试一次');er.status=503;throw er}if(!out&&(fr==='insufficient_system_resource'||fr==='aborted'))throw new Error('接口那边太忙，写到一半断了，再试一次')}
   else if(p.provider==='gemini'){const c=data.candidates?.[0];if(!c)throw new Error('没有回复'+(data.promptFeedback?.blockReason?'（被拦截：'+data.promptFeedback.blockReason+'）':''));
     const parts=c.content?.parts||[];out=parts.filter(x=>!x.thought).map(x=>x.text||'').join('');th=parts.filter(x=>x.thought).map(x=>x.text||'').join('');
     if(!out)throw new Error('回复是空的（'+(c.finishReason||'未知')+'），把接口里的最大长度调大试试')}
