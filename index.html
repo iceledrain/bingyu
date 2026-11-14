@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.14.6';
+window.BYJ_VER='2026.11.14.7';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -1285,6 +1285,8 @@ function normalize(msgs){
 }
 const num=v=>v===null||v===undefined||v===''||isNaN(+v)?null:+v;
 const TOKTAG={chat:'聊天',bg:'后台生成',other:'其他'};
+const isMM=model=>/minimax-m3\.1/i.test(model||'');
+const rzOf=d=>d.reasoning_content||(typeof d.reasoning==='string'?d.reasoning:'')||(Array.isArray(d.reasoning_details)?d.reasoning_details.map(x=>x?.text||'').join(''):'')||'';
 const isKimi=base=>/moonshot\.(cn|ai)|kimi\.(com|ai)/.test(base||'');
 function addTok(tag,i,o,c=0,w=0){if(!i&&!o)return;const T=S.tok||(S.tok=def().tok);T.n++;T.i+=i;T.o+=o;T.c=(T.c||0)+c;T.w=(T.w||0)+w;
   const b=T.by[tag]||(T.by[tag]={n:0,i:0,o:0});b.n++;b.i+=i;b.o+=o;if(tag==='chat')T.last={i,o,c,t:Date.now()};save()}
@@ -1314,6 +1316,7 @@ async function callAI0(system,messages,o={}){
   try{
     if(p.provider==='openai'){
       const b={model,max_tokens:max,...(p.stream?{stream:true,stream_options:{include_usage:true}}:{}),...(isKimi(base)?{prompt_cache_options:{mode:'implicit',ttl:p.cache==='1h'?'1h':'5m'}}:{}),messages:[{role:'system',content:system},...m.map(x=>({role:x.role,content:x.imgs&&x.imgs.length?[{type:'text',text:x.content},...x.imgs.map(u=>({type:'image_url',image_url:{url:u}}))]:x.content}))]};if(temp!==null)b.temperature=temp;if(topP!==null)b.top_p=topP;if(topK!==null)b.top_k=topK;
+      if(isMM(model))b.reasoning_effort=(o.thoughts&&S.chat.effort)||'low';
       res=await fetch(base+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},body:JSON.stringify(b),signal:sig});
     }else if(p.provider==='gemini'){
       const g={maxOutputTokens:max};if(temp!==null)g.temperature=temp;if(topP!==null)g.topP=topP;if(topK!==null)g.topK=topK;
@@ -1346,7 +1349,7 @@ async function callAI0(system,messages,o={}){
     else if(p.provider==='claude'){const u=data.usage||{},cr=+u.cache_read_input_tokens||0,cw=+u.cache_creation_input_tokens||0;addTok(tag,(+u.input_tokens||0)+cr+cw,+u.output_tokens||0,cr,cw)}
     else{const u=data.usage||{},d=u.prompt_tokens_details||u.input_tokens_details||{};addTok(tag,+u.prompt_tokens||+u.input_tokens||0,+u.completion_tokens||+u.output_tokens||0,+d.cached_tokens||+u.cached_tokens||0,+d.cache_write_tokens||0)}}
   let out='',th='';
-  if(p.provider==='openai'){const mm=data.choices?.[0]?.message||{};out=mm.content||'';th=mm.reasoning_content||mm.reasoning||''}
+  if(p.provider==='openai'){const mm=data.choices?.[0]?.message||{};out=mm.content||'';th=rzOf(mm)}
   else if(p.provider==='gemini'){const c=data.candidates?.[0];if(!c)throw new Error('没有回复'+(data.promptFeedback?.blockReason?'（被拦截：'+data.promptFeedback.blockReason+'）':''));
     const parts=c.content?.parts||[];out=parts.filter(x=>!x.thought).map(x=>x.text||'').join('');th=parts.filter(x=>x.thought).map(x=>x.text||'').join('');
     if(!out)throw new Error('回复是空的（'+(c.finishReason||'未知')+'），把接口里的最大长度调大试试')}
@@ -1356,7 +1359,7 @@ async function callAI0(system,messages,o={}){
 }
 
 async function sseData(res,prov){const rd=res.body.getReader(),dec=new TextDecoder();let buf='',txt='',th='',usage=null,parts=[],fin='',inU={},outT=0;
-  const on=j=>{if(prov==='openai'){const d=j.choices?.[0]?.delta||{};txt+=d.content||'';th+=d.reasoning_content||d.reasoning||'';if(j.choices?.[0]?.finish_reason)fin=j.choices[0].finish_reason;if(j.usage)usage=j.usage}
+  const on=j=>{if(prov==='openai'){const d=j.choices?.[0]?.delta||{};txt+=d.content||'';th+=rzOf(d);if(j.choices?.[0]?.finish_reason)fin=j.choices[0].finish_reason;if(j.usage)usage=j.usage}
     else if(prov==='gemini'){const c=j.candidates?.[0];if(c){parts.push(...(c.content?.parts||[]));if(c.finishReason)fin=c.finishReason}if(j.usageMetadata)usage=j.usageMetadata}
     else{if(j.type==='content_block_delta'&&j.delta?.type==='text_delta')txt+=j.delta.text;if(j.type==='content_block_delta'&&j.delta?.type==='thinking_delta')th+=j.delta.thinking||'';if(j.type==='message_start')inU=j.message?.usage||{};if(j.type==='message_delta'){outT=j.usage?.output_tokens||0;if(j.delta?.stop_reason)fin=j.delta.stop_reason}if(j.type==='error')throw new Error(j.error?.message||'出错了')}};
   for(;;){const {done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});let i;
@@ -1594,7 +1597,9 @@ function extractExtras(out,chat=true){
   let think='',inner=[];
   out=out.replace(new RegExp(`<(${THINK_TAG})>([\\s\\S]*?)<\\/\\1>`,'gi'),(_,t,x)=>{think+=x.trim()+'\n';return''});
   out=out.replace(new RegExp(`^[\\s\\S]*?<\\/(?:${THINK_TAG})>`,'i'),x=>{think+=x.replace(new RegExp(`<\\/?(?:${THINK_TAG})>`,'gi'),'').trim();return''});
-  out=out.replace(new RegExp(`^\\s*<(?:${THINK_TAG})>([\\s\\S]*?)(\\n\\s*\\n|\\n|$)`,'i'),(_,x)=>{think+=x.trim();return''});
+  // 开头的 <think> 没闭合（多半是思考写到长度上限被掐断）：有 <reply> 就切到 <reply>，否则长的整段都算思考，不往外发
+  out=out.replace(new RegExp(`^\\s*<(?:${THINK_TAG})>([\\s\\S]*)$`,'i'),(_,x)=>{const i=x.search(/<reply>/i);if(i>=0){think+=x.slice(0,i).trim();return x.slice(i)}
+    const j=x.indexOf('\n');if(j<0||(chat&&[...x].length>200)){think+=x.trim();return''}think+=x.slice(0,j).trim();return x.slice(j+1)});
   out=out.replace(new RegExp(`^\\s*[【\\[](?:${THINK_TAG})[】\\]]\\s*[:：]?([^\\n]*)\\n`,'i'),(_,x)=>{think+=x.trim();return''});
   out=out.replace(/<(inner|心声)>([\s\S]*?)<\/\1>/gi,(_,t,x)=>{inner.push(cuteKao(x.trim()));return''});
   out=out.replace(/<(todo|待办)>[\s\S]*?<\/\1>/gi,'');
@@ -1779,7 +1784,7 @@ async function reply(t,extra,stamps){
     const ex=extractExtras(r.text,ctx.mode!=='offline');if(ctx.mode!=='offline'&&!ex.fmt)await sortLeak(ex,ctx);if(!S.chat.think)ex.think='';else if(S.chat.thinkSrc==='model')ex.think=r.thoughts||ex.think;
     applyTide(ctx,ex);applyActs(ctx,ex);if(!ctx.group&&ctx.chars[0]){applyMoney(t,ex,ctx.chars[0]);applyCards(t,ex,ctx.chars[0])}save();
     const callAct=ex.acts.find(a=>a==='语音通话'||a==='视频通话');
-    if(!ex.text&&!ex.acts.length)throw new Error('回复是空的，再试一次');
+    if(!ex.text&&!ex.acts.length)throw new Error(r.cut?'光顾着想了，还没说话长度就用完了：把接口里的最大长度调大，或把思考深度调低':'回复是空的，再试一次');
     const bought=boughtRecently(t),parts=ex.text?parseReply(ex.text,ctx).filter(p=>!(bought&&(p.type==='order'||p.type==='parcel'))):[];attachExtras(parts,ex,ctx);
     const posted=[],lack={think:S.chat.think&&S.chat.thinkSrc!=='model'&&!ex.think,inner:S.chat.inner&&!ex.inner.length};
     for(let i=0;i<parts.length;i++){
@@ -2833,7 +2838,7 @@ think(){const C=S.chat;
       <label class="ck"><input type="checkbox" id="ch-think" data-s="chat" data-k="think" ${C.think?'checked':''}>回复前先想清楚再回</label>
       ${C.think?`<label class="f">叫什么<input type="text" id="ch-tname" data-s="chat" data-k="thinkName" value="${esc(C.thinkName)}"></label>
       <label class="f">想什么<textarea id="ch-tstyle" data-s="chat" data-k="thinkStyle">${esc(C.thinkStyle||THINK_DEF)}</textarea></label><button class="tb" data-a="setChat" data-k="thinkStyle" data-v="" style="align-self:flex-start">恢复默认</button>`:''}
-      ${provOf(api()||{})==='claude'?`<div class="f">思考深度<div class="seg">${[['','默认'],['low','低'],['medium','中'],['high','高']].map(([k,l])=>`<button class="${(C.effort||'')===k?'on':''}" data-a="setChat" data-k="effort" data-v="${k}">${l}</button>`).join('')}</div></div>`:''}</div>`}},
+      ${provOf(api()||{})==='claude'||isMM(api()?.model)?`<div class="f">思考深度<div class="seg">${[['','默认'],['low','低'],['medium','中'],['high','高']].map(([k,l])=>`<button class="${(C.effort||'')===k?'on':''}" data-a="setChat" data-k="effort" data-v="${k}">${l}</button>`).join('')}</div></div>`:''}</div>`}},
 offline(v){
   const t=thread(v.id);t.offline=t.offline||{...S.offline};const o=t.offline;
   return{title:'见面设置',sub:threadTitle(t),body:`<div class="panel">
