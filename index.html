@@ -1616,7 +1616,9 @@ function buildCtx(t,o={}){
     chars.forEach(c=>{const x=kidKnow(c);if(x)tail.push(x)});
     if(mode!=='offline')chars.forEach(c=>{if(c.today?.day===dayKey()&&c.today.text)tail.push(`【${c.name}的今天】${c.today.text}\n（到现在已经发生的，可以主动挑一件讲，一次一件，讲过的不重复。）`)})}
   {const dy=[...new Set(chars.map(myDiaryFor).filter(Boolean))];if(dy.length)tail.push(dy.join('\n'))}
-  const el=[...new Set(chars.flatMap(c=>elsewhere(c,t.id)))];if(el.length)tail.push('【别处的事】\n'+el.join('\n'));
+  const el=[...new Set(chars.flatMap(c=>elsewhere(c,t.id)))];const others=group?[]:[...new Set(S.threads.filter(x=>x.type==='group'&&chars[0]&&x.chars.includes(chars[0].id)).flatMap(x=>x.chars).filter(id=>id!==chars[0].id).map(id=>charById(id)?.name).filter(Boolean))];
+  if(el.length)tail.push('【别处的事】'+(others.length?`（群里的事是在群里发生的，不在这里。只当作你知道的事，不接着群里的话往下说。）`:'')+'\n'+el.join('\n'));
+  if(others.length)tail.push(mode==='offline'?`【只有两个人】现在只有${cname}和${me.name}在一起。${others.join('、')}不在场，除非${me.name}自己写了他们来了。可以提起他们，不对他们说话，不写他们的动作和台词。`:`【这是私聊】这个对话里只有${cname}和${me.name}两个人。${others.join('、')}在群里，看不到这里，也听不到。可以跟${me.name}聊起他们，但不对他们说话：不喊他们的名字，不@他们，不叫他们走开或闭嘴，不写「名字：内容」。每一句都是说给${me.name}一个人听的。`);
   {const kn=chars.map(x=>{const o=S.chars.filter(c=>visible(c)&&!chars.some(y=>y.id===c.id)&&knows(x,c)).map(c=>c.name).slice(0,8);return o.length?`${x.name}认识${o.join('、')}`:''}).filter(Boolean);
     if(kn.length)ctxs.push(`【认识的人】${kn.join('；')}。只是朋友、同事或对头，不暧昧。别人不认识。`)}
   chars.forEach(c=>{
@@ -2658,7 +2660,7 @@ function lifeTick(mins){const now=Date.now();{const d=new Date();ensureHolidays(
     const g=S.threads.filter(x=>x.type==='group'&&x.chars.includes(c.id)&&x.msgs.some(m=>m.from==='me')).sort((a,b)=>(b.t||0)-(a.t||0))[0];if(!g||now-(g.t||0)<10*60e3)continue;
     if(Math.random()>1-Math.pow(1-.04,mins))continue;
     const t=dmFor(c.id);c.helloAt=now;t.proAt=now;save();
-    reply(t,`（现在是${nowText()}。你和${mask(c).name}在群「${threadTitle(g)}」里聊过，还没私下说过话。你主动私聊TA，按你的性子开个头，1到2条，可以接着群里的事说。）`);return}
+    reply(t,`（现在是${nowText()}。你和${mask(c).name}在群「${threadTitle(g)}」里聊过，还没私下说过话。你主动私聊TA，按你的性子开个头，1到2条。这里只有你们两个，群里别人看不到。）`);return}
   for(const t of dms){const c=charById(t.chars[0]),me=mask(c).name;if(!reachable(c)||statusOf(c)==='sleep')continue;
     const last=[...t.msgs].reverse().find(m=>m.type!=='sys');if(!last)continue;const gap=now-last.t;
     const lastMe=t.msgs.filter(m=>m.from==='me').slice(-1)[0]?.t||0;
