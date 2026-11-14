@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.14.2';
+window.BYJ_VER='2026.11.14.3';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -723,6 +723,7 @@ html.dark .mo-pic.tp{background:linear-gradient(150deg,#303030,#212121 60%,#2929
 .plr{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
 .plr>span{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.plr b{font-weight:400;font-size:15px;line-height:1.45;word-break:break-word}.plr small{font-size:11.5px;color:var(--muted)}
 .plr.done b{text-decoration:line-through;color:var(--muted)}
+.cex summary{font-size:13px;color:var(--muted);cursor:pointer;padding:2px 0}.cex>div{display:flex;flex-direction:column;gap:10px;margin-top:10px}.cex textarea{width:100%;box-sizing:border-box}
 .cdic{width:40px;height:40px;flex:none;border-radius:12px;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;font:600 11.5px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:-.02em}
 .cdpre{margin:0;padding:12px;border-radius:14px;background:var(--bg);border:1px solid var(--line);font:12.5px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink);white-space:pre;overflow:auto;max-height:420px;tab-size:2;-webkit-overflow-scrolling:touch;user-select:text;-webkit-user-select:text}
 .cdpre.sm{max-height:200px}
@@ -1994,6 +1995,7 @@ function fmCard(p,showB){const b=fmB(p.b);
 
 const exBlock=(c,mac,n)=>{const x=String(c?.ex||'').replace(/^[ \t]*<START>[ \t]*$/gim,'').replace(/\n{3,}/g,'\n\n').trim();
   return x?`【${c.name}说话的样子】（只是示范语气和用词，不是发生过的事，别照抄原句）\n${mac(n?x.slice(0,n):x)}`:''};
+const exBusy=new Set();
 const loveOn=()=>S.chat.love!==false;
 const loveBlock=(name,me)=>loveOn()?`【底色】${name}心里有${me.name}，不会真的离开TA。怎么表现全按人设：人设冷就冷，凶就凶，不用为了哄TA软下来。`:'';
 const sysFor=(c,extra)=>whoTag(sysFor0(c,extra),c?.id);
@@ -2584,8 +2586,17 @@ function toPreset(d,fallback){
   if(!items.length)throw new Error('这个预设没有提示词内容');
   return{id:uid(),name:d.name||fallback||'导入的预设',items};
 }
+function pngCard(buf){const u=new Uint8Array(buf),dv=new DataView(buf),L1=new TextDecoder('latin1'),got={};
+  if(u.length<16||u[0]!==0x89||u[1]!==0x50||u[2]!==0x4e||u[3]!==0x47)return null;
+  for(let p=8;p+12<=u.length;){const len=dv.getUint32(p),type=String.fromCharCode(u[p+4],u[p+5],u[p+6],u[p+7]);if(p+12+len>u.length)break;
+    if(type==='tEXt'){const d=u.subarray(p+8,p+8+len),z=d.indexOf(0),k=z>0?L1.decode(d.subarray(0,z)).toLowerCase():'';if(k==='chara'||k==='ccv3')got[k]=L1.decode(d.subarray(z+1))}
+    if(type==='IEND')break;p+=12+len}
+  const b64=got.ccv3||got.chara;if(!b64)return null;
+  return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(b64.replace(/\s+/g,'')),c=>c.charCodeAt(0))))}
 function toChar(d){
-  const x=d.data||d;if(!x.name)throw new Error('文件里没有角色名');
+  const x0=d.data||d;if(!x0.name)throw new Error('文件里没有角色名');
+  const nm=v=>String(v||'').replace(/<USER>/gi,'{{user}}').replace(/<(?:BOT|CHAR)>/gi,'{{char}}').trim();
+  const x={...x0,description:nm(x0.description),personality:nm(x0.personality),scenario:nm(x0.scenario),mes_example:[nm(x0.mes_example),nm(x0.first_mes)&&'{{char}}: '+nm(x0.first_mes).slice(0,800)].filter(Boolean).join('\n\n')};
   const persona=[x.description,x.personality&&('性格：'+x.personality),x.scenario&&('场景：'+x.scenario)].filter(Boolean).join('\n\n');
   const c={id:uid(),name:x.name,remark:'',handle:x.name.replace(/\s+/g,'').toLowerCase(),avatar:'',innerStyle:'',persona:persona||x.persona||'',ex:String(x.mes_example||'').trim(),books:[]};
   const cb=x.character_book;if(cb&&cb.entries&&Object.keys(cb.entries).length){const b=toBook({...cb,name:cb.name||x.name+'的世界书'});b.scope='local';S.books.push(b);c.books=[b.id]}
@@ -2856,12 +2867,11 @@ charEdit(v){
     <label class="f">和TA在一起时戴的面具<select id="c-mask" data-s="char" data-k="mask"><option value="">跟着当前戴的（${esc(S.masks.find(m=>m.id===S.activeMask)?.name||S.masks[0].name)}）</option>${S.masks.map(m=>`<option value="${m.id}" ${c.mask===m.id?'selected':''}>${esc(m.name)}</option>`).join('')}</select></label>
     </div>
   <div class="panel"><h2>人设</h2>
-    <textarea class="tall" id="c-persona" data-s="char" data-k="persona" aria-label="人设">${esc(c.persona)}</textarea></div>
-  <div class="panel"><h2>对话示例</h2>
-    <textarea id="c-ex" data-s="char" data-k="ex" style="min-height:130px" aria-label="对话示例" placeholder="{{user}}：今天好累
-{{char}}：过来
-{{char}}：让你别熬夜，不听">${esc(c.ex||'')}</textarea>
-    <p class="hint">写两三段 TA 平时怎么说话，比形容词管用。导入酒馆角色卡时，卡里的对话示例会放到这里。</p></div>
+    <textarea class="tall" id="c-persona" data-s="char" data-k="persona" aria-label="人设">${esc(c.persona)}</textarea>
+    <details class="cex"${c.ex||exBusy.has(c.id)?' open':''}><summary>对话示例（选填）</summary><div>
+      <textarea id="c-ex" data-s="char" data-k="ex" style="min-height:130px" aria-label="对话示例">${esc(c.ex||'')}</textarea>
+      <button class="btn o" data-a="exWrite" style="align-self:flex-start" ${exBusy.has(c.id)?'disabled':''}>${exBusy.has(c.id)?'在写…':'让模型按人设写几段'}</button>
+      <p class="hint">TA 平时怎么说话的样子。不填也行，人设一栏写了就够用。</p></div></details></div>
   <div class="panel"><h2>水位<span class="pill">${esc(softMood(c.mood,tideOf(c))||moodBy(tideOf(c)))}</span></h2>
     <label class="f">现在的心情水位<span class="inline"><input type="range" id="c-tide" min="0" max="100" step="1" data-s="char" data-k="tide" value="${tideOf(c)}"><output>${tideOf(c)}</output></span></label>${spark(c.tideLog)}</div>
   <div class="panel"><h2>局部世界书<button class="tb" data-a="newCharBook">新建</button></h2>
@@ -3420,6 +3430,15 @@ const A={
     sheet(`<h3>照片</h3><p style="white-space:pre-wrap;line-height:1.7;margin:0 4px 10px">${esc(x.desc||'')}</p>${imgOn()?`<button class="btn" data-a="moDev" data-id="${p.id}" data-i="${el.dataset.i}" ${x.dev?'disabled':''}>${x.dev?'冲洗中…':'冲洗成真照片'}</button>`:''}${CANCEL}`)},
   moDev(el){const p=S.feed.find(x=>x.id===el.dataset.id),x=p&&postPics(p)[+el.dataset.i];closeSheet();if(x)devPostPic(p,x)},
   planAdd(){const i=$('#planIn'),x=(i?.value||'').trim();if(!x){i?.focus();return}planDay().items.push({id:uid(),text:x.slice(0,80),by:'me',t:Date.now()});save();render(true);setTimeout(()=>$('#planIn')?.focus(),30)},
+  exWrite(){const c=charById(cur().id);if(!c||exBusy.has(c.id))return;if(!String(c.persona||'').trim()){toast('先写人设');return}if(!api(c.id)?.key){toast('先在「设置 · 聊天」填好接口');return}
+    const me=mask(c),show=()=>{if(cur()?.v==='charEdit'&&cur().id===c.id)render(true)},re=n=>new RegExp('^'+String(n).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\s*[:：]\\s*','gm');
+    exBusy.add(c.id);show();
+    callAI(`你是角色设定的编辑。按给你的人设，写出这个角色平时在手机上和对方聊天的样子，给模型当语气示范。
+要求：写 3 段，每段 2 到 4 行，段和段之间空一行；每行以「{{user}}：」或「{{char}}：」开头；{{char}} 的话要带这个人设独有的语气、用词和态度，三段情绪各不相同（比如平常、被惹到、心软）；口语、短句，不写动作和旁白，不写解释。只输出这三段。`,
+      [{role:'user',content:`【${c.name}的人设】\n${c.persona}\n\n【对方】${me.name}${me.persona?'：'+me.persona:''}`}],{max:2048,tag:'other',who:c.id})
+    .then(o=>{const out=String(o||'').replace(/<think(?:ing)?>[\s\S]*?<\/think(?:ing)?>/gi,'').replace(/```\w*/g,'').trim().replace(re(c.name),'{{char}}：').replace(re(me.name),'{{user}}：').slice(0,1500);
+      if(!out)throw new Error('模型什么都没写出来，再试一次');c.ex=(c.ex?String(c.ex).trim()+'\n\n':'')+out;save();toast('写好了，不满意可以自己改')})
+    .catch(e=>toast(e.message||'没写出来',5600)).finally(()=>{exBusy.delete(c.id);show()})},
   cdOpen(el){go({v:'code',id:el.dataset.id})},
   cdWho(el){cur().who=el.dataset.id;render(true)},
   cdCreate(){const v=cur(),c=charById(v.who),i=$('#cdNew'),x=(i?.value||'').trim();if(!c)return;if(!x){toast('先说说想要什么');i?.focus();return}
@@ -3609,7 +3628,7 @@ const A={
   saveWallet(){S.wallet=+$('#walletIn').value||0;save();closeSheet();render(true)},
   charMenu(){sheet(`<h3>添加角色</h3><button class="opt" data-a="newChar">自己写</button><button class="opt" data-a="importCharSheet">导入角色卡</button>${CANCEL}`)},
   newChar(){const c={id:uid(),name:'新角色',remark:'',handle:'',avatar:'',persona:'',books:[]};S.chars.push(c);save();closeSheet();go({v:'charEdit',id:c.id})},
-  importCharSheet(){fileSheet('导入角色卡','.json,application/json','impChar','')},
+  importCharSheet(){fileSheet('导入角色卡','.png,.json,image/png,application/json','impChar','<p class="hint" style="text-align:center">酒馆的角色卡图片（PNG）或 JSON 都行，头像、人设、世界书一起带进来</p>')},
   impCharGo(){try{const c=toChar(JSON.parse($('#impCharTa').value));S.chars.push(c);save();closeSheet();go({v:'charEdit',id:c.id});toast('导入了 '+c.name)}catch(e){toast(e.message||'不是有效的 JSON')}},
   async todayRe(el){const c=charById(cur().id);if(!api()?.key){toast('先在「设置 · 聊天」里填好 key');return}c.today=null;el.disabled=true;el.textContent='想一想…';try{await ensureToday(c);render(true)}catch(e){toast(e.message)}},
   editChar(el){closeSheet();go({v:'charEdit',id:el.dataset.id})},
@@ -3799,6 +3818,10 @@ document.addEventListener('change',async e=>{const el=e.target;bind(e);
     save();render(true);toast('加了 '+n+' 个')}
   if(el.dataset.font){const f=el.files?.[0];if(!f)return;if(!DB.db){toast('这个浏览器存不了字体文件，用链接吧');return}await DB.set('font:custom',f);
     S.look.customFont={local:true,name:base_(f.name),t:Date.now()};S.look.font='custom';fontLoaded='';save();await loadFont();render(true);return}
+  if(el.id==='impChar'&&el.files?.[0]&&(/png$/i.test(el.files[0].type)||/\.png$/i.test(el.files[0].name))){const f=el.files[0];
+    try{const d=pngCard(await f.arrayBuffer());if(!d)throw new Error('这张图里没有角色卡数据。从「文件」里选原图，相册里的图可能被压过');
+      const c=toChar(d);await new Promise(r=>readImg(f,480,u=>{c.avatar=u;r()},'image/jpeg',r));
+      S.chars.push(c);save();closeSheet();go({v:'charEdit',id:c.id});toast('导入了 '+c.name)}catch(e){el.value='';toast(e.message||'这张卡读不了',5600)}return}
   if(['impFile','impChar','impBook','impPreset'].includes(el.id)){const f=el.files?.[0];if(!f)return;const txt=await(el.id==='impBook'?readDoc(f):readText(f));if(el.id==='impFile'){el.value='';A.imp(null,txt);return}const ta=$('#'+(el.id==='impFile'?'impTa':el.id+'Ta'));ta.value=txt;ta.dataset.name=base_(f.name);if(el.id==='impFile'){el.value='';A.imp();return}toast('读好了，点「导入」')}
 });
 
