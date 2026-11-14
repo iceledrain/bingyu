@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.14.13';
+window.BYJ_VER='2026.11.14.14';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -1089,7 +1089,9 @@ const APPS=[
   {id:'messages',name:'聊天',v:'threads'},{id:'forum',name:'论坛',v:'forum'},{id:'theater',name:'小剧场',v:'theaters'},{id:'diary',name:'日记',v:'diary'},
   {id:'music',name:'音乐',v:'music'},{id:'raise',name:'养成',v:'raise'},{id:'code',name:'代码',v:'codes'},{id:'shop',name:'购物',v:'shop'},
   {id:'library',name:'世界书',v:'books'},{id:'preset',name:'预设',v:'presets'},{id:'think',name:'思维链',v:'think',ic:'brain'},{id:'settings',name:'设置',v:'settings'}];
-const appsOrdered=()=>APPS;
+// 主屏只摆没收起来的；设置永远在，不然进不去
+const appHidden=id=>id!=='settings'&&(S.look.hide||[]).includes(id);
+const appsOrdered=()=>APPS.filter(a=>!appHidden(a.id));
 function appIcon(a){const img=0;const n=a.id==='messages'?S.threads.reduce((s,t)=>s+(t.unread||0),0):0;
   return`<button class="ic-app" data-a="open" data-v="${a.v}"${a.t?` data-t="${a.t}"`:''} aria-label="${a.name}"><span class="ic-g">${img?`<img src="${esc(img)}" alt="">`:ICONS[a.ic||a.id]}${n?`<span class="badge">${n>99?'99+':n}</span>`:''}</span><span class="ic-n">${a.name}</span></button>`}
 
@@ -3169,6 +3171,10 @@ settings(v){
   const head=tabs([['chat','聊天'],['img','生图'],['tts','语音'],['look','外观'],['data','数据']],tab);
   if(tab==='look'){const L=S.look,cl=Math.min(60,Math.max(0,num(L.clear)??30));
     return{title:'设置',body:head+`
+    <div class="panel"><h2>主屏图标</h2>
+      <div class="chips">${APPS.filter(a=>a.id!=='settings').map(a=>`<button class="${appHidden(a.id)?'':'on'}" data-a="togApp" data-id="${a.id}">${a.name}</button>`).join('')}</div>
+      <p class="hint">点一下收起或放回，现在主屏上有 ${appsOrdered().length} 个。设置一直在。</p>
+      ${APPS.some(a=>appHidden(a.id))?`<h2>收起来的</h2><div class="btns">${APPS.filter(a=>appHidden(a.id)).map(a=>`<button class="btn o" data-a="open" data-v="${a.v}">${a.name}</button>`).join('')}</div><p class="hint">收起来的没删，从这里点开。</p>`:''}</div>
     <div class="panel"><h2>壁纸</h2>${L.wallpaper?`<div class="wpv" style="background-image:url(${L.wallpaper})"></div>`:''}
       <div class="btns">${fileBtn(L.wallpaper?'换一张':'选一张','accept="image/*" data-img="wall"')}${L.wallpaper?'<button class="btn o" data-a="clrWall">去掉</button>':''}</div>
       <p class="hint">主屏和每个页面都用这张。设了壁纸，图标、小组件、时间条、气泡的毛玻璃才看得出来。</p></div>
@@ -3662,6 +3668,7 @@ const A={
     el.disabled=true;el.textContent='连接中…';
     try{const b=await ttsAudio(line);try{vAudio&&vAudio.pause()}catch(e){}vAudio=new Audio(URL.createObjectURL(b));vAudio.play().catch(()=>{});toast('连上啦 🫧')}catch(e){toast(e.message,6500)}
     finally{if(el.isConnected){el.disabled=false;el.textContent='测试连接'}}},
+  togApp(el){const h=S.look.hide||(S.look.hide=[]),i=h.indexOf(el.dataset.id);if(i>=0)h.splice(i,1);else h.push(el.dataset.id);save();renderHome();render(true)},
   clrWall(){S.look.wallpaper='';save();applyLook();render(true)},
   clrAppWall(el){delete S.look.appWalls[el.dataset.id];save();render(true)},
   switchMask(){sheet(`<h3>换面具</h3>`+S.masks.map(m=>`<button class="opt l" data-a="useMask" data-id="${m.id}">${av(m,32)}${esc(m.name)}${m.id===S.activeMask?' ✓':''}</button>`).join(''))},
