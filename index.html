@@ -975,7 +975,7 @@ const def=()=>({v:4,loc:null,wx:{},
   chars:[],books:[],
   presets:[{id:'p1',name:'默认',core:1,items:DEFAULT_ITEMS()}],activePreset:'p1',loreV:1,
   offline:{style:OFF_STYLE_DEF,words:500,cpov:'third',upov:'second',evRate:10,lead:'char'},
-  cards:[],personaTpls:[{id:'pt1',name:'基础模板',text:PERSONA_TPL}],
+  offStyles:[],cards:[],personaTpls:[{id:'pt1',name:'基础模板',text:PERSONA_TPL}],
   threads:[],feed:[],orders:[],shop:{food:[],goods:[]},theaters:[],codes:[],thFmts:TH_FMTS(),days:[],forum:{name:'论坛',theme:'',chars:true,boards:FM_BOARDS(),posts:[]},
   music:{songs:[],cur:null,with:null,mode:'all'},diary:[],diaryAuto:false,diaryV:1,diaryMark:{},
   stickers:{groups:[{id:'g1',name:'默认',items:[]}]},
@@ -1006,7 +1006,7 @@ function mergeState(d){
   if(!s.stickers||!Array.isArray(s.stickers.groups))s.stickers=def().stickers;
   s.media={img:Object.assign(def().media.img,d.media?.img||{}),imgP:Array.isArray(d.media?.imgP)?d.media.imgP:[],tts:Object.assign(def().media.tts,d.media?.tts||{})};delete s.media.tts.group;s.look.appWalls=s.look.appWalls||{};
   s.wx=s.wx&&typeof s.wx==='object'?s.wx:{};s.hol=s.hol&&typeof s.hol==='object'?s.hol:{};
-  if(!Array.isArray(s.cards))s.cards=[];if(!Array.isArray(s.personaTpls))s.personaTpls=def().personaTpls;delete s.notes;delete s.caps;delete s.health;
+  if(!Array.isArray(s.cards))s.cards=[];if(!Array.isArray(s.offStyles))s.offStyles=[];if(!Array.isArray(s.personaTpls))s.personaTpls=def().personaTpls;delete s.notes;delete s.caps;delete s.health;
   s.presets.forEach(p=>(p.items||[]).forEach(i=>{if(i.content===LANG_OLD)i.content=LANG_DEF}));
   {const seen=new Set();(s.chars||[]).forEach(c=>{c.books=(c.books||[]).filter(id=>{const b=(s.books||[]).find(x=>x.id===id);if(!b||b.scope==='global'||seen.has(id))return false;seen.add(id);return true})})}
   if(s.media?.img)s.media.img.auto=false;
@@ -3060,7 +3060,7 @@ offline(v){
     <div class="grid2"><label class="f">角色人称<select id="o-cpov" data-s="off" data-k="cpov">${[['third','第三人称（他/她）'],['first','第一人称（我）']].map(([k,l])=>`<option value="${k}" ${(o.cpov||'third')===k?'selected':''}>${l}</option>`).join('')}</select></label>
     <label class="f">我的人称<select id="o-upov" data-s="off" data-k="upov">${[['second','第二人称（你）'],['first','第一人称（我）'],['third','第三人称（名字）']].filter(([k])=>!(o.cpov==='first'&&k==='first')).map(([k,l])=>`<option value="${k}" ${(o.upov||'second')===k?'selected':''}>${l}</option>`).join('')}</select></label></div>
     <label class="f">文风<textarea id="o-style" data-s="off" data-k="style" style="min-height:70px" placeholder="默认">${esc(o.style===OFF_STYLE_DEF?'':o.style||'')}</textarea></label>
-    
+    <div class="chips">${S.offStyles.map(x=>`<button class="${x.text===(o.style||'')?'on':''}" data-a="offStylePick" data-id="${x.id}">${esc(x.name)}</button>`).join('')}<button data-a="offStyleSave">＋ 存下来</button>${S.offStyles.some(x=>x.text===(o.style||''))?`<button data-a="offStyleDel">删掉</button>`:''}</div>
     <button class="tb" data-a="offStyleDef" style="align-self:flex-start">恢复默认</button>
     <label class="f">随机事件<span class="inline"><input type="range" id="o-ev" min="0" max="100" step="5" data-s="off" data-k="evRate" value="${o.evRate??10}"><output>${o.evRate??10}</output></span></label>
 </div>
@@ -3651,6 +3651,12 @@ const A={
   gavClear(){const t=thread(cur().id);if(!t)return;delete t.avatar;save();render(true)},
   offStyleDef(){const t=thread(cur().id);if(!t)return;(t.offline=t.offline||{...S.offline}).style='';save();render(true)},
   offSet(el){const o=scopeObj('off');if(!o)return;o[el.dataset.k]=el.dataset.v;save();render(true)},
+  offStylePick(el){const x=S.offStyles.find(x=>x.id===el.dataset.id),t=thread(cur().id);if(!x||!t)return;(t.offline=t.offline||{...S.offline}).style=x.text;save();render(true);toast('换成「'+x.name+'」了')},
+  offStyleSave(){const o=thread(cur().id)?.offline,tx=String(o?.style||'').trim();if(!tx){toast('先写文风');return}
+    sheet(`<h3>存成文风</h3><input type="text" id="osName" placeholder="起个名字，比如 日常" aria-label="名字"><button class="btn" data-a="offStyleSaveGo">存</button>`)},
+  offStyleSaveGo(){const o=thread(cur().id)?.offline,tx=String(o?.style||'').trim(),n=$('#osName').value.trim()||tx.slice(0,6);if(!tx)return;
+    const old=S.offStyles.find(x=>x.name===n);if(old)old.text=tx;else S.offStyles.push({id:uid(),name:n,text:tx});o.style=tx;closeSheet();save();render(true);toast('存好了')},
+  offStyleDel(el){confirmTap(el,()=>{const o=thread(cur().id)?.offline;S.offStyles=S.offStyles.filter(x=>x.text!==(o?.style||''));save();render(true)})},
   offDefault(){S.offline={...thread(cur().id).offline};save();toast('设为默认了')},
   openSummary(){closeSheet();go({v:'summaryEdit',id:cur().id})},
   editSummary(){go({v:'summaryEdit',id:cur().id})},
