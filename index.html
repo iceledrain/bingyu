@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.18.9';
+window.BYJ_VER='2026.11.18.10';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -777,6 +777,7 @@ html.dark .mo-pic.tp{background:linear-gradient(150deg,#303030,#212121 60%,#2929
 .klog .m{align-self:flex-end;background:var(--accent-soft);border-bottom-right-radius:6px}
 .klog .s{align-self:center;font-size:11.5px;color:var(--muted);text-align:center}.klog .kn{align-self:stretch;font-size:14.5px;line-height:1.85;white-space:pre-wrap;padding:2px 2px 6px;border-bottom:1px solid var(--line)}.klog .kn.me{font-style:italic;color:var(--deep);border:0;border-left:2px solid rgba(var(--accent-rgb),.45);padding:2px 0 2px 12px}.klog.story{max-height:60vh}.klog .k.on{border-style:dashed}
 .klog>[data-a=kidMsg]{cursor:pointer;-webkit-touch-callout:none}.klog .m.on{border:1px dashed var(--line)}.klog .s.a{font-size:12.5px;color:var(--deep)}.klog .s.e{font-size:13px;color:var(--ink);background:var(--accent-soft);border-radius:12px;padding:4px 12px}.kev h2{font-size:15px}
+.av.pt svg{width:60%;height:60%}.pchips{display:flex;flex-wrap:wrap;gap:6px}.pchips button{padding:5px 11px;border-radius:99px;border:1px solid var(--line);background:var(--bg2);font-size:12.5px;color:var(--ink)}
 .plr{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
 .plr>span{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.plr b{font-weight:400;font-size:15px;line-height:1.45;word-break:break-word}.plr small{font-size:11.5px;color:var(--muted)}
 .plr.done b{text-decoration:line-through;color:var(--muted)}
@@ -979,7 +980,7 @@ const def=()=>({v:4,loc:null,wx:{},
   threads:[],feed:[],orders:[],shop:{food:[],goods:[]},theaters:[],codes:[],thFmts:TH_FMTS(),days:[],forum:{name:'论坛',theme:'',chars:true,boards:FM_BOARDS(),posts:[]},
   music:{songs:[],cur:null,with:null,mode:'all'},diary:[],diaryAuto:false,diaryV:1,diaryMark:{},
   stickers:{groups:[{id:'g1',name:'默认',items:[]}]},
-  raise:{kids:[]},lastTick:0,events:[],evWipe:{},memWipe:{},evGone:[],bkKey:false,lastSeen:0,
+  raise:{kids:[]},pets:[],lastTick:0,events:[],evWipe:{},memWipe:{},evGone:[],bkKey:false,lastSeen:0,
   tok:{n:0,i:0,o:0,img:0,by:{},since:Date.now()}
 });
 function mergeState(d){
@@ -1021,6 +1022,7 @@ function mergeState(d){
   s.threads.forEach(t=>{delete t.face});delete s.chat.face;delete s.chat.faceLen;delete s.chat.faceStyle;
   if(!s.evV2){s.evV2=1;for(const o of [s.offline,...s.threads.map(t=>t.offline).filter(Boolean)])if(+o.evRate===30)o.evRate=10}
   if(!s.raise||typeof s.raise!=='object'||!Array.isArray(s.raise.kids))s.raise={kids:[]};s.raise.kids=s.raise.kids.filter(k=>k&&k.id&&k.st);
+  s.pets=(Array.isArray(s.pets)?s.pets:[]).filter(p=>p&&p.id&&p.st);
 for(const K of['evWipe','memWipe'])if(!s[K]||typeof s[K]!=='object')s[K]={};if(!Array.isArray(s.evGone))s.evGone=[];evWipeApply(s);
   const w5=!s.offW5;s.offW5=1;
   for(const o of [s.offline,...s.threads.map(t=>t.offline).filter(Boolean)]){if(o.style===OFF_STYLE_OLD)o.style=OFF_STYLE_DEF;if(!(+o.words)||(w5&&+o.words===900))o.words=500;
@@ -1170,6 +1172,8 @@ const ICONS={
   study:SV('<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v15H5.5A1.5 1.5 0 0 1 4 17.5z"/><path d="M11 4h7.5A1.5 1.5 0 0 1 20 5.5v12a1.5 1.5 0 0 1-1.5 1.5H11"/><path d="M6.5 8h2.5M6.5 11h2.5M13.5 8l3 5M16.5 8l-3 5"/>'),
   theater:SV('<path d="M4 6h16v4a2 2 0 0 0 0 4v4H4v-4a2 2 0 0 0 0-4z"/><path d="M14 6.5v11" stroke-dasharray="1.5 2"/>'),
   forum:SV('<path d="M4 5h12v8H9l-4 3v-3H4z"/><path d="M16 9h4v8h-1v3l-3-3h-5v-2"/>'),
+  cat:SV('<path d="M5 9.5V4.5l3.6 2.6a8 8 0 0 1 6.8 0L19 4.5v5c.6 1 1 2.200 1 3.5 0 3.900-3.600 6.500-8 6.500s-8-2.600-8-6.500c0-1.300.4-2.500 1-3.500z"/><circle cx="9.200" cy="12.400" r=".7" fill="currentColor"/><circle cx="14.800" cy="12.400" r=".7" fill="currentColor"/><path d="M11 15.200l1 .9 1-.9"/>'),
+  dog:SV('<path d="M7.500 6.500C6 5 3.800 5.600 3.500 8c-.3 2.400.5 4.500 2 5.500"/><path d="M16.500 6.500C18 5 20.200 5.600 20.500 8c.3 2.400-.5 4.500-2 5.500"/><path d="M7.500 6.500a7 7 0 0 1 9 0c1.300 1.500 1.900 3.500 1.900 5.700 0 4.300-2.900 7.300-6.400 7.300s-6.400-3-6.400-7.300c0-2.200.6-4.200 1.900-5.700z"/><circle cx="9.600" cy="11.600" r=".7" fill="currentColor"/><circle cx="14.400" cy="11.600" r=".7" fill="currentColor"/><path d="M10.800 14.800h2.400L12 16z" fill="currentColor"/>'),
   preset:SV('<path d="M5 6h14M5 12h14M5 18h14"/><circle cx="9" cy="6" r="1.8" fill="currentColor"/><circle cx="15" cy="12" r="1.8" fill="currentColor"/><circle cx="8" cy="18" r="1.8" fill="currentColor"/>'),
 };
 const APPS=[
@@ -1611,6 +1615,7 @@ function buildCtx(t,o={}){
     const wd=worldFor(chars);if(wd)tail.push(wd);
     const d0=new Date().setHours(0,0,0,0);if(myDays(me).some(x=>x.in===0&&chars.some(c=>c.id===x.who))&&t.msgs.some(m=>m.from==='me'&&m.t>=d0&&/生日快乐|happy birthday/i.test(m.content||'')))tail.push(`【生日】${me.name}今天说过生日快乐了。`);
     chars.forEach(c=>{const x=kidKnow(c);if(x)tail.push(x)});
+    chars.forEach(c=>{const x=petKnow(c,group);if(x)tail.push(x)});
     chars.forEach(c=>{if(c.today?.day===dayKey()&&c.today.text)tail.push(`【${c.name}的今天】${c.today.text}\n`+(!group&&todayTold(c,t)?`（只是背景。今天的事已经跟${me.name}讲过了，TA不问就不提，聊别的。）`:mode==='offline'?`（见面之前${c.name}自己的事。到现在已经发生的，聊天时可以自然带出一件，讲过的不重复。）`:`（只是背景。正聊着别的事就不提；话停了、或${me.name}问起，再挑一件讲，一次一件，讲过的不重复。）`))});
     if(!group&&chars[0]){const c=chars[0],gone=saidGone(c,t);
       if(gone.length)tail.push(`【已经说过的】这些话${c.name}之前对${me.name}说过了（记录已经不在）。不再说差不多的内容，不换个说法重讲同一件事；今天的事讲过的就算讲过了，讲别的。\n`+gone.slice(-16).map(x=>'· '+x.s).join('\n'))}}
@@ -1762,9 +1767,10 @@ function extractExtras(out,chat=true,group=false){
   out=out.replace(/<profile>([\s\S]*?)<\/profile>/gi,(_,x)=>{prof.push(x.trim());return''});
   const cards=[];out=out.replace(/\[送亲属卡[:：]\s*([\d.]*)[^\]]*\]/g,(_,a)=>{cards.push({give:1,amt:Math.max(0,+a||0)});return''}).replace(/\[刷亲属卡[:：]([^:：\]]+)[:：]\s*([\d.]+)[^\]]*\]/g,(_,w,a)=>{cards.push({what:w.trim(),amt:+a||0});return''});
   out=out.replace(/\[(拉黑|解除拉黑|删除好友|沉默|收下|退回|语音通话|视频通话|拒接|挂断|查手机)\]/g,(_,x)=>{acts.push(x);return''});
+  const pet=[];out=out.replace(/[\[【]照顾[:：]\s*([^\]】\n]{1,12})[\]】]/g,(_,x)=>{pet.push(x.trim());return''});
   think=think.replace(/<\/?[a-z]{1,8}>/gi,' ').trim();
   think=group?think.split('\n').map(l=>{const m=l.trim().match(/^([^:：\n]{1,30})[:：]\s*(.*)$/);return m?(x=>x?m[1].trim()+'：'+x:'')(brief(m[2])):brief(l)}).filter(Boolean).slice(0,8).join('\n'):brief(think);
-  return{text:out.trim(),think:think.trim(),inner,tide,acts,prof,cards,fmt};
+  return{text:out.trim(),think:think.trim(),inner,tide,acts,prof,cards,fmt,pet};
 }
 async function sortLeak(ex,ctx){const lines=ex.text.split('\n').map(l=>l.trim()).filter(Boolean),mark=l=>/^\[[^\]]+\]$/.test(l);
   if(lines.filter(l=>!mark(l)).length<2)return;
@@ -1933,7 +1939,7 @@ async function reply(t,extra,stamps){
     for(let k=0;k<2&&ctx.mode==='offline'&&r.cut&&r.text;k++){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:'（上面写到一半断了。从断掉的那个字接着把这一段写完，不重复前面，不另起开头。）'}],{thoughts:true,...offMax});r.text+=r2.text;r.cut=r2.cut&&!!r2.text}catch(e){break}}
     const ex=extractExtras(r.text,ctx.mode!=='offline',ctx.group);if(ctx.mode!=='offline'&&!ex.fmt)await sortLeak(ex,ctx);if(!S.chat.think)ex.think='';
     if(!ctx.group){const u=x=>String(x||'').replace(/[他她]|TA/g,'你');ex.think=u(ex.think);ex.inner=ex.inner.map(u)}
-    applyTide(ctx,ex);applyActs(ctx,ex);if(!ctx.group&&ctx.chars[0]){applyMoney(t,ex,ctx.chars[0]);applyCards(t,ex,ctx.chars[0])}save();
+    applyTide(ctx,ex);applyActs(ctx,ex);applyPet(t,ctx,ex);if(!ctx.group&&ctx.chars[0]){applyMoney(t,ex,ctx.chars[0]);applyCards(t,ex,ctx.chars[0])}save();
     const callWas=spUse(t).callN,askedCall=/电话|视频|语音|通话|打给|打过来/.test(String([...t.msgs].reverse().find(m=>m.from==='me')?.content||''));
     const callAct=(callWas<0||callWas>=25||askedCall)&&ex.acts.find(a=>a==='语音通话'||a==='视频通话');
     if(!ex.text&&!ex.acts.length)throw new Error(r.cut?'光顾着想了，还没说话长度就用完了：把接口里的最大长度调大，或把思考深度调低':'回复是空的，再试一次');
@@ -2981,6 +2987,87 @@ function kidDo(k,key){const a=KID_ACT[key],s=k.st,now=Date.now(),hr=new Date().g
   const ev=kidSettle(k,('你'+what.slice(me.length)).replace(/TA/g,'我'));if(ev)extra+=`（是为了TA${ev}这件事）`;
   if(!rep)k.bond=Math.min(100,(k.bond||0)+(a.b||0));kidGrow(k,(a.g||0)*m);
   kidLog(k,'act',note);save();render(true);kidAsk(k,what+extra+'。',key,st)}
+
+/* ---------- 宠物 ---------- */
+const PET_KIND={cat:'猫',dog:'狗'};
+const PET_BREED={cat:['缅因','布偶','英短','橘猫','狸花','黑猫'],dog:['德牧','黑柴','白泰迪','金毛','边牧','柯基']};
+const PET_ST=[['food','饱饱'],['clean','干净'],['joy','心情'],['energy','精力'],['health','健康']];
+const PET_ACT={
+  feed:{n:['喂食','喂食'],d:['给TA的碗里添了猫粮','给TA的碗里倒了狗粮'],f:{food:40,joy:3},b:1},
+  treat:{n:['猫条','肉干'],d:['撕开一根猫条喂TA','拿了块肉干喂TA'],f:{food:10,joy:12},b:1},
+  play:{n:['逗猫棒','扔球'],d:['拿逗猫棒陪TA玩','在屋里扔球陪TA玩'],f:{joy:25,energy:-15,food:-6},b:2,tired:1},
+  walk:{n:[null,'遛弯'],d:[null,'牵着TA出门遛了一圈'],f:{joy:30,energy:-25,food:-8,clean:-10},b:3,tired:1},
+  brush:{n:['梳毛','梳毛'],d:['抱着TA慢慢梳毛','按着TA梳了一遍毛'],f:{clean:20,joy:8},b:2},
+  clean:{n:['铲猫砂','洗澡'],d:['把猫砂盆铲干净了','把TA抱进浴室洗了个澡'],f:[{clean:45},{clean:60,joy:-8,energy:-5}]},
+  pet:{n:['摸摸','摸摸'],d:['伸手摸TA','揉了揉TA的头'],f:{joy:10},b:2},
+  doctor:{n:['看医生','看医生'],d:['把TA装进猫包带去看医生','带TA去看医生'],f:{health:45,joy:-12}}};
+const PET_EV={
+  cat:[['把桌上的杯子推到了地上',{joy:5}],['吐了一团毛球',{health:-8}],['蹲在窗边对着外面的鸟咔咔叫',{joy:5}],['半夜在屋里跑酷',{energy:-15}],['钻进纸箱里不肯出来',{}],['把沙发抓花了一块',{}],['叼了个玩具放到你脚边',{joy:8}],['躲在床底下不出来，好像被什么吓到了',{joy:-15}],['有点拉肚子，蔫蔫的',{health:-25,clean:-20}],['趴在你的键盘上不走',{}],['把卷纸扯了一地',{clean:-10}]],
+  dog:[['把拖鞋叼走藏起来了',{}],['把垃圾桶翻了个底朝天',{clean:-20}],['听见门外有动静，冲着门叫个不停',{joy:-5}],['叼着牵引绳蹲在门口等着',{joy:-8}],['在外面踩了一脚泥',{clean:-25}],['把自己的玩具咬坏了',{}],['把球叼过来放到你脚边',{joy:8}],['打雷吓得往你身后躲',{joy:-15}],['吃坏了肚子，没什么精神',{health:-25}],['趴在门口，谁叫都不动',{joy:-12}],['学会了自己用鼻子顶开门',{joy:5}]]};
+const PET_FALL={
+  cat:{feed:['埋头吃起来，尾巴慢慢竖直','闻了闻，才低头小口小口地吃'],treat:['按住你的手不让走，舔得啧啧响'],play:['压低身子，屁股扭了扭，扑了上去','一爪子拍住，又装作没兴趣地走开'],brush:['眯起眼睛，喉咙里呼噜呼噜的','梳到肚子就翻身用后腿蹬你'],clean:['看你铲完，立刻进去踩了一圈'],pet:['拿头顶你的手心，呼噜声大了起来','尾巴尖轻轻晃了一下'],doctor:['缩在猫包最里面，叫得很委屈'],say:['耳朵朝你转了转，没回头','看着你，慢慢眨了一下眼睛']},
+  dog:{feed:['几口就吃完了，把碗舔得直转','尾巴摇得停不下来，埋头就吃'],treat:['坐得端端正正，眼睛一直盯着你的手'],play:['冲出去叼住球，又一路跑回来','玩疯了，绕着你转圈'],walk:['一出门就拽着绳子往前冲','走几步就回头看你跟上没有'],brush:['乖乖站着，舒服得眯起眼'],clean:['浑身湿透，甩了你一身水','耷拉着耳朵，一脸委屈'],pet:['把头往你手里拱，尾巴啪啪拍地','翻过身露出肚皮'],doctor:['夹着尾巴往你腿后面躲'],say:['歪了歪头，耳朵竖起来','尾巴摇了摇，凑过来闻你']}};
+const petById=id=>(S.pets||[]).find(p=>p.id===id);
+const petKi=p=>p.kind==='dog'?1:0;
+const petWord=p=>(p.breed||'')+PET_KIND[p.kind];
+const petAv=(p,s=44)=>`<span class="av pt" style="--s:${s}px">${p.avatar?`<img src="${esc(p.avatar)}" alt="">`:ICONS[p.kind==='dog'?'dog':'cat']}</span>`;
+const petAgeM=p=>Math.floor((+p.age0||0)+(Date.now()-(p.born||Date.now()))/(30*864e5));
+const petAgeText=p=>{const m=petAgeM(p);return m<1?'还没满月':m<12?m+'个月':Math.floor(m/12)+'岁'+(m%12?m%12+'个月':'')};
+const petStage=p=>{const m=petAgeM(p);return m<6?(p.kind==='dog'?'小奶狗':'小奶猫'):m<12?'半大':m<96?'成年':'上年纪了'};
+const petBond=b=>b<20?'跟你还有点认生':b<50?'跟你熟了':b<80?'很黏你':'离不开你';
+const petActs=p=>{const i=petKi(p);return Object.entries(PET_ACT).filter(([x,a])=>a.n[i]&&(x!=='doctor'||p.sick||p.st.health<70))};
+const petRe=p=>{const v=cur();if((v?.v==='pet'&&v.id===p.id||v?.v==='pets')&&isOpen())render(true)};
+const petBusy=new Set();let petT;
+function petLog(p,from,text,t=Date.now()){(p.log||=[]).push({id:uid(),t,from,text});if(p.log.length>120)p.log.splice(0,p.log.length-120)}
+function petTick(p){const now=Date.now(),last=p.t||now;p.t=now;const raw=(now-last)/36e5,h=Math.min(36,raw);if(h<=0)return;
+  const s=p.st,cl=x=>Math.max(0,Math.min(100,x)),young=petAgeM(p)<6?1.3:1;
+  if(raw>=24){const d=Math.floor(raw/24);petLog(p,'sys',`你有${d>1?d+'天':'一整天'}没来看TA`);p.bond=cl((p.bond||0)-Math.min(10,d*2))}
+  s.food=cl(s.food-h*4*young);s.clean=cl(s.clean-h*(p.kind==='dog'?1.5:2.5));s.joy=cl(s.joy-h*(p.kind==='dog'?3:2));
+  let e=s.energy-h*3;while(e<15)e+=70;s.energy=cl(e);
+  {const c=p.know!==false&&p.charId&&charById(p.charId);if(c&&raw>=6){const did=[];if(s.food<35){s.food=65;did.push('喂过')}if(s.clean<30){s.clean=60;did.push(p.kind==='dog'?'擦洗过':'铲过猫砂')}if(s.joy<30){s.joy=45;did.push('陪过')}
+    if(did.length){(p.log||=[]).push({id:uid(),t:now-36e5,from:'sys',text:`你不在的时候，${dn(c)}${did.join('、')}TA了`})}}}
+  s.health=cl(s.health+(s.food<20||s.clean<20?-3*h:s.food>50&&s.clean>40&&s.joy>40?h:0));
+  if(p.ev&&now-p.ev.t>8*36e5){petLog(p,'sys',`TA${p.ev.text}——没人管，过去了`);p.ev=null}
+  if(s.health<30&&!p.sick){p.sick=true;petLog(p,'sys','TA生病了，蔫蔫的，不怎么动')}}
+function petNeeds(p){const s=p.st,L=[],d=p.kind==='dog';
+  if(p.ev)L.push('有事');if(p.sick)L.push('生病了');if(s.food<30)L.push(s.food<12?'饿坏了':'饿了');if(s.clean<30)L.push(d?'身上脏了':'猫砂该铲了');if(s.joy<30)L.push(d?'想出门':'无聊');if(s.energy<30)L.push('在打盹');
+  if(!L.length)L.push(s.joy>=75?'心情很好':'挺好的');return L}
+function petSys(p){const me=mask(p.charId?charById(p.charId):undefined).name,c=p.charId&&charById(p.charId),k=PET_KIND[p.kind];
+  return whoTag(`你在写一只真实的${k}的反应。它叫${p.name}，${petWord(p)}，${p.sex==='f'?'母的':'公的'}，${petAgeText(p)}（${petStage(p)}）${p.look?'，'+p.look:''}${p.trait?'。性格：'+p.trait:''}。它是${me}${c?'和'+c.name+'一起':''}养的，${petBond(p.bond||0).replaceAll('你',me)}。\n它就是一只${k}：不会说话，没有人的想法，听不懂复杂的话，只认得自己的名字、语气和几个常用的词。按${p.breed||k}这个品种的习性和体型来写，像真的养过的人写出来的，不卖萌、不拟人。`,p.id)}
+async function petAsk(p,what,fb){const fall=()=>{const F=PET_FALL[p.kind]||PET_FALL.cat;petLog(p,'pet',kpick(F[fb]||F.say))};
+  if(!api(p.charId||'')?.key){fall();save();petRe(p);return}
+  petBusy.add(p.id);petRe(p);
+  try{const me=mask(p.charId?charById(p.charId):undefined).name,recent=(p.log||[]).slice(-10).map(x=>x.from==='me'?`${me}：${x.text}`:x.from==='act'?`（${x.text}）`:x.from==='pet'?`${p.name}：${x.text}`:`（${x.text.replaceAll('TA',p.name)}）`).join('\n');
+    const out=String(await callAI(petSys(p),[{role:'user',content:`【现在】${nowText()}\n【${p.name}现在】${petNeeds(p).join('、')}${p.ev?`\n【还没过去的事】${p.name}${p.ev.text}`:''}${recent?`\n【刚才】\n${recent}`:''}\n\n${what}\n\n写${p.name}这时候的反应：动作、神态、叫声，一到两句，不加括号，不替${me}说话做事。只输出反应本身。`}],{max:300,side:true,tag:'other',who:p.charId||undefined})||'').replace(/<think>[\s\S]*?<\/think>/gi,'').replace(/^[（(]|[）)]$/g,'').trim();
+    if(out)petLog(p,'pet',wholeText(out,200));else fall()}
+  catch(e){fall()}
+  finally{petBusy.delete(p.id);save();petRe(p)}}
+function petApply(p,key,m=1){const a=PET_ACT[key],i=petKi(p),s=p.st,f=Array.isArray(a.f)?a.f[i]:a.f;
+  for(const[x,d]of Object.entries(f))s[x]=Math.max(0,Math.min(100,s[x]+(d>0?d*m:d)));
+  if(key==='doctor')p.sick=false;if(m===1)p.bond=Math.min(100,(p.bond||0)+(a.b||0));
+  if(p.ev){const t=p.ev.text;p.ev=null;return t}return''}
+function petDo(p,key){const a=PET_ACT[key],i=petKi(p),s=p.st,now=Date.now();if(!a||!a.n[i]||petBusy.has(p.id))return;petTick(p);
+  if(a.tired&&s.energy<15){toast('TA累了，让TA歇一会儿');return}
+  const me=mask(p.charId?charById(p.charId):undefined).name,rep=now-((p.last||{})[key]||0)<20*60e3;(p.last||={})[key]=now;
+  let extra='';
+  if((key==='feed'||key==='treat')&&s.food>88){extra='，可TA已经很饱了';s.joy=Math.max(0,s.joy-3)}
+  const ev=extra?'':petApply(p,key,rep?.5:1);if(ev)extra+=`（是因为TA${ev}）`;if(rep)extra+=`（刚刚才${a.n[i]}过）`;
+  petLog(p,'act',a.n[i]);save();render(true);petAsk(p,(me+a.d[i]+extra+'。').replaceAll('TA',p.name),key)}
+function petMaybeEv(p){const now=Date.now();if(p.ev||petBusy.has(p.id)||now-(p.evChk||0)<3600e3)return;p.evChk=now;
+  if(now-(p.evAt||p.born||0)<3*36e5||Math.random()>.5)return;
+  const L=PET_EV[p.kind]||PET_EV.cat,last=p.evLast||[];let x,n=0;do x=kpick(L);while(last.includes(x[0])&&++n<9);
+  p.evAt=now;for(const[a,d]of Object.entries(x[1]))p.st[a]=Math.max(0,Math.min(100,p.st[a]+d));
+  p.ev={text:x[0],t:now};p.evLast=[...last,x[0]].slice(-6);petLog(p,'ev',`TA${x[0]}`);save();
+  petAsk(p,`这时候：${p.name}${x[0]}。写${p.name}这时候的样子。`,'say')}
+const PET_CARE={喂食:'feed',喂饭:'feed',喂粮:'feed',添粮:'feed',零食:'treat',猫条:'treat',肉干:'treat',陪玩:'play',玩:'play',逗猫棒:'play',扔球:'play',遛弯:'walk',遛狗:'walk',散步:'walk',梳毛:'brush',铲猫砂:'clean',铲屎:'clean',洗澡:'clean',摸摸:'pet',抱抱:'pet',看医生:'doctor',看病:'doctor'};
+function petKnow(c,group){const L=(S.pets||[]).filter(p=>p.charId===c.id&&p.know!==false);if(!L.length)return'';const me=mask(c).name;
+  return L.map(p=>{petTick(p);const i=petKi(p),rec=(p.log||[]).filter(x=>x.from!=='me').slice(-5).map(x=>`· ${ago(x.t)}：${x.from==='act'?(x.by||me)+x.text:x.from==='pet'?p.name+x.text.replaceAll('你',me):x.text.replaceAll('TA',p.name).replaceAll('你',me)}`).join('\n');
+    return`【宠物】${c.name}和${me}一起养了一只${petWord(p)}，叫${p.name}，${p.sex==='f'?'母的':'公的'}，${petAgeText(p)}${p.look?'，'+p.look:''}${p.trait?'，性格'+p.trait:''}。它${petBond(p.bond||0).replaceAll('你',me)}。\n${p.name}现在：${petNeeds(p).join('、')}${p.ev?`；刚才它${p.ev.text}，还没人管`:''}。${rec?`\n最近：\n${rec}`:''}\n（${p.name}是家里的一员，${c.name}也疼它、也会照顾它。话停了、它有事、或者${me}提起的时候，自然带一句它在干什么或者自己刚给它做了什么，别每次都提，它没事就不提。${group?'':`${c.name}真的动手照顾了它，就单独写一行 [照顾:${petActs(p).map(([x,a])=>a.n[i]).join('／')}] 里的一个，一次一个，它不需要就不写。`}）`}).join('\n')}
+function applyPet(t,ctx,ex){if(ctx.group||!ctx.chars[0]||!ex.pet?.length)return;const c=ctx.chars[0],p=(S.pets||[]).filter(x=>x.charId===c.id&&x.know!==false).sort((a,b)=>(b.ev?1:0)-(a.ev?1:0)||a.st.food-b.st.food)[0];if(!p)return;
+  let key=PET_CARE[ex.pet[0]];if(!key)key=Object.entries(PET_ACT).find(([x,a])=>a.n.includes(ex.pet[0]))?.[0];
+  const a=key&&PET_ACT[key],i=petKi(p);if(!a||!a.n[i])return;petTick(p);
+  if((key==='feed'||key==='treat')&&p.st.food>88)return;
+  petApply(p,key);const what=a.d[i].replaceAll('TA',p.name);(p.log||=[]).push({id:uid(),t:Date.now(),from:'act',text:a.n[i],by:dn(c)});sysMsg(t,`${dn(c)}${what}`)}
 const VIEWS={
 x(v){
   const tab=['home','search','people','dm'].includes(v.tab)?v.tab:'home',un=S.threads.reduce((n,t)=>n+(t.unread||0),0),F=S.forum;
@@ -3187,6 +3274,24 @@ weather(v){const L=S.loc;
     :`<div class="empty"><big>天气加载中…</big></div>`,
     after(){const all=[L,...others.map(c=>c.loc)];if(!v.tried&&all.some(l=>!(S.wx||{})[wxKey(l)]?.d?.hourly||Date.now()-((S.wx||{})[wxKey(l)]?.t||0)>45*60e3)){v.tried=1;Promise.all(all.map(l=>ensureWx(l))).then(()=>{if(cur()===v)render(true)})}}};
 },
+pets(v){const P=S.pets;P.forEach(petTick);
+  return{title:'宠物',right:`<button class="tb" data-a="petNew" aria-label="养一只">${ICONS.plus}</button>`,
+    body:P.length?P.map(p=>`<button class="row" data-a="petGo" data-id="${p.id}">${petAv(p,44)}<span class="meta"><b>${esc(p.name)}</b><small>${esc(petWord(p))} · ${petAgeText(p)} · ${esc(petNeeds(p).join('、'))}</small></span></button>`).join('')
+      :`<div class="empty"><big>家里还没有小动物</big><button class="btn" data-a="petNew">养一只</button></div>`}},
+pet(v){const p=petById(v.id);if(!p)return{title:'不见了',body:''};petTick(p);save();
+  const busy=petBusy.has(p.id),i=petKi(p),c=p.charId&&charById(p.charId);
+  const bars=PET_ST.map(([x,n])=>`<span>${n}</span><span class="kbar${p.st[x]<30?' low':''}"><i style="width:${Math.round(p.st[x])}%"></i></span><em>${Math.round(p.st[x])}</em>`).join('');
+  (p.log||[]).forEach(x=>{if(!x.id)x.id=uid()});
+  const log=(p.log||[]).slice(-40).map(x=>x.from==='sys'?`<div data-a="petMsg" data-id="${x.id}" class="s">${esc(x.text)} · ${ago(x.t)}</div>`:x.from==='ev'?`<div data-a="petMsg" data-id="${x.id}" class="s e">${esc(x.text)} · ${ago(x.t)}</div>`:x.from==='act'?`<div data-a="petMsg" data-id="${x.id}" class="s a">— ${x.by?esc(x.by)+' ':''}${esc(x.text)} —</div>`:`<div data-a="petMsg" data-id="${x.id}" class="${x.from==='me'?'m':'k'}">${esc(x.text)}</div>`).join('')+(busy?'<div class="k"><span class="dots"><i></i><i></i><i></i></span></div>':'');
+  return{title:p.name,sub:petWord(p)+' · '+petAgeText(p),right:`<button class="tb" data-a="petSet" aria-label="设置">···</button>`,body:`
+  <div class="panel"><div class="kidh">${petAv(p,58)}<span><b>${esc(p.name)}</b><small>${esc(petStage(p))} · ${petBond(p.bond||0)}${c?' · 和'+esc(dn(c))+'一起养':''}</small><span class="btns">${petNeeds(p).map(x=>`<span class="pill">${esc(x)}</span>`).join('')}</span></span></div>
+    <div class="kbars">${bars}</div></div>
+  ${p.ev?`<div class="panel kev"><h2>TA${esc(p.ev.text)}</h2></div>`:''}
+  <div class="panel"><h2>照顾TA</h2><div class="kacts">${petActs(p).map(([x,a])=>`<button data-a="petAct" data-k="${x}"${busy?' disabled':''}>${a.n[i]}</button>`).join('')}</div></div>
+  <div class="panel"><h2>和TA</h2><div class="klog" id="klog">${log}</div>
+    <div class="inline" style="flex-wrap:nowrap"><input type="text" id="ptIn" placeholder="叫叫TA" enterkeyhint="send" aria-label="跟TA说话" style="flex:1;min-width:0"><button class="btn" data-a="petSay"${busy?' disabled':''}>说</button></div></div>`,
+  after(){const l=$('#klog');if(l)l.scrollTop=l.scrollHeight;const inp=$('#ptIn');if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();A.petSay()}});
+    petMaybeEv(p);clearTimeout(petT);petT=setTimeout(()=>{if(cur()===v&&isOpen()&&document.activeElement?.id!=='ptIn')render(true)},60e3)}}},
 raise(v){const K=S.raise.kids;K.forEach(kidTick);
   return{title:'养成',right:`<button class="tb" data-a="kidNew" aria-label="养一个">${ICONS.plus}</button>`,
     body:K.length?K.map(k=>`<button class="row" data-a="kidGo" data-id="${k.id}">${av(kidChar(k),44)}<span class="meta"><b>${esc(kidName(k))}</b><small>${ageText(k.age)} · ${esc(kidNeeds(k).join('、'))}</small></span></button>`).join('')
@@ -3432,7 +3537,7 @@ apiEdit(v){
 function dropBlank(){const bad=S.chars.filter(c=>c.name==='新角色'&&!String(c.persona||'').trim()&&!c.avatar&&!c.remark&&!c.handle&&!stack.some(x=>x.id===c.id)&&!S.threads.some(t=>t.chars.includes(c.id)&&(t.type==='group'||t.msgs.length))).map(c=>c.id);
   if(!bad.length)return;S.chars=S.chars.filter(c=>!bad.includes(c.id));S.threads=S.threads.filter(t=>!(t.type==='dm'&&bad.includes(t.chars[0])));save()}
 function purgeChar(id){S.chars=S.chars.filter(c=>c.id!==id);S.threads.forEach(t=>t.chars=t.chars.filter(x=>x!==id));S.threads=S.threads.filter(t=>t.chars.length&&!(t.type==='group'&&t.chars.length<2&&!t.msgs.length));
-  S.feed=S.feed.filter(p=>p.author!==id);S.events=S.events.filter(e=>e.who!==id);if(S.music.with===id)S.music.with=null;S.diary=S.diary.filter(d=>d.charId!==id);if(S.raise)S.raise.kids=S.raise.kids.filter(k=>k.charId!==id);S.theaters=S.theaters.filter(x=>x.charId!==id);S.codes=S.codes.filter(p=>p.charId!==id);
+  S.feed=S.feed.filter(p=>p.author!==id);S.events=S.events.filter(e=>e.who!==id);if(S.music.with===id)S.music.with=null;S.diary=S.diary.filter(d=>d.charId!==id);if(S.raise)S.raise.kids=S.raise.kids.filter(k=>k.charId!==id);(S.pets||[]).forEach(p=>{if(p.charId===id)p.charId=''});S.theaters=S.theaters.filter(x=>x.charId!==id);S.codes=S.codes.filter(p=>p.charId!==id);
   save();closeSheet();stack=stack.filter(x=>x.id!==id&&!(x.v==='chat'&&!thread(x.id)));if(!stack.length)toRoot('dm');else render();toast('删掉了')}
 function unsay(t,ms){if(t?.type!=='dm')return;const c=charById(t.chars[0]);if(!c?.said)return;
   const ks=ms?new Set(ms.filter(m=>m.from===c.id).map(m=>String(m.content||'').slice(0,60))):null,hit=x=>!ks||ks.has(x.s),d0=new Date().setHours(0,0,0,0);
@@ -3516,7 +3621,7 @@ const A={
     const r=(a,ic,l,ex='',s='')=>`<button class="dw-r${s}" data-a="${a}" ${ex}>${ic}<span>${l}</span></button>`,app=(id,s='')=>{const a=ap(id);return a?r('open',ICONS[a.ic||a.id],a.name,`data-v="${a.v}"`,s):''};
     sheet(`<div class="dw-h">${av(me,44)}<b>${esc(me.name)}</b><small>@${esc(me.name)}</small><span class="pf-st"><span><b>${S.chars.filter(visible).length}</b> 关注</span><span><b>${kn(likes)}</b> 获赞</span></span></div>
       ${r('open',ICONS.person,'个人主页','data-v="fmMe"')}${r('walletOpen',ICONS.wallet,'钱包')}${r('open',ICONS.smile,'表情包','data-v="stickers"')}${app('preset')}${app('library')}${app('think')}
-      <i class="dw-l"></i><div class="dw-t">更多</div>${['theater','diary','music','raise','code','shop'].map(id=>app(id,' s')).join('')}${r('open',ICONS.weather,'天气','data-v="weather"',' s')}
+      <i class="dw-l"></i><div class="dw-t">更多</div>${['theater','diary','music','raise','code','shop'].map(id=>app(id,' s')).join('')}${r('open',ICONS.cat,'宠物','data-v="pets"',' s')}${r('open',ICONS.weather,'天气','data-v="weather"',' s')}
       <i class="dw-l"></i>${r('open',ICONS.settings,'设置','data-v="settings"',' s')}${r('chatSet',ICONS.bubble,'聊天设置','',' s')}${r('open',ICONS.forum,'论坛设置','data-v="fmSet"',' s')}`,1)},
   xB(el){const v=cur();v.b=el.dataset.t;v.err=0;render()},
   fmSearch(){const v=cur();v.q=$('#fmQ')?.value||'';render()},
@@ -3906,6 +4011,36 @@ const A={
   kidMake(el){const c=charById(el.dataset.id);if(!c)return;const age=+$('#kdAge')?.value||0,to=Math.max(16,Math.min(60,+$('#kdTo')?.value||24))*12;
     const k={id:uid(),charId:c.id,name:$('#kdName')?.value.trim()||c.name,age:Math.min(age,to),to,speed:+$('#kdSpd')?.value||1,call:$('#kdCall')?.value.trim()||'',st:{food:70,clean:80,joy:60,energy:80,health:90},bond:age?10:30,grow:0,born:Date.now(),t:Date.now(),log:[],skills:[],mem:[]};
     kidLog(k,'sys',age?`${ageText(k.age)}的${k.name}来到你身边了`:`${k.name}出生了，小小的一团，被放进你怀里`);kidMem(k,age?'我来到你身边':'我出生了，被放进你怀里',{m:1});S.raise.kids.push(k);save();closeSheet();go({v:'kid',id:k.id})},
+  petGo(el){go({v:'pet',id:el.dataset.id})},
+  petForm(p,kind){const L=S.chars.filter(visible);
+    return`<label class="f">名字<input type="text" id="ptName" maxlength="12" value="${esc(p?.name||'')}"></label>
+      <label class="f">品种<input type="text" id="ptBreed" maxlength="12" value="${esc(p?.breed||'')}"></label><div class="pchips">${PET_BREED[kind].map(b=>`<button data-a="petBreed" data-b="${b}">${b}</button>`).join('')}</div>
+      <label class="f">弟弟还是妹妹<select id="ptSex"><option value="m"${p?.sex!=='f'?' selected':''}>弟弟</option><option value="f"${p?.sex==='f'?' selected':''}>妹妹</option></select></label>
+      ${p?'':`<label class="f">接回家的时候多大（月）<input type="number" id="ptAge" min="0" max="240" value="3"></label>`}
+      <label class="f">长什么样<input type="text" id="ptLook" maxlength="40" placeholder="毛色、眼睛、记号，可以不写" value="${esc(p?.look||'')}"></label>
+      <label class="f">性格<input type="text" id="ptTrait" maxlength="40" placeholder="黏人、高冷、怕生、拆家，可以不写" value="${esc(p?.trait||'')}"></label>
+      <label class="f">和谁一起养<select id="ptWith"><option value="">自己养</option>${L.map(c=>`<option value="${c.id}"${p?.charId===c.id?' selected':''}>${esc(dn(c))}</option>`).join('')}</select></label>`},
+  petNew(){sheet(`<h3>养一只什么？</h3><button class="opt l" data-a="petKind" data-k="cat">${petAv({kind:'cat'},32)}<span>猫</span></button><button class="opt l" data-a="petKind" data-k="dog">${petAv({kind:'dog'},32)}<span>狗</span></button>${CANCEL}`)},
+  petKind(el){const k=el.dataset.k==='dog'?'dog':'cat';sheet(`<h3>接一只${PET_KIND[k]}回家</h3>${A.petForm(null,k)}<button class="opt" data-a="petMake" data-k="${k}">接回家</button>${CANCEL}`)},
+  petBreed(el){const i=$('#ptBreed');if(i)i.value=el.dataset.b},
+  petRead(p){p.name=$('#ptName')?.value.trim()||p.name||(p.kind==='dog'?'小狗':'小猫');p.breed=$('#ptBreed')?.value.trim()||'';p.sex=$('#ptSex')?.value==='f'?'f':'m';p.look=$('#ptLook')?.value.trim()||'';p.trait=$('#ptTrait')?.value.trim()||'';p.charId=charById($('#ptWith')?.value)?$('#ptWith').value:''},
+  petMake(el){const now=Date.now(),p={id:uid(),kind:el.dataset.k==='dog'?'dog':'cat',born:now,t:now,age0:Math.max(0,Math.min(240,+$('#ptAge')?.value||0)),st:{food:70,clean:90,joy:60,energy:80,health:100},bond:5,log:[]};
+    A.petRead(p);petLog(p,'sys',`${p.name}到家了，在屋里到处闻`);S.pets.push(p);save();closeSheet();go({v:'pet',id:p.id});petAsk(p,`${p.name}第一天被接回家，刚从${p.kind==='dog'?'牵引绳上解开':'航空箱里出来'}。写${p.name}这时候的样子。`,'say')},
+  petAct(el){const p=petById(cur()?.id);if(p)petDo(p,el.dataset.k)},
+  petSay(){const p=petById(cur()?.id),inp=$('#ptIn'),x=(inp?.value||'').trim();if(!p||!x||petBusy.has(p.id))return;petTick(p);inp.value='';
+    const ev=p.ev?p.ev.text:'';if(ev){p.ev=null;p.bond=Math.min(100,(p.bond||0)+1)}p.st.joy=Math.min(100,p.st.joy+3);petLog(p,'me',x);save();render(true);
+    petAsk(p,`${mask(p.charId?charById(p.charId):undefined).name}对${p.name}说：「${x.slice(0,200)}」${ev?`（是因为${p.name}${ev}）`:''}`,'say')},
+  petMsg(el){const p=petById(cur()?.id),x=p&&(p.log||[]).find(x=>x.id===el.dataset.id);if(!x)return;
+    sheet(`<p class="hint" style="margin:0 4px 6px;max-height:5.4em;overflow:hidden">${esc(x.text)}</p><button class="opt red" data-a="petMsgDel" data-id="${x.id}">删掉这条</button>${CANCEL}`)},
+  petMsgDel(el){const p=petById(cur()?.id);if(!p)return;p.log=(p.log||[]).filter(x=>x.id!==el.dataset.id);save();closeSheet();render(true)},
+  petSet(){const p=petById(cur()?.id);if(!p)return;
+    sheet(`<h3>${esc(p.name)}</h3>${A.petForm(p,p.kind)}<label class="ck"><input type="checkbox" id="ptKnow" ${p.know!==false?'checked':''}>一起养的人聊天时知道TA、会帮着照顾</label>
+      <label class="f">照片<span class="inline"><span class="filebtn btn o">选一张<input type="file" id="ptPic" accept="image/*" aria-label="照片"></span>${p.avatar?'<button class="btn o" data-a="petPicDel">去掉</button>':''}</span></label>
+      <button class="opt" data-a="petSave">保存</button><button class="opt red" data-a="petDel">送走</button>${CANCEL}`);
+    $('#ptPic')?.addEventListener('change',e=>{const f=e.target.files?.[0];if(!f)return;const im=new Image();im.onload=()=>{const n=160,cv=document.createElement('canvas');cv.width=cv.height=n;const k=Math.max(n/im.width,n/im.height),w=im.width*k,h=im.height*k;cv.getContext('2d').drawImage(im,(n-w)/2,(n-h)/2,w,h);p.avatar=cv.toDataURL('image/jpeg',.82);URL.revokeObjectURL(im.src);save();toast('照片换好了');render(true)};im.src=URL.createObjectURL(f)})},
+  petPicDel(){const p=petById(cur()?.id);if(!p)return;delete p.avatar;save();closeSheet();render(true)},
+  petSave(){const p=petById(cur()?.id);if(!p)return;A.petRead(p);p.know=!!$('#ptKnow')?.checked;save();closeSheet();render(true)},
+  petDel(el){confirmTap(el,()=>{const id=cur()?.id;S.pets=S.pets.filter(p=>p.id!==id);save();closeSheet();back()})},
   kidGo(el){go({v:'kid',id:el.dataset.id})},
   kidMode(el){const k=kidById(cur()?.id);if(!k)return;const m=el.dataset.m;if(m==='on'&&k.age<36){toast('TA还太小，不会用手机');return}if(kidMd(k)===m)return;if(k.scene){toast('你们还在外面，先点「回家」');return}const was=kidMd(k);k.mode=m;if(m==='on')kidLog(k,'sys','你们不在一起，开始在手机上聊');else if(was==='on')kidLog(k,'sys','你回到TA身边了');save();render(true)},
   kidHome(){const k=kidById(cur()?.id);if(!k||!k.scene||kidBusy.has(k.id))return;kidStory(k,'','end')},
