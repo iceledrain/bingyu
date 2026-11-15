@@ -1575,6 +1575,8 @@ function offEvent(t,off,me){const p=num(off.evRate)??10;t.evGap=(t.evGap||0)+1;
   t.evGap=0;t.evLast=[...last,k+i].slice(-10);
   return`【意外】这一段里发生一件${{good:'好事',bad:'不太顺的事',odd:'意想不到的事'}[k]}：${L[i]}。按现在的地点、时间改成合适的样子，放不进当前场景就换一件差不多的。自然地写进情节，别突兀，也别一笔带过；是小事，不是大灾难。${me.name}怎么反应留给TA。`}
 const boughtRecently=t=>{const L=t.msgs.filter(m=>m.from!=='me'&&(m.type==='order'||m.type==='parcel')&&Date.now()-m.t<24*3600e3);return L.length>=5||L.some(m=>Date.now()-m.t<2*3600e3)};
+const saidGone=(c,t)=>(c.said||[]).filter(x=>Date.now()-x.t<36*3600e3&&!(t&&t.msgs.some(m=>m.from===c.id&&String(m.content||'').slice(0,60)===x.s)));
+const todayTold=(c,t)=>(c.today?.n||0)>=3||saidGone(c,t).some(x=>x.t>=new Date().setHours(0,0,0,0));
 function buildCtx(t,o={}){
   const chars=t.chars.map(charById).filter(Boolean),me=mask(t),P=preset(),mode=o.mode||t.mode||'online',group=t.type==='group',C=S.chat,im=mode==='call'?'online':mode;
   const cname=chars.length===1?chars[0].name:chars.map(c=>c.name).join('、');
@@ -1602,8 +1604,8 @@ function buildCtx(t,o={}){
     const wd=worldFor(chars);if(wd)tail.push(wd);
     const d0=new Date().setHours(0,0,0,0);if(myDays(me).some(x=>x.in===0&&chars.some(c=>c.id===x.who))&&t.msgs.some(m=>m.from==='me'&&m.t>=d0&&/生日快乐|happy birthday/i.test(m.content||'')))tail.push(`【生日】${me.name}今天说过生日快乐了。`);
     chars.forEach(c=>{const x=kidKnow(c);if(x)tail.push(x)});
-    chars.forEach(c=>{if(c.today?.day===dayKey()&&c.today.text)tail.push(`【${c.name}的今天】${c.today.text}\n`+(mode==='offline'?`（见面之前${c.name}自己的事。到现在已经发生的，聊天时可以自然带出一件，讲过的不重复。）`:`（只是背景。正聊着别的事就不提；话停了、或${me.name}问起，再挑一件讲，一次一件，讲过的不重复。）`))});
-    if(!group&&chars[0]){const c=chars[0],gone=(c.said||[]).filter(x=>Date.now()-x.t<36*3600e3&&!t.msgs.some(m=>m.from===c.id&&String(m.content||'').slice(0,60)===x.s));
+    chars.forEach(c=>{if(c.today?.day===dayKey()&&c.today.text)tail.push(`【${c.name}的今天】${c.today.text}\n`+(!group&&todayTold(c,t)?`（只是背景。今天的事已经跟${me.name}讲过了，TA不问就不提，聊别的。）`:mode==='offline'?`（见面之前${c.name}自己的事。到现在已经发生的，聊天时可以自然带出一件，讲过的不重复。）`:`（只是背景。正聊着别的事就不提；话停了、或${me.name}问起，再挑一件讲，一次一件，讲过的不重复。）`))});
+    if(!group&&chars[0]){const c=chars[0],gone=saidGone(c,t);
       if(gone.length)tail.push(`【已经说过的】这些话${c.name}之前对${me.name}说过了（记录已经不在）。不再说差不多的内容，不换个说法重讲同一件事；今天的事讲过的就算讲过了，讲别的。\n`+gone.slice(-16).map(x=>'· '+x.s).join('\n'))}}
   {const dy=[...new Set(chars.map(myDiaryFor).filter(Boolean))];if(dy.length)tail.push(dy.join('\n'))}
   const el=[...new Set(chars.flatMap(c=>elsewhere(c,t.id)))];const others=group?[]:[...new Set(S.threads.filter(x=>x.type==='group'&&chars[0]&&x.chars.includes(chars[0].id)).flatMap(x=>x.chars).filter(id=>id!==chars[0].id).map(id=>charById(id)?.name).filter(Boolean))];
@@ -1945,7 +1947,7 @@ async function reply(t,extra,stamps){
       if(i===parts.length-1)busy.delete(t.id);save();onThreadUpdate(t);
     }
     busy.delete(t.id);onThreadUpdate(t);
-    if(t.type==='dm'&&ctx.mode!=='offline'&&ctx.chars[0]){const c=ctx.chars[0];c.said=[...(c.said||[]).filter(x=>Date.now()-x.t<36*3600e3),...posted.filter(m=>(m.type==='text'||m.type==='voice')&&m.content).map(m=>({t:m.t,s:String(m.content).slice(0,60)}))].slice(-30);save()}
+    if(t.type==='dm'&&ctx.mode!=='offline'&&ctx.chars[0]){const c=ctx.chars[0];if(c.today?.day===dayKey())c.today.n=(c.today.n||0)+1;c.said=[...(c.said||[]).filter(x=>Date.now()-x.t<36*3600e3),...posted.filter(m=>(m.type==='text'||m.type==='voice')&&m.content).map(m=>({t:m.t,s:String(m.content).slice(0,60)}))].slice(-30);save()}
     if(t.type==='dm'){maybeAutoDiary(charById(t.chars[0]),t);if(cur()?.id===t.id&&cur().v==='chat')render(true)}
     if(!isOpen())renderHome();
     if(ex.acts.includes('查手机')&&!ctx.group)setTimeout(()=>autoPeek(t,ctx.chars[0],'open'),2500);
@@ -2681,7 +2683,7 @@ function awayCatch(from,now){
     reply(t,`（现在是${nowText()}。${me}已经${gapText(now-last.t)}没看手机。这期间你给TA发过消息，时刻：${st.map(lab).join('、')}。按顺序写出来，每个时刻1到2条，像当时随手发的，短。别当TA已经回来。）`,st);return true}
   return false}
 function whyReach(c){const me=mask(c).name,L=[];
-  if(c.today?.day===dayKey()&&c.today.text)L.push('你今天遇到的事：'+c.today.text);
+  if(c.today?.day===dayKey()&&c.today.text&&!todayTold(c,S.threads.find(x=>x.type==='dm'&&x.chars[0]===c.id)))L.push('你今天遇到的事：'+c.today.text);
   {const w=wxNow(S.loc);if(w&&/雨|雪|雷|雾|冻/.test(w.desc))L.push(`${me}那边现在${w.desc}`);if(w&&(w.max>=33||w.min<=2))L.push(`${me}那边今天${w.min}~${w.max}°C`);
     upcomingFest(1).forEach(f=>L.push((f.in?'明天是':'今天是')+f.name));myDays(mask(c)).filter(x=>x.in<=1&&(x.who===null||x.who===c.id)).forEach(x=>L.push((x.in?'明天是':'今天是')+x.name))}
   const st=statusOf(c);if(st==='work')L.push('你在上班或上课，偷空摸鱼');
