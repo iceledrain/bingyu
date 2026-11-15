@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.18.16';
+window.BYJ_VER='2026.11.15.01';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -3454,7 +3454,7 @@ codeFull(v){const p=cdProj(v.id),x=cdCur(p),html=cdHtml(x);if(!html)return{title
     body:`<div class="thv full"><iframe class="full" data-th="${x.id}" sandbox="allow-scripts" title="${esc(p.title||'小程序')}" srcdoc="${esc(thDoc(html))}"></iframe></div>`}},
 novels(){const L=[...S.novels].sort((a,b)=>b.t-a.t);
   return{title:'小说',right:`<button class="tb" data-a="open" data-v="novelNew">新建</button>`,body:L.map(b=>{const j=nvJobs[b.id];
-    return`<button class="row" data-a="nvOpen" data-id="${b.id}"><span class="nvcv">${esc((b.title||'?')[0])}</span><span class="meta"><b>${esc(b.title||'还没起名')}</b><small>${esc(dn(charById(b.author)))} 写</small></span><span class="side"><span>${j&&!j.err?'在写…':j?.err?'没写出来':b.chs.length+' 章'}</span><span>${ago(b.t)}</span></span></button>`}).join('')
+    return`<div class="row" style="padding:0;gap:0;overflow:hidden"><button class="meta" data-a="nvOpen" data-id="${b.id}" style="flex:1;min-width:0;display:flex;align-items:center;gap:12px;padding:12px 14px"><span class="nvcv">${esc((b.title||'?')[0])}</span><span style="flex:1;min-width:0"><b style="display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(b.title||'还没起名')}</b><small style="display:block;color:var(--muted);font-size:12.5px;margin-top:1px">${esc(dn(charById(b.author)))} 写</small></span><span class="side"><span>${j&&!j.err?'在写…':j?.err?'没写出来':b.chs.length+' 章'}</span><span>${ago(b.t)}</span></span></button><button class="tb red" data-a="nvDelId" data-id="${b.id}" aria-label="删除" style="padding:0 14px;border-left:1px solid var(--line);flex:none">×</button></div>`}).join('')
     ||`<div class="empty"><big>还没有小说</big><button class="btn" data-a="open" data-v="novelNew">写一本</button></div>`}},
 novelNew(v){const cs=S.chars.filter(visible);if(!cs.length)return{title:'写小说',body:'<div class="empty"><big>还没有角色</big></div>'};
   if(!cs.some(c=>c.id===v.who))v.who=cs[0].id;const d=v.d||={books:[],preset:preset()?.id||'',think:S.chat.think!==false};
@@ -3470,7 +3470,7 @@ novelCh(v){const b=nvBook(v.id),ch=b?.chs[v.i];if(!ch)return{title:'不见了',b
   const who=x=>x.by==='me'?me:charById(x.by)||{name:'?'};
   return{title:`第${v.i+1}章`,sub:b.title||'',body:`${ch.think?`<details class="fold think"><summary>${ICONS.brain}${esc(S.chat.thinkName||'思维链')}</summary><div>${esc(ch.think)}</div></details>`:''}<article class="nvch"><h2>${esc(ch.title)}</h2><div class="nvtxt">${ch.text.split(/\n+/).map(p=>p.trim()).filter(Boolean).map(p=>`<p>${esc(p)}</p>`).join('')}</div>
     ${ch.note?`<p class="nvnote"><b>${esc(dn(a))}</b>${esc(ch.note)}</p>`:''}</article>
-  <div class="btns nvnav">${v.i?'<button class="btn o" data-a="nvGo" data-d="-1">上一章</button>':'<span></span>'}${!last?'<button class="btn" data-a="nvGo" data-d="1">下一章</button>':j&&!j.err?'<span class="hint">下一章在写了…</span>':'<button class="btn" data-a="nvNextHere">写下一章</button>'}</div>
+  <div class="btns nvnav">${v.i?'<button class="btn o" data-a="nvGo" data-d="-1">上一章</button>':'<span></span>'}${!last?'<button class="btn" data-a="nvGo" data-d="1">下一章</button>':j&&!j.err?'<span class="hint">下一章在写了…</span>':'<button class="btn" data-a="nvNextHere">写下一章</button>'}<button class="btn red" data-a="nvChDel" style="margin-left:auto">删除这章</button></div>
   <div class="panel">${(ch.cm||[]).map(x=>`<div class="nvcm">${av(who(x),30)}<span class="nvct"><b>${esc(x.by==='me'?me.name:dn(who(x)))}</b><p>${esc(x.text)}</p></span></div>`).join('')}
     ${nvCmBusy.has(ch.id)?`<p class="hint"><span class="dots"><i></i><i></i><i></i></span> ${esc(dn(a))} 在回</p>`:''}
     <div class="inline" style="flex-wrap:nowrap"><input type="text" id="nvCm" placeholder="评论" enterkeyhint="send" aria-label="评论" style="flex:1;min-width:0"><button class="btn" data-a="nvCmSend">发</button></div></div>`,
@@ -3764,6 +3764,8 @@ const A={
   nvGo(el){const v=cur();v.i+=+el.dataset.d;render()},
   nvSet(){go({v:'novelSet',id:cur().id})},
   nvDel(el){confirmTap(el,()=>{const id=cur().id;S.novels=S.novels.filter(b=>b.id!==id);delete nvJobs[id];save();stack.pop();back()})},
+  nvChDel(el){const v=cur(),b=nvBook(v.id);if(!b)return;confirmTap(el,()=>{b.chs.splice(v.i,1);b.t=Date.now();save();back()})},
+  nvDelId(el){confirmTap(el,()=>{const id=el.dataset.id;S.novels=S.novels.filter(b=>b.id!==id);delete nvJobs[id];save();render(true)})},
   nvCmSend(){const v=cur(),b=nvBook(v.id),ch=b?.chs[v.i],i=$('#nvCm'),x=(i?.value||'').trim();if(!ch||!x){i?.focus();return}
     (ch.cm||=[]).push({id:uid(),by:'me',text:x.slice(0,500),t:Date.now()});i.value='';b.t=Date.now();save();const c=charById(b.author);
     if(c){logEvent(c.id,`${mask(c).name}在小说《${b.title||'未命名'}》第${v.i+1}章下面评论：「${wholeText(x,60)}」`);
