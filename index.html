@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.18.10';
+window.BYJ_VER='2026.11.18.11';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -978,7 +978,7 @@ const def=()=>({v:4,loc:null,wx:{},
   offline:{style:OFF_STYLE_DEF,words:500,cpov:'third',upov:'second',evRate:10,lead:'char'},
   offStyles:[],cards:[],personaTpls:[{id:'pt1',name:'基础模板',text:PERSONA_TPL}],
   threads:[],feed:[],orders:[],shop:{food:[],goods:[]},theaters:[],codes:[],thFmts:TH_FMTS(),days:[],forum:{name:'论坛',theme:'',chars:true,boards:FM_BOARDS(),posts:[]},
-  music:{songs:[],cur:null,with:null,mode:'all'},diary:[],diaryAuto:false,diaryV:1,diaryMark:{},
+  music:{songs:[],cur:null,with:null,mode:'all',rec:null},diary:[],diaryAuto:false,diaryV:1,diaryMark:{},
   stickers:{groups:[{id:'g1',name:'默认',items:[]}]},
   raise:{kids:[]},pets:[],lastTick:0,events:[],evWipe:{},memWipe:{},evGone:[],bkKey:false,lastSeen:0,
   tok:{n:0,i:0,o:0,img:0,by:{},since:Date.now()}
@@ -1177,7 +1177,7 @@ const ICONS={
   preset:SV('<path d="M5 6h14M5 12h14M5 18h14"/><circle cx="9" cy="6" r="1.8" fill="currentColor"/><circle cx="15" cy="12" r="1.8" fill="currentColor"/><circle cx="8" cy="18" r="1.8" fill="currentColor"/>'),
 };
 const APPS=[
-  {id:'messages',name:'聊天',v:'threads'},{id:'library',name:'世界书',v:'books'},{id:'preset',name:'预设',v:'presets'},{id:'think',name:'思维链',v:'think',ic:'brain'},{id:'settings',name:'设置',v:'settings'}];
+  {id:'messages',name:'聊天',v:'threads'},{id:'music',name:'音乐',v:'music'},{id:'shop',name:'购物',v:'shop'},{id:'raise',name:'养成',v:'raise'},{id:'pets',name:'宠物',v:'pets',ic:'cat'},{id:'library',name:'世界书',v:'books'},{id:'preset',name:'预设',v:'presets'},{id:'think',name:'思维链',v:'think',ic:'brain'},{id:'settings',name:'设置',v:'settings'}];
 const HIDE_DEF=['forum','theater','diary','music','raise','code','shop'];
 const appHidden=()=>false;
 const appsOrdered=()=>APPS.filter(a=>!appHidden(a.id));
@@ -2371,6 +2371,21 @@ function mToggle(){const s=songById(S.music.cur);
   if(mState.loaded!==s.id||!hasAudio()){mLoad(s.id);return}
   audio.paused?audio.play().catch(()=>toast('放不出来')):audio.pause()}
 const mQueue=()=>{const F=favSongs(),c=songById(S.music.cur);return S.music.list==='fav'&&F.length&&(!c||c.fav)?F:S.music.songs};
+const recBusy={on:false};
+async function mRec(force){const F=favSongs(),R=S.music.rec;if(recBusy.on)return;if(!force&&R?.day===dayKey())return;
+  if(F.length<3){if(force)toast('先收藏三首以上，才知道你爱听什么');return}
+  if(!api('')?.key){if(force)toast('推荐要先在「设置 · 聊天」填好接口');return}
+  recBusy.on=true;if(cur()?.v==='music')render(true);
+  try{const n=8,have=new Set(S.music.songs.map(x=>(x.title+'|'+(x.artist||'')).toLowerCase())),old=(R?.list||[]).map(x=>x.title+' - '+x.artist);
+    const out=String(await callAI('你是一个很懂歌的人，按一个人的收藏给TA挑歌。只推荐真实存在、能在网易云搜到的歌，歌名和歌手都要准确，不编。',[{role:'user',content:`【收藏】\n${F.slice(0,40).map(x=>x.title+' - '+(x.artist||'未知')).join('\n')}\n${old.length?`\n【上次推过的，别重复】\n${old.join('\n')}\n`:''}\n按这些收藏的口味（语种、曲风、年代、情绪）推荐 ${n+4} 首TA大概会喜欢、但不在收藏里的歌。一半是相近歌手的，一半稍微往外走一点。每行一首，格式：歌名 - 歌手。只输出这些行。`}],{max:600,side:true,tag:'other',temp:1})||'').replace(/<think>[\s\S]*?<\/think>/gi,'');
+    const want=out.split('\n').map(l=>l.replace(/^[\s\d.、*·-]+/,'').trim()).map(l=>l.match(/^(.+?)\s+[-—–]\s+(.+)$/)).filter(Boolean).map(m=>({title:m[1].replace(/[《》]/g,'').trim(),artist:m[2].trim()})).filter(x=>!have.has((x.title+'|'+x.artist).toLowerCase())).slice(0,n+4);
+    if(!want.length)throw new Error('这次没挑出来，再点一次');
+    const list=[];for(const w of want){if(list.length>=n)break;try{const r=await mSearch(w.title+' '+w.artist),key=x=>String(x||'').toLowerCase().replace(/[\s（(].*$/,''),hit=r.find(x=>key(x.title)===key(w.title)&&x.artist.toLowerCase().includes(w.artist.toLowerCase().split(/[\/、,&]/)[0].trim()))||r.find(x=>key(x.title)===key(w.title));
+      if(hit&&!list.some(x=>x.online.id===hit.online.id)&&!S.music.songs.some(y=>y.online&&y.online.id===hit.online.id&&y.fav))list.push(hit)}catch(e){}}
+    if(!list.length)throw new Error('挑的歌一首都没搜到，可能是音乐接口连不上');
+    S.music.rec={day:dayKey(),list};save()}
+  catch(e){if(force)toast(e.message||'没挑出来',4500)}
+  finally{recBusy.on=false;if(cur()?.v==='music'&&isOpen())render(true)}}
 const favSongs=()=>S.music.songs.filter(x=>x.fav).sort((a,b)=>(b.favAt||0)-(a.favAt||0));
 function mNext(auto){const L=mQueue();if(!L.length)return;const i=L.findIndex(s=>s.id===S.music.cur);
   if(auto===true&&S.music.mode==='one'){audio.currentTime=0;audio.play().catch(()=>{});return}
@@ -2406,8 +2421,9 @@ function musicView(v={}){
     <div class="prog"><span id="mCur">${fmt(p)}</span><input type="range" id="mRange" min="0" max="1000" value="${d?Math.round(p/d*1000):0}" aria-label="进度"><span id="mDur">${fmt(d)}</span></div>
     <div class="ctrl"><button class="mini" data-a="mMode" aria-label="${modeIc[1]}" title="${modeIc[1]}">${ICONS[modeIc[0]]}</button><button data-a="mPrev" aria-label="上一首">${ICONS.prev}</button><button class="pp" id="mPP" data-a="mToggle" aria-label="${mState.playing?'暂停':'播放'}">${mState.playing?ICONS.pause:ICONS.play}</button><button data-a="mNext" aria-label="下一首">${ICONS.next}</button><button class="mini" data-a="${s?'shareSong':'mInvite'}" data-id="${s?.id||''}" aria-label="${s?'分享这首':'一起听'}" title="${s?'分享这首':'一起听'}">${s?ICONS.send:ICONS.contacts}</button></div>
   </div>
+  <div class="panel"><h2>今天给你挑的${S.music.rec?.day===dayKey()?`<span class="pill">${S.music.rec.list.length} 首</span>`:''}<button class="tb" data-a="mRecGo"${recBusy.on?' disabled':''}>${recBusy.on?'在挑…':'换一批'}</button></h2>${S.music.rec?.list?.length?`<div class="mlist" style="max-height:none">${S.music.rec.list.map((x,i)=>`<button class="opt l" data-a="mRecPick" data-i="${i}"><span><b>${esc(x.title)}</b><small class="sec"> ${esc(x.artist)}</small></span><i>▶</i></button>`).join('')}</div>${S.music.rec.day!==dayKey()?'<p class="hint">这是之前挑的</p>':''}`:`<p class="hint">${recBusy.on?'正在照着你的收藏挑歌…':F.length<3?'收藏三首以上，每天照着你的口味挑 8 首':'点「换一批」挑今天的'}</p>`}</div>
   <div class="panel"><h2>最近听的<span class="pill">${L.length} 首</span></h2>${L.slice(0,v.all?999:30).map(x=>row(x,'all')).join('')||'<p class="hint">还没有歌</p>'}${L.length>30&&!v.all?'<button class="tb" data-a="mAll" style="align-self:center">看全部</button>':''}</div>`,
-  after(){if(mState.lyr){if(s&&s.lrc===undefined)mLyric(s);const ly=$('#lyr');if(ly)delete ly.dataset.k;lrcTick()}}}}
+  after(){mRec();if(mState.lyr){if(s&&s.lrc===undefined)mLyric(s);const ly=$('#lyr');if(ly)delete ly.dataset.k;lrcTick()}}}}
 function gapText(ms){const m=ms/60e3;return m<60?Math.round(m)+'分钟':m<1440?Math.round(m/60)+'个小时':Math.round(m/1440)+'天'}
 
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -2875,12 +2891,13 @@ const kidBusy=new Set();let kidT;
 const kpick=a=>a[Math.floor(Math.random()*a.length)];
 const kidById=id=>(S.raise?.kids||[]).find(k=>k.id===id);
 const kidChar=k=>charById(k.charId);
-const kidName=k=>k.name||kidChar(k)?.name||'小孩';
+const kidName=k=>k.name||(k.own?'宝宝':kidChar(k)?.name)||'小孩';
+const kidSex=k=>k.sex==='f'?'女孩':'男孩';
 const ageText=m=>m<1?'刚出生':m<12?m+'个月':m<36?Math.floor(m/12)+'岁'+(m%12?m%12+'个月':''):m<144?Math.floor(m/12)+'岁'+(m%12>=6?'半':''):Math.floor(m/12)+'岁';
 const CN_N='一二三四五六';
 const kidStage=m=>m<12?'小婴儿':m<36?'小不点':m<72?'上幼儿园':m<144?`上小学${CN_N[Math.floor(m/12)-6]||''}年级`:m<180?`上初${CN_N[Math.floor(m/12)-12]||''}`:m<216?`上高${CN_N[Math.floor(m/12)-15]||''}`:m<264?`上大${CN_N[Math.floor(m/12)-18]||''}`:'已经工作了';
 const kidAgeOf=c=>{const m=String(c?.persona||'').match(/年龄[：:\s]*(\d{1,2})|(\d{2})\s*岁/);const y=m?+(m[1]||m[2]):0;return(y>=16&&y<=60?y:24)*12};
-const kidTo=k=>k.to||kidAgeOf(kidChar(k));
+const kidTo=k=>k.to||(k.own?216:kidAgeOf(kidChar(k)));
 const kidGrown=k=>k.age>=kidTo(k);
 const kidStep=m=>m<12?1:m<36?3:m<144?6:12;
 const bondText=b=>b<20?'跟TA还有点认生':b<50?'跟TA挺亲的':b<80?'很黏TA':'离不开TA';
@@ -2942,7 +2959,9 @@ async function kidEvGen(k,last){const c=kidChar(k);if(!c)return null;const nm=ki
   try{const out=String(await callAI(kidSys(k,c)+'\n\n现在不是在演，是随机出一件事。',[{role:'user',content:`${last.length?`【最近发生过，别重复】${last.join('；')}\n`:''}随便出一件${nm}（${ageText(k.age)}，${kidStage(k.age)}）会碰上的小事，越想不到越好。只输出一行，格式：好/坏/平｜事情（不写名字，动词开头，20字内）`}],{max:200,side:true,tag:'other',temp:1.1,who:c.id})||'').replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
     const m=out.match(/(好|坏|平)\s*[｜|]\s*([^\n]{2,40})/);if(!m)return null;
     return[m[2].trim().replace(/[。.]$/,''),m[1]==='好'?{joy:10}:m[1]==='坏'?{joy:-15}:{}]}catch(e){return null}}
-function kidSys(k,c){const me=mask(c),P=String(c.persona||'').replaceAll('{{user}}',me.name).replaceAll('{{char}}',c.name).slice(0,1800),i=kidSi(k.age);
+function kidSys(k,c){if(k.own){const me=mask(c),i=kidSi(k.age),nm=kidName(k);
+  return whoTag(`你在扮演${nm}，${me.name}和${c.name}的亲生孩子，${kidSex(k)}。${k.look?`\n长相：${k.look}`:''}${k.trait?`\n性格（长大以后会越来越明显）：${k.trait}`:''}\n\n现在的${nm}${ageText(k.age)}，${kidStage(k.age)}。按这个年纪来演，别提前长大：${KID_TALK[i].replace('人设里的样子','上面写的性格')}。${me.name}是你的${k.call||'妈妈'}，${c.name}是你的${k.callC||'爸爸'}，你们是一家人，${me.name}一直在带你${i>=1?`。你叫${me.name}「${k.call||'妈妈'}」，叫${c.name}「${k.callC||'爸爸'}」，偶尔会提到${k.callC||'爸爸'}`:''}。你只是个孩子，对家人只有孩子对父母的感情。`,k.id)}
+  const me=mask(c),P=String(c.persona||'').replaceAll('{{user}}',me.name).replaceAll('{{char}}',c.name).slice(0,1800),i=kidSi(k.age);
   return whoTag(`你在扮演${c.name}成长中的样子。下面是${c.name}长大以后（${Math.floor(kidTo(k)/12)}岁）的人设，当作性格的底子、家庭背景和长大后会变成的样子来参考：\n${P}\n\n现在的${c.name}${k.name&&k.name!==c.name?`（小名${k.name}）`:''}${ageText(k.age)}，${kidStage(k.age)}。按这个年纪来演，别提前长大：${KID_TALK[i]}。越长大越接近人设里的样子。${me.name}把你从小带大，你们是家人${i>=4?'，你对TA有很深的依赖和感情，但是像家人那样，不是恋人':'，你还小，没有恋爱的概念'}${k.call&&i>=1?`。你叫TA「${k.call}」`:i>=1?'。按你们的关系自然地称呼TA':''}。`,k.id)}
 async function kidAsk(k,what,fb,st){const c=kidChar(k);if(!c)return;
   if(!api(k)?.key){kidLog(k,'kid',kpick(KID_FALL[fb]||KID_FALL.say));save();kidRe(k);return}
@@ -2953,8 +2972,10 @@ async function kidAsk(k,what,fb,st){const c=kidChar(k);if(!c)return;
     else kidLog(k,'kid',wholeText(out,300)||kpick(KID_FALL[fb]||KID_FALL.say))}
   catch(e){toast(e.message||'TA没反应过来',4000)}
   finally{kidBusy.delete(k.id);save();kidRe(k)}}
-function kidKnow(c){const k=(S.raise?.kids||[]).find(x=>x.charId===c.id&&x.share!==false);if(!k)return'';const me=mask(c).name;if(!k.mem)kidMemInit(k);const mt=kidMemText(k,25);
-  return`【养成】${me}在手机上的「养成」里把小时候的你一点点带大${k.name&&k.name!==c.name?`（小名${k.name}）`:''}，现在养到${ageText(k.age)}，小时候的你${kidFeel(k).replaceAll('TA',me)}。${mt?`\n你记得小时候的这些事（「我」是你自己，「你」是${me}）：\n${mt}\n`:''}（这些你都知道、都记得，也会影响你现在对${me}的感觉。被问起、聊到小时候、或者正好相关的时候自然带出来，别老提）`}
+function kidOwnKnow(c){const me=mask(c).name;return(S.raise?.kids||[]).filter(k=>k.own&&k.charId===c.id&&k.share!==false).map(k=>{kidTick(k);if(!k.mem)kidMemInit(k);const nm=kidName(k),rec=(k.mem||[]).slice(-6).map(x=>'· '+(x.age!=null?ageText(x.age)+'：':'')+x.text.replace(/我/g,nm).replace(/你/g,me)).join('\n');
+  return`【孩子】${c.name}和${me}有一个孩子，叫${nm}，${kidSex(k)}，${ageText(k.age)}，${kidStage(k.age)}。${k.look?'长相：'+k.look+'。':''}${k.trait?'性格：'+k.trait+'。':''}${nm}叫${me}「${k.call||'妈妈'}」，叫${c.name}「${k.callC||'爸爸'}」。\n${nm}现在：${kidNeeds(k).join('、')}${k.ev?`；${nm}${k.ev.text}`:''}。${rec?`\n最近的事：\n${rec}`:''}\n（${c.name}是${nm}的${k.callC||'爸爸'}，疼孩子，也会带孩子。聊到孩子、孩子有事、或者话停了的时候自然提一句，别每次都提。）`}).join('\n')}
+function kidKnow(c){const own=kidOwnKnow(c);const k=(S.raise?.kids||[]).find(x=>!x.own&&x.charId===c.id&&x.share!==false);if(!k)return own;const me=mask(c).name;if(!k.mem)kidMemInit(k);const mt=kidMemText(k,25);
+  return`【养成】${me}在手机上的「养成」里把小时候的你一点点带大${k.name&&k.name!==c.name?`（小名${k.name}）`:''}，现在养到${ageText(k.age)}，小时候的你${kidFeel(k).replaceAll('TA',me)}。${mt?`\n你记得小时候的这些事（「我」是你自己，「你」是${me}）：\n${mt}\n`:''}（这些你都知道、都记得，也会影响你现在对${me}的感觉。被问起、聊到小时候、或者正好相关的时候自然带出来，别老提）`+(own?'\n'+own:'')}
 const kidMd=k=>kidOn(k)?'on':k.mode==='story'?'story':'off';
 async function kidStory(k,mine,how){const c=kidChar(k);if(!c||kidBusy.has(k.id))return;
   if(!api(k)?.key){toast('剧情要先在「设置 · 聊天」填好接口');return}
@@ -3294,7 +3315,7 @@ pet(v){const p=petById(v.id);if(!p)return{title:'不见了',body:''};petTick(p);
     petMaybeEv(p);clearTimeout(petT);petT=setTimeout(()=>{if(cur()===v&&isOpen()&&document.activeElement?.id!=='ptIn')render(true)},60e3)}}},
 raise(v){const K=S.raise.kids;K.forEach(kidTick);
   return{title:'养成',right:`<button class="tb" data-a="kidNew" aria-label="养一个">${ICONS.plus}</button>`,
-    body:K.length?K.map(k=>`<button class="row" data-a="kidGo" data-id="${k.id}">${av(kidChar(k),44)}<span class="meta"><b>${esc(kidName(k))}</b><small>${ageText(k.age)} · ${esc(kidNeeds(k).join('、'))}</small></span></button>`).join('')
+    body:K.length?K.map(k=>`<button class="row" data-a="kidGo" data-id="${k.id}">${av(k.own?{name:kidName(k),avatar:k.avatar}:kidChar(k),44)}<span class="meta"><b>${esc(kidName(k))}</b><small>${k.own?'和'+esc(dn(kidChar(k)))+'的孩子 · ':''}${ageText(k.age)} · ${esc(kidNeeds(k).join('、'))}</small></span></button>`).join('')
       :`<div class="empty"><big>还没有小孩</big><button class="btn" data-a="kidNew">养一个</button></div>`}},
 kid(v){const k=kidById(v.id),c=k&&kidChar(k);if(!k||!c)return{title:'不见了',body:''};kidTick(k);save();
   const now=Date.now(),asleep=k.sleep>now,busy=kidBusy.has(k.id),i=kidSi(k.age),grown=kidGrown(k),g=grown?100:Math.round((k.grow||0)/60*100);
@@ -3304,9 +3325,9 @@ kid(v){const k=kidById(v.id),c=k&&kidChar(k);if(!k||!c)return{title:'不见了',
   (k.log||[]).forEach(x=>{if(!x.id)x.id=uid()});
   const log=(k.log||[]).slice(-40).map(x=>x.from==='sys'?`<div data-a="kidMsg" data-id="${x.id}" class="s">${esc(x.text)} · ${ago(x.t)}</div>`:x.from==='ev'?`<div data-a="kidMsg" data-id="${x.id}" class="s e">${esc(x.text)} · ${ago(x.t)}</div>`:x.from==='act'?`<div data-a="kidMsg" data-id="${x.id}" class="s a">— ${esc(x.text)} —</div>`:x.nar?`<div data-a="kidMsg" data-id="${x.id}" class="kn">${esc(x.text)}</div>`:x.sc?`<div data-a="kidMsg" data-id="${x.id}" class="kn me">${esc(x.text)}</div>`:`<div data-a="kidMsg" data-id="${x.id}" class="${x.from==='me'?'m':'k'}${x.on?' on':''}">${esc(x.text)}</div>`).join('')+(busy?'<div class="k"><span class="dots"><i></i><i></i><i></i></span></div>':'');
   return{title:kidName(k),sub:ageText(k.age)+' · '+kidStage(k.age)+(k.pause?' · 不长大了':''),right:HEART+`<button class="tb" data-a="kidSet" aria-label="设置">···</button>`,body:`
-  <div class="panel"><div class="kidh">${av(c,58)}<span><b>${esc(kidName(k))}</b><small>${grown?'长成了现在的':'小时候的'}${esc(dn(c))} · ${kidFeel(k).replaceAll('TA','你')}</small><span class="btns">${kidNeeds(k).map(x=>`<span class="pill">${esc(x)}</span>`).join('')}</span></span></div>
+  <div class="panel"><div class="kidh">${av(k.own?{name:kidName(k),avatar:k.avatar}:c,58)}<span><b>${esc(kidName(k))}</b><small>${k.own?'你和'+esc(dn(c))+'的'+(k.sex==='f'?'女儿':'儿子'):(grown?'长成了现在的':'小时候的')+esc(dn(c))} · ${kidFeel(k).replaceAll('TA','你')}</small><span class="btns">${kidNeeds(k).map(x=>`<span class="pill">${esc(x)}</span>`).join('')}</span></span></div>
     <div class="kbars">${bars}<span>长大</span><span class="kbar"><i style="width:${g}%"></i></span><em>${grown?'满':k.pause?'停':g}</em></div>
-    ${k.skills?.length?`<p class="hint">学过：${esc(k.skills.join('、'))}</p>`:''}</div>
+    ${k.own&&(k.look||k.trait)?`<p class="hint">${k.look?'长相：'+esc(k.look):''}${k.look&&k.trait?'<br>':''}${k.trait?'性格：'+esc(k.trait):''}</p>`:''}${k.skills?.length?`<p class="hint">学过：${esc(k.skills.join('、'))}</p>`:''}</div>
   ${k.ev&&!asleep?`<div class="panel kev"><h2>TA${esc(k.ev.text)}</h2></div>`:''}
   ${kidMd(k)==='off'?`<div class="panel"><h2>照顾TA</h2>${acts}</div>`:''}
   <div class="panel"><h2>和TA<span class="seg" style="flex:none;padding:2px">${[['off','当面'],['story','剧情'],['on','发消息']].map(([m,n])=>`<button class="${kidMd(k)===m?'on':''}" data-a="kidMode" data-m="${m}" style="padding:4px 10px;white-space:nowrap"${m==='on'&&k.age<36?' disabled':''}>${n}</button>`).join('')}</span></h2>
@@ -3621,7 +3642,7 @@ const A={
     const r=(a,ic,l,ex='',s='')=>`<button class="dw-r${s}" data-a="${a}" ${ex}>${ic}<span>${l}</span></button>`,app=(id,s='')=>{const a=ap(id);return a?r('open',ICONS[a.ic||a.id],a.name,`data-v="${a.v}"`,s):''};
     sheet(`<div class="dw-h">${av(me,44)}<b>${esc(me.name)}</b><small>@${esc(me.name)}</small><span class="pf-st"><span><b>${S.chars.filter(visible).length}</b> 关注</span><span><b>${kn(likes)}</b> 获赞</span></span></div>
       ${r('open',ICONS.person,'个人主页','data-v="fmMe"')}${r('walletOpen',ICONS.wallet,'钱包')}${r('open',ICONS.smile,'表情包','data-v="stickers"')}${app('preset')}${app('library')}${app('think')}
-      <i class="dw-l"></i><div class="dw-t">更多</div>${['theater','diary','music','raise','code','shop'].map(id=>app(id,' s')).join('')}${r('open',ICONS.cat,'宠物','data-v="pets"',' s')}${r('open',ICONS.weather,'天气','data-v="weather"',' s')}
+      <i class="dw-l"></i><div class="dw-t">更多</div>${['theater','diary','music','raise','code','shop'].map(id=>app(id,' s')).join('')}${app('pets',' s')}${r('open',ICONS.weather,'天气','data-v="weather"',' s')}
       <i class="dw-l"></i>${r('open',ICONS.settings,'设置','data-v="settings"',' s')}${r('chatSet',ICONS.bubble,'聊天设置','',' s')}${r('open',ICONS.forum,'论坛设置','data-v="fmSet"',' s')}`,1)},
   xB(el){const v=cur();v.b=el.dataset.t;v.err=0;render()},
   fmSearch(){const v=cur();v.q=$('#fmQ')?.value||'';render()},
@@ -3684,6 +3705,9 @@ const A={
   async mFind(){const q=($('#mQ')?.value||mState.q||'').trim();if(!q){toast('输入歌名');return}if(mState.busy)return;mState.q=q;mState.busy=true;render(true);
     try{mState.res=await mSearch(q);if(!mState.res.length)toast('没搜到')}catch(e){toast(e.message,4200)}finally{mState.busy=false;if(cur()?.v==='music')render(true)}},
   mClear(){mState.res=[];render(true)},
+  mRecGo(){mRec(true)},
+  mRecPick(el){const x=S.music.rec?.list?.[+el.dataset.i];if(!x)return;let s=S.music.songs.find(y=>y.online&&y.online.id===x.online.id&&y.online.src===x.online.src);
+    if(!s){s={id:uid(),title:x.title,artist:x.artist,online:x.online,by:'me',t:Date.now()};S.music.songs.push(s);save()}mLoad(s.id)},
   mPick(el){const x=mState.res[+el.dataset.i];if(!x)return;let s=S.music.songs.find(y=>y.online&&y.online.id===x.online.id&&y.online.src===x.online.src);
     if(!s){s={id:uid(),title:x.title,artist:x.artist,online:x.online,by:'me',t:Date.now()};S.music.songs.push(s);save()}mLoad(s.id)},
   mMode(){const o=['all','one','shuffle'];S.music.mode=o[(o.indexOf(S.music.mode)+1)%3];save();render(true);toast({all:'列表循环',one:'单曲循环',shuffle:'随机播放'}[S.music.mode],1400)},
@@ -3845,7 +3869,7 @@ const A={
   plus(){const t=thread(cur().id),dm=t.type==='dm';const it=(a,ic,l,ex='')=>`<button class="pi" data-a="${a}" ${ex}><span class="ic">${ICONS[ic]}</span>${l}</button>`;
     sheet(`<div class="pgrid">
       <label class="pi"><span class="ic">${ICONS.image}</span>照片<input type="file" accept="image/*" data-img="chatimg" class="vh" aria-label="发照片"></label>${it('stickerPicker','smile','表情包')}${it('pPic','camera','文字图片')}${it('pVoice','mic','语音')}
-      ${it('pLoc','pin','位置')}${it('meetGo','contacts','见面')}${dm?it('pMoney','gift','红包','data-k="hb"')+it('pMoney','yen','转账','data-k="tf"')+it('cardAdd','wallet','亲属卡',`data-to="${t.chars[0]}"`)+it('pCall','phone','语音通话','data-k="voice"')+it('pCall','video','视频通话','data-k="video"')+it('pPhone','search','查TA手机'):''}
+      ${it('pLoc','pin','位置')}${it('meetGo','contacts','见面')}${dm?it('pMoney','gift','红包','data-k="hb"')+it('pMoney','yen','转账','data-k="tf"')+it('cardAdd','wallet','亲属卡',`data-to="${t.chars[0]}"`)+it('pCall','phone','语音通话','data-k="voice"')+it('pCall','video','视频通话','data-k="video"')+it('pPhone','search','查TA手机')+it('pShop','bowl','点外卖','data-k="food"')+it('pShop','shop','网购','data-k="goods"'):''}
     </div><button class="opt" data-a="closeSheet">关闭</button>`)},
   pLoc(){sheet(`<h3>发送位置</h3><input type="text" id="locIn" placeholder="在哪" aria-label="地点"><input type="text" id="locSub" placeholder="备注" aria-label="备注">
     <div class="btns"><button class="btn o" data-a="pLocHere">定位当前位置</button>${S.loc?`<button class="btn o" data-a="pLocCity">${esc(S.loc.name)}</button>`:''}<button class="btn" data-a="pLocGo">发送</button></div>${CANCEL}`)},
@@ -3999,8 +4023,8 @@ const A={
   impCharGo(){try{const c=toChar(JSON.parse($('#impCharTa').value));S.chars.push(c);save();closeSheet();go({v:'charEdit',id:c.id});toast('导入了 '+c.name)}catch(e){toast(e.message||'不是有效的 JSON')}},
   async todayRe(el){const c=charById(cur().id);if(!api()?.key){toast('先在「设置 · 聊天」里填好 key');return}c.today=null;el.disabled=true;el.textContent='想一想…';try{await ensureToday(c);render(true)}catch(e){toast(e.message)}},
   editChar(el){closeSheet();go({v:'charEdit',id:el.dataset.id})},
-  kidNew(){const have=new Set(S.raise.kids.map(k=>k.charId)),L=S.chars.filter(c=>visible(c)&&!have.has(c.id));if(!L.length){toast(S.chars.length?'角色都在养了':'先去通讯录加个角色');return}
-    sheet(`<h3>养谁？</h3>`+L.map(c=>`<button class="opt l" data-a="kidPick" data-id="${c.id}">${av(c,32)}<span>${esc(dn(c))}</span></button>`).join('')+CANCEL)},
+  kidNew(){const have=new Set(S.raise.kids.filter(k=>!k.own).map(k=>k.charId)),L=S.chars.filter(c=>visible(c)&&!have.has(c.id)),All=S.chars.filter(visible);if(!All.length){toast('先去通讯录加个角色');return}
+    sheet(`<h3>我们的孩子</h3>`+All.map(c=>`<button class="opt l" data-a="kidOwnPick" data-id="${c.id}">${av(c,32)}<span>和${esc(dn(c))}生一个</span></button>`).join('')+(L.length?`<h3>把TA从小养大</h3>`:'')+L.map(c=>`<button class="opt l" data-a="kidPick" data-id="${c.id}">${av(c,32)}<span>${esc(dn(c))}</span></button>`).join('')+CANCEL)},
   kidPick(el){const c=charById(el.dataset.id);if(!c)return;const to=kidAgeOf(c)/12;
     sheet(`<h3>${esc(dn(c))}</h3><label class="f">小名<input type="text" id="kdName" value="${esc(c.name)}"></label>
       <label class="f">从哪开始<select id="kdAge"><option value="0" selected>刚出生</option><option value="12">一岁</option><option value="36">三岁</option><option value="72">六岁</option><option value="144">十二岁</option></select></label>
@@ -4008,9 +4032,25 @@ const A={
       <label class="f">长大的速度<select id="kdSpd"><option value="0.5">慢慢长</option><option value="1" selected>正常</option><option value="2">快一点</option></select></label>
       <label class="f">TA叫你<input type="text" id="kdCall"></label>
       <button class="opt" data-a="kidMake" data-id="${c.id}">开始养</button>${CANCEL}`)},
+  kidOwnPick(el){const c=charById(el.dataset.id);if(!c)return;
+    sheet(`<h3>你和${esc(dn(c))}的孩子</h3><label class="f">男孩女孩<select id="koSex"><option value="">随缘</option><option value="m">男孩</option><option value="f">女孩</option></select></label>
+      <label class="f">名字<input type="text" id="koName" maxlength="12" placeholder="不填就让TA起"></label>
+      <label class="f">孩子叫你<input type="text" id="koCall" value="妈妈"></label><label class="f">孩子叫${esc(dn(c))}<input type="text" id="koCallC" value="爸爸"></label>
+      <label class="f">长大的速度<select id="kdSpd"><option value="0.5">慢慢长</option><option value="1" selected>正常</option><option value="2">快一点</option></select></label>
+      <p class="hint">长相和性格会照着你的面具和${esc(dn(c))}的人设里写的样子来，两个人各像一点。生下来以后可以在设置里改。</p>
+      <button class="opt" data-a="kidOwnMake" data-id="${c.id}">生下来</button>${CANCEL}`)},
+  async kidOwnMake(el){const c=charById(el.dataset.id);if(!c||el.dataset.b)return;el.dataset.b=1;el.textContent='在等TA出生…';
+    const me=mask(c),sex=$('#koSex')?.value||(Math.random()<.5?'m':'f'),call=$('#koCall')?.value.trim()||'妈妈',callC=$('#koCallC')?.value.trim()||'爸爸',spd=+$('#kdSpd')?.value||1;let name=$('#koName')?.value.trim()||'',look='',trait='';
+    if(api(c.id)?.key){try{const cut=x=>String(x||'').replaceAll('{{user}}',me.name).replaceAll('{{char}}',c.name).slice(0,1500);
+      const out=String(await callAI('你在帮一对伴侣设想他们亲生孩子的样子。只从两个人的资料里取长相（五官、发色、肤色、身形这类）和性格脾气，资料里别的内容一律不用、不提。写的是一个孩子，只写适合孩子的内容。',[{role:'user',content:`【${me.name}】\n${cut(me.persona)||'（没有写）'}\n\n【${c.name}】\n${cut(c.persona)||'（没有写）'}\n\n他们有了一个${sex==='f'?'女孩':'男孩'}。按遗传来想：五官、发色、肤色各像谁，性格里哪点随${me.name}、哪点随${c.name}，再加一点孩子自己的。${name?`名字已经定了叫${name}。`:`再由${c.name}给孩子起个名字。`}\n只按这个格式输出三行：\n名字：……\n长相：……（40字内，写长大后会长成的样子，哪里像谁）\n性格：……（40字内，哪点随谁）`}],{max:500,side:true,tag:'other',who:c.id})||'').replace(/<think>[\s\S]*?<\/think>/gi,'');
+      const g=k=>(out.match(new RegExp(k+'[：:]\\s*([^\\n]+)'))||[])[1]?.trim()||'';name=name||g('名字').replace(/[「」"'“”（(].*$/,'').slice(0,12);look=g('长相').slice(0,120);trait=g('性格').slice(0,120)}catch(e){toast('没连上接口，长相和性格先空着，之后可以在设置里写',4500)}}
+    name=name||'宝宝';
+    const k={id:uid(),own:true,charId:c.id,name,sex,look,trait,call,callC,age:0,to:216,speed:spd,st:{food:70,clean:80,joy:60,energy:80,health:90},bond:30,grow:0,born:Date.now(),t:Date.now(),log:[],skills:[],mem:[]};
+    kidLog(k,'sys',`${name}出生了，是个${kidSex(k)}，小小的一团，被放进你怀里`);kidMem(k,'我出生了，被放进你怀里',{m:1});S.raise.kids.push(k);save();closeSheet();go({v:'kid',id:k.id})},
   kidMake(el){const c=charById(el.dataset.id);if(!c)return;const age=+$('#kdAge')?.value||0,to=Math.max(16,Math.min(60,+$('#kdTo')?.value||24))*12;
     const k={id:uid(),charId:c.id,name:$('#kdName')?.value.trim()||c.name,age:Math.min(age,to),to,speed:+$('#kdSpd')?.value||1,call:$('#kdCall')?.value.trim()||'',st:{food:70,clean:80,joy:60,energy:80,health:90},bond:age?10:30,grow:0,born:Date.now(),t:Date.now(),log:[],skills:[],mem:[]};
     kidLog(k,'sys',age?`${ageText(k.age)}的${k.name}来到你身边了`:`${k.name}出生了，小小的一团，被放进你怀里`);kidMem(k,age?'我来到你身边':'我出生了，被放进你怀里',{m:1});S.raise.kids.push(k);save();closeSheet();go({v:'kid',id:k.id})},
+  pShop(el){const t=thread(cur().id);closeSheet();go({v:el.dataset.k==='goods'?'goods':'food',to:t.chars[0]})},
   petGo(el){go({v:'pet',id:el.dataset.id})},
   petForm(p,kind){const L=S.chars.filter(visible);
     return`<label class="f">名字<input type="text" id="ptName" maxlength="12" value="${esc(p?.name||'')}"></label>
@@ -4056,10 +4096,10 @@ const A={
     sheet(`<h3>${esc(kidName(k))}</h3><label class="f">小名<input type="text" id="kdName" value="${esc(kidName(k))}"></label>
       <label class="f">现在几岁<span class="inline"><input type="number" id="kdY" min="0" max="60" value="${Math.floor(k.age/12)}" style="flex:1">岁<input type="number" id="kdM" min="0" max="11" value="${k.age%12}" style="flex:1">个月</span></label>
       <label class="ck"><input type="checkbox" id="kdPause" ${k.pause?'checked':''}>不长大了，一直停在这个年纪</label>
-      <label class="f">一直长到几岁<input type="number" id="kdTo" min="16" max="60" value="${Math.floor(kidTo(k)/12)}"></label>
+      <label class="f">一直长到几岁<input type="number" id="kdTo" min="16" max="60" value="${Math.floor(kidTo(k)/12)}"></label>${k.own?`<label class="f">长相<textarea id="kdLook" rows="2">${esc(k.look||'')}</textarea></label><label class="f">性格<textarea id="kdTrait" rows="2">${esc(k.trait||'')}</textarea></label><label class="f">TA叫${esc(dn(kidChar(k)))}<input type="text" id="kdCallC" value="${esc(k.callC||'爸爸')}"></label>`:''}
       <label class="f">长大的速度<select id="kdSpd">${[[0.5,'慢慢长'],[1,'正常'],[2,'快一点']].map(([x,n])=>`<option value="${x}"${(+k.speed||1)===x?' selected':''}>${n}</option>`).join('')}</select></label>
       <label class="f">TA叫你<input type="text" id="kdCall" value="${esc(k.call||'')}"></label><label class="ck"><input type="checkbox" id="kdShare" ${k.share!==false?'checked':''}>让现在的${esc(dn(kidChar(k)))}知道你在养TA</label><button class="opt" data-a="kidSave">保存</button><button class="opt red" data-a="kidDel">不养了</button>${CANCEL}`)},
-  kidSave(){const k=kidById(cur()?.id);if(!k)return;k.name=$('#kdName')?.value.trim()||kidChar(k)?.name||k.name;k.call=$('#kdCall')?.value.trim()||'';
+  kidSave(){const k=kidById(cur()?.id);if(!k)return;k.name=$('#kdName')?.value.trim()||(k.own?k.name:kidChar(k)?.name)||k.name;if(k.own){k.look=$('#kdLook')?.value.trim()||'';k.trait=$('#kdTrait')?.value.trim()||'';k.callC=$('#kdCallC')?.value.trim()||'爸爸'}k.call=$('#kdCall')?.value.trim()||'';
     k.to=Math.max(16,Math.min(60,+$('#kdTo')?.value||24))*12;{const a=Math.max(0,(+$('#kdY')?.value||0)*12+Math.min(11,Math.max(0,+$('#kdM')?.value||0)));if(a!==k.age){k.age=Math.min(a,k.to);k.grow=0;kidLog(k,'sys',`TA现在${ageText(k.age)}`)}}k.pause=!!$('#kdPause')?.checked;if(k.age<36)k.mode='off';if(k.age>k.to)k.age=k.to;k.speed=+$('#kdSpd')?.value||1;k.share=!!$('#kdShare')?.checked;save();closeSheet();render(true)},
   kidDel(el){confirmTap(el,()=>{const id=cur()?.id;S.raise.kids=S.raise.kids.filter(k=>k.id!==id);save();closeSheet();back()})},
   personaTpl(el){const k=el.dataset.k,L=S.personaTpls;
