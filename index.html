@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.18.8';
+window.BYJ_VER='2026.11.18.9';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -1397,6 +1397,12 @@ const isKimi=base=>/moonshot\.(cn|ai)|kimi\.(com|ai)/.test(base||'');
 const isGLM=base=>/bigmodel\.cn/.test(base||'');
 function addTok(tag,i,o,c=0,w=0){if(!i&&!o)return;const T=S.tok||(S.tok=def().tok);T.n++;T.i+=i;T.o+=o;T.c=(T.c||0)+c;T.w=(T.w||0)+w;
   const b=T.by[tag]||(T.by[tag]={n:0,i:0,o:0});b.n++;b.i+=i;b.o+=o;if(tag==='chat')T.last={i,o,c,t:Date.now()};save()}
+const mdlKey=x=>String(x||'').toLowerCase().replace(/^.*\//,'').replace(/[^a-z0-9]/g,'');
+const mdlSame=(a,b)=>{a=mdlKey(a);b=mdlKey(b);return!a||!b||a.includes(b)||b.includes(a)};
+const servedSeen=new Set();
+function servedChk(ask,got,tag){if(tag==='chat'&&S.tok?.last){S.tok.last.q=ask;S.tok.last.m=got;save()}
+  if(!got||mdlSame(ask,got)||servedSeen.has(ask+'>'+got))return;servedSeen.add(ask+'>'+got);
+  toast(`填的是 ${ask}，接口那边实际回的是 ${got}，可能被换了模型`,9000)}
 const RETRY_ST=new Set([408,409,425,429,500,502,503,504,520,521,522,523,524,525,526,527,529,530]);
 async function callAI(system,messages,o={}){
   for(let n=0;;n++){
@@ -1465,7 +1471,8 @@ async function callAI0(system,messages,o={}){
   {const tag=o.tag||(o.side?'bg':'chat');
     if(p.provider==='gemini'){const u=data.usageMetadata||{};addTok(tag,+u.promptTokenCount||0,(+u.candidatesTokenCount||0)+(+u.thoughtsTokenCount||0),+u.cachedContentTokenCount||0)}
     else if(p.provider==='claude'){const u=data.usage||{},cr=+u.cache_read_input_tokens||0,cw=+u.cache_creation_input_tokens||0;addTok(tag,(+u.input_tokens||0)+cr+cw,+u.output_tokens||0,cr,cw)}
-    else{const u=data.usage||{},d=u.prompt_tokens_details||u.input_tokens_details||{};addTok(tag,+u.prompt_tokens||+u.input_tokens||0,+u.completion_tokens||+u.output_tokens||0,+d.cached_tokens||+u.cached_tokens||0,+d.cache_write_tokens||0)}}
+    else{const u=data.usage||{},d=u.prompt_tokens_details||u.input_tokens_details||{};addTok(tag,+u.prompt_tokens||+u.input_tokens||0,+u.completion_tokens||+u.output_tokens||0,+d.cached_tokens||+u.cached_tokens||0,+d.cache_write_tokens||0)}
+    servedChk(model,String(data.model||data.modelVersion||''),tag)}
   {const br=data.base_resp,sc=+br?.status_code||0;if(sc){const M={1002:'发太快被限流了，等几秒再发',1004:'Key 不对，检查一下',2049:'Key 不对，检查一下',1008:'余额不够了，去充一下',2053:'积分不够了',2067:'套餐额度用完了',1026:'这句被内容审核拦了，换个说法',1027:'他的回复被内容审核拦了，换个说法或重试',1039:'太长了，把最大长度调小一点',2013:'参数不对：'+(br.status_msg||''),2064:'那边太忙，稍后再试',2066:'那边超时了，再试一次',1001:'那边超时了，再试一次',1000:'那边出了点问题，再试一次',1024:'那边出了点问题，再试一次',1033:'那边出了点问题，再试一次'};
     const er=new Error(M[sc]||('接口报错 '+sc+'：'+(br.status_msg||'')));if([1000,1001,1002,1024,1033,2064,2066].includes(sc))er.status=sc===1002?429:503;throw er}
     if((data.input_sensitive||data.output_sensitive)&&!(data.choices?.[0]?.message?.content))throw new Error(data.input_sensitive?'这句被内容审核拦了，换个说法':'他的回复被内容审核拦了，换个说法或重试')}
@@ -1483,15 +1490,15 @@ async function callAI0(system,messages,o={}){
   return o.thoughts?{text:out.trim(),thoughts:th.trim(),cut}:out.replace(/<think(?:ing)?>[\s\S]*?<\/think(?:ing)?>/g,'').trim();
 }
 
-async function sseData(res,prov){const rd=res.body.getReader(),dec=new TextDecoder();let buf='',txt='',th='',usage=null,parts=[],fin='',inU={},outT=0;
-  const on=j=>{if(prov==='openai'){const d=j.choices?.[0]?.delta||{};txt+=d.content||'';th+=rzOf(d);if(j.choices?.[0]?.finish_reason)fin=j.choices[0].finish_reason;if(j.usage)usage=j.usage}
+async function sseData(res,prov){const rd=res.body.getReader(),dec=new TextDecoder();let buf='',txt='',th='',usage=null,parts=[],fin='',inU={},outT=0,mdl='';
+  const on=j=>{mdl=mdl||j.model||j.modelVersion||j.message?.model||'';if(prov==='openai'){const d=j.choices?.[0]?.delta||{};txt+=d.content||'';th+=rzOf(d);if(j.choices?.[0]?.finish_reason)fin=j.choices[0].finish_reason;if(j.usage)usage=j.usage}
     else if(prov==='gemini'){const c=j.candidates?.[0];if(c){parts.push(...(c.content?.parts||[]));if(c.finishReason)fin=c.finishReason}if(j.usageMetadata)usage=j.usageMetadata}
     else{if(j.type==='content_block_delta'&&j.delta?.type==='text_delta')txt+=j.delta.text;if(j.type==='content_block_delta'&&j.delta?.type==='thinking_delta')th+=j.delta.thinking||'';if(j.type==='message_start')inU=j.message?.usage||{};if(j.type==='message_delta'){outT=j.usage?.output_tokens||0;if(j.delta?.stop_reason)fin=j.delta.stop_reason}if(j.type==='error')throw new Error(j.error?.message||'出错了')}};
   for(;;){const {done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});let i;
     while((i=buf.indexOf('\n'))>=0){const l=buf.slice(0,i).trim();buf=buf.slice(i+1);if(!l.startsWith('data:'))continue;const d=l.slice(5).trim();if(!d||d==='[DONE]')continue;let j;try{j=JSON.parse(d)}catch(e){continue}on(j)}}
-  if(prov==='openai')return{choices:[{message:{content:txt,reasoning_content:th},finish_reason:fin}],usage:usage||{}};
-  if(prov==='gemini')return{candidates:parts.length||fin?[{content:{parts},finishReason:fin}]:[],usageMetadata:usage||{}};
-  return{content:[...(th?[{type:'thinking',thinking:th}]:[]),{type:'text',text:txt}],stop_reason:fin,usage:{...inU,output_tokens:outT}}}
+  if(prov==='openai')return{choices:[{message:{content:txt,reasoning_content:th},finish_reason:fin}],usage:usage||{},model:mdl};
+  if(prov==='gemini')return{candidates:parts.length||fin?[{content:{parts},finishReason:fin}]:[],usageMetadata:usage||{},modelVersion:mdl};
+  return{content:[...(th?[{type:'thinking',thinking:th}]:[]),{type:'text',text:txt}],stop_reason:fin,usage:{...inU,output_tokens:outT},model:mdl}}
 
 function loreFor(chars,scanText,part){
   const books=S.books.filter(b=>b.scope==='global'||chars.some(c=>(c.books||[]).includes(b.id)));
@@ -3337,6 +3344,7 @@ data(v){
       <p class="hint">${esc(ago(T.since))}起</p><div class="grid2"><div class="mi"><b>${kn(T.i+T.o)}</b><span>总共</span></div><div class="mi"><b>${kn(T.i)}</b><span>输入</span></div><div class="mi"><b>${kn(T.o)}</b><span>输出</span></div><div class="mi"><b>${T.img||0}</b><span>生图</span></div>${T.c||T.w?`<div class="mi"><b>${kn(T.c)}</b><span>缓存命中${T.i?' · '+Math.round(T.c/T.i*100)+'%':''}</span></div><div class="mi"><b>${kn(T.w)}</b><span>缓存写入</span></div>`:''}</div>
       ${cats.length?`<div class="grid2">${cats.map(([k,b])=>`<div class="mi"><b>${kn(b.i+b.o)}</b><span>${TOKTAG[k]||k}</span></div>`).join('')}</div>`:''}
       ${T.last?`<p class="hint">上一次聊天（${esc(ago(T.last.t))}）：发过去 ${kn(T.last.i)}，回来 ${kn(T.last.o)}${T.last.c?`，其中缓存命中 ${kn(T.last.c)}`:''}</p>`:''}
+      ${T.last?.m?`<p class="hint">填的模型 ${esc(T.last.q||'')}，接口实际回的 ${esc(T.last.m)}${mdlSame(T.last.q,T.last.m)?'':' ⚠ 对不上，可能被换了模型'}</p>`:T.last?`<p class="hint">接口没说实际用的是哪个模型</p>`:''}
       <button class="btn o" data-a="tokClr" style="align-self:flex-start">清零</button>`:''}</div>
 `,
     after(){const n=navigator.storage;if(!n)return;n.estimate?.().then(e=>{const x=$('#dataUse');if(x&&e?.usage)x.textContent=` · 全部 ${mb(e.usage)}`}).catch(()=>{})}}
