@@ -1610,11 +1610,11 @@ function buildCtx(t,o={}){
     ctxs.push(`【上次见面】（${md.getMonth()+1}月${md.getDate()}日 ${pad(md.getHours())}:${pad(md.getMinutes())}，已结束）\n${txt.length>3000?'…'+txt.slice(-3000):txt}`)}
   {const ms=t.msgs.filter(m=>m.type!=='sys'),g=ms.length>1?ms[ms.length-1].t-ms[ms.length-2].t:0;
     let j=ms.length-1;while(j>0&&ms[j].from==='me')j--;const dd=ms[j]?dayDiff(ms[j].t):0;
-    tail.push('【现在】'+nowText()+(g>2*3600e3?`，距上次说话${gapText(g)}`:'')+(dd>0?`\n上次聊是${dayWord(dd)}（${dayLabel(ms[j].t)}），已经是新的一天。记录里的「今天」「明天」是按那天说的；现在的今天是${dayLabel(Date.now())}。`:''));
+    tail.push('【现在】'+nowText()+(g>2*3600e3?`，距上次说话${gapText(g)}`:'')+(dd>0?(Date.now()-ms[j].t<4*3600e3?`\n刚过零点，日期变成${dayLabel(Date.now())}了。你们一直在聊没断过，接着刚才的话说，不重新打招呼。`:`\n上次聊是${dayWord(dd)}（${dayLabel(ms[j].t)}），已经是新的一天。记录里的「今天」「明天」是按那天说的；现在的今天是${dayLabel(Date.now())}。`):''));
     const wd=worldFor(chars);if(wd)tail.push(wd);
     const d0=new Date().setHours(0,0,0,0);if(myDays(me).some(x=>x.in===0&&chars.some(c=>c.id===x.who))&&t.msgs.some(m=>m.from==='me'&&m.t>=d0&&/生日快乐|happy birthday/i.test(m.content||'')))tail.push(`【生日】${me.name}今天说过生日快乐了。`);
     chars.forEach(c=>{const x=kidKnow(c);if(x)tail.push(x)});
-    chars.forEach(c=>{if(c.today?.day===dayKey()&&c.today.text)tail.push(`【${c.name}的今天】${c.today.text}\n`+(mode==='offline'?`（见面之前${c.name}自己的事。到现在已经发生的，聊天时可以自然带出一件，讲过的不重复。）`:`（到现在已经发生的，可以主动挑一件讲，一次一件，讲过的不重复。）`))});
+    chars.forEach(c=>{if(c.today?.day===dayKey()&&c.today.text)tail.push(`【${c.name}的今天】${c.today.text}\n`+(mode==='offline'?`（见面之前${c.name}自己的事。到现在已经发生的，聊天时可以自然带出一件，讲过的不重复。）`:`（只是背景。正聊着别的事就不提；话停了、或${me.name}问起，再挑一件讲，一次一件，讲过的不重复。）`))});
     if(!group&&chars[0]){const c=chars[0],gone=(c.said||[]).filter(x=>Date.now()-x.t<36*3600e3&&!t.msgs.some(m=>m.from===c.id&&String(m.content||'').slice(0,60)===x.s));
       if(gone.length)tail.push(`【已经说过的】这些话${c.name}之前对${me.name}说过了（记录已经不在）。不再说差不多的内容，不换个说法重讲同一件事；今天的事讲过的就算讲过了，讲别的。\n`+gone.slice(-16).map(x=>'· '+x.s).join('\n'))}}
   {const dy=[...new Set(chars.map(myDiaryFor).filter(Boolean))];if(dy.length)tail.push(dy.join('\n'))}
@@ -1649,8 +1649,8 @@ function buildCtx(t,o={}){
       const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal&&lastReal.type!=='narr')ctxs.push(`【刚见面】刚才在手机上聊（见下），现在见面了，接着往下写。`);if(ph.length)ctxs.push(`【见面前在手机上聊的】（只是背景，别照这个格式写）\n`+ph.map(line).join('\n'))}
   }else{
     rules.push(group?`【群聊】手机群，${me.name}和${cname}隔着屏幕打字。只发消息，不写动作、旁白和小说段落。每行「名字：内容」，一行一条，不替${me.name}说话。\n【有来有往】每人这轮至少说一条。先接${me.name}的话，再互相接：吐槽、抬杠、帮腔，也把话抛回给${me.name}。不排队一人一句。各按人设，彼此不暧昧。`
-      :`【聊天】一行一个气泡，不写名字。不复述，不说教，不总结，不必句句提问，小事自己拿主意。语气和主动程度都以人设为准：开朗就开朗，冷就冷，温柔就温柔；人设有两面或反差，两面都写出来。别因为关系亲密就都写成同一种甜腻黏人的样子。人设黏人、爱亲近的，可以常说想亲想抱；不是这种人设，就别自己每轮都提。但${me.name}主动靠近的时候要回应，不躲不拖。`);
-    if(!group)rules.push(`【分享生活】按人设带出自己在干什么、刚遇到的事、吃到看到的东西，偶尔配一张 [图片:…]。和${me.name}一起的事，只提真的聊过、做过的，没发生过的别说成发生过。话题干了就自己起新的，或拉${me.name}一起做点什么（听歌、玩游戏、约见面），具体、有梗。`);
+      :`【聊天】一行一个气泡，不写名字。先接住${me.name}刚说的话，顺着正在聊的事往下说，和前面说过的对得上；这件事没聊完不换话题，不重新打招呼、不重新开场。不复述，不说教，不总结，不必句句提问，小事自己拿主意。语气和主动程度都以人设为准：开朗就开朗，冷就冷，温柔就温柔；人设有两面或反差，两面都写出来。别因为关系亲密就都写成同一种甜腻黏人的样子。人设黏人、爱亲近的，可以常说想亲想抱；不是这种人设，就别自己每轮都提。但${me.name}主动靠近的时候要回应，不躲不拖。`);
+    if(!group)rules.push(`【分享生活】正聊着一件事的时候不插别的。话停了，再按人设带出自己在干什么、刚遇到的事、吃到看到的东西，偶尔配一张 [图片:…]。和${me.name}一起的事，只提真的聊过、做过的，没发生过的别说成发生过。话题干了就自己起新的，或拉${me.name}一起做点什么（听歌、玩游戏、约见面），具体、有梗。`);
     {const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal?.type==='narr')ctxs.push(`【刚分开】刚见过面，现在回到手机上。带着那时的情绪，只发消息，不写动作和长段。`)}
     rules.push(`【条数】一条说一句话，${num(C.onLen)||10}字左右，人设话多或事情要紧时可以长些。平时${G('每人','')}发1到${num(C.onMax)||3}条，情绪上来最多${bubbleCap()}条。真有很多话要说，偶尔可以到${BUBBLE_MAX}条。${C.casual!==false?'不打句号和逗号，停顿就换行。':''}`);
     const sp=['[图片:画面]','[语音:内容]'];
@@ -1699,6 +1699,7 @@ function buildCtx(t,o={}){
   {const end=msgs.length;
     items.filter(inChat).map(i=>({i,d:Math.max(0,Math.floor(+i.depth))})).sort((a,b)=>b.d-a.d)
       .forEach(({i,d},k)=>msgs.splice(Math.max(pre.length,end-d)+k,0,{role:i.role==='assistant'?'assistant':'user',content:mac(i.content)}))}
+  if(mode==='online'&&!group&&!o.pro&&[...t.msgs].reverse().find(m=>m.type!=='sys')?.from==='me')tail.push(`【接话】先回${me.name}最后发的那几句，接着上面正在聊的往下说，前后对得上。不突然换话题，不像刚开始聊。`);
   if(mode==='online'&&(C.think||C.inner))tail.push(`【这次回复】照【回复格式】写全：${C.think?'<think>…</think>、':''}<reply>…</reply>${C.inner?'、<inner>…</inner>':''}、<tide>…</tide>，一样都不能少。${group?'群里只发消息，每人都说话。':''}`);
   if(tail.length){let k=msgs.length;while(k>0&&msgs[k-1].role==='user'&&k>pre.length)k--;const last=k<msgs.length;
     msgs.splice(k,0,{role:'user',content:`（此刻的情况，系统告诉你的，不是${me.name}发的消息）\n`+tail.join('\n\n')+(last?`\n\n（下面是${me.name}发的）`:'')})}
@@ -1936,7 +1937,7 @@ async function reply(t,extra,stamps){
   try{
     if(t.type==='dm'){const c=charById(t.chars[0]);await Promise.all([ensureToday(c),schedOf(c)])}
     await Promise.all([ensureWx(S.loc),...t.chars.map(id=>ensureWx(charById(id)?.loc))].map(p=>p.catch(()=>{})));
-    const ctx=buildCtx(t,{ev:1});if(extra)ctx.msgs.push({role:'user',content:extra});
+    const ctx=buildCtx(t,{ev:1,pro:!!extra});if(extra)ctx.msgs.push({role:'user',content:extra});
     const offMax=ctx.mode==='offline'?{max:Math.max((num(api()?.maxTokens)||2048)-4096,Math.round((num((t.offline||S.offline).words)||500)*3)+2000)}:{};
     let r=await callAI(ctx.system,ctx.msgs,{thoughts:true,...offMax});
     if(S.chat.think&&r.text&&!/^\s*(?:\]?<\]?minimax\[?>\[?)?\s*<think>/i.test(r.text)){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:`（上面这条没按顺序写，作废。重写：第一行先写 <think>一句打算</think>，然后才是${ctx.mode==='offline'?'正文':' <reply>…</reply>'}，最后 <inner>…</inner>${ctx.mode==='offline'?'':' 和 <tide>…</tide>'}。内容可以和刚才一样。）`}],{thoughts:true,...offMax});if(/<think>/i.test(r2.text))r=r2}catch(e){}}
@@ -2671,7 +2672,7 @@ function lifeTick(mins){const now=Date.now();{const d=new Date();ensureHolidays(
       if(!t.chase||t.chase.me!==lastMe)t.chase={me:lastMe,n:0,j:Math.random()};const ch=t.chase;
       if(ch.n<2&&gap>=(ch.n?10+10*ch.j:3+3*ch.j)*60e3){ch.n++;ch.j=Math.random();save();
         reply(t,ch.n===1
-          ?`（现在是${nowText()}。你上一条消息${me}还没回，过了${gapText(gap)}。按你的性子追发1到2条。说点新的，不把上一条换个说法再说一遍。）`
+          ?`（现在是${nowText()}。你上一条消息${me}还没回，过了${gapText(gap)}。按你的性子追发1到2条。接着刚才聊的那件事往下说，或者问TA在干嘛；不突然扯别的，也不把上一条换个说法再说一遍。）`
           :`（${me}还是没回。最后追1条，和前面发的不一样，之后等TA。）`);return}
       continue}
     if(gap<3600e3||(t.proAt&&t.proAt>lastMe))continue;
