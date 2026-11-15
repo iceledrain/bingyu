@@ -3426,7 +3426,10 @@ function dropBlank(){const bad=S.chars.filter(c=>c.name==='新角色'&&!String(c
 function purgeChar(id){S.chars=S.chars.filter(c=>c.id!==id);S.threads.forEach(t=>t.chars=t.chars.filter(x=>x!==id));S.threads=S.threads.filter(t=>t.chars.length&&!(t.type==='group'&&t.chars.length<2&&!t.msgs.length));
   S.feed=S.feed.filter(p=>p.author!==id);S.events=S.events.filter(e=>e.who!==id);if(S.music.with===id)S.music.with=null;S.diary=S.diary.filter(d=>d.charId!==id);if(S.raise)S.raise.kids=S.raise.kids.filter(k=>k.charId!==id);S.theaters=S.theaters.filter(x=>x.charId!==id);S.codes=S.codes.filter(p=>p.charId!==id);
   save();closeSheet();stack=stack.filter(x=>x.id!==id&&!(x.v==='chat'&&!thread(x.id)));if(!stack.length)toRoot('dm');else render();toast('删掉了')}
-function forgetChat(t){if(!t)return;t.summary='';t.keep='';t.sumUpTo=0;delete t.pending;t.unread=0;
+function unsay(t,ms){if(t?.type!=='dm')return;const c=charById(t.chars[0]);if(!c?.said)return;
+  const ks=ms?new Set(ms.filter(m=>m.from===c.id).map(m=>String(m.content||'').slice(0,60))):null,hit=x=>!ks||ks.has(x.s),d0=new Date().setHours(0,0,0,0);
+  if(c.today?.day===dayKey()&&c.said.some(x=>hit(x)&&x.t>=d0))c.today.n=3;c.said=c.said.filter(x=>!hit(x))}
+function forgetChat(t){if(!t)return;t.summary='';t.keep='';t.sumUpTo=0;delete t.pending;t.unread=0;unsay(t);
   if(t.type==='dm'){const c=charById(t.chars[0]);if(c)delete c.phone}}
 function pickChar(title,act){if(!S.chars.length){toast('先在通讯录添加角色');return}
   sheet(`<h3>${title}</h3>`+S.chars.map(c=>`<button class="opt l" data-a="${act}" data-id="${c.id}">${av(c,32)}<span>${esc(dn(c))}</span></button>`).join('')+`${CANCEL}`)}
@@ -3627,8 +3630,8 @@ const A={
   mCopy(el){copy(thread(cur().id).msgs[+el.dataset.i].content,'复制好了');closeSheet()},
   mEdit(el){const m=thread(cur().id).msgs[+el.dataset.i];sheet(`<h3>编辑</h3><textarea id="editTa" class="tall" aria-label="编辑消息">${esc(m.content)}</textarea>${m.inner!==undefined?`<label class="f">${esc(S.chat.innerName)}<textarea id="editInner">${esc(m.inner||'')}</textarea></label>`:''}<button class="btn" data-a="mSave" data-i="${el.dataset.i}">保存</button>${CANCEL}`)},
   mSave(el){const m=thread(cur().id).msgs[+el.dataset.i];m.content=$('#editTa').value;if($('#editInner'))m.inner=$('#editInner').value;save();closeSheet();refreshChat()},
-  mDel(el){thread(cur().id).msgs.splice(+el.dataset.i,1);save();closeSheet();refreshChat()},
-  mDelAfter(el){confirmTap(el,()=>{const t=thread(cur().id);t.msgs.splice(+el.dataset.i);if((t.sumUpTo||0)>t.msgs.length)t.sumUpTo=t.msgs.length;save();closeSheet();refreshChat()})},
+  mDel(el){const t=thread(cur().id);unsay(t,t.msgs.splice(+el.dataset.i,1));save();closeSheet();refreshChat()},
+  mDelAfter(el){confirmTap(el,()=>{const t=thread(cur().id);unsay(t,t.msgs.splice(+el.dataset.i));if((t.sumUpTo||0)>t.msgs.length)t.sumUpTo=t.msgs.length;save();closeSheet();refreshChat()})},
   mRegen(){const t=thread(cur().id);while(t.msgs.length&&t.msgs[t.msgs.length-1].from!=='me')t.msgs.pop();save();closeSheet();reply(t)},
   chatMenu(){const t=thread(cur().id);
     const o=(a,l,x='')=>`<button class="opt l${x}" data-a="${a}"><span>${l}</span><i>›</i></button>`,dm=t.type==='dm',c=charById(t.chars[0]);
