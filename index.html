@@ -1571,9 +1571,9 @@ const pastText=c=>(c.past||[]).filter(x=>x.day!==dayKey()).map(x=>`${gapDays(x.t
 const gapDays=t=>{const n=Math.round((new Date().setHours(0,0,0,0)-new Date(t).setHours(0,0,0,0))/864e5);return n<=1?'昨天':n===2?'前天':n+'天前'};
 const TODAY_SEED=['碰到一个意外的人','出了个小岔子','临时改了计划','得到一样东西','去了个没去过的地方','听到一个消息','搞砸了一件小事','被人夸了','跟人拌了两句嘴','看到一件怪事','丢了或找回一样东西','尝了没吃过的东西','帮了别人一个忙','被放了鸽子'];
 async function ensureToday(c){if(!c||c.today?.day===dayKey()||!api()?.key)return;const day=dayKey(),wl=c.loc||S.loc;await ensureWx(wl).catch(()=>{});const tw=wxNow(wl);
-  if(c.today?.text&&c.today.day!==day){(c.past||=[]).push({day:c.today.day,t:c.today.t||Date.now()-864e5,text:c.today.text});c.past=c.past.slice(-3)}
+  if(c.today?.text&&c.today.day!==day){(c.past||=[]).push({day:c.today.day,t:c.today.t||Date.now()-864e5,text:c.today.text});c.past=c.past.slice(-5)}
   c.today={day,text:'',t:Date.now()};const past=pastText(c);
-  try{const txt=await callAI(sysFor(c,charLore(c,past)+'你在安排这个角色今天的生活。'),[{role:'user',content:`今天是${nowText()}。${tw?`${c.name}那边今天${tw.desc}，${tw.min}~${tw.max}°C${tw.next?'，接下来'+tw.next:''}。`:''}${past?`${c.name}前几天（别重样）：${past}\n`:''}${`写${c.name}今天的安排（和天气对得上）和两三件平常小事，按时间先后，每件标大概几点。其中一件是：${TODAY_SEED[Math.floor(Math.random()*TODAY_SEED.length)]}，具体是什么你定。符合人设。只写${c.name}自己的事，不写和${mask(c).name}见面、住在一起、一起做了什么。`}第三人称，150字以内。只输出内容。`}],{max:1024,side:true});c.today={day,t:Date.now(),text:wholeText(txt,320)};save()}catch(e){c.today=null}}
+  try{const txt=await callAI(sysFor(c,charLore(c,past)+'你在安排这个角色今天的生活。'),[{role:'user',content:`今天是${nowText()}。${tw?`${c.name}那边今天${tw.desc}，${tw.min}~${tw.max}°C${tw.next?'，接下来'+tw.next:''}。`:''}${past?`${c.name}前几天（今天的事、地点、遇到的人都别和这些重样）：${past}\n`:''}${`写${c.name}今天的安排（和天气对得上）和两三件平常小事，按时间先后，每件标大概几点。其中一件是：${TODAY_SEED[Math.floor(Math.random()*TODAY_SEED.length)]}，具体是什么你定。符合人设。只写${c.name}自己的事，不写和${mask(c).name}见面、住在一起、一起做了什么。`}第三人称，150字以内。只输出内容。`}],{max:1024,side:true});c.today={day,t:Date.now(),text:wholeText(txt,320)};save()}catch(e){c.today=null}}
 const GAME_RULES={truth:'【游戏：真心话大冒险】每一轮先掷骰子，点数小的人输，看聊天里最新的那次掷骰。输的人选真心话或大冒险：{{user}}输了，你就按TA选的出一个问题或挑战，可以暧昧一点；你输了，你自己选一个，然后诚实回答或者真的去做（线上就描述你做了什么，或者发 [图片:…]、[语音:…]）。一轮结束后等{{user}}掷下一轮，你不要自己掷骰子。',
   soup:'【游戏：海龟汤】你是出题人。先讲一个离奇的汤面（几句话的小故事），{{user}}来提问，你只能回答「是」「不是」「无关」或「很接近了」，可以带一点语气。{{user}}猜出汤底或者说放弃时，揭晓完整的汤底。'};
 const OFF_EV={
@@ -1614,7 +1614,9 @@ function buildCtx(t,o={}){
     const wd=worldFor(chars);if(wd)tail.push(wd);
     const d0=new Date().setHours(0,0,0,0);if(myDays(me).some(x=>x.in===0&&chars.some(c=>c.id===x.who))&&t.msgs.some(m=>m.from==='me'&&m.t>=d0&&/生日快乐|happy birthday/i.test(m.content||'')))tail.push(`【生日】${me.name}今天说过生日快乐了。`);
     chars.forEach(c=>{const x=kidKnow(c);if(x)tail.push(x)});
-    if(mode!=='offline')chars.forEach(c=>{if(c.today?.day===dayKey()&&c.today.text)tail.push(`【${c.name}的今天】${c.today.text}\n（到现在已经发生的，可以主动挑一件讲，一次一件，讲过的不重复。）`)})}
+    chars.forEach(c=>{if(c.today?.day===dayKey()&&c.today.text)tail.push(`【${c.name}的今天】${c.today.text}\n`+(mode==='offline'?`（见面之前${c.name}自己的事。到现在已经发生的，聊天时可以自然带出一件，讲过的不重复。）`:`（到现在已经发生的，可以主动挑一件讲，一次一件，讲过的不重复。）`))});
+    if(!group&&chars[0]){const c=chars[0],gone=(c.said||[]).filter(x=>Date.now()-x.t<36*3600e3&&!t.msgs.some(m=>m.from===c.id&&String(m.content||'').slice(0,60)===x.s));
+      if(gone.length)tail.push(`【已经说过的】这些话${c.name}之前对${me.name}说过了（记录已经不在）。不再说差不多的内容，不换个说法重讲同一件事；今天的事讲过的就算讲过了，讲别的。\n`+gone.slice(-16).map(x=>'· '+x.s).join('\n'))}}
   {const dy=[...new Set(chars.map(myDiaryFor).filter(Boolean))];if(dy.length)tail.push(dy.join('\n'))}
   const el=[...new Set(chars.flatMap(c=>elsewhere(c,t.id)))];const others=group?[]:[...new Set(S.threads.filter(x=>x.type==='group'&&chars[0]&&x.chars.includes(chars[0].id)).flatMap(x=>x.chars).filter(id=>id!==chars[0].id).map(id=>charById(id)?.name).filter(Boolean))];
   if(el.length)tail.push('【别处的事】'+(others.length?'（群里的事只当你知道，不在这里接着说）':'')+'\n'+el.join('\n'));
@@ -1635,7 +1637,7 @@ function buildCtx(t,o={}){
     const pov=`【人称】${cp==='first'?`${cname}是「我」`:`${cname}用第三人称（名字或他/她），叙述里不用「我」指${cname}`}；${me.name}是${uq==='second'?'「你」':uq==='first'?'「我」（叙述跟着我的视角）':'名字或他/她'}。全篇不换人称。只管旁白；引号里的台词照常说话：自称「我」，对谁说就叫「你」。`;
     const ost=mac(String(off.style||'').trim()||OFF_STYLE_DEF),oshort=ost.length<=12&&!/\n/.test(ost);
     rules.push(pov);rules.push(`【见面】${oshort?`文风${ost}，`:''}每次${Math.round((num(off.words)||500)*.8)}到${Math.round((num(off.words)||500)*1.2)}字。场景里该有的人要写出来：店员、路人、朋友、家人、同事，给个称呼，让他们说话做事、和你们有来有往，戏份别盖过${cname}和${me.name}。`);
-    {rules.push(`【推剧情】${cname}掌控节奏，${me.name}只跟着。每段至少推进一步：${cname}直接做、直接定（去哪、吃什么、接下来干什么），带出新的事，或让时间往前走，不原地打转。不问「好不好」「要不要」「想去哪」，不给选项让TA挑。结尾停在${cname}已经做出的动作或新冒出来的情况上，不停在提问、等TA表态上。${me.name}回得短或没回就当同意，接着推。TA顺着走的小动作、一两句简短反应可以直接写，不写TA的心理和大段台词；只有会改变两人关系的大事才留给TA。`);
+    {rules.push(`【推剧情】${cname}掌控节奏，${me.name}只跟着。慢慢写：一段只写眼前这一个场景里的几分钟，把过程写出来（怎么做的、说了什么、对方什么反应），不跳时间，不一段里换好几个地方，不用「之后」「很快」「不知不觉」一笔带过。每段往前一小步：${cname}直接做、直接定（去哪、吃什么、接下来干什么），不原地打转。要换地方，等这一场写完，路上也写出来。不问「好不好」「要不要」「想去哪」，不给选项让TA挑。结尾停在${cname}已经做出的动作或新冒出来的情况上，不停在提问、等TA表态上。${me.name}回得短或没回就当同意，接着推。TA顺着走的小动作、一两句简短反应可以直接写，不写TA的心理和大段台词；只有会改变两人关系的大事才留给TA。`);
       const ln=[...t.msgs].reverse().find(m=>m.type==='narr');if(ln&&ln.from!=='me')tail.push(`【接着写】${me.name}这轮没写，接着往后推，别重复上一段。`)}
     if(group)rules.push(`【都在场】${cname}都在场。每段每个人都有动作和台词，彼此也搭话，不轮流只对${me.name}说。每段都有人拿主意往前推，谁来按人设，别互相等。`);
     if(!oshort)rules.push(`【文风】${ost}`);
@@ -1700,7 +1702,7 @@ function buildCtx(t,o={}){
   if(mode==='online'&&(C.think||C.inner))tail.push(`【这次回复】照【回复格式】写全：${C.think?'<think>…</think>、':''}<reply>…</reply>${C.inner?'、<inner>…</inner>':''}、<tide>…</tide>，一样都不能少。${group?'群里只发消息，每人都说话。':''}`);
   if(tail.length){let k=msgs.length;while(k>0&&msgs[k-1].role==='user'&&k>pre.length)k--;const last=k<msgs.length;
     msgs.splice(k,0,{role:'user',content:`（此刻的情况，系统告诉你的，不是${me.name}发的消息）\n`+tail.join('\n\n')+(last?`\n\n（下面是${me.name}发的）`:'')})}
-  if(mode==='offline'){const w=num(off.words)||500,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字，${cname}带节奏往前推，不问${me.name}意见，结尾不抛问题${group?'；每人都有戏份':''}；不写成手机消息${(off.upov||'second')==='second'?`；叙述里称呼${me.name}只用「你」，不写名字、不写她或他`:''}${(l=>l.length?`；${l.join('和')}别漏`:'')([C.think&&'开头的 <think>',C.inner&&(group?'结尾的 <inner>（每人一行）':'结尾的 <inner>')].filter(Boolean))}）`,last=msgs[msgs.length-1];
+  if(mode==='offline'){const w=num(off.words)||500,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字，${cname}带节奏，一小步一小步往前推，只写眼前这几分钟，不跳时间；不问${me.name}意见，结尾不抛问题${group?'；每人都有戏份':''}；不写成手机消息${(off.upov||'second')==='second'?`；叙述里称呼${me.name}只用「你」，不写名字、不写她或他`:''}${(l=>l.length?`；${l.join('和')}别漏`:'')([C.think&&'开头的 <think>',C.inner&&(group?'结尾的 <inner>（每人一行）':'结尾的 <inner>')].filter(Boolean))}）`,last=msgs[msgs.length-1];
     if(last&&last.role==='user')last.content+='\n\n'+note;else msgs.push({role:'user',content:note})}
   const end=[];
   if(C.think)end.push(`【思考】先在 <think>…</think> 里${mac(C.thinkStyle||THINK_DEF)}${C.inner?`感受留给${C.innerName||'心声'}，别重复。`:''}${group?'每人一行，「名字：」开头。':''}提到${me.name}用${cname}平时的叫法，不写「她」「他」「用户」。`);
@@ -1955,6 +1957,7 @@ async function reply(t,extra,stamps){
       if(i===parts.length-1)busy.delete(t.id);save();onThreadUpdate(t);
     }
     busy.delete(t.id);onThreadUpdate(t);
+    if(t.type==='dm'&&ctx.mode!=='offline'&&ctx.chars[0]){const c=ctx.chars[0];c.said=[...(c.said||[]).filter(x=>Date.now()-x.t<36*3600e3),...posted.filter(m=>(m.type==='text'||m.type==='voice')&&m.content).map(m=>({t:m.t,s:String(m.content).slice(0,60)}))].slice(-30);save()}
     if(t.type==='dm'){maybeAutoDiary(charById(t.chars[0]),t);if(cur()?.id===t.id&&cur().v==='chat')render(true)}
     if(!isOpen())renderHome();
     if(ex.acts.includes('查手机')&&!ctx.group)setTimeout(()=>autoPeek(t,ctx.chars[0],'open'),2500);
@@ -2655,12 +2658,12 @@ function lifeTick(mins){const now=Date.now();{const d=new Date();ensureHolidays(
       if(!L.length&&h>=9&&h<12&&P.askAt!==dk){P.askAt=dk;save();reply(t,`（现在是${nowText()}。你在监督${me}做计划，TA今天还没写。问问TA今天打算干什么，让TA去「计划」里写下来，按你的性子来。）`);return}
       if(left.length&&h>=15&&h<22&&P.nudgeAt!==dk){P.nudgeAt=dk;save();reply(t,`（现在是${nowText()}。你在监督${me}的计划，今天还有这些没做：${left.map(x=>x.text).join('、')}（完成了${L.length-left.length}/${L.length}）。按你的性子催一催、问问进度，短一点。）`);return}}}}
   const dms=S.threads.filter(t=>t.type==='dm'&&!t.pending&&!t.game&&(t.mode||'online')==='online').sort(()=>Math.random()-.5);
-  for(const c of S.chars.filter(reachable).sort(()=>Math.random()-.5)){if(statusOf(c)==='sleep'||c.helloAt)continue;
+  for(const c of S.chars.filter(reachable).sort(()=>Math.random()-.5)){if(statusOf(c)==='sleep'||now-(c.helloAt||0)<6*3600e3)continue;const old=(c.said||[]).length>0;
     const d=S.threads.find(x=>x.type==='dm'&&x.chars[0]===c.id);if(d&&(d.msgs.some(m=>m.type!=='sys')||d.pending||d.game||(d.mode||'online')!=='online'))continue;
-    const g=S.threads.filter(x=>x.type==='group'&&x.chars.includes(c.id)&&x.msgs.some(m=>m.from==='me')).sort((a,b)=>(b.t||0)-(a.t||0))[0];if(!g||now-(g.t||0)<10*60e3)continue;
+    const g=S.threads.filter(x=>x.type==='group'&&x.chars.includes(c.id)&&x.msgs.some(m=>m.from==='me')).sort((a,b)=>(b.t||0)-(a.t||0))[0];if(!old&&(c.helloAt||!g||now-(g.t||0)<10*60e3))continue;
     if(Math.random()>1-Math.pow(1-.04,mins))continue;
     const t=dmFor(c.id);c.helloAt=now;t.proAt=now;save();
-    reply(t,`（现在是${nowText()}。你和${mask(c).name}在群「${threadTitle(g)}」里聊过，还没私下说过话。你主动私聊TA，按你的性子开个头，1到2条。）`);return}
+    reply(t,old?`（现在是${nowText()}。你主动找${mask(c).name}，从下面挑一个最自然的理由，话题和开头都别和你之前说过的重样：\n${whyReach(c).map(x=>'· '+x).join('\n')}）`:`（现在是${nowText()}。你和${mask(c).name}在群「${threadTitle(g)}」里聊过，还没私下说过话。你主动私聊TA，按你的性子开个头，1到2条。）`);return}
   for(const t of dms){const c=charById(t.chars[0]),me=mask(c).name;if(!reachable(c)||statusOf(c)==='sleep')continue;
     const last=[...t.msgs].reverse().find(m=>m.type!=='sys');if(!last)continue;const gap=now-last.t;
     const lastMe=t.msgs.filter(m=>m.from==='me').slice(-1)[0]?.t||0;
@@ -2668,14 +2671,14 @@ function lifeTick(mins){const now=Date.now();{const d=new Date();ensureHolidays(
       if(!t.chase||t.chase.me!==lastMe)t.chase={me:lastMe,n:0,j:Math.random()};const ch=t.chase;
       if(ch.n<2&&gap>=(ch.n?10+10*ch.j:3+3*ch.j)*60e3){ch.n++;ch.j=Math.random();save();
         reply(t,ch.n===1
-          ?`（现在是${nowText()}。你上一条消息${me}还没回，过了${gapText(gap)}。按你的性子追发1到2条，别重复上一条。）`
-          :`（${me}还是没回。最后追1条，之后等TA。）`);return}
+          ?`（现在是${nowText()}。你上一条消息${me}还没回，过了${gapText(gap)}。按你的性子追发1到2条。说点新的，不把上一条换个说法再说一遍。）`
+          :`（${me}还是没回。最后追1条，和前面发的不一样，之后等TA。）`);return}
       continue}
     if(gap<3600e3||(t.proAt&&t.proAt>lastMe))continue;
     if(Math.random()>1-Math.pow(1-.04,mins))continue;
     t.proAt=now;save();
     if(statusOf(c)==='free'&&Math.random()<.18){incomingCall(t,Math.random()<.3?'video':'voice');return}
-    reply(t,`（现在是${nowText()}。${me}已经${gapText(gap)}没有找你了。你主动找TA，从下面挑一个最自然的理由：\n${whyReach(c).map(x=>'· '+x).join('\n')}）`);return}}
+    reply(t,`（现在是${nowText()}。${me}已经${gapText(gap)}没有找你了。你主动找TA，从下面挑一个最自然的理由，话题和开头都别和你之前发过的重样：\n${whyReach(c).map(x=>'· '+x).join('\n')}）`);return}}
 function awayCatch(from,now){
   if(S.chat.away===false||!api()?.key||busy.size||call||document.hidden)return false;
   const dms=S.threads.filter(t=>t.type==='dm'&&!t.pending&&!t.game&&(t.mode||'online')==='online'&&t.msgs.some(m=>m.from==='me')).sort((a,b)=>(b.t||0)-(a.t||0));
