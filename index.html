@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.18.19';
+window.BYJ_VER='2026.11.18.20';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -2033,15 +2033,15 @@ function softTick(mins){
 
 let summing=false;
 const sumBlock=t=>[t.summary?'【之前的事】\n'+t.summary:'',t.keep?'【不能忘的事】\n'+t.keep:''].filter(Boolean).join('\n');
-async function summarize(t,manual){
-  const n=Math.max(4,num(S.chat.ctx)||40);const from=t.sumUpTo||0;const to=Math.max(from,t.msgs.length-(manual?Math.min(n,10):n));
+async function summarize(t,manual,all){
+  const n=Math.max(4,num(S.chat.ctx)||40);const from=t.sumUpTo||0;const to=all?t.msgs.length:Math.max(from,t.msgs.length-(manual?Math.min(n,10):n));
   const chunk=t.msgs.slice(from,to);if(!chunk.length){if(manual)toast('还没有需要总结的旧消息');return}
   const me=mask(t),c=t.type==='dm'?charById(t.chars[0]):null,log=(()=>{let k0='';return chunk.map(m=>{const k=m.t?dayLabel(m.t):'';const h=k&&k!==k0?`（${k}）\n`:'';if(k)k0=k;return h+(m.from==='me'?me.name:(charById(m.from)?.name||'?'))+'：'+pv(m)}).join('\n')})();
   const voice=c?`用${c.name}自己的口吻、第一人称「我」写，像${c.name}心里记着的，称呼对方用你平时叫TA的亲昵称呼`:'用旁白的口吻写';
-  const txt=String(await callAI(c?sysFor(c,''):'你在整理一段群聊的记录。',[{role:'user',content:(t.summary?`之前的小结：${t.summary}\n`:'')+(t.keep?`之前记下的：${t.keep}\n`:'')+`\n新的聊天记录：\n${log}\n\n输出两行，别的都不要：\n小结：${voice}，最近发生了什么（见面时做了什么、说了什么、关系有什么变化也要写）、现在什么状态，过时的删掉，提到哪天写几月几日、不写「今天」「昨天」，150字以内。\n记住：只写新的聊天记录里新出现的硬信息——名字、称呼、约定（带上几月几日）、日子、喜好、忌讳，「之前记下的」里已有的不写，用「；」隔开；没有新的就写「无」。`}],{max:1024,temp:.4,side:true})).trim();
+  const txt=String(await callAI(c?sysFor(c,''):'你在整理一段群聊的记录。',[{role:'user',content:(t.summary?`之前的小结：${t.summary}\n`:'')+(t.keep?`之前记下的：${t.keep}\n`:'')+`\n新的聊天记录：\n${log}\n\n输出两行，别的都不要：\n小结：${voice}，最近发生了什么（见面时做了什么、说了什么、关系有什么变化也要写）、现在什么状态，过时的删掉，提到哪天写几月几日、不写「今天」「昨天」，${all?300:150}字以内。\n记住：只写新的聊天记录里新出现的硬信息——名字、称呼、约定（带上几月几日）、日子、喜好、忌讳，「之前记下的」里已有的不写，用「；」隔开；没有新的就写「无」。`}],{max:1024,temp:.4,side:true})).trim();
   const part=k=>{const m=txt.match(new RegExp(k+'[:：]\\s*([\\s\\S]*?)(?=\\n\\s*(?:小结|记住)[:：]|$)'));return m?m[1].replace(/\s*\n\s*/g,' ').trim():''};
   const sum=part('小结')||(/记住[:：]/.test(txt)?'':txt);
-  t.summary=wholeText(sum,150);t.keep=addKeep(t.keep,part('记住'));t.sumUpTo=to;save();
+  t.summary=wholeText(sum,all?300:150);t.keep=addKeep(t.keep,part('记住'));t.sumUpTo=to;save();
 }
 function addKeep(old,add){const L=String(old||'').split(/[；;]\s*/).map(x=>x.trim()).filter(Boolean);
   if(add&&!/^无[。.]?$/.test(add))for(const x of add.split(/[；;]\s*/).map(x=>x.trim().replace(/[。.]$/,'')).filter(Boolean))if(!L.includes(x))L.push(x);
@@ -3871,7 +3871,7 @@ const A={
     <div class="grp">${o('chatSet','聊天设置')}${cur().off?o('openOffline','见面设置'):''}</div>
     <div class="grp">${o('ctxPeek','记忆')}${o('openSummary','总结')}${dm?o('openCharFromChat','资料'):o('openGroupEdit','成员')}</div>
     <div class="grp">${dm?(rel(c).youBlocked?o('unblock','解除拉黑'):o('block','拉黑',' red'))+`<button class="opt l red" data-a="delChar" data-id="${c.id}"><span>删除</span></button>`:''}
-    ${o('delThread',dm?'清空':'删除',' red')}</div>
+    ${dm?o('clrKeep','清空，留总结',' red'):''}${o('delThread',dm?'清空':'删除',' red')}</div>
     <button class="opt" data-a="closeSheet">关闭</button>`)},
   setChat(el){S.chat[el.dataset.k]=el.dataset.v||(el.dataset.k==='thinkStyle'?THINK_DEF:'');save();render(true)},
   setDark(el){S.look.dark=el.dataset.d;save();applyLook();render(true)},
@@ -3900,6 +3900,10 @@ const A={
   memDel(el){const c=charById(el.dataset.id);if(c){c.longMem='';c.memAt=Date.now();c.memT=0;(S.memWipe||={})[c.id]=Date.now()}save();render(true)},
   evClr(el){confirmTap(el,()=>{const t=thread(cur().id);if(!t)return;const ids=new Set(t.chars);
     const now=Date.now();S.events=(S.events||[]).filter(e=>!ids.has(e.who));const W=S.evWipe||={};t.chars.map(charById).filter(Boolean).forEach(c=>{c.evFrom=now;c.longMem='';c.memT=0;c.memAt=now;W[c.id]=now});save();render(true);toast('忘掉了')})},
+  clrKeep(el){confirmTap(el,async()=>{const t=thread(cur().id);if(!t||summing)return;
+    if((t.sumUpTo||0)<t.msgs.length){if(!api()?.key){toast('先在「设置 · 聊天」里填好 key');return}
+      summing=true;el.disabled=true;el.textContent='总结中…';try{await summarize(t,true,true)}catch(e){toast(e.message||'没总结出来，没清',5600);if(el.isConnected){el.disabled=false;el.textContent='清空，留总结'}return}finally{summing=false}}
+    t.msgs=[];t.sumUpTo=0;delete t.pending;t.unread=0;save();closeSheet();if(cur().v==='chat')refreshChat();else render();toast('清空了，总结留着')})},
   sumClear(el){confirmTap(el,()=>{const t=thread(cur().id);t.summary='';t.keep='';t.sumUpTo=0;save();render()})},
   openGroupEdit(){closeSheet();go({v:'groupEdit',id:cur().id})},
   openCharFromChat(){const t=thread(cur().id);closeSheet();go({v:'charEdit',id:t.chars[0]})},
