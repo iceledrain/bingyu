@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.18.20';
+window.BYJ_VER='2026.11.18.21';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -2120,7 +2120,7 @@ function thCard(x){const c=charById(x.charId),f=S.thFmts.find(y=>y.id===x.fmt);
 function thJobCard(j){const c=charById(j.charId),f=thFmt(j.fmt);
   return`<article class="thc job"><header>${av(c||{},30)}<span><b>${esc(j.topic||f.name)}</b><small>${esc(dn(c))} · ${esc(f.name)}</small></span></header>
   <div class="thjob">${j.err?`<p>${esc(j.err)}</p><div class="btns"><button class="btn" data-a="thRetry" data-id="${j.id}">再试一次</button><button class="btn o" data-a="thDrop" data-id="${j.id}">算了</button></div>`
-    :`<span class="dots"><i></i><i></i><i></i></span><p>${esc(dn(c))} 正在搭舞台，一般要一两分钟</p>`}</div></article>`}
+    :`<span class="dots"><i></i><i></i><i></i></span><p>${esc(dn(c))} 正在搭舞台…</p>`}</div></article>`}
 
 const CD_SYS=`你在给对方写代码。说话按你的性子，代码要认真写、能直接用。
 规则，一定遵守：
@@ -2471,7 +2471,7 @@ function musicView(v={}){
     <div class="prog"><span id="mCur">${fmt(p)}</span><input type="range" id="mRange" min="0" max="1000" value="${d?Math.round(p/d*1000):0}" aria-label="进度"><span id="mDur">${fmt(d)}</span></div>
     <div class="ctrl"><button class="mini" data-a="mMode" aria-label="${modeIc[1]}" title="${modeIc[1]}">${ICONS[modeIc[0]]}</button><button data-a="mPrev" aria-label="上一首">${ICONS.prev}</button><button class="pp" id="mPP" data-a="mToggle" aria-label="${mState.playing?'暂停':'播放'}">${mState.playing?ICONS.pause:ICONS.play}</button><button data-a="mNext" aria-label="下一首">${ICONS.next}</button><button class="mini" data-a="${s?'shareSong':'mInvite'}" data-id="${s?.id||''}" aria-label="${s?'分享这首':'一起听'}" title="${s?'分享这首':'一起听'}">${s?ICONS.send:ICONS.contacts}</button></div>
   </div>
-  <div class="panel"><h2>今天给你挑的${S.music.rec?.day===dayKey()?`<span class="pill">${S.music.rec.list.length} 首</span>`:''}<button class="tb" data-a="mRecGo"${recBusy.on?' disabled':''}>${recBusy.on?'在挑…':'换一批'}</button></h2>${S.music.rec?.list?.length?`<div class="mlist" style="max-height:none">${S.music.rec.list.map((x,i)=>`<button class="opt l" data-a="mRecPick" data-i="${i}"><span><b>${esc(x.title)}</b><small class="sec"> ${esc(x.artist)}</small></span><i>▶</i></button>`).join('')}</div>${S.music.rec.day!==dayKey()?'<p class="hint">这是之前挑的</p>':''}`:`<p class="hint">${recBusy.on?'正在照着你的收藏挑歌…':F.length<3?'收藏三首以上，每天照着你的口味挑 8 首':'点「换一批」挑今天的'}</p>`}</div>
+  <div class="panel"><h2>今天给你挑的${S.music.rec?.day===dayKey()?`<span class="pill">${S.music.rec.list.length} 首</span>`:''}<button class="tb" data-a="mRecGo"${recBusy.on?' disabled':''}>${recBusy.on?'在挑…':'换一批'}</button></h2>${S.music.rec?.list?.length?`<div class="mlist" style="max-height:none">${S.music.rec.list.map((x,i)=>`<button class="opt l" data-a="mRecPick" data-i="${i}"><span><b>${esc(x.title)}</b><small class="sec"> ${esc(x.artist)}</small></span><i>▶</i></button>`).join('')}</div>`:`<p class="hint">${recBusy.on?'挑歌中…':F.length<3?'先收藏三首':'还没挑'}</p>`}</div>
   <div class="panel"><h2>最近听的<span class="pill">${L.length} 首</span></h2>${L.slice(0,v.all?999:30).map(x=>row(x,'all')).join('')||'<p class="hint">还没有歌</p>'}${L.length>30&&!v.all?'<button class="tb" data-a="mAll" style="align-self:center">看全部</button>':''}</div>`,
   after(){mRec();if(mState.lyr){if(s&&s.lrc===undefined)mLyric(s);const ly=$('#lyr');if(ly)delete ly.dataset.k;lrcTick()}}}}
 function gapText(ms){const m=ms/60e3;return m<60?Math.round(m)+'分钟':m<1440?Math.round(m/60)+'个小时':Math.round(m/1440)+'天'}
@@ -3452,14 +3452,14 @@ novels(){const L=[...S.novels].sort((a,b)=>b.t-a.t);
     ||`<div class="empty"><big>还没有小说</big><button class="btn" data-a="open" data-v="novelNew">写一本</button></div>`}},
 novelNew(v){const cs=S.chars.filter(visible);if(!cs.length)return{title:'写小说',body:'<div class="empty"><big>还没有角色</big></div>'};
   if(!cs.some(c=>c.id===v.who))v.who=cs[0].id;const d=v.d||={books:[],preset:preset()?.id||'',think:S.chat.think!==false};
-  return{title:'写小说',body:`<div class="panel"><textarea id="nvNew" class="tall" style="min-height:140px" placeholder="想看什么，不写就让 TA 定" aria-label="想看什么"></textarea>
+  return{title:'写小说',body:`<div class="panel"><textarea id="nvNew" class="tall" style="min-height:140px" placeholder="想看什么" aria-label="想看什么"></textarea>
     ${cs.length>1?`<div class="chips">${cs.map(x=>`<button class="${x.id===v.who?'on':''}" data-a="cdWho" data-id="${x.id}">${esc(dn(x))}</button>`).join('')}</div>`:''}
     <button class="btn" data-a="nvCreate" style="align-self:flex-start">开写</button></div>${nvMount(d,v.who,'nvd')}`}},
 novel(v){const b=nvBook(v.id);if(!b)return{title:'不见了',body:''};const a=charById(b.author),j=nvJobs[b.id],n=b.chs.length;
   return{title:b.title||'还没起名',sub:dn(a)+' 写',right:`<button class="tb" data-a="nvSet">设置</button>`,body:`
   ${n?`<div class="panel">${b.chs.map((c,i)=>`<button class="nvrow" data-a="nvRead" data-i="${i}"><b>第${i+1}章 ${esc(c.title)}</b><small>${ago(c.t)}${c.cm?.length?' · '+c.cm.length+' 条评论':''}</small></button>`).join('')}</div>`:''}
   <div class="panel">${j&&!j.err?`<p class="hint"><span class="dots"><i></i><i></i><i></i></span> ${esc(dn(a))} 正在写第${n+1}章</p>`
-    :`${j?.err?`<p class="hint">没写出来：${esc(j.err)}</p>`:''}<textarea id="nvIn" placeholder="下一章想看什么，可以不写" aria-label="下一章想看什么">${esc(j?.err?j.idea||'':'')}</textarea><button class="btn" data-a="nvNext" style="align-self:flex-start">${j?.err?'再试一次':n?'写下一章':'开写'}</button>`}</div>`}},
+    :`${j?.err?`<p class="hint">没写出来：${esc(j.err)}</p>`:''}<textarea id="nvIn" placeholder="下一章想看什么" aria-label="下一章想看什么">${esc(j?.err?j.idea||'':'')}</textarea><button class="btn" data-a="nvNext" style="align-self:flex-start">${j?.err?'再试一次':n?'写下一章':'开写'}</button>`}</div>`}},
 novelCh(v){const b=nvBook(v.id),ch=b?.chs[v.i];if(!ch)return{title:'不见了',body:''};const a=charById(b.author),me=mask(a),last=v.i===b.chs.length-1,j=nvJobs[b.id];
   const who=x=>x.by==='me'?me:charById(x.by)||{name:'?'};
   return{title:`第${v.i+1}章`,sub:b.title||'',body:`${ch.think?`<details class="fold think"><summary>${ICONS.brain}${esc(S.chat.thinkName||'思维链')}</summary><div>${esc(ch.think)}</div></details>`:''}<article class="nvch"><h2>${esc(ch.title)}</h2><div class="nvtxt">${ch.text.split(/\n+/).map(p=>p.trim()).filter(Boolean).map(p=>`<p>${esc(p)}</p>`).join('')}</div>
@@ -3491,7 +3491,7 @@ fmPost(v){const p=fmPost(v.id);if(!p)return{title:'不见了',body:''};const b=f
     footCls:v.rq?'wrap':'',foot:(v.rq?`<div class="qbar"><span>↪ 回复 ${esc(v.rq)}</span><button data-a="fmUnq" aria-label="取消">×</button></div>`:'')+`<textarea id="fmIn" rows="1" placeholder="${v.rq?'回复 '+esc(v.rq)+'…':'说点什么…'}" aria-label="评论"></textarea><button class="sq go" data-a="fmCmt" aria-label="发送">${ICONS.send}</button>`}},
 fmSet(){const F=S.forum;return{title:'论坛设置',body:`
   <div class="panel"><input type="text" id="fm-name" data-s="forum" data-k="name" value="${esc(F.name)}" placeholder="论坛名字" aria-label="论坛名字">
-    <textarea id="fm-theme" data-s="forum" data-k="theme" placeholder="这是个什么样的论坛，可以不写" aria-label="论坛设定">${esc(F.theme)}</textarea>
+    <textarea id="fm-theme" data-s="forum" data-k="theme" placeholder="什么样的论坛" aria-label="论坛设定">${esc(F.theme)}</textarea>
     <label class="ck"><input type="checkbox" id="fm-chars" data-s="forum" data-k="chars" ${F.chars!==false?'checked':''}>我的角色也来逛</label></div>
   <div class="panel"><h2>世界书<button class="tb" data-a="fmBookNew">新建</button></h2>
     ${S.books.length?`<div class="chips">${S.books.map(b=>b.scope==='global'?`<button class="on" disabled>${esc(b.name)} · 全局</button>`:`<button class="${(F.books||[]).includes(b.id)?'on':''}" data-a="fmBook" data-id="${b.id}">${esc(b.name)}</button>`).join('')}</div>`:''}</div>
@@ -4135,7 +4135,6 @@ const A={
       <label class="f">名字<input type="text" id="koName" maxlength="12" placeholder="不填就让TA起"></label>
       <label class="f">孩子叫你<input type="text" id="koCall" value="妈妈"></label><label class="f">孩子叫${esc(dn(c))}<input type="text" id="koCallC" value="爸爸"></label>
       <label class="f">长大的速度<select id="kdSpd"><option value="0.5">慢慢长</option><option value="1" selected>正常</option><option value="2">快一点</option></select></label>
-      <p class="hint">长相和性格会照着你的面具和${esc(dn(c))}的人设里写的样子来，两个人各像一点。生下来以后可以在设置里改。</p>
       <button class="opt" data-a="kidOwnMake" data-id="${c.id}">生下来</button>${CANCEL}`)},
   async kidOwnMake(el){const c=charById(el.dataset.id);if(!c||el.dataset.b)return;el.dataset.b=1;el.textContent='在等TA出生…';
     const me=mask(c),sex=$('#koSex')?.value||(Math.random()<.5?'m':'f'),call=$('#koCall')?.value.trim()||'妈妈',callC=$('#koCallC')?.value.trim()||'爸爸',spd=+$('#kdSpd')?.value||1;let name=$('#koName')?.value.trim()||'',look='',trait='';
@@ -4155,8 +4154,8 @@ const A={
       <label class="f">品种<input type="text" id="ptBreed" maxlength="12" value="${esc(p?.breed||'')}"></label><div class="pchips">${PET_BREED[kind].map(b=>`<button data-a="petBreed" data-b="${b}">${b}</button>`).join('')}</div>
       <label class="f">弟弟还是妹妹<select id="ptSex"><option value="m"${p?.sex!=='f'?' selected':''}>弟弟</option><option value="f"${p?.sex==='f'?' selected':''}>妹妹</option></select></label>
       ${p?'':`<label class="f">接回家的时候多大（月）<input type="number" id="ptAge" min="0" max="240" value="3"></label>`}
-      <label class="f">长什么样<input type="text" id="ptLook" maxlength="40" placeholder="毛色、眼睛、记号，可以不写" value="${esc(p?.look||'')}"></label>
-      <label class="f">性格<input type="text" id="ptTrait" maxlength="40" placeholder="黏人、高冷、怕生、拆家，可以不写" value="${esc(p?.trait||'')}"></label>
+      <label class="f">长什么样<input type="text" id="ptLook" maxlength="40" placeholder="毛色、眼睛、记号" value="${esc(p?.look||'')}"></label>
+      <label class="f">性格<input type="text" id="ptTrait" maxlength="40" placeholder="黏人、高冷、怕生、拆家" value="${esc(p?.trait||'')}"></label>
       <label class="f">和谁一起养<select id="ptWith"><option value="">自己养</option>${L.map(c=>`<option value="${c.id}"${p?.charId===c.id?' selected':''}>${esc(dn(c))}</option>`).join('')}</select></label>`},
   petNew(){sheet(`<h3>养一只什么？</h3><button class="opt l" data-a="petKind" data-k="cat">${petAv({kind:'cat'},32)}<span>猫</span></button><button class="opt l" data-a="petKind" data-k="dog">${petAv({kind:'dog'},32)}<span>狗</span></button>${CANCEL}`)},
   petKind(el){const k=el.dataset.k==='dog'?'dog':'cat';sheet(`<h3>接一只${PET_KIND[k]}回家</h3>${A.petForm(null,k)}<button class="opt" data-a="petMake" data-k="${k}">接回家</button>${CANCEL}`)},
@@ -4172,7 +4171,7 @@ const A={
     sheet(`<p class="hint" style="margin:0 4px 6px;max-height:5.4em;overflow:hidden">${esc(x.text)}</p><button class="opt red" data-a="petMsgDel" data-id="${x.id}">删掉这条</button>${CANCEL}`)},
   petMsgDel(el){const p=petById(cur()?.id);if(!p)return;p.log=(p.log||[]).filter(x=>x.id!==el.dataset.id);save();closeSheet();render(true)},
   petSet(){const p=petById(cur()?.id);if(!p)return;
-    sheet(`<h3>${esc(p.name)}</h3>${A.petForm(p,p.kind)}<label class="ck"><input type="checkbox" id="ptKnow" ${p.know!==false?'checked':''}>一起养的人聊天时知道TA、会帮着照顾</label>
+    sheet(`<h3>${esc(p.name)}</h3>${A.petForm(p,p.kind)}<label class="ck"><input type="checkbox" id="ptKnow" ${p.know!==false?'checked':''}>聊天时知道TA</label>
       <label class="f">照片<span class="inline"><span class="filebtn btn o">选一张<input type="file" id="ptPic" accept="image/*" aria-label="照片"></span>${p.avatar?'<button class="btn o" data-a="petPicDel">去掉</button>':''}</span></label>
       <button class="opt" data-a="petSave">保存</button><button class="opt red" data-a="petDel">送走</button>${CANCEL}`);
     $('#ptPic')?.addEventListener('change',e=>{const f=e.target.files?.[0];if(!f)return;const im=new Image();im.onload=()=>{const n=160,cv=document.createElement('canvas');cv.width=cv.height=n;const k=Math.max(n/im.width,n/im.height),w=im.width*k,h=im.height*k;cv.getContext('2d').drawImage(im,(n-w)/2,(n-h)/2,w,h);p.avatar=cv.toDataURL('image/jpeg',.82);URL.revokeObjectURL(im.src);save();toast('照片换好了');render(true)};im.src=URL.createObjectURL(f)})},
@@ -4193,7 +4192,7 @@ const A={
   kidSet(){const k=kidById(cur()?.id);if(!k)return;
     sheet(`<h3>${esc(kidName(k))}</h3><label class="f">小名<input type="text" id="kdName" value="${esc(kidName(k))}"></label>
       <label class="f">现在几岁<span class="inline"><input type="number" id="kdY" min="0" max="60" value="${Math.floor(k.age/12)}" style="flex:1">岁<input type="number" id="kdM" min="0" max="11" value="${k.age%12}" style="flex:1">个月</span></label>
-      <label class="ck"><input type="checkbox" id="kdPause" ${k.pause?'checked':''}>不长大了，一直停在这个年纪</label>
+      <label class="ck"><input type="checkbox" id="kdPause" ${k.pause?'checked':''}>不长大了</label>
       <label class="f">一直长到几岁<input type="number" id="kdTo" min="16" max="60" value="${Math.floor(kidTo(k)/12)}"></label>${k.own?`<label class="f">长相<textarea id="kdLook" rows="2">${esc(k.look||'')}</textarea></label><label class="f">性格<textarea id="kdTrait" rows="2">${esc(k.trait||'')}</textarea></label><label class="f">TA叫${esc(dn(kidChar(k)))}<input type="text" id="kdCallC" value="${esc(k.callC||'爸爸')}"></label>`:''}
       <label class="f">长大的速度<select id="kdSpd">${[[0.5,'慢慢长'],[1,'正常'],[2,'快一点']].map(([x,n])=>`<option value="${x}"${(+k.speed||1)===x?' selected':''}>${n}</option>`).join('')}</select></label>
       <label class="f">TA叫你<input type="text" id="kdCall" value="${esc(k.call||'')}"></label><label class="ck"><input type="checkbox" id="kdShare" ${k.share!==false?'checked':''}>让现在的${esc(dn(kidChar(k)))}知道你在养TA</label><button class="opt" data-a="kidSave">保存</button><button class="opt red" data-a="kidDel">不养了</button>${CANCEL}`)},
