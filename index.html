@@ -1601,6 +1601,8 @@ function buildCtx(t,o={}){
   const hist=t.msgs.slice(Math.floor(Math.max(0,t.msgs.length-n-every,Math.min(t.sumUpTo||0,t.msgs.length-n))/20)*20);
   const meetAt=(()=>{for(let i=t.msgs.length-1;i>=0;i--){const m=t.msgs[i];if(isMark(m)&&/见面|线下$/.test(m.content||''))return i}return -1})();
   const lastMeet=meetAt<0?[]:t.msgs.slice(meetAt+1).filter(m=>m.type==='narr'),histStart=t.msgs.length-hist.length;
+  const isMeet=m=>isMark(m)&&/见面|线下$/.test(m.content||''),curAt=(()=>{let cs=meetAt;for(let i=cs-1;i>=0;i--){const m=t.msgs[i];if(m.type==='narr'){cs=-1;for(let j=i;j>=0;j--)if(isMeet(t.msgs[j])){cs=j;break}i=cs}else if(m.type!=='sys'&&!m.recalled)break}return cs})();
+  const curNarr=t.msgs.slice(curAt+1).filter(m=>m.type==='narr');
   const scan=hist.slice(-Math.max(1,num(C.scan)||8)).map(m=>m.content).join('\n')+'\n'+chars.map(c=>c.name).join(' ');
   const items=P.items.filter(i=>i.on&&(i.mode==='both'||i.mode===im));
   const tail=[],G=(a,b)=>group?a:b,nm=chars[0]?.name||'名字';
@@ -1644,15 +1646,18 @@ function buildCtx(t,o={}){
     const ost=mac(String(off.style||'').trim()||OFF_STYLE_DEF),oshort=ost.length<=12&&!/\n/.test(ost);
     rules.push(pov);rules.push(`【见面】${oshort?`文风${ost}，`:''}每次${Math.round((num(off.words)||500)*.8)}到${Math.round((num(off.words)||500)*1.2)}字。场景里该有的旁人（店员、路人、朋友）也写出来，戏份别盖过${cname}和${me.name}。`);
     {rules.push(`【推剧情】${cname}带节奏、自己拿主意往前推，不问${me.name}意见，结尾停在动作上、不停在提问上。一段只写眼前这几分钟，不跳时间、不换地方，不替${me.name}写心理和大段台词。`);
-      const ln=[...t.msgs].reverse().find(m=>m.type==='narr');if(ln&&ln.from!=='me')tail.push(`【接着写】${me.name}这轮没写，接着往后推，别重复上一段。`)}
+      const ln=curNarr[curNarr.length-1];if(ln&&ln.from!=='me')tail.push(`【接着写】${me.name}这轮没写，接着往后推，别重复上一段。`)}
     if(group)rules.push(`【都在场】${cname}都在场，每段每个人都有动作和台词、彼此也搭话。每段都有人拿主意往前推，谁来按人设。`);
     if(!oshort)rules.push(`【文风】${ost}`);
     rules.push(`【描写】写${cname}的外貌、神态动作、语气，和场景的光线、声音、气味（按【现在】）。挑一两个具体细节和对白交替写，不堆形容词。`);
     rules.push(`【格式】小说段落，对白用「」单独成段，每段最多三句。面对面，不写成手机消息，不用 [图片] 这类格式，不写「名字：」。`);
     if(o.ev){const e=offEvent(t,off,me);if(e)tail.push(e)}
-    {const phAll=t.msgs.filter(m=>m.type!=='narr'&&!m.recalled&&!isMark(m));let ph=phAll.filter(m=>hist.includes(m));if(ph.length<30)ph=phAll.slice(-30);
-      const line=m=>m.type==='sys'?`（${m.content}）`:(m.from==='me'?me.name:charById(m.from)?.name||'?')+'：'+(m.type==='call'?`[${m.kind==='video'?'视频':'语音'}通话] ${String(m.content||'').replace(/\n/g,' / ')}`:pv(m));
-      const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal&&lastReal.type!=='narr')ctxs.push(`【刚见面】刚才在手机上聊（见下），现在见面了，接着往下写。`);if(ph.length)ctxs.push(`【见面前在手机上聊的】（只是背景，别照这个格式写）\n`+ph.map(line).join('\n'))}
+    {const phAll=t.msgs.filter((m,i)=>!m.recalled&&!isMark(m)&&(m.type!=='narr'||i<=curAt));let ph=phAll.filter(m=>hist.includes(m));if(ph.length<30)ph=phAll.slice(-30);
+      const old=ph.some(m=>m.type==='narr'),who1=m=>m.from==='me'?me.name:charById(m.from)?.name||'?';let seg='';
+      const line=m=>{const k=m.type==='narr'?'之前见面时，已经结束':'手机上',h=old&&k!==seg?`（—— ${k} ——）\n`:'';seg=k;return h+(m.type==='narr'?who1(m)+'：'+wholeText(m.content,800):line1(m))};
+      const line1=m=>m.type==='sys'?`（${m.content}）`:(m.from==='me'?me.name:charById(m.from)?.name||'?')+'：'+(m.type==='call'?`[${m.kind==='video'?'视频':'语音'}通话] ${String(m.content||'').replace(/\n/g,' / ')}`:pv(m));
+      const lastBg=ph[ph.length-1];if(lastBg&&lastBg.type!=='narr'&&!curNarr.some(m=>m.from!=='me'))ctxs.push(`【刚见面】刚才在手机上聊（见下），现在见面了，从手机上最后聊到的地方接着往下写。${old?'之前那次见面早就结束了，不接那时候的场景。':''}`);
+      if(ph.length)ctxs.push((old?`【这次见面之前】（按先后排：之前的见面已经结束，后来在手机上聊，现在是新的一次见面。只是背景，别照这个格式写）\n`:`【见面前在手机上聊的】（只是背景，别照这个格式写）\n`)+ph.map(line).join('\n'))}
   }else{
     rules.push(group?`【群聊】手机群聊，只发消息、不写动作旁白，每行「名字：内容」，不替${me.name}说话。\n【有来有往】每人至少说一条，先接${me.name}的话再互相接。各按人设，彼此不暧昧。`
       :`【聊天】一行一个气泡，不写名字，一件事没聊完不换话题。不复述、不说教、不句句提问，语气和主动程度按人设，别因为亲密就写得甜腻。`);
@@ -1688,7 +1693,7 @@ function buildCtx(t,o={}){
   const rows=[];let run=null,dk0='';
   hist.forEach((m,i)=>{
     if(mode!=='offline'&&m.t){const k=dayLabel(m.t);if(k!==dk0){dk0=k;rows.push({role:'user',content:`（—— ${k} ——）`});run=null}}
-    if(mode==='offline'){if(m.type==='narr')rows.push({role:m.from==='me'?'user':'assistant',content:m.content});return}
+    if(mode==='offline'){if(m.type==='narr'&&histStart+i>curAt)rows.push({role:m.from==='me'?'user':'assistant',content:m.content});return}
     if(m.type==='narr'){if(!run){run={role:'user',content:'（下面是你们见面时的经过，已经结束了，只是记忆）'};rows.push(run)}run.content+='\n'+nameOf(m)+'：'+(lastMeet.includes(m)?wholeText(m.content,4000):wholeText(m.content,800));return}
     if(!isMark(m))run=null;
     rows.push({role:m.from==='me'||m.from==='sys'?'user':'assistant',content:msgText(m,group),...(imgIdx.has(i)?{imgs:[m.img]}:{})})});
