@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.18.18';
+window.BYJ_VER='2026.11.18.19';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -3547,7 +3547,6 @@ data(v){
       ${T.last?.m?`<p class="hint">填的模型 ${esc(T.last.q||'')}，接口实际回的 ${esc(T.last.m)}${mdlSame(T.last.q,T.last.m)?'':' ⚠ 对不上，可能被换了模型'}</p>`:T.last?`<p class="hint">接口没说实际用的是哪个模型</p>`:''}
       <button class="btn o" data-a="tokClr" style="align-self:flex-start">清零</button>`:''}</div>
     <div class="panel"><h2>版本<span class="pill">${esc(window.BYJ_VER||'')}</span></h2>
-      <p class="hint">桌面图标不用重新加，点一下换成最新的，存档不动。</p>
       <button class="btn" data-a="reloadNew" style="align-self:flex-start">刷新到最新</button></div>
 `,
     after(){const n=navigator.storage;if(!n)return;n.estimate?.().then(e=>{const x=$('#dataUse');if(x&&e?.usage)x.textContent=` · 全部 ${mb(e.usage)}`}).catch(()=>{})}}
