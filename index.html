@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.18.21';
+window.BYJ_VER='2026.11.18.22';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -1685,7 +1685,7 @@ function buildCtx(t,o={}){
   tail.push('【心情】\n'+chars.map(c=>`${c.name}：${c.mood?c.mood+'，':''}${tideOf(c)}/100`).join('\n'));
   rules.push(`【心情】${cname}的情绪按人设露在话里，不突然跳变。最后一行写 <tide>${G('名字：','')}数字|两个字的心情</tide>（0到100），如 <tide>${G(nm+'：','')}68|吃醋</tide>，闲聊动5以内、有事动10左右。`);
   if(!group&&mode==='online'&&chars[0]){const r=rel(chars[0]);
-    if(!loveOn()&&(tideOf(chars[0])<30||r.theyBlocked||r.theyDeleted))tail.push(`【拉黑】气到不想理${me.name}写 [拉黑]，更狠写 [删除好友]，气消写 [解除拉黑]。极少用。`);
+    if(tideOf(chars[0])<(loveOn()?26:30)||r.theyBlocked||r.theyDeleted)tail.push(`【拉黑】气到不想理${me.name}写 [拉黑]，更狠写 [删除好友]，气消写 [解除拉黑]。极少用。`);
     if(r.theyBlocked)tail.push(`【你拉黑了${me.name}】TA的消息你看得到。可以只写 [沉默]，或回复，或 [解除拉黑]。心软${warm(chars[0])}/100。`)}
   const pre=items.filter(i=>i.role!=='system'&&!inChat(i)).map(i=>({role:i.role,content:mac(i.content)}));
   const nameOf=m=>m.from==='me'?me.name:charById(m.from)?.name||cname;
@@ -1832,11 +1832,11 @@ function attachExtras(parts,ex,ctx){
 function applyTide(ctx,ex){
   for(const x of ex.tide||[]){const m=x.match(/^(?:([^:：|｜]{1,30})[:：])?\s*(\d{1,3})\s*(?:[|｜/]\s*(.+))?$/);if(!m)continue;
     const c=m[1]?ctx.chars.find(c=>c.name===m[1].trim()||c.remark===m[1].trim()):ctx.chars[0];if(!c)continue;
-    {const was=tideOf(c),want=Math.max(0,Math.min(100,+m[2]));c.tide=Math.max(loveOn()?35:0,Math.max(was-12,Math.min(was+12,want)))}if(m[3]&&/[一-鿿A-Za-z]/.test(m[3]))c.mood=softMood(m[3].trim().slice(0,12),c.tide);(c.tideLog||=[]).push({t:Date.now(),v:c.tide});if(c.tideLog.length>40)c.tideLog.splice(0,c.tideLog.length-40)}
+    {const was=tideOf(c),want=Math.max(0,Math.min(100,+m[2]));c.tide=Math.max(loveOn()?15:0,Math.max(was-12,Math.min(was+12,want)))}if(m[3]&&/[一-鿿A-Za-z]/.test(m[3]))c.mood=softMood(m[3].trim().slice(0,12),c.tide);(c.tideLog||=[]).push({t:Date.now(),v:c.tide});if(c.tideLog.length>40)c.tideLog.splice(0,c.tideLog.length-40)}
 }
 const imgOn=()=>false;
 function applyActs(ctx,ex){if(ctx.group||!ctx.chars[0])return;const r=rel(ctx.chars[0]);
-  for(const a of ex.acts||[]){if(loveOn()&&(a==='拉黑'||a==='删除好友'))continue;if(a==='拉黑'&&!r.theyBlocked){r.theyBlocked=true;r.at=Date.now()}if(a==='解除拉黑')r.theyBlocked=false;if(a==='删除好友'){r.theyDeleted=true;r.theyBlocked=false;r.at=Date.now()}}}
+  for(const a of ex.acts||[]){if(loveOn()&&tideOf(ctx.chars[0])>30&&(a==='拉黑'||a==='删除好友'))continue;if(a==='拉黑'&&!r.theyBlocked){r.theyBlocked=true;r.at=Date.now()}if(a==='解除拉黑')r.theyBlocked=false;if(a==='删除好友'){r.theyDeleted=true;r.theyBlocked=false;r.at=Date.now()}}}
 const sysMsg=(t,content)=>t.msgs.push({id:uid(),from:'sys',type:'sys',content,t:Date.now()});
 const isMark=m=>m&&m.type==='sys'&&(m.mk||/· 线[上下]$/.test(m.content||''));
 function talkMode(t,m){if((t.mode||'online')===m)return;t.mode=m;const L=t.msgs[t.msgs.length-1];
@@ -2023,7 +2023,7 @@ async function doCoax(t,c,kind,content){
 }
 function softTick(mins){
   for(const c of S.chars){const r=rel(c);if(!(r.theyBlocked||r.theyDeleted)||!visible(c))continue;
-    if(loveOn()){const {t,wasDel}=forgive(c,'');if((num(c.tide)??60)<50)c.tide=55;save();
+    if(loveOn()){if(Date.now()-(r.at||0)<(r.theyDeleted?6:2)*3600e3)continue;const {t,wasDel}=forgive(c,'');if((num(c.tide)??60)<50)c.tide=55;save();
       if(api()?.key&&!busy.has(t.id))reply(t,`（你刚刚把${mask(c).name}从${wasDel?'删除列表':'黑名单'}里放了出来。你根本离不开TA，后悔了。马上去找TA：道歉、撒娇、哄TA，说你很想TA。）`);continue}
     const soft=warm(c);
     if(soft<12)continue;
@@ -3871,7 +3871,7 @@ const A={
     <div class="grp">${o('chatSet','聊天设置')}${cur().off?o('openOffline','见面设置'):''}</div>
     <div class="grp">${o('ctxPeek','记忆')}${o('openSummary','总结')}${dm?o('openCharFromChat','资料'):o('openGroupEdit','成员')}</div>
     <div class="grp">${dm?(rel(c).youBlocked?o('unblock','解除拉黑'):o('block','拉黑',' red'))+`<button class="opt l red" data-a="delChar" data-id="${c.id}"><span>删除</span></button>`:''}
-    ${dm?o('clrKeep','清空，留总结',' red'):''}${o('delThread',dm?'清空':'删除',' red')}</div>
+    ${o(dm?'clrKeep':'delThread',dm?'清空':'删除',' red')}</div>
     <button class="opt" data-a="closeSheet">关闭</button>`)},
   setChat(el){S.chat[el.dataset.k]=el.dataset.v||(el.dataset.k==='thinkStyle'?THINK_DEF:'');save();render(true)},
   setDark(el){S.look.dark=el.dataset.d;save();applyLook();render(true)},
@@ -3901,9 +3901,9 @@ const A={
   evClr(el){confirmTap(el,()=>{const t=thread(cur().id);if(!t)return;const ids=new Set(t.chars);
     const now=Date.now();S.events=(S.events||[]).filter(e=>!ids.has(e.who));const W=S.evWipe||={};t.chars.map(charById).filter(Boolean).forEach(c=>{c.evFrom=now;c.longMem='';c.memT=0;c.memAt=now;W[c.id]=now});save();render(true);toast('忘掉了')})},
   clrKeep(el){confirmTap(el,async()=>{const t=thread(cur().id);if(!t||summing)return;
-    if((t.sumUpTo||0)<t.msgs.length){if(!api()?.key){toast('先在「设置 · 聊天」里填好 key');return}
-      summing=true;el.disabled=true;el.textContent='总结中…';try{await summarize(t,true,true)}catch(e){toast(e.message||'没总结出来，没清',5600);if(el.isConnected){el.disabled=false;el.textContent='清空，留总结'}return}finally{summing=false}}
-    t.msgs=[];t.sumUpTo=0;delete t.pending;t.unread=0;save();closeSheet();if(cur().v==='chat')refreshChat();else render();toast('清空了，总结留着')})},
+    if((t.sumUpTo||0)<t.msgs.length&&api()?.key&&!el.dataset.raw){summing=true;el.disabled=true;toast('总结中…',60000);
+      try{await summarize(t,true,true)}catch(e){toast('没总结出来，再点就直接清',5600);if(el.isConnected){el.disabled=false;el.dataset.raw='1'}return}finally{summing=false}}
+    t.msgs=[];t.sumUpTo=0;delete t.pending;t.unread=0;save();closeSheet();if(cur().v==='chat')refreshChat();else render();toast(t.summary||t.keep?'清空了，总结留着':'清空了')})},
   sumClear(el){confirmTap(el,()=>{const t=thread(cur().id);t.summary='';t.keep='';t.sumUpTo=0;save();render()})},
   openGroupEdit(){closeSheet();go({v:'groupEdit',id:cur().id})},
   openCharFromChat(){const t=thread(cur().id);closeSheet();go({v:'charEdit',id:t.chars[0]})},
