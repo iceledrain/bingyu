@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>
-window.BYJ_VER='2026.11.18.22';
+window.BYJ_VER='2026.11.18.23';
 (function(){var V=window.BYJ_VER;
   function cmp(a,b){a=String(a||'').split('.');b=String(b||'').split('.');for(var i=0;i<Math.max(a.length,b.length);i++){var x=+a[i]||0,y=+b[i]||0;if(x!==y)return x>y?1:-1}return 0}
   window.byjCmp=cmp;if(window.__byjSwap)return;
@@ -2047,9 +2047,9 @@ function addKeep(old,add){const L=String(old||'').split(/[；;]\s*/).map(x=>x.tr
   if(add&&!/^无[。.]?$/.test(add))for(const x of add.split(/[；;]\s*/).map(x=>x.trim().replace(/[。.]$/,'')).filter(Boolean))if(!L.includes(x))L.push(x);
   while(L.join('；').length>1500&&L.length>1)L.shift();return L.join('；')}
 async function maybeSummarize(t){
-  if(summing)return;const n=Math.max(4,num(S.chat.ctx)||40),every=Math.max(10,num(S.chat.sumEvery)||30);
-  if(t.msgs.length-n-(t.sumUpTo||0)<every)return;
-  summing=true;try{await summarize(t);toast('已自动总结前情')}catch(e){}finally{summing=false}
+  if(summing)return;const every=Math.max(10,num(S.chat.sumEvery)||30);
+  if(t.msgs.length-10-(t.sumUpTo||0)<every)return;
+  summing=true;try{await summarize(t,true);toast('已自动总结前情')}catch(e){}finally{summing=false}
 }
 
 function authorOf(a,r){if(a==='x')return{name:r?.nick||'路人',handle:'路人',avatar:''};if(a==='me'){const m=mask();return{name:m.name,handle:m.handle,avatar:m.avatar}}const c=charById(a);return c?{name:dn(c),handle:c.handle||c.name,avatar:c.avatar}:{name:'（已删除）',handle:'deleted',avatar:''}}
