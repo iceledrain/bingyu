@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.26';</script>
+<script>window.BYJ_VER='2026.11.18.27';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -923,7 +923,7 @@ const CORE_HEAD=()=>[SYS_ITEM('陪着','【陪着】{{user}}来找你就陪着�
 const CATCH_OLD='【接住】{{user}}上一句提的要求、问的事、约好的事，这一轮先接住再说别的。答应过的要兑现，做不到就说一声，别当没听见。',CATCH_OLD2='【记得】{{user}}上一句问的、要的、约好的事，先回这个，再聊别的。答应过的就去做，做不到就直说，别装没看见。',CATCH_DEF='【记得】{{user}}上一句问的、要的、约好的事，先回这个。答应过的就去做，做不到就直说。';
 const CORE_TAIL=()=>[SYS_ITEM('记得',CATCH_DEF),SYS_ITEM('怎么演',PLAY_DEF),
   SYS_ITEM('称呼',CALL_DEF)];
-const CALL_OLD2='【称呼】别总叫全名，按人设换着叫。',CALL_OLD3='【称呼】不叫{{user}}全名（气急了除外）。老婆、宝宝、乖乖、小乖、姐姐、小名，或者别的，看人设和当时的心情换着叫。',CALL_OLD4='【称呼】不叫{{user}}全名（气急了除外）。亲昵的叫法按人设和心情自己想，换着叫。',CALL_DEF='【称呼】用亲昵的称呼叫{{user}}。';
+const CALL_OLD2='【称呼】别总叫全名，按人设换着叫。',CALL_OLD3='【称呼】不叫{{user}}全名（气急了除外）。老婆、宝宝、乖乖、小乖、姐姐、小名，或者别的，看人设和当时的心情换着叫。',CALL_OLD4='【称呼】不叫{{user}}全名（气急了除外）。亲昵的叫法按人设和心情自己想，换着叫。',CALL_OLD5='【称呼】用亲昵的称呼叫{{user}}。',CALL_DEF='【称呼】不叫{{user}}全名，气急了除外。平时用亲昵的称呼。';
 const DEFAULT_ITEMS=()=>[...CORE_HEAD(),...BASE_ITEMS(),...CORE_TAIL()];
 const inChat=i=>i.depth!=null&&i.depth!==''&&isFinite(+i.depth);
 const withCore=p=>{if(p.core!==1){p.items=[...CORE_HEAD(),...(p.items||[]),...CORE_TAIL()];p.core=1}return p};
@@ -1038,7 +1038,7 @@ for(const K of['evWipe','memWipe'])if(!s[K]||typeof s[K]!=='object')s[K]={};if(!
   if(s.thFmts.length===1&&s.thFmts[0].id==='f1'&&!String(s.thFmts[0].prompt||'').trim())s.thFmts=TH_FMTS();
   for(const k of ['mailAuto','autoReply','autoSum','real','life','busy','tide','proactive','world','time','tts','strangers'])delete s.chat[k];
   for(const k of ['full','eco','glassy','fx','fxs'])delete s.look[k];s.threads.forEach(t=>delete t.heat);
-  {const up={[PLAY_OLD4]:PLAY_DEF,[PLAY_OLD5]:PLAY_DEF,[PLAY_OLD6]:PLAY_DEF,[LANG_OLD]:LANG_DEF,[LANG_OLD2]:LANG_DEF,[REP_OLD2]:REP_DEF,[CLICHE_OLD2]:CLICHE_DEF,[CALL_OLD2]:CALL_DEF,[CALL_OLD3]:CALL_DEF,[CALL_OLD4]:CALL_DEF,[INTIM_OLD]:INTIM_DEF,[INTIM_OLD2]:INTIM_DEF,[INTIM_OLD3]:INTIM_DEF,[INTIM_OLD4]:INTIM_DEF,[INTIM_OLD5]:INTIM_DEF,[INTIM_OLD6]:INTIM_DEF,[INTIM_OLD7]:INTIM_DEF};s.presets.forEach(p=>{(p.items||[]).forEach(i=>{if(up[i.content])i.content=up[i.content]});if((p.items||[]).some(i=>i.content===REP_DEF))p.items=p.items.filter(i=>i.content!==CLICHE_DEF);p.items=(p.items||[]).filter(i=>i.content!==LANG_DEF)})}
+  {const up={[PLAY_OLD4]:PLAY_DEF,[PLAY_OLD5]:PLAY_DEF,[PLAY_OLD6]:PLAY_DEF,[LANG_OLD]:LANG_DEF,[LANG_OLD2]:LANG_DEF,[REP_OLD2]:REP_DEF,[CLICHE_OLD2]:CLICHE_DEF,[CALL_OLD2]:CALL_DEF,[CALL_OLD3]:CALL_DEF,[CALL_OLD4]:CALL_DEF,[CALL_OLD5]:CALL_DEF,[INTIM_OLD]:INTIM_DEF,[INTIM_OLD2]:INTIM_DEF,[INTIM_OLD3]:INTIM_DEF,[INTIM_OLD4]:INTIM_DEF,[INTIM_OLD5]:INTIM_DEF,[INTIM_OLD6]:INTIM_DEF,[INTIM_OLD7]:INTIM_DEF};s.presets.forEach(p=>{(p.items||[]).forEach(i=>{if(up[i.content])i.content=up[i.content]});if((p.items||[]).some(i=>i.content===REP_DEF))p.items=p.items.filter(i=>i.content!==CLICHE_DEF);p.items=(p.items||[]).filter(i=>i.content!==LANG_DEF)})}
   s.presets.forEach(withCore);
   if(!d.loreV)s.books.forEach(b=>(b.entries||[]).forEach(e=>{if(e.light==='yellow'&&!String(e.keys||'').trim())e.light='green'}));s.loreV=1;
   {const L=s.look;delete L.appWalls;delete L.alpha;delete L.dark;delete L.font;delete L.customFont;
