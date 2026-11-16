@@ -1065,7 +1065,7 @@ for(const K of['evWipe','memWipe'])if(!s[K]||typeof s[K]!=='object')s[K]={};if(!
     if(A.profiles.some(isOldExample)){A.profiles=A.profiles.filter(p=>!isOldExample(p));if(!A.profiles.length)A.profiles=[API_BLANK(uid())];if(!A.profiles.some(p=>p.id===A.active))A.active=A.profiles[0].id;if(A.side&&!A.profiles.some(p=>p.id===A.side))A.side=''}
     A.profiles.forEach(p=>{if(/anthropic\.com|generativelanguage/.test(p.base||'')&&(+p.maxTokens||0)<=8192)p.maxTokens=64000;if(/anthropic\.com/.test(p.base||''))p.stream=true})}
   s.feed.forEach(p=>(Array.isArray(p.pics)?p.pics:[]).forEach(x=>delete x.dev));s.chars.forEach(c=>{if(c.mood)c.mood=softMood(c.mood,num(c.tide)??60)});if(!s.thinkOnV){s.chat.think=true;s.thinkOnV=1}s.api.side='';s.threads.forEach(t=>delete t.clock);
-  s.chars.forEach(c=>{delete c.routine;delete c.sched;delete c.sign});s.masks.forEach(m=>{delete m.handle;delete m.bio;delete m.follow;delete m.fans;delete m.likes});
+  s.chars.forEach(c=>{delete c.routine;delete c.sched;delete c.sign;delete c.today;delete c.past});s.masks.forEach(m=>{delete m.handle;delete m.bio;delete m.follow;delete m.fans;delete m.likes});
   s.stickers.groups.forEach(g=>(g.items||[]).forEach(x=>{x.name=stkName(x.name)||x.name}));
   delete s.lock;delete s.bubble;delete s.cycle;s.look.icons={};s.look.homeIcon='';delete s.look.order;delete s.look.caption;s.v=4;
   return s;
@@ -1577,16 +1577,8 @@ function storyFor(c,n=14){const me=mask(c),t=S.threads.find(x=>x.type==='dm'&&x.
   if(t&&sumBlock(t))out.push(sumBlock(t));
   if(t&&t.msgs.length)out.push(`【和${me.name}最近的聊天】\n`+t.msgs.slice(-n).map(m=>(m.from==='me'?me.name:m.from==='sys'?'系统':c.name)+'：'+pv(m)).join('\n'));
   const el=elsewhere(c,t?.id);if(el.length)out.push('【最近在别处发生的事】\n'+el.join('\n'));
-  if(c.today?.day===dayKey()&&c.today.text)out.push(`【${c.name}的今天】（背景，不用主动讲）${c.today.text}`);
   out.push('【现在】'+nowText());return out.join('\n\n')}
 const wholeText=(x,n)=>{x=String(x||'').trim();if(x.length<=n)return x;const h=x.slice(0,n),i=Math.max(...[...'。！？!?…~～\n'].map(k=>h.lastIndexOf(k)));return i>n/3?h.slice(0,i+1).trim():h};
-const pastText=c=>(c.past||[]).filter(x=>x.day!==dayKey()).map(x=>`${gapDays(x.t)}：${x.text}`).join('；');
-const gapDays=t=>{const n=Math.round((new Date().setHours(0,0,0,0)-new Date(t).setHours(0,0,0,0))/864e5);return n<=1?'昨天':n===2?'前天':n+'天前'};
-const TODAY_SEED=['碰到一个意外的人','出了个小岔子','临时改了计划','得到一样东西','去了个没去过的地方','听到一个消息','搞砸了一件小事','被人夸了','跟人拌了两句嘴','看到一件怪事','丢了或找回一样东西','尝了没吃过的东西','帮了别人一个忙','被放了鸽子'];
-async function ensureToday(c){if(!c||c.today?.day===dayKey()||!api()?.key)return;const day=dayKey(),wl=c.loc||S.loc;await ensureWx(wl).catch(()=>{});const tw=wxNow(wl);
-  if(c.today?.text&&c.today.day!==day){(c.past||=[]).push({day:c.today.day,t:c.today.t||Date.now()-864e5,text:c.today.text});c.past=c.past.slice(-5)}
-  c.today={day,text:'',t:Date.now()};const past=pastText(c);
-  try{const txt=await callAI(sysFor(c,charLore(c,past)+'你在安排这个角色今天的生活。'),[{role:'user',content:`今天是${nowText()}。${tw?`${c.name}那边今天${tw.desc}，${tw.min}~${tw.max}°C${tw.next?'，接下来'+tw.next:''}。`:''}${past?`${c.name}前几天（今天的事、地点、遇到的人都别和这些重样）：${past}\n`:''}${`写${c.name}今天的安排（和天气对得上）和两三件平常小事，按时间先后，每件标大概几点。其中一件是：${TODAY_SEED[Math.floor(Math.random()*TODAY_SEED.length)]}，具体是什么你定。符合人设。只写${c.name}自己的事，不写和${mask(c).name}见面、住在一起、一起做了什么。`}第三人称，150字以内。只输出内容。`}],{max:1024,side:true});c.today={day,t:Date.now(),text:wholeText(txt,320)};save()}catch(e){c.today=null}}
 const GAME_RULES={truth:'【游戏：真心话大冒险】每一轮先掷骰子，点数小的人输，看聊天里最新的那次掷骰。输的人选真心话或大冒险：{{user}}输了，你就按TA选的出一个问题或挑战，可以暧昧一点；你输了，你自己选一个，然后诚实回答或者真的去做（线上就描述你做了什么，或者发 [图片:…]、[语音:…]）。一轮结束后等{{user}}掷下一轮，你不要自己掷骰子。',
   soup:'【游戏：海龟汤】你是出题人。先讲一个离奇的汤面（几句话的小故事），{{user}}来提问，你只能回答「是」「不是」「无关」或「很接近了」，可以带一点语气。{{user}}猜出汤底或者说放弃时，揭晓完整的汤底。'};
 const OFF_EV={
@@ -1601,7 +1593,6 @@ function offEvent(t,off,me){const p=num(off.evRate)??10;t.evGap=(t.evGap||0)+1;
   return`【意外】这一段里发生一件${{good:'好事',bad:'不太顺的事',odd:'意想不到的事'}[k]}：${L[i]}。按现在的地点、时间改成合适的样子，放不进当前场景就换一件差不多的。自然地写进情节，别突兀，也别一笔带过；是小事，不是大灾难。${me.name}怎么反应留给TA。`}
 const boughtRecently=t=>{const L=t.msgs.filter(m=>m.from!=='me'&&(m.type==='order'||m.type==='parcel')&&Date.now()-m.t<24*3600e3);return L.length>=5||L.some(m=>Date.now()-m.t<2*3600e3)};
 const saidGone=(c,t)=>(c.said||[]).filter(x=>Date.now()-x.t<36*3600e3&&!(t&&t.msgs.some(m=>m.from===c.id&&String(m.content||'').slice(0,60)===x.s)));
-const todayTold=(c,t)=>(c.today?.n||0)>=3||saidGone(c,t).some(x=>x.t>=new Date().setHours(0,0,0,0));
 function buildCtx(t,o={}){
   const chars=t.chars.map(charById).filter(Boolean),me=mask(t),P=preset(),mode=o.mode||t.mode||'online',group=t.type==='group',C=S.chat,im=mode==='call'?'online':mode;
   const cname=chars.length===1?chars[0].name:chars.map(c=>c.name).join('、');
@@ -1630,9 +1621,8 @@ function buildCtx(t,o={}){
     const d0=new Date().setHours(0,0,0,0);if(myDays(me).some(x=>x.in===0&&chars.some(c=>c.id===x.who))&&t.msgs.some(m=>m.from==='me'&&m.t>=d0&&/生日快乐|happy birthday/i.test(m.content||'')))tail.push(`【生日】${me.name}今天说过生日快乐了。`);
     chars.forEach(c=>{const x=kidKnow(c);if(x)tail.push(x)});
     chars.forEach(c=>{const x=petKnow(c,group);if(x)tail.push(x)});
-    chars.forEach(c=>{if(c.today?.day===dayKey()&&c.today.text)tail.push(`【${c.name}的今天】${c.today.text}\n`+(!group&&todayTold(c,t)?`（只是背景。今天的事已经跟${me.name}讲过了，TA不问就不提，聊别的。）`:mode==='offline'?`（见面之前${c.name}自己的事。到现在已经发生的，聊天时可以自然带出一件，讲过的不重复。）`:`（只是背景。正聊着别的事就不提；话停了、或${me.name}问起，再挑一件讲，一次一件，讲过的不重复。）`))});
     if(!group&&chars[0]){const c=chars[0],gone=saidGone(c,t);
-      if(gone.length)tail.push(`【已经说过的】这些话${c.name}之前对${me.name}说过了（记录已经不在）。不再说差不多的内容，不换个说法重讲同一件事；今天的事讲过的就算讲过了，讲别的。\n`+gone.slice(-16).map(x=>'· '+x.s).join('\n'))}}
+      if(gone.length)tail.push(`【已经说过的】这些话${c.name}之前对${me.name}说过了（记录已经不在）。不再说差不多的内容，不换个说法重讲同一件事，讲别的。\n`+gone.slice(-16).map(x=>'· '+x.s).join('\n'))}}
   {const dy=[...new Set(chars.map(myDiaryFor).filter(Boolean))];if(dy.length)tail.push(dy.join('\n'))}
   const el=[...new Set(chars.flatMap(c=>elsewhere(c,t.id)))];const others=group?[]:[...new Set(S.threads.filter(x=>x.type==='group'&&chars[0]&&x.chars.includes(chars[0].id)).flatMap(x=>x.chars).filter(id=>id!==chars[0].id).map(id=>charById(id)?.name).filter(Boolean))];
   if(el.length)tail.push('【别处的事】'+(others.length?'（群里的事只当你知道，不在这里接着说）':'')+'\n'+el.join('\n'));
@@ -1944,7 +1934,7 @@ function pushMine(t,m){const c0=t.type==='dm'?charById(t.chars[0]):null,r=c0?rel
 async function reply(t,extra,stamps){
   if(busy.has(t.id))return;busy.add(t.id);onThreadUpdate(t);
   try{
-    if(t.type==='dm'){const c=charById(t.chars[0]);await Promise.all([ensureToday(c),schedOf(c)])}
+    if(t.type==='dm'){const c=charById(t.chars[0]);await schedOf(c)}
     await Promise.all([ensureWx(S.loc),...t.chars.map(id=>ensureWx(charById(id)?.loc))].map(p=>p.catch(()=>{})));
     const ctx=buildCtx(t,{ev:1,pro:!!extra});if(extra)ctx.msgs.push({role:'user',content:extra});
     const offMax=ctx.mode==='offline'?{max:Math.max((num(api()?.maxTokens)||2048)-4096,Math.round((num((t.offline||S.offline).words)||500)*3)+2000)}:{};
@@ -1967,7 +1957,7 @@ async function reply(t,extra,stamps){
       if(i===parts.length-1)busy.delete(t.id);save();onThreadUpdate(t);
     }
     busy.delete(t.id);onThreadUpdate(t);
-    if(t.type==='dm'&&ctx.mode!=='offline'&&ctx.chars[0]){const c=ctx.chars[0];if(c.today?.day===dayKey())c.today.n=(c.today.n||0)+1;c.said=[...(c.said||[]).filter(x=>Date.now()-x.t<36*3600e3),...posted.filter(m=>(m.type==='text'||m.type==='voice')&&m.content).map(m=>({t:m.t,s:String(m.content).slice(0,60)}))].slice(-30);save()}
+    if(t.type==='dm'&&ctx.mode!=='offline'&&ctx.chars[0]){const c=ctx.chars[0];c.said=[...(c.said||[]).filter(x=>Date.now()-x.t<36*3600e3),...posted.filter(m=>(m.type==='text'||m.type==='voice')&&m.content).map(m=>({t:m.t,s:String(m.content).slice(0,60)}))].slice(-30);save()}
     if(t.type==='dm'){maybeAutoDiary(charById(t.chars[0]),t);if(cur()?.id===t.id&&cur().v==='chat')render(true)}
     if(!isOpen())renderHome();
     if(ex.acts.includes('查手机')&&!ctx.group)setTimeout(()=>autoPeek(t,ctx.chars[0],'open'),2500);
@@ -2760,7 +2750,6 @@ function awayCatch(from,now){
     reply(t,`（现在是${nowText()}。${me}已经${gapText(now-last.t)}没看手机。这期间你给TA发过消息，时刻：${st.map(lab).join('、')}。按顺序写出来，每个时刻1到2条，像当时随手发的，短。别当TA已经回来。）`,st);return true}
   return false}
 function whyReach(c){const me=mask(c).name,L=[];
-  if(c.today?.day===dayKey()&&c.today.text&&!todayTold(c,S.threads.find(x=>x.type==='dm'&&x.chars[0]===c.id)))L.push('你今天遇到的事：'+c.today.text);
   {const w=wxNow(S.loc);if(w&&/雨|雪|雷|雾|冻/.test(w.desc))L.push(`${me}那边现在${w.desc}`);if(w&&(w.max>=33||w.min<=2))L.push(`${me}那边今天${w.min}~${w.max}°C`);
     upcomingFest(1).forEach(f=>L.push((f.in?'明天是':'今天是')+f.name));myDays(mask(c)).filter(x=>x.in<=1&&(x.who===null||x.who===c.id)).forEach(x=>L.push((x.in?'明天是':'今天是')+x.name))}
   const st=statusOf(c);if(st==='work')L.push('你在上班或上课，偷空摸鱼');
@@ -2769,7 +2758,7 @@ const GAME_NAMES={truth:'真心话大冒险',soup:'海龟汤'};
 const gameName=t=>t.game==='study'?studyName(t.study):GAME_NAMES[t.game]||'游戏';
 const bkJSON=()=>JSON.stringify(S,(k,v)=>k==='key'&&!S.bkKey?'':v);
 function dlJSON(o,name){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(o,null,1)],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();a.remove()}
-function extraFor(c){const e=elsewhere(c),dy=myDiaryFor(c);return(e.length?'\n\n【最近在别处发生的事】\n'+e.join('\n'):'')+(dy?'\n\n'+dy:'')+(c.today?.day===dayKey()&&c.today.text?`\n\n【${c.name}的今天】（背景）${c.today.text}`:'')+'\n\n【现在】'+nowText()}
+function extraFor(c){const e=elsewhere(c),dy=myDiaryFor(c);return(e.length?'\n\n【最近在别处发生的事】\n'+e.join('\n'):'')+(dy?'\n\n'+dy:'')+'\n\n【现在】'+nowText()}
 function phoneOpen(c,how){const t=dmFor(c.id),nm=dn(c),old=c.phone;c.phone={t:Date.now(),how,apps:{},prev:{...(old?.prev||{}),...(old?.apps||{})}};
   if(how==='open')sysMsg(t,`你当着${nm}的面翻了TA的手机`);else if(Math.random()<.35)sysMsg(t,`你偷偷翻了${nm}的手机 · 好像被TA发现了`);
   save()}
@@ -3641,8 +3630,8 @@ function purgeChar(id){S.chars=S.chars.filter(c=>c.id!==id);S.threads.forEach(t=
   S.feed=S.feed.filter(p=>p.author!==id);S.events=S.events.filter(e=>e.who!==id);if(S.music.with===id)S.music.with=null;S.diary=S.diary.filter(d=>d.charId!==id);if(S.raise)S.raise.kids=S.raise.kids.filter(k=>k.charId!==id);(S.pets||[]).forEach(p=>{if(p.charId===id)p.charId=''});S.theaters=S.theaters.filter(x=>x.charId!==id);S.codes=S.codes.filter(p=>p.charId!==id);S.novels=S.novels.filter(b=>b.author!==id);
   save();closeSheet();stack=stack.filter(x=>x.id!==id&&!(x.v==='chat'&&!thread(x.id)));if(!stack.length)toRoot('dm');else render();toast('删掉了')}
 function unsay(t,ms){if(t?.type!=='dm')return;const c=charById(t.chars[0]);if(!c?.said)return;
-  const ks=ms?new Set(ms.filter(m=>m.from===c.id).map(m=>String(m.content||'').slice(0,60))):null,hit=x=>!ks||ks.has(x.s),d0=new Date().setHours(0,0,0,0);
-  if(c.today?.day===dayKey()&&c.said.some(x=>hit(x)&&x.t>=d0))c.today.n=3;c.said=c.said.filter(x=>!hit(x))}
+  const ks=ms?new Set(ms.filter(m=>m.from===c.id).map(m=>String(m.content||'').slice(0,60))):null,hit=x=>!ks||ks.has(x.s);
+  c.said=c.said.filter(x=>!hit(x))}
 function forgetChat(t){if(!t)return;t.summary='';t.keep='';t.sumUpTo=0;delete t.pending;t.unread=0;unsay(t);
   if(t.type==='dm'){const c=charById(t.chars[0]);if(c)delete c.phone}}
 function pickChar(title,act){if(!S.chars.length){toast('先在通讯录添加角色');return}
@@ -4120,7 +4109,6 @@ const A={
   newChar(){const c={id:uid(),name:'新角色',remark:'',handle:'',avatar:'',persona:'',books:[]};S.chars.push(c);save();closeSheet();go({v:'charEdit',id:c.id})},
   importCharSheet(){fileSheet('导入角色卡','.png,.json,image/png,application/json','impChar','')},
   impCharGo(){try{const c=toChar(JSON.parse($('#impCharTa').value));S.chars.push(c);save();closeSheet();go({v:'charEdit',id:c.id});toast('导入了 '+c.name)}catch(e){toast(e.message||'不是有效的 JSON')}},
-  async todayRe(el){const c=charById(cur().id);if(!api()?.key){toast('先在「设置 · 聊天」里填好 key');return}c.today=null;el.disabled=true;el.textContent='想一想…';try{await ensureToday(c);render(true)}catch(e){toast(e.message)}},
   editChar(el){closeSheet();go({v:'charEdit',id:el.dataset.id})},
   kidNew(){const have=new Set(S.raise.kids.filter(k=>!k.own).map(k=>k.charId)),L=S.chars.filter(c=>visible(c)&&!have.has(c.id)),All=S.chars.filter(visible);if(!All.length){toast('先去通讯录加个角色');return}
     sheet(`<h3>我们的孩子</h3>`+All.map(c=>`<button class="opt l" data-a="kidOwnPick" data-id="${c.id}">${av(c,32)}<span>和${esc(dn(c))}生一个</span></button>`).join('')+(L.length?`<h3>把TA从小养大</h3>`:'')+L.map(c=>`<button class="opt l" data-a="kidPick" data-id="${c.id}">${av(c,32)}<span>${esc(dn(c))}</span></button>`).join('')+CANCEL)},
@@ -4326,9 +4314,9 @@ function bind(e){const el=e.target;if(!el.dataset||!el.dataset.k)return;const o=
   o[el.dataset.k]=val;save();const out=el.parentElement.querySelector('output');if(out)out.textContent=val;
   if(el.dataset.s==='look'){applyLook();if(el.dataset.k==='sfx')sfx(val)}}
 document.addEventListener('input',e=>{if(e.target.id==='mRange'){mSeek(+e.target.value/1000);return}
-  if(e.target.dataset?.a3==='today'){const c=charById(cur()?.id);if(c){const x=e.target.value.trim();c.today=x?{day:dayKey(),t:Date.now(),text:x}:null;save()}return}bind(e)});
+  bind(e)});
 document.addEventListener('change',async e=>{const el=e.target;bind(e);
-  if(el.id==='c-ai'){const c=charById(cur()?.id);if(c){c.today=null;save()}render(true);return}
+  if(el.id==='c-ai'){render(true);return}
   if(el.id==='pl-study'&&el.checked&&cur()?.v==='plan'){cur().studied=0;render(true)}
   if(el.dataset.a2==='member'){const t=thread(cur().id);if(el.checked){if(!t.chars.includes(el.dataset.id))t.chars.push(el.dataset.id)}else{if(t.chars.length<=2){el.checked=true;toast('群聊至少要 2 个角色');return}t.chars=t.chars.filter(x=>x!==el.dataset.id)}save()}
   if(el.dataset.a2==='bookOwner'){const id=cur().id,b=S.books.find(x=>x.id===id);S.chars.forEach(c=>{c.books=(c.books||[]).filter(x=>x!==id)});const c=charById(el.value);if(c)(c.books||=[]).push(id);if(b)b.scope=c?'local':'global';save();return}
