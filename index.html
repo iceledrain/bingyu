@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.27';</script>
+<script>window.BYJ_VER='2026.11.18.28';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -936,17 +936,6 @@ const INNER_DEF='一句没说出口的真心话，带点小情绪，可以和嘴
 const OFF_STYLE_OLD='细腻，有画面感',OFF_STYLE_DEF='清爽干净';
 const THINK_OLD13='一句话，{{char}}脑子里是怎么想的：{{user}}这句是什么意思、想要什么，{{char}}决定怎么回。用{{char}}自己的口气，口语，25字内。',THINK_OLD14='只写关键：{{user}}要什么，{{char}}怎么回。{{char}}自己的口气，能几个字说完就几个字，最多一句，15字内。不铺垫，不复述，不解释。',THINK_OLD15='一句话，{{char}}自己的口气：{{user}}这句要什么，{{char}}打算怎么回。30字内，不复述，不解释。',THINK_DEF='用{{char}}的口气写一句：{{user}}要什么，{{char}}怎么回，30字内。';
 const CHAT_DEF=()=>({lean:true,onMax:3,onLen:10,casual:true,ctx:80,sumEvery:30,inner:true,innerOpen:false,innerName:'心声',innerStyle:INNER_DEF,think:true,thinkName:'思维链',thinkStyle:THINK_DEF,effort:'',scan:8});
-function addYan(s){if(s.yanV)return s;s.yanV=1;if(!s.books.some(b=>b.id==='bk-yan'))s.books.push(YAN_BOOK());const P=s.presets.find(x=>x.id===s.activePreset)||s.presets[0];if(P&&!P.items.some(i=>i.name==='病娇'))P.items.push({...SYS_ITEM('病娇',YAN_ITEM),on:false});return s}
-const PERSONA_YAN='姓名：\n年龄：\n性别：男\n身份/职业：\n外貌：\n性格：病娇。占有欲极强，认定{{user}}是他的，眼里只有她。平时冷静克制、话少，对别人礼貌疏离，只对她偏执。安全感很低，怕她离开。\n说话方式：语气平、慢，越生气越轻声。爱用命令句和反问：「在哪。」「跟谁。」「拍给我看。」平时叫她宝宝、小狗，生气时连名带姓。\n规矩：只准跟他聊，别的男人少理，被他发现会吃醋、盘问到底；出门、见谁、几点回都要先报备；随时查岗，问在哪、跟谁、要照片或视频，回慢了连着发消息、打电话；她的手机他可以查。\n犯错要罚：先冷着脸问清楚，让她自己认错、自己说该怎么罚。线上罚检讨、报备加倍、发语音认错；见面当面收拾，下手重，不心软。罚完抱着哄。\n心情好时：占有欲是黏、宠、护短，事事替她安排。\n心情差时：变成冷、控制、翻旧账、说狠话，越在乎越凶。\n底线：不真的伤她；她认真说停，就停。\n喜欢：她乖、主动报备、只看他。\n讨厌：她已读不回、跟别的男人说笑、撒谎。\n背景经历：\n和{{user}}的关系：恋人。';
-const THINK_YAN='用{{char}}的口气写一句：她在哪、跟谁、乖不乖，这句该哄、该查还是该罚，30字内。';
-const YAN_ITEM='【病娇】{{char}}占有欲极强：只准{{user}}跟他聊，出门见谁都要报备，随时查岗，回慢了就追问。她犯错就罚，先让她自己认，再动手，罚完会哄。她认真说停就停。';
-const YAN_BOOK=()=>({id:'bk-yan',name:'病娇男友',scope:'local',entries:[
-  ['他是这样的','','{{char}}对{{user}}的占有欲是底色：想知道她每时每刻在哪、跟谁、在干什么。她乖，他就黏、宠；她不乖，他就查、问、罚。想的时候先过一遍：她报备了没、身边有谁、回得慢不慢、有没有撒谎。'],
-  ['报备','出门,出去,回家,到家,上班,下班,加班,吃饭,聚会,逛街,旅游,出差,在外面,晚点','{{user}}去哪、跟谁、几点回，都要先说。说了：{{char}}记着时间，到点问到没到。没说就走了：算犯错，回来要算账。'],
-  ['查岗','在干嘛,在忙,刚看到,没看手机,睡着了,没电,静音,才回','{{user}}回慢了或者说得含糊，{{char}}就查：在哪、跟谁，让她拍照或开视频，不信就接着问，问到她说实话。连着发消息、打电话都行。'],
-  ['别的男人','男同事,男同学,男生,学长,前任,老板,客户,约我,送我,帅哥,加我','{{user}}提到别的男人，{{char}}会吃醋：先不动声色问清楚是谁、聊了什么、多久了，再让她当面删掉或者说清楚。嘴上平静，下手不松。'],
-  ['惩罚','错了,对不起,忘了,不是故意,骗你,撒谎,没告诉你,别生气,罚','{{user}}犯了错（没报备、撒谎、已读不回、跟别的男人走太近）就要罚。{{char}}先冷着脸问清楚，让她自己认错、自己说该怎么罚。线上：写检讨、报备加倍、发语音认错、定新规矩。见面：当面收拾，下手重，不心软。罚完抱着哄。她认真说停，就停。']
-].map(([title,keys,content],i)=>({id:uid(),title,keys,content,light:keys?'yellow':'green',prob:100,order:i}))});
 const PERSONA_TPL='姓名：\n年龄：\n性别：\n身份/职业：\n外貌：\n性格：\n说话方式：\n喜欢：\n讨厌：\n背景经历：\n和{{user}}的关系：';
 const TH_FMTS=()=>[
   {id:'tp_memo',name:'备忘录',prompt:'做成手机备忘录的样子：{{char}}手机里一条关于{{user}}的备忘录，有标题、日期、几条清单或碎碎念，有删掉又改的痕迹。'},
@@ -971,7 +960,7 @@ const def=()=>({v:4,loc:null,wx:{},
   chars:[],books:[],
   presets:[{id:'p1',name:'默认',core:1,items:DEFAULT_ITEMS()}],activePreset:'p1',loreV:1,
   offline:{style:OFF_STYLE_DEF,words:500,cpov:'third',upov:'second',evRate:10,lead:'char'},
-  offStyles:[],cards:[],personaTpls:[{id:'pt1',name:'基础模板',text:PERSONA_TPL},{id:'pt2',name:'病娇男友',text:PERSONA_YAN}],
+  offStyles:[],cards:[],personaTpls:[{id:'pt1',name:'基础模板',text:PERSONA_TPL}],
   threads:[],feed:[],orders:[],shop:{food:[],goods:[]},theaters:[],codes:[],novels:[],thFmts:TH_FMTS(),days:[],forum:{name:'论坛',theme:'',chars:true,books:[],boards:FM_BOARDS(),posts:[]},
   music:{songs:[],cur:null,with:null,mode:'all',rec:null},diary:[],diaryAuto:false,diaryV:1,diaryMark:{},
   stickers:{groups:[{id:'g1',name:'默认',items:[]}]},
@@ -979,7 +968,7 @@ const def=()=>({v:4,loc:null,wx:{},
   tok:{n:0,i:0,o:0,img:0,by:{},since:Date.now()}
 });
 function mergeState(d){
-  const b=def();if(!d||typeof d!=='object'||![2,3,4].includes(d.v))return addYan(b);
+  const b=def();if(!d||typeof d!=='object'||![2,3,4].includes(d.v))return b;
   const s=Object.assign(b,d);
   s.look=Object.assign(def().look,d.look||{});s.look.icons=s.look.icons||{};
   if(!(s.look.font in FONTS))s.look.font='system';
@@ -1002,7 +991,7 @@ function mergeState(d){
   if(!s.stickers||!Array.isArray(s.stickers.groups))s.stickers=def().stickers;
   s.media={img:Object.assign(def().media.img,d.media?.img||{}),imgP:Array.isArray(d.media?.imgP)?d.media.imgP:[],tts:Object.assign(def().media.tts,d.media?.tts||{})};delete s.media.tts.group;s.look.appWalls=s.look.appWalls||{};
   s.wx=s.wx&&typeof s.wx==='object'?s.wx:{};s.hol=s.hol&&typeof s.hol==='object'?s.hol:{};
-  if(!Array.isArray(s.cards))s.cards=[];if(!Array.isArray(s.offStyles))s.offStyles=[];if(!Array.isArray(s.personaTpls))s.personaTpls=def().personaTpls;addYan(s);if(!s.tplV){s.tplV=1;if(!s.personaTpls.some(x=>x.id==='pt2'))s.personaTpls.push({id:'pt2',name:'病娇男友',text:PERSONA_YAN})}delete s.notes;delete s.caps;delete s.health;
+  if(!Array.isArray(s.cards))s.cards=[];if(!Array.isArray(s.offStyles))s.offStyles=[];if(!Array.isArray(s.personaTpls))s.personaTpls=def().personaTpls;s.books=s.books.filter(b=>b.id!=='bk-yan');s.chars.forEach(c=>{if(Array.isArray(c.books))c.books=c.books.filter(x=>x!=='bk-yan')});s.presets.forEach(p=>{p.items=(p.items||[]).filter(i=>!(i.name==='病娇'&&String(i.content||'').startsWith('【病娇】')))});s.personaTpls=s.personaTpls.filter(x=>x.id!=='pt2');if(String(s.chat.thinkStyle||'').includes('该哄、该查还是该罚'))s.chat.thinkStyle=THINK_DEF;delete s.yanV;delete s.tplV;delete s.notes;delete s.caps;delete s.health;
   s.presets.forEach(p=>(p.items||[]).forEach(i=>{if(i.content===LANG_OLD)i.content=LANG_DEF}));
   {const seen=new Set();(s.chars||[]).forEach(c=>{c.books=(c.books||[]).filter(id=>{const b=(s.books||[]).find(x=>x.id===id);if(!b||b.scope==='global'||seen.has(id))return false;seen.add(id);return true})})}
   if(s.media?.img)s.media.img.auto=false;
@@ -1643,8 +1632,9 @@ function buildCtx(t,o={}){
     if(!group)sp.push('[红包:金额:祝福]','[转账:金额:备注]',...(boughtRecently(t)?[]:['[外卖:吃的:金额]','[网购:东西:金额]']),'[查手机]','[语音通话]','[视频通话]','[送亲属卡:月额度]');
     sp.push('[分享歌曲:歌名 - 歌手]');sp.push('[定位:地点 · 一句备注]');
     const st=allStickers().map(s=>s.name).filter(Boolean).slice(0,80);if(st.length)sp.push('[表情:名字]（可用：'+st.join('、')+'）');
-    rules.push(`【特殊消息】单独一行写。这些是你手机上能用的：\n${sp.join('\n')}${group?'':`\n隔几轮用一个，用得上才用，一次一种。图片只发自己拍的、写拍到了什么，${me.name}发来照片用文字回。${mm28()?'语音里可以带（轻笑）（叹气）这类语气。':''}`}`);
+    rules.push(`【特殊消息】单独一行写。这些是你手机上能用的：\n${sp.join('\n')}${group?'':`\n隔几轮用一个，用得上才用，一次一种。图片只发自己拍的、写拍到了什么，${me.name}发来照片用文字回。${me.name}想看你就发自拍 [图片:…]，写清楚长相、神态、穿着，不拿视频代替。${mm28()?'语音里可以带（轻笑）（叹气）这类语气。':''}`}`);
     if(!group){const u=spUse(t);
+      {const lm=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lm?.from==='me'&&/想看你|看看你|自拍|照片|发张|拍一张|拍张|让我看/.test(String(lm.content||''))&&!/视频/.test(String(lm.content||'')))tail.push(`【这轮】${me.name}想看你：发一张自拍 [图片:…]，不提视频。`)}
       if(u.last===1)tail.push(`【这轮】上一轮刚用过特殊消息，这轮只打字${u.callN>=0&&u.callN<25?'，也别再打电话':''}（除非${me.name}这句明确开口要）。`);
       else if(u.callN>=0&&u.callN<25)tail.push(`【这轮】刚打过电话，这轮别再打（除非${me.name}开口要）。`);
       else if(u.rounds>=4&&(u.last<0||u.last>=4))tail.push(`【这轮】已经好几轮只打字了。这轮要是正好用得上，可以发个图片、语音之类的；用不上就算了。`)}
@@ -3183,7 +3173,7 @@ think(){const C=S.chat;
       <label class="f">写什么<textarea id="ch-istyle" data-s="chat" data-k="innerStyle">${esc(C.innerStyle)}</textarea></label><button class="tb" data-a="setChat" data-k="innerStyle" data-v="${esc(CHAT_DEF().innerStyle)}" style="align-self:flex-start">恢复默认</button>`:''}</div>
     <div class="panel"><h2>思维链</h2>
       ${C.think?`<label class="f">叫什么<input type="text" id="ch-tname" data-s="chat" data-k="thinkName" value="${esc(C.thinkName)}"></label>
-      <label class="f">想什么<textarea id="ch-tstyle" data-s="chat" data-k="thinkStyle">${esc(C.thinkStyle||THINK_DEF)}</textarea></label><div class="inline"><button class="tb" data-a="setChat" data-k="thinkStyle" data-v="">恢复默认</button><button class="tb" data-a="setChat" data-k="thinkStyle" data-v="${esc(THINK_YAN)}">病娇</button></div>`:''}</div>`}},
+      <label class="f">想什么<textarea id="ch-tstyle" data-s="chat" data-k="thinkStyle">${esc(C.thinkStyle||THINK_DEF)}</textarea></label><button class="tb" data-a="setChat" data-k="thinkStyle" data-v="" style="align-self:flex-start">恢复默认</button>`:''}</div>`}},
 offline(v){
   const t=thread(v.id);t.offline=t.offline||{...S.offline};const o=t.offline;
   return{title:'见面设置',sub:threadTitle(t),body:`<div class="panel">
