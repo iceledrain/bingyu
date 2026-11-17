@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.32';</script>
+<script>window.BYJ_VER='2026.11.18.33';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -935,7 +935,7 @@ const INNER_OLD8='一个软萌的颜文字加半句没说出口的真心话，�
 const INNER_DEF='一句没说出口的真心话，带点小情绪，可以和嘴上相反，15字内，不用颜文字。';
 const OFF_STYLE_OLD='细腻，有画面感',OFF_STYLE_DEF='清爽干净';
 const THINK_OLD13='一句话，{{char}}脑子里是怎么想的：{{user}}这句是什么意思、想要什么，{{char}}决定怎么回。用{{char}}自己的口气，口语，25字内。',THINK_OLD14='只写关键：{{user}}要什么，{{char}}怎么回。{{char}}自己的口气，能几个字说完就几个字，最多一句，15字内。不铺垫，不复述，不解释。',THINK_OLD15='一句话，{{char}}自己的口气：{{user}}这句要什么，{{char}}打算怎么回。30字内，不复述，不解释。',THINK_DEF='用{{char}}的口气写一句：{{user}}要什么，{{char}}怎么回，30字内。';
-const CHAT_DEF=()=>({lean:true,onMax:3,onLen:10,casual:true,ctx:80,sumEvery:30,inner:true,innerOpen:false,innerName:'心声',innerStyle:INNER_DEF,think:true,thinkName:'思维链',thinkStyle:THINK_DEF,effort:'',scan:8});
+const CHAT_DEF=()=>({lean:true,onMax:3,onLen:10,casual:true,ctx:80,sumEvery:60,inner:true,innerOpen:false,innerName:'心声',innerStyle:INNER_DEF,think:true,thinkName:'思维链',thinkStyle:THINK_DEF,effort:'',scan:8});
 const PERSONA_TPL='姓名：\n年龄：\n性别：\n身份/职业：\n外貌：\n性格：\n说话方式：\n喜欢：\n讨厌：\n背景经历：\n和{{user}}的关系：';
 const TH_FMTS=()=>[
   {id:'tp_memo',name:'备忘录',prompt:'做成手机备忘录的样子：{{char}}手机里一条关于{{user}}的备忘录，有标题、日期、几条清单或碎碎念，有删掉又改的痕迹。'},
@@ -974,7 +974,7 @@ function mergeState(d){
   if(!(s.look.font in FONTS))s.look.font='system';
   if(d.v===2){s.look.alpha=.92;s.look.icons={}}
   s.look.alpha=Math.max(.6,+s.look.alpha||.92);
-  s.chat=Object.assign(CHAT_DEF(),d.chat||{});if(!s.ctxV){if(+s.chat.ctx===40)s.chat.ctx=80;s.ctxV=1}
+  s.chat=Object.assign(CHAT_DEF(),d.chat||{});if(!s.ctxV){if(+s.chat.ctx===40)s.chat.ctx=80;s.ctxV=1}if(!s.sumV){if(+s.chat.sumEvery===30)s.chat.sumEvery=60;s.sumV=1}
   s.api=d.api&&Array.isArray(d.api.profiles)&&d.api.profiles.length?d.api:def().api;
   s.offline=Object.assign(def().offline,d.offline||{});
   for(const k of ['chars','books','presets','masks','threads','feed','events','orders','diary','theaters','codes','novels','days'])if(!Array.isArray(s[k]))s[k]=def()[k];s.novels=s.novels.filter(b=>b&&b.id&&Array.isArray(b.chs));s.novels.forEach(b=>{b.books=(Array.isArray(b.books)?b.books:[]).filter(id=>s.books.some(x=>x.id===id));if(b.preset===undefined)b.preset=s.activePreset;if(b.preset&&!s.presets.some(p=>p.id===b.preset))b.preset='';if(b.think===undefined)b.think=true});
@@ -2002,27 +2002,24 @@ function softTick(mins){
 }
 
 let summing=false;
-const sumBlock=t=>[t.summary?'【现在的关系】\n'+t.summary:'',t.big?'【一起经历的大事】\n'+t.big:'',t.todo?'【答应了还没做的】\n'+t.todo:'',t.wish?'【心愿】\n'+t.wish:'',t.keep?'【不能忘的事】\n'+t.keep:''].filter(Boolean).join('\n');
+const sumBlock=t=>[t.summary?'【现在的关系】\n'+t.summary:'',t.big?'【一起经历的大事】\n'+t.big:'',t.todo?'【答应了还没做的】\n'+t.todo:'',t.wish?'【心愿】\n'+t.wish:''].filter(Boolean).join('\n');
 const sumItems=s=>String(s||'').split(/[；;\n]\s*/).map(x=>x.trim().replace(/^[·\-•\s]+/,'').replace(/[。.]$/,'')).filter(x=>x&&!/^(无|没有)$/.test(x));
-const hasSum=t=>!!(t.summary||t.big||t.todo||t.wish||t.keep);
+const hasSum=t=>!!(t.summary||t.big||t.todo||t.wish);
 async function summarize(t,manual){
   const n=Math.max(4,num(S.chat.ctx)||40);const from=t.sumUpTo||0;const to=Math.max(from,t.msgs.length-(manual?Math.min(n,10):n));
   const chunk=t.msgs.slice(from,to);if(!chunk.length){if(manual)toast('还没有需要总结的旧消息');return}
   const me=mask(t),c=t.type==='dm'?charById(t.chars[0]):null,log=(()=>{let k0='';return chunk.map(m=>{const k=m.t?dayLabel(m.t):'';const h=k&&k!==k0?`（${k}）\n`:'';if(k)k0=k;return h+(m.from==='me'?me.name:(charById(m.from)?.name||'?'))+'：'+pv(m)}).join('\n')})();
   const voice=c?`用${c.name}自己的口吻、第一人称「我」写`:'用旁白的口吻写',who=c?`${c.name}和${me.name}`:'大家';
-  const prev=[['关系',t.summary],['大事',t.big],['待办',t.todo],['心愿',t.wish],['记住',t.keep]].filter(x=>x[1]).map(x=>x[0]+'：'+x[1]).join('\n');
-  const txt=String(await callAI(c?sysFor(c,''):'你在整理一段群聊的记录。',[{role:'user',content:(prev?`之前记下的：\n${prev}\n`:'')+`\n新的聊天记录：\n${log}\n\n输出五行，别的都不要，每行都要短，提到哪天写几月几日、不写「今天」「昨天」：\n关系：${voice}，${who}现在是什么关系、处在什么状态，一两句，60字以内；和之前比没有变化就只写「不变」。\n大事：只写新的聊天记录里真正改变了关系的事——在一起、分手、和好、大吵、表白、第一次（见面、牵手、亲吻、说爱）这一类；日常闲聊、吃了什么、买了什么都不算。每件写「几月几日+15字以内」，最多两件，用「；」隔开；${!t.big&&t.summary?'之前的「关系」里提到的这类大事也补上；':''}已经记过的不写，没有就写「无」。\n待办：答应了还没做的事、约好的事（带上几月几日）。把之前的和新的合在一起，之前的一条都不能漏，只删已经做完的，过了日子还没做的留着，每条20字以内，用「；」隔开；没有就写「无」。\n心愿：只记${c?c.name+'自己':'每个人自己'}想要、想做但还没实现的事${c?'，'+me.name+'的不记':''}。把之前的和新的合在一起，之前的一条都不能漏，只删已经实现的，每条20字以内，用「；」隔开；没有就写「无」。\n记住：只写新的聊天记录里新出现的硬信息——名字、称呼、日子、喜好、忌讳，之前已有的不写，用「；」隔开；没有就写「无」。`}],{max:1024,temp:.4,side:true})).replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
-  const K='关系|大事|待办|心愿|记住',has=k=>new RegExp('(^|\\n)\\s*'+k+'[:：]').test(txt),part=k=>{const m=txt.match(new RegExp('(?:^|\\n)\\s*'+k+'[:：]\\s*([\\s\\S]*?)(?=\\n\\s*(?:'+K+')[:：]|$)'));return m?m[1].replace(/\s*\n\s*/g,' ').trim():''};
+  const prev=[['关系',t.summary],['大事',t.big],['待办',t.todo],['心愿',t.wish]].filter(x=>x[1]).map(x=>x[0]+'：'+x[1]).join('\n');
+  const txt=String(await callAI(c?sysFor(c,''):'你在整理一段群聊的记录。',[{role:'user',content:(prev?`之前记下的：\n${prev}\n`:'')+`\n新的聊天记录：\n${log}\n\n输出四行，别的都不要，每行都要短，提到哪天写几月几日、不写「今天」「昨天」：\n关系：${voice}，${who}现在是什么关系、处在什么状态，一两句，60字以内；和之前比没有变化就只写「不变」。\n大事：只写新的聊天记录里真正改变了关系的事——在一起、分手、和好、大吵、表白、第一次（见面、牵手、亲吻、说爱）这一类；日常闲聊、吃了什么、买了什么都不算。每件写「几月几日+15字以内」，最多两件，用「；」隔开；${!t.big&&t.summary?'之前的「关系」里提到的这类大事也补上；':''}已经记过的不写，没有就写「无」。\n待办：答应了还没做的事、约好的事（带上几月几日）。把之前的和新的合在一起，做完的、过了日子的直接删掉，每条20字以内，用「；」隔开；没有就写「无」。\n心愿：只记${c?c.name+'自己':'每个人自己'}想要、想做但还没实现的事${c?'，'+me.name+'的不记':''}。把之前的和新的合在一起，实现了的直接删掉，每条20字以内，用「；」隔开；没有就写「无」。`}],{max:1024,temp:.4,side:true})).replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
+  const K='关系|大事|待办|心愿',has=k=>new RegExp('(^|\\n)\\s*'+k+'[:：]').test(txt),part=k=>{const m=txt.match(new RegExp('(?:^|\\n)\\s*'+k+'[:：]\\s*([\\s\\S]*?)(?=\\n\\s*(?:'+K+')[:：]|$)'));return m?m[1].replace(/\s*\n\s*/g,' ').trim():''};
   if(!new RegExp('(^|\\n)\\s*(?:'+K+')[:：]').test(txt))throw new Error('总结没写对格式，再点一次');
   if(part('关系')&&!/^(无|不变|没变)[。.]?$/.test(part('关系')))t.summary=wholeText(part('关系'),90);
   if(has('大事'))t.big=[...new Set([...sumItems(t.big),...sumItems(part('大事')).slice(0,2)])].join('；');
   if(has('待办'))t.todo=sumItems(part('待办')).slice(0,20).join('；');
   if(has('心愿'))t.wish=sumItems(part('心愿')).slice(0,20).join('；');
-  t.keep=addKeep(t.keep,part('记住'));t.sumUpTo=to;save();
+  t.sumUpTo=to;save();
 }
-function addKeep(old,add){const L=String(old||'').split(/[；;]\s*/).map(x=>x.trim()).filter(Boolean);
-  if(add&&!/^无[。.]?$/.test(add))for(const x of add.split(/[；;]\s*/).map(x=>x.trim().replace(/[。.]$/,'')).filter(Boolean))if(!L.includes(x))L.push(x);
-  while(L.join('；').length>4000&&L.length>1)L.shift();return L.join('；')}
 async function maybeSummarize(t){
   if(summing)return;const every=Math.max(10,num(S.chat.sumEvery)||30);
   if(t.msgs.length-Math.max(4,num(S.chat.ctx)||40)-(t.sumUpTo||0)<every)return;
@@ -3208,7 +3205,6 @@ summaryEdit(v){
     <label class="f">大事<textarea id="sum-big" data-s="thread" data-k="big">${esc(t.big||'')}</textarea></label>
     <label class="f">待办<textarea id="sum-todo" data-s="thread" data-k="todo">${esc(t.todo||'')}</textarea></label>
     <label class="f">心愿<textarea id="sum-wish" data-s="thread" data-k="wish">${esc(t.wish||'')}</textarea></label>
-    <label class="f">要记住的<textarea id="sum-keep" data-s="thread" data-k="keep">${esc(t.keep||'')}</textarea></label>
     <div class="btns"><button class="btn" data-a="sumNow">总结</button><button class="btn red" data-a="sumClear">清空</button></div></div>`};
 },
 groupEdit(v){
