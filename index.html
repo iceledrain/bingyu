@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.33';</script>
+<script>window.BYJ_VER='2026.11.18.34';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1401,6 +1401,10 @@ async function callAI1(system,messages,o={}){let hid=document.hidden;const vh=()
     if(document.hidden)await new Promise(r=>{const f=()=>{if(!document.hidden){document.removeEventListener('visibilitychange',f);r()}};document.addEventListener('visibilitychange',f)});
     toast('刚才切出去断了，重新发一次…',6000);return callAI0(system,messages,{...o,_bg:1})}
   finally{document.removeEventListener('visibilitychange',vh)}}
+const CK=new Map();let ckN=0;
+function cacheChk(k,pre,cr,cw,ttl){if(!k)return;const a=CK.get(k);CK.set(k,{pre,t:Date.now(),ok:cr+cw>0});if(!a||!a.ok||Date.now()-a.t>ttl||cr>0||ckN>=3)return;ckN++;
+  if(pre.startsWith(a.pre))toast('缓存没读到：发的和上次一样，是站子没认',7000);
+  else{let i=0;while(i<a.pre.length&&a.pre[i]===pre[i])i++;toast('缓存没读到：前面变了「'+pre.slice(Math.max(0,i-14),i+26).replace(/[\s\u0001\u0002]+/g,' ')+'」',10000)}}
 async function callAI0(system,messages,o={}){
   let p=api(o.who||whoOf(system));if(!p)throw new Error('先在「设置 · 聊天」里添加一个模型');p={...p,provider:provOf(p)};
   const key=(p.key||'').trim(),model=(p.model||'').trim();const base=(p.base||'').trim().replace(/\/+$/,'');
@@ -1409,6 +1413,7 @@ async function callAI0(system,messages,o={}){
   if(!base)throw new Error('先在「设置 · 聊天」填接口地址');
   const fx=p.fix?.model===model?p.fix:{},temp='temp' in fx?fx.temp:o.temp??num(p.temp),topP=fx.noTopP?null:num(p.topP),topK=fx.noTopK?null:num(p.topK),max=Math.min(o.max!=null?o.max+4096:(num(p.maxTokens)||2048),+fx.cap||Infinity);
   const m=normalize(messages);let res,glm=null;
+  const ckK=o.thoughts&&/claude/i.test(model)?(o.who||whoOf(system))+'|'+model+'|'+base:'',ckP=ckK?system+'\u0001'+m.slice(0,-1).map(x=>x.role+'\u0002'+x.content).join('\u0001'):'',ckT=p.cache==='1h'?3500e3:290e3;
   const ctl=new AbortController(),tmo=setTimeout(()=>ctl.abort(),o.timeout||300000),sig=ctl.signal;
   try{
     if(p.provider==='openai'){
@@ -1456,8 +1461,8 @@ async function callAI0(system,messages,o={}){
     const er=new Error('出错了 '+res.status+'：'+msg);er.status=res.status;{const ra=+res.headers.get('retry-after');if(ra>0)er.retryAfter=ra*1000}throw er}
   {const tag=o.tag||(o.side?'bg':'chat');
     if(p.provider==='gemini'){const u=data.usageMetadata||{};addTok(tag,+u.promptTokenCount||0,(+u.candidatesTokenCount||0)+(+u.thoughtsTokenCount||0),+u.cachedContentTokenCount||0)}
-    else if(p.provider==='claude'){const u=data.usage||{},cr=+u.cache_read_input_tokens||0,cw=+u.cache_creation_input_tokens||0;addTok(tag,(+u.input_tokens||0)+cr+cw,+u.output_tokens||0,cr,cw)}
-    else{const u=data.usage||{},d=u.prompt_tokens_details||u.input_tokens_details||{};addTok(tag,+u.prompt_tokens||+u.input_tokens||0,+u.completion_tokens||+u.output_tokens||0,+d.cached_tokens||+u.cached_tokens||0,+d.cache_write_tokens||0)}
+    else if(p.provider==='claude'){const u=data.usage||{},cr=+u.cache_read_input_tokens||0,cw=+u.cache_creation_input_tokens||0;addTok(tag,(+u.input_tokens||0)+cr+cw,+u.output_tokens||0,cr,cw);cacheChk(ckK,ckP,cr,cw,ckT)}
+    else{const u=data.usage||{},d=u.prompt_tokens_details||u.input_tokens_details||{};addTok(tag,+u.prompt_tokens||+u.input_tokens||0,+u.completion_tokens||+u.output_tokens||0,+d.cached_tokens||+u.cached_tokens||0,+d.cache_write_tokens||0);cacheChk(ckK,ckP,+d.cached_tokens||+u.cached_tokens||+u.cache_read_input_tokens||0,+d.cache_write_tokens||+u.cache_creation_input_tokens||0,ckT)}
     servedChk(model,String(data.model||data.modelVersion||''),tag)}
   {const br=data.base_resp,sc=+br?.status_code||0;if(sc){const M={1002:'发太快被限流了，等几秒再发',1004:'Key 不对，检查一下',2049:'Key 不对，检查一下',1008:'余额不够了，去充一下',2053:'积分不够了',2067:'套餐额度用完了',1026:'这句被内容审核拦了，换个说法',1027:'他的回复被内容审核拦了，换个说法或重试',1039:'太长了，把最大长度调小一点',2013:'参数不对：'+(br.status_msg||''),2064:'那边太忙，稍后再试',2066:'那边超时了，再试一次',1001:'那边超时了，再试一次',1000:'那边出了点问题，再试一次',1024:'那边出了点问题，再试一次',1033:'那边出了点问题，再试一次'};
     const er=new Error(M[sc]||('接口报错 '+sc+'：'+(br.status_msg||'')));if([1000,1001,1002,1024,1033,2064,2066].includes(sc))er.status=sc===1002?429:503;throw er}
