@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.30';</script>
+<script>window.BYJ_VER='2026.11.18.31';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1530,11 +1530,12 @@ function evWipeApply(s){const w=s.evWipe||{},mw=s.memWipe||{},gone=new Set(s.evG
 const bornAt=c=>{const n=parseInt(String(c?.id||'').slice(0,-5),36);return n>1.4e12&&n<4e12?n:0};
 function eventsFor(c,lim=Date.now()-30*864e5){const from=Math.max(lim,bornAt(c),c.evFrom||0);
   return(S.events||[]).filter(e=>e.t>=from&&(e.who===c.id||e.who===null)&&(!e.me||e.me===mask(c).id))}
+const whenAbs=t=>{const d=locDate(t);return`${d.getMonth()+1}月${d.getDate()}日${pad(d.getHours())}:${pad(d.getMinutes())}`};
 function elsewhere(c,exceptId){const me=mask(c),from=Math.max(Date.now()-3*864e5,c.evFrom||0);
-  const ev=eventsFor(c).slice(-30).map(e=>({t:e.t,s:`· ${ago(e.t)}：${e.text}`}));
-  const gl=S.threads.filter(t=>t.type==='group'&&t.chars.includes(c.id)&&t.id!==exceptId).flatMap(t=>t.msgs.filter(m=>m.t>from&&m.type!=='sys').slice(-8).map(m=>({t:m.t,s:`· ${ago(m.t)} 群「${threadTitle(t)}」里 ${m.from==='me'?me.name:(charById(m.from)?.name||'?')}：${pv(m)}`})));
+  const ev=eventsFor(c).slice(-30).map(e=>({t:e.t,s:`· ${whenAbs(e.t)}：${e.text}`}));
+  const gl=S.threads.filter(t=>t.type==='group'&&t.chars.includes(c.id)&&t.id!==exceptId).flatMap(t=>t.msgs.filter(m=>m.t>from&&m.type!=='sys').slice(-8).map(m=>({t:m.t,s:`· ${whenAbs(m.t)} 群「${threadTitle(t)}」里 ${m.from==='me'?me.name:(charById(m.from)?.name||'?')}：${pv(m)}`})));
   const dm=S.threads.find(t=>t.type==='dm'&&t.chars[0]===c.id&&t.id!==exceptId);
-  const dl=dm?dm.msgs.filter(m=>m.t>from&&m.type!=='sys'&&!m.recalled).slice(-10).map(m=>({t:m.t,s:`· ${ago(m.t)} ${c.name}和${me.name}私聊（只有${c.name}知道）${m.from==="me"?me.name:c.name}：${pv(m)}`})):[];
+  const dl=dm?dm.msgs.filter(m=>m.t>from&&m.type!=='sys'&&!m.recalled).slice(-10).map(m=>({t:m.t,s:`· ${whenAbs(m.t)} ${c.name}和${me.name}私聊（只有${c.name}知道）${m.from==="me"?me.name:c.name}：${pv(m)}`})):[];
   const out=[...ev,...gl,...dl].sort((a,b)=>a.t-b.t).slice(-44).map(x=>x.s);
   if(dm?.summary)out.unshift('· 你们私聊的前情：'+dm.summary.replace(/\s+/g,' ').slice(0,300));if(c.longMem)out.unshift('· 很久以前：'+c.longMem);return out}
 async function memRoll(c){const lim=Date.now()-30*864e5,old=eventsFor(c,0).filter(e=>e.t<=lim&&e.t>(c.memAt||0));
@@ -1593,7 +1594,7 @@ function buildCtx(t,o={}){
       if(gone.length)tail.push(`【已经说过的】这些话${c.name}之前对${me.name}说过了（记录已经不在）。不再说差不多的内容，不换个说法重讲同一件事，讲别的。\n`+gone.slice(-16).map(x=>'· '+x.s).join('\n'))}}
   {const dy=[...new Set(chars.map(myDiaryFor).filter(Boolean))];if(dy.length)tail.push(dy.join('\n'))}
   const el=[...new Set(chars.flatMap(c=>elsewhere(c,t.id)))];const others=group?[]:[...new Set(S.threads.filter(x=>x.type==='group'&&chars[0]&&x.chars.includes(chars[0].id)).flatMap(x=>x.chars).filter(id=>id!==chars[0].id).map(id=>charById(id)?.name).filter(Boolean))];
-  if(el.length)tail.push('【别处的事】'+(others.length?'（群里的事只当你知道，不在这里接着说）':'')+'\n'+el.join('\n'));
+  if(el.length)ctxs.splice(sumBlock(t)?1:0,0,'【最近别处的事】'+(others.length?'（群里的事只当你知道，不在这里接着说）':'')+'\n'+el.join('\n'));
   if(others.length)tail.push(mode==='offline'?`【只有两个人】只有${cname}和${me.name}在。${others.join('、')}不在场，除非${me.name}写了他们来；可以提起，不写他们的动作和台词。`:`【这是私聊】只有${cname}和${me.name}两个人，${others.join('、')}看不到这里。可以聊起他们，不对他们说话、不喊他们。`);
   {const kn=chars.map(x=>{const o=S.chars.filter(c=>visible(c)&&!chars.some(y=>y.id===c.id)&&knows(x,c)).map(c=>c.name).slice(0,8);return o.length?`${x.name}认识${o.join('、')}`:''}).filter(Boolean);
     if(kn.length)ctxs.push(`【认识的人】${kn.join('；')}。只是朋友、同事或对头，不暧昧。别人不认识。`)}
@@ -1858,7 +1859,7 @@ function richBody(t,m,i,mine,c){const tap=`data-a="msg" data-i="${i}"`;
 function msgsHTML(t){
   let h='',last=0,run=0;const lim=(cur()?.id===t.id&&cur().more)||120,st=Math.max(0,t.msgs.length-lim),off=t.mode==='offline';
   const flush=()=>{if(run)h+=`<button class="stamp" data-a="meetGo">见面 · ${run} 段</button>`;run=0};
-  if(t.summary||t.keep)h+=`<button class="sumcard" data-a="editSummary">${ICONS.drop.replace('<svg','<svg width="12" height="12"')} 前情总结</button>`;
+  if(hasSum(t))h+=`<button class="sumcard" data-a="editSummary">${ICONS.drop.replace('<svg','<svg width="12" height="12"')} 前情总结</button>`;
   if(st)h+=`<button class="more" data-a="moreMsgs">看更早的 ${st} 条</button>`;
   t.msgs.forEach((m,i)=>{if(i<st)return;
     if(off){if(m.type!=='narr'&&!isMark(m))return;if(isMark(m)){if(m.content!=='回到线上'&&!/线上$/.test(m.content))h+=`<div class="stamp">${ago(m.t)} · ${hm(m.t)}</div>`;last=m.t;return}}
@@ -1998,24 +1999,31 @@ function softTick(mins){
 }
 
 let summing=false;
-const sumBlock=t=>[t.summary?'【之前的事】\n'+t.summary:'',t.keep?'【不能忘的事】\n'+t.keep:''].filter(Boolean).join('\n');
+const sumBlock=t=>[t.summary?'【现在的关系】\n'+t.summary:'',t.big?'【一起经历的大事】\n'+t.big:'',t.todo?'【答应了还没做的】\n'+t.todo:'',t.wish?'【心愿】\n'+t.wish:'',t.keep?'【不能忘的事】\n'+t.keep:''].filter(Boolean).join('\n');
+const sumItems=s=>String(s||'').split(/[；;\n]\s*/).map(x=>x.trim().replace(/^[·\-•\s]+/,'').replace(/[。.]$/,'')).filter(x=>x&&!/^(无|没有)$/.test(x));
+const hasSum=t=>!!(t.summary||t.big||t.todo||t.wish||t.keep);
 async function summarize(t,manual){
   const n=Math.max(4,num(S.chat.ctx)||40);const from=t.sumUpTo||0;const to=Math.max(from,t.msgs.length-(manual?Math.min(n,10):n));
   const chunk=t.msgs.slice(from,to);if(!chunk.length){if(manual)toast('还没有需要总结的旧消息');return}
   const me=mask(t),c=t.type==='dm'?charById(t.chars[0]):null,log=(()=>{let k0='';return chunk.map(m=>{const k=m.t?dayLabel(m.t):'';const h=k&&k!==k0?`（${k}）\n`:'';if(k)k0=k;return h+(m.from==='me'?me.name:(charById(m.from)?.name||'?'))+'：'+pv(m)}).join('\n')})();
-  const voice=c?`用${c.name}自己的口吻、第一人称「我」写，像${c.name}心里记着的，称呼对方用你平时叫TA的亲昵称呼`:'用旁白的口吻写';
-  const txt=String(await callAI(c?sysFor(c,''):'你在整理一段群聊的记录。',[{role:'user',content:(t.summary?`之前的小结：${t.summary}\n`:'')+(t.keep?`之前记下的：${t.keep}\n`:'')+`\n新的聊天记录：\n${log}\n\n输出两行，别的都不要：\n小结：${voice}，最近发生了什么（见面时做了什么、说了什么、关系有什么变化也要写）、现在什么状态，过时的删掉，提到哪天写几月几日、不写「今天」「昨天」，150字以内。\n记住：只写新的聊天记录里新出现的硬信息——名字、称呼、约定（带上几月几日）、日子、喜好、忌讳，「之前记下的」里已有的不写，用「；」隔开；没有新的就写「无」。`}],{max:1024,temp:.4,side:true})).trim();
-  const part=k=>{const m=txt.match(new RegExp(k+'[:：]\\s*([\\s\\S]*?)(?=\\n\\s*(?:小结|记住)[:：]|$)'));return m?m[1].replace(/\s*\n\s*/g,' ').trim():''};
-  const sum=part('小结')||(/记住[:：]/.test(txt)?'':txt);
-  t.summary=wholeText(sum,150);t.keep=addKeep(t.keep,part('记住'));t.sumUpTo=to;save();
+  const voice=c?`用${c.name}自己的口吻、第一人称「我」写`:'用旁白的口吻写',who=c?`${c.name}和${me.name}`:'大家';
+  const prev=[['关系',t.summary],['大事',t.big],['待办',t.todo],['心愿',t.wish],['记住',t.keep]].filter(x=>x[1]).map(x=>x[0]+'：'+x[1]).join('\n');
+  const txt=String(await callAI(c?sysFor(c,''):'你在整理一段群聊的记录。',[{role:'user',content:(prev?`之前记下的：\n${prev}\n`:'')+`\n新的聊天记录：\n${log}\n\n输出五行，别的都不要，每行都要短，提到哪天写几月几日、不写「今天」「昨天」：\n关系：${voice}，${who}现在是什么关系、处在什么状态，一两句，60字以内；没变就照抄之前的。\n大事：只写新的聊天记录里真正改变了关系的事——在一起、分手、和好、大吵、表白、第一次（见面、牵手、亲吻、说爱）这一类；日常闲聊、吃了什么、买了什么都不算。每件写「几月几日+15字以内」，最多两件，用「；」隔开；${!t.big&&t.summary?'之前的「关系」里提到的这类大事也补上；':''}已经记过的不写，没有就写「无」。\n待办：答应了还没做的事、约好的事（带上几月几日）。把之前的和新的合在一起，做完的、过期的删掉，每条20字以内，最多6条，用「；」隔开；没有就写「无」。\n心愿：${who}各自想要、想做但还没实现的事。把之前的和新的合在一起，实现了的删掉，每条20字以内，最多6条，用「；」隔开；没有就写「无」。\n记住：只写新的聊天记录里新出现的硬信息——名字、称呼、日子、喜好、忌讳，之前已有的不写，用「；」隔开；没有就写「无」。`}],{max:1024,temp:.4,side:true})).replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
+  const K='关系|大事|待办|心愿|记住',has=k=>new RegExp('(^|\\n)\\s*'+k+'[:：]').test(txt),part=k=>{const m=txt.match(new RegExp('(?:^|\\n)\\s*'+k+'[:：]\\s*([\\s\\S]*?)(?=\\n\\s*(?:'+K+')[:：]|$)'));return m?m[1].replace(/\s*\n\s*/g,' ').trim():''};
+  if(!new RegExp('(^|\\n)\\s*(?:'+K+')[:：]').test(txt))throw new Error('总结没写对格式，再点一次');
+  if(part('关系')&&!/^无[。.]?$/.test(part('关系')))t.summary=wholeText(part('关系'),90);
+  if(has('大事'))t.big=[...new Set([...sumItems(t.big),...sumItems(part('大事')).filter(x=>x.length<=40).slice(0,2)])].join('；');
+  if(has('待办'))t.todo=sumItems(part('待办')).filter(x=>x.length<=40).slice(0,6).join('；');
+  if(has('心愿'))t.wish=sumItems(part('心愿')).filter(x=>x.length<=40).slice(0,6).join('；');
+  t.keep=addKeep(t.keep,part('记住'));t.sumUpTo=to;save();
 }
 function addKeep(old,add){const L=String(old||'').split(/[；;]\s*/).map(x=>x.trim()).filter(Boolean);
   if(add&&!/^无[。.]?$/.test(add))for(const x of add.split(/[；;]\s*/).map(x=>x.trim().replace(/[。.]$/,'')).filter(Boolean))if(!L.includes(x))L.push(x);
   while(L.join('；').length>1500&&L.length>1)L.shift();return L.join('；')}
 async function maybeSummarize(t){
   if(summing)return;const every=Math.max(10,num(S.chat.sumEvery)||30);
-  if(t.msgs.length-10-(t.sumUpTo||0)<every)return;
-  summing=true;try{await summarize(t,true);toast('已自动总结前情')}catch(e){}finally{summing=false}
+  if(t.msgs.length-Math.max(4,num(S.chat.ctx)||40)-(t.sumUpTo||0)<every)return;
+  summing=true;try{await summarize(t,false);toast('已自动总结前情')}catch(e){}finally{summing=false}
 }
 
 function authorOf(a,r){if(a==='x')return{name:r?.nick||'路人',handle:'路人',avatar:''};if(a==='me'){const m=mask();return{name:m.name,handle:m.handle,avatar:m.avatar}}const c=charById(a);return c?{name:dn(c),handle:c.handle||c.name,avatar:c.avatar}:{name:'（已删除）',handle:'deleted',avatar:''}}
@@ -3193,7 +3201,10 @@ offline(v){
 summaryEdit(v){
   const t=thread(v.id);
   return{title:'总结',sub:threadTitle(t),body:`<div class="panel">
-    <label class="f">小结<textarea id="sum-ta" data-s="thread" data-k="summary">${esc(t.summary||'')}</textarea></label>
+    <label class="f">关系<textarea id="sum-ta" data-s="thread" data-k="summary">${esc(t.summary||'')}</textarea></label>
+    <label class="f">大事<textarea id="sum-big" data-s="thread" data-k="big">${esc(t.big||'')}</textarea></label>
+    <label class="f">待办<textarea id="sum-todo" data-s="thread" data-k="todo">${esc(t.todo||'')}</textarea></label>
+    <label class="f">心愿<textarea id="sum-wish" data-s="thread" data-k="wish">${esc(t.wish||'')}</textarea></label>
     <label class="f">要记住的<textarea id="sum-keep" data-s="thread" data-k="keep">${esc(t.keep||'')}</textarea></label>
     <div class="btns"><button class="btn" data-a="sumNow">总结</button><button class="btn red" data-a="sumClear">清空</button></div></div>`};
 },
@@ -3598,7 +3609,7 @@ function purgeChar(id){S.chars=S.chars.filter(c=>c.id!==id);S.threads.forEach(t=
 function unsay(t,ms){if(t?.type!=='dm')return;const c=charById(t.chars[0]);if(!c?.said)return;
   const ks=ms?new Set(ms.filter(m=>m.from===c.id).map(m=>String(m.content||'').slice(0,60))):null,hit=x=>!ks||ks.has(x.s);
   c.said=c.said.filter(x=>!hit(x))}
-function forgetChat(t){if(!t)return;t.summary='';t.keep='';t.sumUpTo=0;delete t.pending;t.unread=0;unsay(t);
+function forgetChat(t){if(!t)return;t.summary='';t.big='';t.todo='';t.wish='';t.keep='';t.sumUpTo=0;delete t.pending;t.unread=0;unsay(t);
   if(t.type==='dm'){const c=charById(t.chars[0]);if(c)delete c.phone}}
 function pickChar(title,act){if(!S.chars.length){toast('先在通讯录添加角色');return}
   sheet(`<h3>${title}</h3>`+S.chars.map(c=>`<button class="opt l" data-a="${act}" data-id="${c.id}">${av(c,32)}<span>${esc(dn(c))}</span></button>`).join('')+`${CANCEL}`)}
@@ -3843,7 +3854,7 @@ const A={
   memDel(el){const c=charById(el.dataset.id);if(c){c.longMem='';c.memAt=Date.now();c.memT=0;(S.memWipe||={})[c.id]=Date.now()}save();render(true)},
   evClr(el){confirmTap(el,()=>{const t=thread(cur().id);if(!t)return;const ids=new Set(t.chars);
     const now=Date.now();S.events=(S.events||[]).filter(e=>!ids.has(e.who));const W=S.evWipe||={};t.chars.map(charById).filter(Boolean).forEach(c=>{c.evFrom=now;c.longMem='';c.memT=0;c.memAt=now;W[c.id]=now});save();render(true);toast('忘掉了')})},
-  sumClear(el){confirmTap(el,()=>{const t=thread(cur().id);t.summary='';t.keep='';t.sumUpTo=0;save();render()})},
+  sumClear(el){confirmTap(el,()=>{const t=thread(cur().id);t.summary='';t.big='';t.todo='';t.wish='';t.keep='';t.sumUpTo=0;save();render()})},
   openGroupEdit(){closeSheet();go({v:'groupEdit',id:cur().id})},
   openCharFromChat(){const t=thread(cur().id);closeSheet();go({v:'charEdit',id:t.chars[0]})},
   presetSet(el){S.activePreset=el.dataset.id;save();closeSheet();toast('预设：'+preset().name)},
