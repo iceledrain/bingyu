@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.34';</script>
+<script>window.BYJ_VER='2026.11.18.35';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1624,7 +1624,7 @@ function buildCtx(t,o={}){
       const ln=curNarr[curNarr.length-1];if(ln&&ln.from!=='me')tail.push(`【接着写】${me.name}这轮没写，接着往后推，别重复上一段。`)}
     if(group)rules.push(`【都在场】${cname}都在场，每段每个人都有动作和台词、彼此也搭话。每段都有人拿主意往前推，谁来按人设。`);
     if(!oshort)rules.push(`【文风】${ost}`);
-    rules.push(`【描写】写${cname}的外貌、神态动作、语气，和场景的光线、声音、气味（按【现在】）。挑一两个具体细节和对白交替写，不堆形容词。`);
+    rules.push(`【描写】写${cname}的外貌、神态动作、语气，和场景的光线、声音、气味（按【现在】）。挑一两个具体细节和对白交替写，不堆形容词。\n人设里的外貌特征（饰品、穿孔、纹身、疤这类）不是每段都要写：前面写过的不再写，换别的细节；被衣服盖住的看不见、不会发光、不会透出来，就不写，除非剧情真的碰到它。每段的描写和比喻都和前面几段不一样。\n不写「不是……是……」「不是……而是……」「与其说……不如说……」这类先否定再肯定的句子，直接说是什么。`);
     rules.push(`【格式】小说段落，对白用「」单独成段，每段最多三句。面对面，不写成手机消息，不用 [图片] 这类格式，不写「名字：」。`);
     if(o.ev){const e=offEvent(t,off,me);if(e)tail.push(e)}
     {const phAll=t.msgs.filter((m,i)=>!m.recalled&&!isMark(m)&&(m.type!=='narr'||i<=curAt));let ph=phAll.filter(m=>hist.includes(m));if(ph.length<30)ph=phAll.slice(-30);
@@ -1682,7 +1682,7 @@ function buildCtx(t,o={}){
   if(mode==='online'&&(C.think||C.inner))tail.push(`【这次回复】照【回复格式】写全：${C.think?'<think>…</think>、':''}<reply>…</reply>${C.inner?'、<inner>…</inner>':''}、<tide>…</tide>，一样都不能少。${group?'群里只发消息，每人都说话。':''}`);
   if(tail.length){let k=msgs.length;while(k>0&&msgs[k-1].role==='user'&&k>pre.length)k--;const last=k<msgs.length;
     msgs.splice(k,0,{role:'user',content:`（此刻的情况，系统告诉你的，不是${me.name}发的消息）\n`+tail.join('\n\n')+(last?`\n\n（下面是${me.name}发的）`:'')})}
-  if(mode==='offline'){const w=num(off.words)||500,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字，${cname}带节奏，一小步一小步往前推，只写眼前这几分钟，不跳时间；不问${me.name}意见，结尾不抛问题${group?'；每人都有戏份':''}；不写成手机消息${(off.upov||'second')==='second'?`；叙述里称呼${me.name}只用「你」，不写名字、不写她或他`:''}${(l=>l.length?`；${l.join('和')}别漏`:'')([C.think&&'开头的 <think>',C.inner&&(group?'结尾的 <inner>（每人一行）':'结尾的 <inner>')].filter(Boolean))}）`,last=msgs[msgs.length-1];
+  if(mode==='offline'){const w=num(off.words)||500,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字，${cname}带节奏，一小步一小步往前推，只写眼前这几分钟，不跳时间；不问${me.name}意见，结尾不抛问题${group?'；每人都有戏份':''}；不写成手机消息；不用「不是…是/而是…」句式；前面写过的外貌细节和比喻不再写，衣服盖住的东西不写${(off.upov||'second')==='second'?`；叙述里称呼${me.name}只用「你」，不写名字、不写她或他`:''}${(l=>l.length?`；${l.join('和')}别漏`:'')([C.think&&'开头的 <think>',C.inner&&(group?'结尾的 <inner>（每人一行）':'结尾的 <inner>')].filter(Boolean))}）`,last=msgs[msgs.length-1];
     if(last&&last.role==='user')last.content+='\n\n'+note;else msgs.push({role:'user',content:note})}
   const end=[];
   if(C.think)end.push(`【思考】先在 <think>…</think> 里${mac(C.thinkStyle||THINK_DEF)}${group?'每人一行，「名字：」开头。':''}`);
