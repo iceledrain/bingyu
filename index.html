@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.29';</script>
+<script>window.BYJ_VER='2026.11.18.30';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1413,6 +1413,8 @@ async function callAI0(system,messages,o={}){
   try{
     if(p.provider==='openai'){
       const b={model,max_tokens:max,...(p.stream?{stream:true,stream_options:{include_usage:true}}:{}),...(isKimi(base)?{prompt_cache_options:{mode:'implicit',ttl:p.cache==='1h'?'1h':'5m'}}:{}),messages:[{role:'system',content:system},...m.map(x=>({role:x.role,content:x.imgs&&x.imgs.length?[{type:'text',text:x.content},...x.imgs.map(u=>({type:'image_url',image_url:{url:u}}))]:x.content}))]};if(temp!==null)b.temperature=temp;if(topP!==null)b.top_p=topP;if(topK!==null)b.top_k=topK;
+      if(o.thoughts&&/claude/i.test(model)){const cc={type:'ephemeral',...(p.cache==='1h'?{ttl:'1h'}:{})},h=b.messages.length>2?b.messages[b.messages.length-2]:null;b.messages[0].content=[{type:'text',text:system,cache_control:cc}];
+        if(h){if(typeof h.content==='string')h.content=[{type:'text',text:h.content,cache_control:cc}];else h.content[h.content.length-1].cache_control=cc}}
       if(isMM(model))b.reasoning_effort=(o.thoughts&&S.chat.effort&&S.chat.effort!=='none'&&S.chat.effort)||'low';
       if(isDS(p)&&!o.thoughts)b.thinking={type:'disabled'};
       if(isGLM(base)){delete b.stream;delete b.stream_options;
