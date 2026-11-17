@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.31';</script>
+<script>window.BYJ_VER='2026.11.18.32';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1531,12 +1531,13 @@ const bornAt=c=>{const n=parseInt(String(c?.id||'').slice(0,-5),36);return n>1.4
 function eventsFor(c,lim=Date.now()-30*864e5){const from=Math.max(lim,bornAt(c),c.evFrom||0);
   return(S.events||[]).filter(e=>e.t>=from&&(e.who===c.id||e.who===null)&&(!e.me||e.me===mask(c).id))}
 const whenAbs=t=>{const d=locDate(t);return`${d.getMonth()+1}月${d.getDate()}日${pad(d.getHours())}:${pad(d.getMinutes())}`};
-function elsewhere(c,exceptId){const me=mask(c),from=Math.max(Date.now()-3*864e5,c.evFrom||0);
-  const ev=eventsFor(c).slice(-30).map(e=>({t:e.t,s:`· ${whenAbs(e.t)}：${e.text}`}));
-  const gl=S.threads.filter(t=>t.type==='group'&&t.chars.includes(c.id)&&t.id!==exceptId).flatMap(t=>t.msgs.filter(m=>m.t>from&&m.type!=='sys').slice(-8).map(m=>({t:m.t,s:`· ${whenAbs(m.t)} 群「${threadTitle(t)}」里 ${m.from==='me'?me.name:(charById(m.from)?.name||'?')}：${pv(m)}`})));
+function elsewhere(c,exceptId,lo=0,hi=Infinity){const me=mask(c),from=Math.max(Date.now()-3*864e5,c.evFrom||0,lo),in1=x=>x.t>lo&&x.t<=hi;
+  const ev=eventsFor(c).filter(in1).slice(-30).map(e=>({t:e.t,s:`· ${whenAbs(e.t)}：${e.text}`}));
+  const gl=S.threads.filter(t=>t.type==='group'&&t.chars.includes(c.id)&&t.id!==exceptId).flatMap(t=>t.msgs.filter(m=>m.t>from&&m.t<=hi&&m.type!=='sys').slice(-8).map(m=>({t:m.t,s:`· ${whenAbs(m.t)} 群「${threadTitle(t)}」里 ${m.from==='me'?me.name:(charById(m.from)?.name||'?')}：${pv(m)}`})));
   const dm=S.threads.find(t=>t.type==='dm'&&t.chars[0]===c.id&&t.id!==exceptId);
-  const dl=dm?dm.msgs.filter(m=>m.t>from&&m.type!=='sys'&&!m.recalled).slice(-10).map(m=>({t:m.t,s:`· ${whenAbs(m.t)} ${c.name}和${me.name}私聊（只有${c.name}知道）${m.from==="me"?me.name:c.name}：${pv(m)}`})):[];
+  const dl=dm?dm.msgs.filter(m=>m.t>from&&m.t<=hi&&m.type!=='sys'&&!m.recalled).slice(-10).map(m=>({t:m.t,s:`· ${whenAbs(m.t)} ${c.name}和${me.name}私聊（只有${c.name}知道）${m.from==="me"?me.name:c.name}：${pv(m)}`})):[];
   const out=[...ev,...gl,...dl].sort((a,b)=>a.t-b.t).slice(-44).map(x=>x.s);
+  if(lo)return out;
   if(dm?.summary)out.unshift('· 你们私聊的前情：'+dm.summary.replace(/\s+/g,' ').slice(0,300));if(c.longMem)out.unshift('· 很久以前：'+c.longMem);return out}
 async function memRoll(c){const lim=Date.now()-30*864e5,old=eventsFor(c,0).filter(e=>e.t<=lim&&e.t>(c.memAt||0));
   if(old.length<8||!api(c)?.key)return;c.memAt=old[old.length-1].t;
@@ -1593,8 +1594,10 @@ function buildCtx(t,o={}){
     if(!group&&chars[0]){const c=chars[0],gone=saidGone(c,t);
       if(gone.length)tail.push(`【已经说过的】这些话${c.name}之前对${me.name}说过了（记录已经不在）。不再说差不多的内容，不换个说法重讲同一件事，讲别的。\n`+gone.slice(-16).map(x=>'· '+x.s).join('\n'))}}
   {const dy=[...new Set(chars.map(myDiaryFor).filter(Boolean))];if(dy.length)tail.push(dy.join('\n'))}
-  const el=[...new Set(chars.flatMap(c=>elsewhere(c,t.id)))];const others=group?[]:[...new Set(S.threads.filter(x=>x.type==='group'&&chars[0]&&x.chars.includes(chars[0].id)).flatMap(x=>x.chars).filter(id=>id!==chars[0].id).map(id=>charById(id)?.name).filter(Boolean))];
+  if(!t.elCut)t.elCut=Date.now();let elNew=[...new Set(chars.flatMap(c=>elsewhere(c,t.id,t.elCut)))];if(elNew.length>=10){t.elCut=Date.now();elNew=[]}
+  const el=[...new Set(chars.flatMap(c=>elsewhere(c,t.id,0,t.elCut)))];const others=group?[]:[...new Set(S.threads.filter(x=>x.type==='group'&&chars[0]&&x.chars.includes(chars[0].id)).flatMap(x=>x.chars).filter(id=>id!==chars[0].id).map(id=>charById(id)?.name).filter(Boolean))];
   if(el.length)ctxs.splice(sumBlock(t)?1:0,0,'【最近别处的事】'+(others.length?'（群里的事只当你知道，不在这里接着说）':'')+'\n'+el.join('\n'));
+  if(elNew.length)tail.push('【刚刚别处的事】'+(others.length?'（群里的事只当你知道，不在这里接着说）':'')+'\n'+elNew.join('\n'));
   if(others.length)tail.push(mode==='offline'?`【只有两个人】只有${cname}和${me.name}在。${others.join('、')}不在场，除非${me.name}写了他们来；可以提起，不写他们的动作和台词。`:`【这是私聊】只有${cname}和${me.name}两个人，${others.join('、')}看不到这里。可以聊起他们，不对他们说话、不喊他们。`);
   {const kn=chars.map(x=>{const o=S.chars.filter(c=>visible(c)&&!chars.some(y=>y.id===c.id)&&knows(x,c)).map(c=>c.name).slice(0,8);return o.length?`${x.name}认识${o.join('、')}`:''}).filter(Boolean);
     if(kn.length)ctxs.push(`【认识的人】${kn.join('；')}。只是朋友、同事或对头，不暧昧。别人不认识。`)}
@@ -2008,18 +2011,18 @@ async function summarize(t,manual){
   const me=mask(t),c=t.type==='dm'?charById(t.chars[0]):null,log=(()=>{let k0='';return chunk.map(m=>{const k=m.t?dayLabel(m.t):'';const h=k&&k!==k0?`（${k}）\n`:'';if(k)k0=k;return h+(m.from==='me'?me.name:(charById(m.from)?.name||'?'))+'：'+pv(m)}).join('\n')})();
   const voice=c?`用${c.name}自己的口吻、第一人称「我」写`:'用旁白的口吻写',who=c?`${c.name}和${me.name}`:'大家';
   const prev=[['关系',t.summary],['大事',t.big],['待办',t.todo],['心愿',t.wish],['记住',t.keep]].filter(x=>x[1]).map(x=>x[0]+'：'+x[1]).join('\n');
-  const txt=String(await callAI(c?sysFor(c,''):'你在整理一段群聊的记录。',[{role:'user',content:(prev?`之前记下的：\n${prev}\n`:'')+`\n新的聊天记录：\n${log}\n\n输出五行，别的都不要，每行都要短，提到哪天写几月几日、不写「今天」「昨天」：\n关系：${voice}，${who}现在是什么关系、处在什么状态，一两句，60字以内；没变就照抄之前的。\n大事：只写新的聊天记录里真正改变了关系的事——在一起、分手、和好、大吵、表白、第一次（见面、牵手、亲吻、说爱）这一类；日常闲聊、吃了什么、买了什么都不算。每件写「几月几日+15字以内」，最多两件，用「；」隔开；${!t.big&&t.summary?'之前的「关系」里提到的这类大事也补上；':''}已经记过的不写，没有就写「无」。\n待办：答应了还没做的事、约好的事（带上几月几日）。把之前的和新的合在一起，做完的、过期的删掉，每条20字以内，最多6条，用「；」隔开；没有就写「无」。\n心愿：${who}各自想要、想做但还没实现的事。把之前的和新的合在一起，实现了的删掉，每条20字以内，最多6条，用「；」隔开；没有就写「无」。\n记住：只写新的聊天记录里新出现的硬信息——名字、称呼、日子、喜好、忌讳，之前已有的不写，用「；」隔开；没有就写「无」。`}],{max:1024,temp:.4,side:true})).replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
+  const txt=String(await callAI(c?sysFor(c,''):'你在整理一段群聊的记录。',[{role:'user',content:(prev?`之前记下的：\n${prev}\n`:'')+`\n新的聊天记录：\n${log}\n\n输出五行，别的都不要，每行都要短，提到哪天写几月几日、不写「今天」「昨天」：\n关系：${voice}，${who}现在是什么关系、处在什么状态，一两句，60字以内；和之前比没有变化就只写「不变」。\n大事：只写新的聊天记录里真正改变了关系的事——在一起、分手、和好、大吵、表白、第一次（见面、牵手、亲吻、说爱）这一类；日常闲聊、吃了什么、买了什么都不算。每件写「几月几日+15字以内」，最多两件，用「；」隔开；${!t.big&&t.summary?'之前的「关系」里提到的这类大事也补上；':''}已经记过的不写，没有就写「无」。\n待办：答应了还没做的事、约好的事（带上几月几日）。把之前的和新的合在一起，之前的一条都不能漏，只删已经做完的，过了日子还没做的留着，每条20字以内，用「；」隔开；没有就写「无」。\n心愿：只记${c?c.name+'自己':'每个人自己'}想要、想做但还没实现的事${c?'，'+me.name+'的不记':''}。把之前的和新的合在一起，之前的一条都不能漏，只删已经实现的，每条20字以内，用「；」隔开；没有就写「无」。\n记住：只写新的聊天记录里新出现的硬信息——名字、称呼、日子、喜好、忌讳，之前已有的不写，用「；」隔开；没有就写「无」。`}],{max:1024,temp:.4,side:true})).replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
   const K='关系|大事|待办|心愿|记住',has=k=>new RegExp('(^|\\n)\\s*'+k+'[:：]').test(txt),part=k=>{const m=txt.match(new RegExp('(?:^|\\n)\\s*'+k+'[:：]\\s*([\\s\\S]*?)(?=\\n\\s*(?:'+K+')[:：]|$)'));return m?m[1].replace(/\s*\n\s*/g,' ').trim():''};
   if(!new RegExp('(^|\\n)\\s*(?:'+K+')[:：]').test(txt))throw new Error('总结没写对格式，再点一次');
-  if(part('关系')&&!/^无[。.]?$/.test(part('关系')))t.summary=wholeText(part('关系'),90);
-  if(has('大事'))t.big=[...new Set([...sumItems(t.big),...sumItems(part('大事')).filter(x=>x.length<=40).slice(0,2)])].join('；');
-  if(has('待办'))t.todo=sumItems(part('待办')).filter(x=>x.length<=40).slice(0,6).join('；');
-  if(has('心愿'))t.wish=sumItems(part('心愿')).filter(x=>x.length<=40).slice(0,6).join('；');
+  if(part('关系')&&!/^(无|不变|没变)[。.]?$/.test(part('关系')))t.summary=wholeText(part('关系'),90);
+  if(has('大事'))t.big=[...new Set([...sumItems(t.big),...sumItems(part('大事')).slice(0,2)])].join('；');
+  if(has('待办'))t.todo=sumItems(part('待办')).slice(0,20).join('；');
+  if(has('心愿'))t.wish=sumItems(part('心愿')).slice(0,20).join('；');
   t.keep=addKeep(t.keep,part('记住'));t.sumUpTo=to;save();
 }
 function addKeep(old,add){const L=String(old||'').split(/[；;]\s*/).map(x=>x.trim()).filter(Boolean);
   if(add&&!/^无[。.]?$/.test(add))for(const x of add.split(/[；;]\s*/).map(x=>x.trim().replace(/[。.]$/,'')).filter(Boolean))if(!L.includes(x))L.push(x);
-  while(L.join('；').length>1500&&L.length>1)L.shift();return L.join('；')}
+  while(L.join('；').length>4000&&L.length>1)L.shift();return L.join('；')}
 async function maybeSummarize(t){
   if(summing)return;const every=Math.max(10,num(S.chat.sumEvery)||30);
   if(t.msgs.length-Math.max(4,num(S.chat.ctx)||40)-(t.sumUpTo||0)<every)return;
