@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.42';</script>
+<script>window.BYJ_VER='2026.11.18.43';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -524,6 +524,7 @@ html.eco .bar,html.eco .call .ln{-webkit-backdrop-filter:none;backdrop-filter:no
 .wx .wxg>.row+.row::before,.wx .wxg>.wxr+.wxr::before{content:"";position:absolute;top:0;right:0;left:72px;border-top:1px solid var(--line)}
 .wx .wxg>.wxr+.wxr::before{left:54px}
 .wx .wxg>.row:active,.wx .wxg>.wxr:active,.wx .wxme:active{background:rgba(var(--accent-rgb),.1)}
+.wx .wxg>.row>.pm{display:flex;align-items:center;gap:12px;align-self:stretch;margin:-11px 0 -11px -16px;padding:11px 0 11px 16px}.wx .wxg>.row>.pm>.av+span{flex:1;min-width:0}
 .wx .row .av,.wx .wxme .av,.msg .av,.tabbar.wx .av{border-radius:8px}
 .wx .xn{display:flex;align-items:baseline;gap:8px}.wx .xn b{flex:1;max-width:none;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;font-size:16px}
 .wx .xn i{font-style:normal;font-size:11.5px;color:var(--muted);flex:none}
@@ -2313,7 +2314,7 @@ threads(v){dropBlank();
   if(tab==='me')return{title:'我',cls:'wx',...nav,body:`<div class="wxg">${go_('walletOpen','wallet','钱包','',money(S.wallet))}</div>
     <div class="wxg">${go_('open','smile','表情包','data-v="stickers"')}${go_('chatSet','settings','聊天设置')}${go_('open','weather','天气','data-v="weather"',S.loc?esc(S.loc.name):'没设城市')}</div>`}
   if(tab==='people')return{title:'通讯录',cls:'wx',...nav,right:`<button class="tb" data-a="charMenu" aria-label="添加">${ICONS.plus}</button>`,
-    body:`<div class="wxg">`+(S.chars.filter(c=>!rel(c).youDeleted).map(c=>`<button class="row" data-a="editChar" data-id="${c.id}">${av(c,40)}<span class="meta"><b>${esc(dn(c))}</b>${c.remark?`<small>${esc(c.name)}</small>`:''}</span>${rel(c).youBlocked?`<span class="pill">${rel(c).blockBy&&charById(rel(c).blockBy)?esc(dn(charById(rel(c).blockBy)))+'拉黑的':'已拉黑'}</span>`:rel(c).theyBlocked?'<span class="pill">拉黑了你</span>':''}</button>`).join('')||`<p class="hint" style="padding:14px 16px">还没有好友</p>`)+`</div>`+
+    body:`<div class="wxg">`+(S.chars.filter(c=>!rel(c).youDeleted).map(c=>`<div class="row"><button class="meta pm" data-a="editChar" data-id="${c.id}">${av(c,40)}<span><b>${esc(dn(c))}</b>${c.remark?`<small>${esc(c.name)}</small>`:''}</span></button>${rel(c).youBlocked?`<span class="pill">${rel(c).blockBy&&charById(rel(c).blockBy)?esc(dn(charById(rel(c).blockBy)))+'拉黑的':'已拉黑'}</span>`:rel(c).theyBlocked?'<span class="pill">拉黑了你</span>':''}<button class="tb red" data-a="delChar" data-id="${c.id}">删除</button></div>`).join('')||`<p class="hint" style="padding:14px 16px">还没有好友</p>`)+`</div>`+
     (S.chars.some(c=>rel(c).youDeleted)?`<div class="sec">已删除的好友</div><div class="wxg">`+S.chars.filter(c=>rel(c).youDeleted).map(c=>`<div class="row">${av(c,40)}<span class="meta"><b>${esc(dn(c))}</b><small>${rel(c).blockBy&&charById(rel(c).blockBy)?esc(dn(charById(rel(c).blockBy)))+' 用你手机删的 · ':''}聊天记录还留着</small></span><span class="side h"><button class="tb" data-a="reAdd" data-id="${c.id}">重新添加</button><button class="tb red" data-a="delChar" data-id="${c.id}">删除好友</button></span></div>`).join('')+`</div>`:'')+
     `<div class="sec" style="display:flex;justify-content:space-between;align-items:center">我的面具<button class="tb" data-a="newMask">新面具</button></div><div class="wxg">`+
     S.masks.map(m=>`<div class="row">${av(m,40)}<button class="meta" data-a="editMask" data-id="${m.id}"><b>${esc(m.name)}</b><small>${(()=>{const b=S.chars.filter(c=>c.mask===m.id).map(dn);return b.length?esc('绑定：'+b.join('、'))+' · ':''})()}${esc(m.persona?m.persona.replace(/\n/g,' '):'还没写人设')}</small></button><span class="side">${m.id===S.activeMask?'<span class="pill fill">戴着</span>':`<button class="tb" data-a="useMask" data-id="${m.id}">戴上</button>`}</span></div>`).join('')+`</div>`};
