@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.41';</script>
+<script>window.BYJ_VER='2026.11.18.42';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -273,26 +273,12 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .callcard summary::-webkit-details-marker{display:none}
 .callcard summary svg{width:18px;height:18px}
 .callcard div{margin-top:6px;font-size:13px;white-space:pre-wrap;opacity:.85;border-top:1px dashed currentColor;padding-top:6px}
-.gcard{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:10px 16px;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:170px}
-.gcard small{font-size:12px;color:var(--muted)}
-.gvs{display:flex;align-items:center;gap:16px;font-size:34px}
-.gvs b{font-size:12px;color:var(--muted)}
-.die{width:44px;height:44px;border-radius:10px;background:var(--bg2);border:1px solid var(--line);display:grid;place-items:center;font:600 22px var(--body);color:var(--deep)}
-.gcard.bj{gap:8px}
-.bjr{display:flex;align-items:center;gap:8px;width:100%}
-.bjr b{font:400 12px var(--body);color:var(--muted);width:20px}
-.bjr i{margin-left:auto;font-style:normal;font:600 15px var(--body);color:var(--deep)}
-.bjh{display:flex;gap:4px}
-.card{min-width:26px;height:36px;padding:0 4px;border-radius:6px;background:var(--bg2);border:1px solid var(--line);display:grid;place-items:center;font:600 14px var(--body);color:var(--deep)}
 .scard{display:flex;flex-direction:column;gap:3px;align-items:flex-start;text-align:left;width:fit-content;max-width:100%;background:var(--bub);border:1px solid rgba(255,255,255,.6);box-shadow:var(--lift);border-radius:16px;padding:10px 13px;color:inherit;font:inherit}
 .scard small{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--muted)}
 .scard small svg{width:14px;height:14px;color:var(--deep)}
 .scard b{font:400 15px var(--display)}
 .scard .ss{font-size:12px;color:var(--muted)}
 .scard p{margin:3px 0 0;font-size:13px;line-height:1.6;color:var(--ink);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.ttt{display:grid;grid-template-columns:repeat(3,48px);gap:5px}
-.ttt button{width:48px;height:48px;border-radius:12px;border:1px solid var(--line);background:var(--bg2);font-size:24px;color:var(--deep);padding:0}
-.ttt button:disabled{cursor:default;opacity:1}
 .pgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 6px;padding:4px 0 8px}
 .pi{display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;font-size:12px;color:var(--ink);padding:0;cursor:pointer;position:relative}
 .pi .ic{width:54px;height:54px;border-radius:18px;background:var(--panel);border:1px solid var(--line);display:grid;place-items:center;color:var(--deep)}
@@ -809,7 +795,7 @@ for(const K of['evWipe','memWipe'])if(!s[K]||typeof s[K]!=='object')s[K]={};if(!
   {const T=s.media.tts;delete T.provider;if(!T.ttsV){if(T.model==='speech-02-hd')T.model='';if(T.voice==='female-shaonv')T.voice='';T.ttsV=1}}
   s.chars.forEach(c=>{delete c.heart;delete c.nowDoing;if(c.rel)delete c.rel.soft;const x=String(c.lore||'').trim();if(x){const b={id:uid(),name:(c.name||'角色')+'的设定',scope:'local',entries:[{id:uid(),title:'设定',keys:'',content:x,light:'green',order:0,prob:100}]};s.books.push(b);(c.books||=[]).push(b.id)}delete c.lore});
   for(const x of s.music.songs)if(x?.local){DB.del('song:'+x.id);x.local=false}
-  for(const k of ['novel','mail','mailAt','pets','novels','codes','forum','raise','theaters','thFmts','diary','diaryAuto','diaryV','diaryMark','plan','study'])delete s[k];s.threads.forEach(t=>{if(t.game==='study')t.game=null;delete t.study;(t.msgs||[]).forEach(m=>{delete m.dev;if(m.type==='share'&&(m.kind==='forum'||m.kind==='theater')){m.kind='post';delete m.ref}if(m.type==='theater'){m.type='sys';m.from='sys';m.content='小剧场《'+(m.content||'')+'》';delete m.thId}})});[...s.chars,...s.masks].forEach(x=>delete x.lookAuto);delete s.tok.img;s.chars.forEach(c=>delete c.ai);
+  for(const k of ['novel','mail','mailAt','pets','novels','codes','forum','raise','theaters','thFmts','diary','diaryAuto','diaryV','diaryMark','plan','study'])delete s[k];s.threads.forEach(t=>{delete t.game;delete t.study;(t.msgs||[]).forEach(m=>{delete m.dev;if(m.type==='share'&&(m.kind==='forum'||m.kind==='theater')){m.kind='post';delete m.ref}if(m.type==='theater'){m.type='sys';m.from='sys';m.content='小剧场《'+(m.content||'')+'》';delete m.thId}if(m.type==='game'){m.type='sys';m.from='sys';m.content='玩了'+({tod:'真心话大冒险',ttt:'井字棋',bj:'21点'}[m.g]||'游戏');for(const k of ['g','a','b','pick','res','done','lock'])delete m[k]}})});[...s.chars,...s.masks].forEach(x=>delete x.lookAuto);delete s.tok.img;s.chars.forEach(c=>delete c.ai);
   {const ren={mail:'music',shop:'food'},I=s.look.icons,W=s.look.appWalls||{};for(const [a,b] of Object.entries(ren)){if(I[a]&&!I[b])I[b]=I[a];delete I[a];if(W[a]&&!W[b])W[b]=W[a];delete W[a]}
     const AI=['library','preset'];if(I.ai&&!I.preset)I.preset=I.ai;delete I.ai;if(W.ai)AI.forEach(k=>{if(!W[k])W[k]=W.ai});delete W.ai;
     if(I.brain&&!I.preset)I.preset=I.brain;delete I.brain;if(W.brain&&!W.preset)W.preset=W.brain;delete W.brain;
@@ -1261,9 +1247,9 @@ function bodyText(m){switch(m.type){
   case'parcel':return`[网购:${m.content}:${m.amt}]（${m.state==='done'?'已签收':'快递在路上'}）`;
   case'call':return`[${m.kind==='video'?'视频':'语音'}通话 ${fmt(m.dur||0)}]\n${m.content}`;
   case'share':return`[分享了一${m.kind==='song'?'首歌':'条动态'}]《${m.title}》${m.sub?'（'+m.sub+'）':''}${m.text?'\n'+m.text:''}${m.from==='me'?'\n（自然地接一句，像真的看了/听了，不用每次都夸）':''}`;
-  case'game':return'[游戏] '+gameText(m);case'narr':return'[线下] '+m.content;
+  case'narr':return'[线下] '+m.content;
   default:return(m.q?`[引用 ${m.q.who}：${m.q.text}] `:'')+m.content}}
-const pv=m=>m.recalled?'撤回了一条消息':m.type==='share'?'[分享] '+m.title:({loc:'[位置] '+m.content,order:'[外卖] '+m.content,parcel:'[快递] '+m.content,sticker:'[表情]',img:'[照片]',pic:'[图片] '+m.content,voice:'[语音] '+m.content,hb:'[红包]',tf:'[转账] ¥'+m.amt,call:'['+(m.kind==='video'?'视频':'语音')+'通话]',game:'[游戏]',narr:'[线下] '+m.content}[m.type]??m.content);
+const pv=m=>m.recalled?'撤回了一条消息':m.type==='share'?'[分享] '+m.title:({loc:'[位置] '+m.content,order:'[外卖] '+m.content,parcel:'[快递] '+m.content,sticker:'[表情]',img:'[照片]',pic:'[图片] '+m.content,voice:'[语音] '+m.content,hb:'[红包]',tf:'[转账] ¥'+m.amt,call:'['+(m.kind==='video'?'视频':'语音')+'通话]',narr:'[线下] '+m.content}[m.type]??m.content);
 function msgText(m,group){
   if(m.recalled)return`（${m.from==='me'?mask().name:charById(m.from)?.name||'TA'}撤回了一条消息，你没看清写的是什么）`;
   if(m.type==='sys')return m.ai?`（${m.ai}）`:`（系统：${m.content}${m.letter?`：「${m.letter}」`:''}）`;
@@ -1602,7 +1588,6 @@ function richBody(t,m,i,mine,c){const tap=`data-a="msg" data-i="${i}"`;
     case'call':return`<details class="callcard"><summary>${m.kind==='video'?ICONS.video:ICONS.phone}<span>${m.kind==='video'?'视频':'语音'}通话 ${fmt(m.dur||0)}</span></summary><div>${esc(m.content||'（没说什么）')}</div></details>`;
     case'share':{const K={song:['music','首歌'],post:['plaza','条动态']}[m.kind]||['music','个东西'];
       return`<button class="scard" data-a="shareOpen" data-i="${i}"><small>${ICONS[K[0]]}分享了一${K[1]}</small><b>${esc(m.title)}</b>${m.sub?`<span class="ss">${esc(m.sub)}</span>`:''}${m.text?`<p>${esc(m.text)}</p>`:''}</button>`}
-    case'game':return gameCard(t,m,i);
     default:return`<button class="bub" ${tap}>${esc(m.content)}</button>${m.q?`<span class="qt">↪ ${esc(m.q.who)}：${esc(m.q.text)}</span>`:''}`}}
 function msgsHTML(t){
   let h='',last=0,run=0;const lim=(cur()?.id===t.id&&cur().more)||120,st=Math.max(0,t.msgs.length-lim),off=t.mode==='offline';
@@ -1843,7 +1828,7 @@ async function buzzMine(p){const me=mask(),pool=S.chars.filter(reachable).sort((
   const cs=p.replies.filter(r=>r.author!=='me'&&r.author!=='x');
   if(cs.length>=2&&Math.random()<.6){const r=cs[cs.length-1],a=charById(r.author),b=charById(cs[0].author);if(a&&b&&a.id!==b.id&&reachable(b)){await sleep(3000+Math.random()*5000);await charReply(p,b,r.text,r.id,a.name);ref()}}
   const c=who[0],t=c&&S.threads.find(x=>x.type==='dm'&&x.chars[0]===c.id);
-  if(t&&Math.random()<.35&&(t.mode||'online')==='online'&&!t.game){await sleep(8000+Math.random()*25000);if(!busy.has(t.id)&&!call)reply(t,`（你刚在朋友圈刷到${me.name}发的：「${postDesc(p)}」，也在下面评论过了。想就这条私聊TA几句，像真的刷到了一样自然。）`)}}
+  if(t&&Math.random()<.35&&(t.mode||'online')==='online'){await sleep(8000+Math.random()*25000);if(!busy.has(t.id)&&!call)reply(t,`（你刚在朋友圈刷到${me.name}发的：「${postDesc(p)}」，也在下面评论过了。想就这条私聊TA几句，像真的刷到了一样自然。）`)}}
 async function npcReply(p,nick,mine){const c=charById(p.author),me=mask(c);
   const thr=(p.replies||[]).slice(-8).map(r=>authorOf(r.author,r).name+'：'+r.text).join('\n');
   const out=await callAI(c?sysFor(c,charLore(c,postDesc(p))+`现在你替你生活里的「${nick}」说话。`):'你在模拟朋友圈里的熟人。',[{role:'user',content:`${authorOf(p.author,p).name}的朋友圈：「${postDesc(p)}」\n评论区：\n${thr}\n\n${me.name}刚回复了「${nick}」：「${mine.text}」。写「${nick}」回复${me.name}的一句话，25字以内，口语。只输出这句话。`}],{max:512,side:true});
@@ -2035,30 +2020,6 @@ function endCall(how,why){const c0=call;if(!c0)return;call=null;clearInterval(ca
   else if(how!=='fail')sysMsg(t,`你取消了${k}通话`);
   t.t=Date.now();save();onThreadUpdate(t);if(cur()?.v==='chat'&&cur().id===t.id)render(true);if(!isOpen())renderHome()}
 
-function tttWin(b){for(const [a,c,d] of [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]])if(b[a]&&b[a]===b[c]&&b[a]===b[d])return b[a];return b.every(Boolean)?'draw':''}
-function tttMove(b){const free=b.map((v,i)=>v?-1:i).filter(i=>i>=0);const tw=p=>free.find(i=>{const x=[...b];x[i]=p;return tttWin(x)===p});
-  let m=tw('O');if(m===undefined&&Math.random()<.85)m=tw('X');if(m===undefined&&!b[4]&&Math.random()<.7)m=4;if(m===undefined)m=free[Math.floor(Math.random()*free.length)];return m}
-const BJN=['','A','2','3','4','5','6','7','8','9','10','J','Q','K'];
-const bjDraw=()=>1+Math.floor(Math.random()*13);
-function bjVal(cs){let n=0,a=0;for(const c of cs||[]){n+=c===1?11:c>10?10:c;if(c===1)a++}while(n>21&&a){n-=10;a--}return n}
-function bjEnd(m){const x=bjVal(m.a),y=bjVal(m.b);m.res=x>21?'lose':y>21?'win':x>y?'win':x<y?'lose':'draw';m.done=1}
-function gameText(m){const me=mask().name;
-  if(m.g==='bj')return`21点：${me} ${bjVal(m.a)}点，TA ${bjVal(m.b)}点，${m.res==='win'?me+'赢了':m.res==='lose'?'TA赢了':'平局'}`;
-  if(m.g==='tod')return`真心话大冒险掷骰子：${me}${m.a}点，TA${m.b}点。`+(m.a<m.b?`${me}输了，${m.pick?'选了'+m.pick+'，该你出'+(m.pick==='真心话'?'问题':'挑战')+'了':'还在选真心话还是大冒险'}`:`TA输了，TA要自己选真心话或大冒险，然后回答或者去做`);
-  if(m.g==='ttt')return`井字棋（${me}是X，TA是O）${m.res?'：'+(m.res==='X'?me+'赢了':m.res==='O'?'TA赢了':'平局'):'：进行中'}`;
-  return''}
-function gameCard(t,m,i){
-  if(m.g==='tod'){const lose=m.a<m.b;return`<div class="gcard"><small>真心话大冒险</small><div class="gvs"><span class="die">${m.a}</span><b>你 VS TA</b><span class="die">${m.b}</span></div>
-    ${lose?(m.pick?`<small>你输了 · 选了${m.pick}</small>`:`<small>你输了，选一个</small><div class="btns"><button class="btn" data-a="todPick" data-i="${i}" data-k="真心话">真心话</button><button class="btn o" data-a="todPick" data-i="${i}" data-k="大冒险">大冒险</button></div>`):'<small>TA输了 · 让TA选</small>'}</div>`}
-  if(m.g==='bj'){const hand=(cs,hide)=>cs.map((c,k)=>`<span class="card">${hide&&k?'?':BJN[c]}</span>`).join('');
-    return`<div class="gcard bj"><small>21点</small>
-      <div class="bjr"><b>TA</b><span class="bjh">${hand(m.b,!m.done)}</span><i>${m.done?bjVal(m.b):'?'}</i></div>
-      <div class="bjr"><b>你</b><span class="bjh">${hand(m.a)}</span><i>${bjVal(m.a)}</i></div>
-      ${m.done?`<small>${m.res==='win'?'你赢啦':m.res==='lose'?'TA赢了':'平局'}</small>`
-        :`<div class="btns">${m.lock?'<small>TA在要牌…</small>':`<button class="btn" data-a="bjHit" data-i="${i}">要牌</button><button class="btn o" data-a="bjStand" data-i="${i}">停牌</button>`}</div>`}</div>`}
-  if(m.g==='ttt'){const live=!m.res;return`<div class="gcard"><small>井字棋 · 你是 ✕</small><div class="ttt">${m.b.map((v,k)=>`<button ${live&&!v?`data-a="ttt" data-i="${i}" data-k="${k}"`:'disabled'} aria-label="格子${k+1}">${v==='X'?'✕':v==='O'?'○':''}</button>`).join('')}</div><small>${m.res?(m.res==='X'?'你赢啦':m.res==='O'?'TA赢了':'平局'):'轮到你'}</small></div>`}
-  return''}
-
 function jsonFrom(out){const a=out.indexOf('{'),b=out.lastIndexOf('}');if(a<0||b<a)throw new Error('没翻出东西，再试一次');try{return JSON.parse(out.slice(a,b+1))}catch(e){throw new Error('没翻出东西，再试一次')}}
 const PAPPS=[
   ['chats','私信','messages','3到4个联系人的私信（不要包括和{me}的），每个3到6条','{"chats":[{"name":"备注名","handle":"英文账号","msgs":[["对方","内容"],["我","内容"]]}]}'],
@@ -2190,9 +2151,9 @@ function lifeTick(mins){const now=Date.now();{const d=new Date();ensureHolidays(
   if(api()?.key&&!busy.size&&!call&&!document.hidden&&!peekBusy){const t=S.threads.find(t=>{const c=charById(t.chars[0]);return t.type==='dm'&&reachable(c)&&now-(c.peekAt||0)>12*3600e3&&now-t.t<2*864e5&&t.msgs.some(m=>m.from==='me')});
     if(t&&Math.random()<1-Math.pow(1-1/1440,mins)){autoPeek(t,charById(t.chars[0]),'sneak');return}}
   if(busy.size||call||document.hidden||!api()?.key)return;
-  const dms=S.threads.filter(t=>t.type==='dm'&&!t.pending&&!t.game&&(t.mode||'online')==='online').sort(()=>Math.random()-.5);
+  const dms=S.threads.filter(t=>t.type==='dm'&&!t.pending&&(t.mode||'online')==='online').sort(()=>Math.random()-.5);
   for(const c of S.chars.filter(reachable).sort(()=>Math.random()-.5)){if(statusOf(c)==='sleep'||now-(c.helloAt||0)<6*3600e3)continue;const old=(c.said||[]).length>0;
-    const d=S.threads.find(x=>x.type==='dm'&&x.chars[0]===c.id);if(d&&(d.msgs.some(m=>m.type!=='sys')||d.pending||d.game||(d.mode||'online')!=='online'))continue;
+    const d=S.threads.find(x=>x.type==='dm'&&x.chars[0]===c.id);if(d&&(d.msgs.some(m=>m.type!=='sys')||d.pending||(d.mode||'online')!=='online'))continue;
     const g=S.threads.filter(x=>x.type==='group'&&x.chars.includes(c.id)&&x.msgs.some(m=>m.from==='me')).sort((a,b)=>(b.t||0)-(a.t||0))[0];if(!old&&(c.helloAt||!g||now-(g.t||0)<10*60e3))continue;
     if(Math.random()>1-Math.pow(1-.04,mins))continue;
     const t=dmFor(c.id);c.helloAt=now;t.proAt=now;save();
@@ -2214,7 +2175,7 @@ function lifeTick(mins){const now=Date.now();{const d=new Date();ensureHolidays(
     reply(t,`（现在是${nowText()}。${me}已经${gapText(gap)}没有找你了。你主动找TA，从下面挑一个最自然的理由，话题和开头都别和你之前发过的重样：\n${whyReach(c).map(x=>'· '+x).join('\n')}）`);return}}
 function awayCatch(from,now){
   if(S.chat.away===false||!api()?.key||busy.size||call||document.hidden)return false;
-  const dms=S.threads.filter(t=>t.type==='dm'&&!t.pending&&!t.game&&(t.mode||'online')==='online'&&t.msgs.some(m=>m.from==='me')).sort((a,b)=>(b.t||0)-(a.t||0));
+  const dms=S.threads.filter(t=>t.type==='dm'&&!t.pending&&(t.mode||'online')==='online'&&t.msgs.some(m=>m.from==='me')).sort((a,b)=>(b.t||0)-(a.t||0));
   for(const t of dms){const c=charById(t.chars[0]),me=mask(c).name;if(!reachable(c))continue;
     const last=[...t.msgs].reverse().find(m=>m.type!=='sys');if(!last||now-last.t>3*864e5)continue;
     const a=Math.max(from,last.t)+10*60e3,b=now-3*60e3;if(b-a<75*60e3)continue;
@@ -2230,8 +2191,6 @@ function whyReach(c){const me=mask(c).name,L=[];
     upcomingFest(1).forEach(f=>L.push((f.in?'明天是':'今天是')+f.name));myDays(mask(c)).filter(x=>x.in<=1&&(x.who===null||x.who===c.id)).forEach(x=>L.push((x.in?'明天是':'今天是')+x.name))}
   const st=statusOf(c);if(st==='work')L.push('你在上班或上课，偷空摸鱼');
   L.push(`上次没聊完、该问后续的事`,'刚想到TA','分享此刻在做的、看到的、吃到的（可配 [图片:…]）','刚遇到一件好笑或烦人的事','想问TA一个有意思的问题','想拉TA一起做点什么（听歌、玩游戏、约见面）');return L}
-const GAME_NAMES={truth:'真心话大冒险',soup:'海龟汤'};
-const gameName=t=>GAME_NAMES[t.game]||'游戏';
 const bkJSON=()=>JSON.stringify(S,(k,v)=>k==='key'&&!S.bkKey?'':v);
 function dlJSON(o,name){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(o,null,1)],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();a.remove()}
 function extraFor(c){const e=elsewhere(c);return(e.length?'\n\n【最近在别处发生的事】\n'+e.join('\n'):'')+'\n\n【现在】'+nowText()}
@@ -2379,7 +2338,6 @@ chat(v){
   else if(r.theyDeleted)foot=blk()+`<input type="text" id="reqIn" placeholder="验证消息" aria-label="朋友验证"><button class="btn" data-a="friendReq">申请加回</button>`;
   else if(r.theyBlocked)foot=blk()+foot;
   if(v.quote&&!r.youBlocked&&!r.theyDeleted){footCls='wrap';foot=`<div class="qbar"><span>↪ ${esc(v.quote.who)}：${esc(v.quote.text)}</span><button data-a="qUnq" aria-label="取消引用">×</button></div>`+foot}
-  if(t.game&&!r.youBlocked&&!r.theyDeleted){footCls='wrap';foot=`<div class="blk"><span>正在玩「${esc(gameName(t))}」</span><span style="flex:1"></span>${t.game==='truth'?'<button class="btn" data-a="todRoll">掷骰子</button>':''}<button class="btn o" data-a="gEnd">结束游戏</button></div>`+foot}
   const sub=t.type==='group'?(t.chars.length+1)+' 人':(c0?.mood?softMood(c0.mood,tideOf(c0)):'在线');
   return{title:threadTitle(t),sub,cls:'chat',footCls,
     right:HEART+`<button class="tb" data-a="chatMenu" aria-label="聊天设置">···</button>`,
@@ -2869,21 +2827,6 @@ const A={
   phoneAgainApp(){cur().err=0;render(true)},
   phoneUnlock(el){const v=cur();(v.open||=[]).push(+el.dataset.i);render(true)},
   peekGo(el){const t=thread(cur().id);closeSheet();go({v:'peek',id:t.chars[0],how:el.dataset.h})},
-  todRoll(){const r=()=>1+Math.floor(Math.random()*6);let a=r(),b=r();while(a===b)b=r();pushMine(thread(cur().id),{type:'game',g:'tod',a,b,pick:''})},
-  todPick(el){const t=thread(cur().id),m=t.msgs[+el.dataset.i];if(!m||m.pick)return;m.pick=el.dataset.k;save();refreshChat()},
-  gTtt(){closeSheet();pushMine(thread(cur().id),{type:'game',g:'ttt',b:Array(9).fill(''),res:''})},
-  async ttt(el){const t=thread(cur().id),m=t.msgs[+el.dataset.i],k=+el.dataset.k;if(!m||m.res||m.b[k]||m.lock)return;
-    m.b[k]='X';let w=tttWin(m.b);m.lock=1;refreshChat();
-    if(!w){await sleep(500);m.b[tttMove(m.b)]='O';w=tttWin(m.b)}
-    m.lock=0;if(w)m.res=w;save();refreshChat()},
-  gBj(){closeSheet();pushMine(thread(cur().id),{type:'game',g:'bj',a:[bjDraw(),bjDraw()],b:[bjDraw(),bjDraw()],res:'',done:0})},
-  bjHit(el){const t=thread(cur().id),m=t.msgs[+el.dataset.i];if(!m||m.done||m.lock)return;
-    m.a.push(bjDraw());if(bjVal(m.a)>21)bjEnd(m);save();refreshChat()},
-  async bjStand(el){const t=thread(cur().id),m=t.msgs[+el.dataset.i];if(!m||m.done||m.lock)return;
-    m.lock=1;refreshChat();
-    while(bjVal(m.b)<17){await sleep(450);m.b.push(bjDraw());refreshChat()}
-    m.lock=0;bjEnd(m);save();refreshChat()},
-  gEnd(){const t=thread(cur().id);sysMsg(t,'「'+gameName(t)+'」结束了');t.game=null;save();closeSheet();render(true)},
   rUnq(){cur().rq=null;render(true)},
   exportChar(){const c=charById(cur().id);const book=S.books.find(b=>(c.books||[]).includes(b.id));
     dlJSON({spec:'chara_card_v2',spec_version:'2.0',data:{name:c.name,description:c.persona,first_mes:'',personality:'',scenario:'',mes_example:c.ex||'',extensions:{bingyuji:{sign:c.sign,innerStyle:c.innerStyle,lore:c.lore||''}},...(book?{character_book:{name:book.name,entries:book.entries.map(e=>({keys:String(e.keys||'').split(/[,，]/).filter(Boolean),content:e.content,comment:e.title,constant:e.light==='green',enabled:e.light!=='red',insertion_order:e.order||0}))}}:{})}},c.name+'.json')},
