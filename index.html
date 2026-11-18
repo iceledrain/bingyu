@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.39';</script>
+<script>window.BYJ_VER='2026.11.18.40';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -222,16 +222,13 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .grp .sec{margin:4px 6px 0}
 .opt.red,.tb.red{color:var(--red)}
 .sec{font-size:12.5px;color:var(--muted);margin:6px 2px 0;letter-spacing:.04em}
-.order{width:220px;border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:11px 13px;display:flex;flex-direction:column;gap:4px;text-align:left;color:var(--ink)}
+.order{width:fit-content;max-width:220px;border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:11px 13px;display:flex;flex-direction:column;gap:4px;text-align:left;color:var(--ink)}
 .order small{font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:5px}
 .order small svg{width:14px;height:14px}
 .order b{font-size:15px;font-weight:600}
 .order .os{font-size:12px;color:var(--deep)}
 .order.done .os{color:var(--muted)}
 .tphoto .tp-in{border:0;width:100%;text-align:left;cursor:pointer}
-.tp-f{display:flex;justify-content:space-between;align-items:center}
-.tp-f small{font-size:10.5px;color:#a4a4a4}
-.tp-f .tb{font-size:12px;padding:2px 4px;color:#747474}
 .pcap{font-size:12px;color:var(--muted);max-width:200px}
 .mlist{display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto}
 .mlist .opt{justify-content:flex-start;font-size:13.5px;padding:10px 13px}
@@ -258,13 +255,14 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .tp-in{min-height:120px;border-radius:3px;background:linear-gradient(160deg,#e4e4e4,#f3f3f3 60%,#eaeaea);display:flex;flex-direction:column;justify-content:flex-end;gap:6px;padding:10px;font:13px/1.55 var(--display);color:#565656}
 .tp-in svg{width:18px;height:18px;opacity:.6}
 .tphoto small{font-size:10.5px;color:#a4a4a4;text-align:right}
-.voice{display:flex;flex-direction:column;gap:2px;min-width:96px}
+.msg .tphoto{width:fit-content;max-width:100%;padding:6px}.msg .tp-in{min-height:0;flex-direction:row;align-items:flex-start;justify-content:flex-start;padding:8px 10px}.msg .tp-in svg{flex:none;margin-top:1px}
+.voice{display:flex;flex-direction:column;gap:2px}
 .vrow{display:flex;align-items:center;gap:8px}
 .vrow svg{width:22px;height:22px}
 .vrow b{font-weight:500;font-size:13px;font-variant-numeric:tabular-nums}
 .voice .vtx{display:none;font-size:13.5px;opacity:.85;border-top:1px dashed currentColor;padding-top:4px;margin-top:2px}
 .voice.open .vtx{display:block}
-.hb{width:216px;border:1px solid var(--line);border-radius:16px;padding:12px 14px 0;background:linear-gradient(135deg,#fff,var(--accent-soft));color:var(--ink);text-align:left;display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.hb{width:fit-content;min-width:150px;max-width:216px;border:1px solid var(--line);border-radius:16px;padding:12px 14px 0;background:linear-gradient(135deg,#fff,var(--accent-soft));color:var(--ink);text-align:left;display:flex;flex-wrap:wrap;align-items:center;gap:10px}
 .hb.tf{background:linear-gradient(135deg,var(--accent-soft),#e3e3e3)}
 .hb.got,.hb.back{opacity:.62}
 .hbi{width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center}
@@ -292,7 +290,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .bjr i{margin-left:auto;font-style:normal;font:600 15px var(--body);color:var(--deep)}
 .bjh{display:flex;gap:4px}
 .card{min-width:26px;height:36px;padding:0 4px;border-radius:6px;background:var(--bg2);border:1px solid var(--line);display:grid;place-items:center;font:600 14px var(--body);color:var(--deep)}
-.scard{display:flex;flex-direction:column;gap:3px;align-items:flex-start;text-align:left;width:100%;background:var(--bub);border:1px solid rgba(255,255,255,.6);box-shadow:var(--lift);border-radius:16px;padding:10px 13px;color:inherit;font:inherit}
+.scard{display:flex;flex-direction:column;gap:3px;align-items:flex-start;text-align:left;width:fit-content;max-width:100%;background:var(--bub);border:1px solid rgba(255,255,255,.6);box-shadow:var(--lift);border-radius:16px;padding:10px 13px;color:inherit;font:inherit}
 .scard small{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--muted)}
 .scard small svg{width:14px;height:14px;color:var(--deep)}
 .scard b{font:400 15px var(--display)}
@@ -1469,7 +1467,7 @@ function buildCtx(t,o={}){
       :`【聊天】一行一个气泡，不写名字，一件事没聊完不换话题。不复述、不说教、不句句提问，语气和主动程度按人设，别因为亲密就写得甜腻。`);
     if(!group)rules.push(`【分享生活】话停了，按人设说说自己在干什么，偶尔配一张 [图片:…] 或拉${me.name}一起做点什么。和${me.name}一起的事只提真发生过的。`);
     {const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal?.type==='narr')ctxs.push(`【刚分开】刚见过面，现在回到手机上。带着那时的情绪，只发消息，不写动作和长段。`)}
-    rules.push(`【条数】一条一句话，${num(C.onLen)||10}字左右、最长${lineLim()}字，平时${G('每人','')}发1到${num(C.onMax)||3}条，情绪上来最多${bubbleCap()}条。${C.casual!==false?'不打句号和逗号，停顿就换行。':''}`);
+    rules.push(`【条数】一条一句话，${num(C.onLen)||10}字左右，平时${G('每人','')}发1到${num(C.onMax)||3}条，情绪上来最多${bubbleCap()}条。${C.casual!==false?'不打句号和逗号，停顿就换行。':''}`);
     const sp=['[图片:画面]','[语音:内容]'];
     if(!group)sp.push('[红包:金额:祝福]','[转账:金额:备注]',...(boughtRecently(t)?[]:['[外卖:吃的:金额]','[网购:东西:金额]']),'[查手机]','[语音通话]','[视频通话]','[送亲属卡:月额度]');
     sp.push('[分享歌曲:歌名 - 歌手]');sp.push('[定位:地点 · 一句备注]');
@@ -1511,7 +1509,7 @@ function buildCtx(t,o={}){
   if(mode!=='call')tail.push(`【人设】照【${cname}】的人设说话做事。和${me.name}之间没发生过的事不编。`);
   {const L=t.game==='study'?[]:chars.filter(langOf);if(L.length)tail.push(`【语言】${L.map(c=>`${c.name}开口只说${langOf(c)}`).join('，')}。发的消息、[语音:…] 冒号后的话、通话、「」里的台词都这样，${me.name}说中文也不改口。[语音]、[图片]、[挂断] 这类标签名照原样，${group?'行首名字、':''}图片描述、旁白画面、<think>、<inner>、<tide> 还写中文。`)}
   if(mode==='online'&&!group&&!o.pro&&[...t.msgs].reverse().find(m=>m.type!=='sys')?.from==='me')tail.push(`【接话】先回${me.name}最后发的那几句，接着正在聊的往下说，不换话题。`);
-  if(mode==='online'&&(C.think||C.inner))tail.push(`【这次回复】照【回复格式】写全：${C.think?'<think>…</think>、':''}<reply>…</reply>${C.inner?'、<inner>…</inner>':''}、<tide>…</tide>，一样都不能少。字数别超：一条最长${lineLim()}字${C.think&&lenIn(C.thinkStyle||THINK_DEF)?`，<think> ${lenIn(C.thinkStyle||THINK_DEF)}字内`:''}${C.inner&&lenIn(C.innerStyle||INNER_DEF)?`，<inner> ${lenIn(C.innerStyle||INNER_DEF)}字内`:''}。${group?'群里只发消息，每人都说话。':''}`);
+  if(mode==='online'&&(C.think||C.inner))tail.push(`【这次回复】照【回复格式】写全：${C.think?'<think>…</think>、':''}<reply>…</reply>${C.inner?'、<inner>…</inner>':''}、<tide>…</tide>，一样都不能少。${group?'群里只发消息，每人都说话。':''}`);
   if(tail.length){let k=msgs.length;while(k>0&&msgs[k-1].role==='user'&&k>pre.length)k--;const last=k<msgs.length;
     msgs.splice(k,0,{role:'user',content:`（此刻的情况，系统告诉你的，不是${me.name}发的消息）\n`+tail.join('\n\n')+(last?`\n\n（下面是${me.name}发的）`:'')})}
   if(mode==='offline'){const w=num(off.words)||500,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字，${cname}带节奏，一小步一小步往前推，只写眼前这几分钟，不跳时间；不问${me.name}意见，结尾不抛问题${group?'；每人都有戏份':''}；不写成手机消息；不用「不是…是…」句式，写过的细节不重复${(off.upov||'second')==='second'?`；叙述里称呼${me.name}只用「你」，不写名字、不写她或他`:''}${(l=>l.length?`；${l.join('和')}别漏`:'')([C.think&&'开头的 <think>',C.inner&&(group?'结尾的 <inner>（每人一行）':'结尾的 <inner>')].filter(Boolean))}）`,last=msgs[msgs.length-1];
@@ -1557,14 +1555,7 @@ function stripPlan(out,thinkOn){const me=mask().name,lines=out.split('\n'),cut=[
     if(/你|您|[\[<？?]/.test(l))break;
     if(!(who.test(l)&&PLAN_CUE.test(l))&&mulls(l)<(thinkOn?2:3))break;cut.push(l);lines.shift()}
   const rest=lines.join('\n').trim();return rest?{out:rest,plan:cut.join('\n')}:{out,plan:''}}
-const lenIn=s=>+(String(s||'').match(/(\d+)\s*字/)||[])[1]||0;
-function fitTo(x,n){x=String(x||'').trim();const a=[...x];if(!(n>0)||a.length<=n)return x;
-  const E='。！？!?…~～',P='，,、；;：: \n',cut=i=>a.slice(0,E.includes(a[i])?i+1:i).join('').trim();
-  for(let i=n-1;i>=n/3;i--)if((E+P).includes(a[i]))return cut(i);
-  for(let i=n;i<a.length-1;i++)if((E+P).includes(a[i]))return cut(i);
-  return x}
-const fitInner=(x,c)=>{const n=lenIn(c?.innerStyle)||lenIn(S.chat.innerStyle||INNER_DEF);return n?fitTo(x,Math.ceil(n*1.3)):x};
-function brief(x){x=String(x||'').trim();if(!x)return'';const n=Math.ceil((lenIn(S.chat.thinkStyle||THINK_DEF)||46)*1.3),ss=(x.match(/[^。！？!?…~～\n]+[。！？!?…~～]*/g)||[]).map(z=>z.trim()).filter(Boolean);let o=ss[0]||'';for(let i=1;i<ss.length&&[...o+ss[i]].length<=n;i++)o+=ss[i];return fitTo(o,n)}
+function brief(x){x=String(x||'').trim();if(!x)return'';const ss=(x.match(/[^。！？!?…~～\n]+[。！？!?…~～]*/g)||[]).map(z=>z.trim()).filter(Boolean);let o=ss[0]||'';for(let i=1;i<ss.length&&[...o+ss[i]].length<=60;i++)o+=ss[i];if([...o].length>80){const h=[...o].slice(0,80).join(''),k=Math.max(...[...'，,、；;：:'].map(c=>h.lastIndexOf(c)));o=k>20?h.slice(0,k):h}return o}
 function extractExtras(out,chat=true,group=false,keep=false){
   let think='',inner=[];
   out=out.replace(/<\/t>/gi,'</think>');
@@ -1607,31 +1598,23 @@ const demd=x=>String(x)
   .replace(/\*\*([^*\n]+)\*\*/g,'$1')
   .replace(/__([^_\n]+)__/g,'$1')
   .replace(/^\s{0,3}#{1,6}\s+/gm,'');
-const PAUSE=/\s*[，,](?!\d)\s*|(?<=[\u3040-\u30ff\u3400-\u9fff])\s+(?=[\u3040-\u30ff\u3400-\u9fff])/;
-function casual(line,lim=Infinity){if(/[\[（(]/.test(line))return[line];
-  return line.split(/(?<!。)。(?!。)/).flatMap(s=>{const out=[];
-    for(const c of s.split(PAUSE).map(x=>x.replace(/[\s，,。]+$/,'').trim()).filter(Boolean)){const k=out.length-1;if(k>=0&&[...out[k]].length+1+[...c].length<=lim)out[k]+=' '+c;else out.push(c)}
-    return out})}
-const lineLim=()=>Math.round((num(S.chat.onLen)||10)*1.5);
+function casual(line){if(/[\[（(]/.test(line))return[line];
+  return line.split(/(?<!。)。(?!。)/).map(x=>x.replace(/\s*[，,](?!\d)\s*/g,' ').replace(/[\s，,。]+$/,'').trim()).filter(Boolean)}
 function offFix(out){return String(out||'').replace(/“([^”\n]*)”/g,'「$1」').replace(/"([^"\n]*)"/g,'「$1」')}
 function parseReply(out,ctx){
   out=demd(out);
   if(ctx.mode==='offline'){out=offFix(out.replace(/^\s*\[线下\]\s*/,''),ctx);return out?[{from:ctx.chars[0]?.id,type:'narr',content:out}]:[]}
-  const lines=out.split(/\n+/).map(s=>s.trim()).filter(Boolean);
-  const build=lim=>{const res=[];let last=ctx.chars[0]?.id;
+  const lines=out.split(/\n+/).map(s=>s.trim()).filter(Boolean),res=[];
+  let last=ctx.chars[0]?.id;
   for(const ln of lines){
     let from=last,text=ln;
     if(ctx.group){const m=ln.match(/^\**([^:：*]{1,30})\**\s*[:：]\s*(.*)$/);
       if(m){const nm=m[1].trim().toLowerCase();const c=ctx.chars.find(c=>c.name.toLowerCase()===nm||(c.remark||'').toLowerCase()===nm);if(c){from=c.id;text=m[2]}else if(nm===mask(ctx.t).name.toLowerCase())continue}}
     else text=text.replace(new RegExp('^'+(ctx.chars[0]?.name||'').replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\s*[:：]\\s*'),'');
     if(!text)continue;last=from;
-    for(const tx of ctx.mode==='online'&&S.chat.casual!==false?casual(text,lim):[text])for(const p of splitStickers(tx))res.push({from,...p});
+    for(const tx of ctx.mode==='online'&&S.chat.casual!==false?casual(text):[text])for(const p of splitStickers(tx))res.push({from,...p});
   }
-  return res};
-  if(ctx.mode!=='online')return build(Infinity);
-  const over=r=>{const n={};return r.some(p=>(n[p.from]=(n[p.from]||0)+1)>bubbleCap())};
-  let res=build(lineLim());if(over(res))res=build(lineLim()*2);if(over(res))res=build(Infinity);
-  return capBubbles(res);
+  return ctx.mode==='online'?capBubbles(res):res;
 }
 const BUBBLE_MAX=8,CALL_MAX=3;
 const bubbleCap=()=>Math.min(8,Math.max(num(S.chat.onMax)||3,6));
@@ -1643,12 +1626,12 @@ function byName(txt,ctx){const out=[];let curr=null;
 function attachExtras(parts,ex,ctx){
   if(!parts.length)return;
   if(!ctx.group){if(ex.think)parts[0].think=ex.think;
-    if(ex.inner.length){const c=ctx.chars&&ctx.chars[0];parts[parts.length-1].inner=fitInner(withKao(ex.inner.join('\n'),c?tideOf(c):60),c)}return}
+    if(ex.inner.length){const c=ctx.chars&&ctx.chars[0];parts[parts.length-1].inner=withKao(ex.inner.join('\n'),c?tideOf(c):60)}return}
   const add=(p,k,x)=>{if(p&&x)p[k]=(p[k]?p[k]+'\n':'')+x},one=parts.length===1&&parts[0].type==='narr',seenT=new Set(),seenI=new Set();
   for(const x of byName(ex.think,ctx)){if(x.c){if(seenT.has(x.c.id))continue;seenT.add(x.c.id)}
     if(one)add(parts[0],'think',x.c?x.c.name+'：'+x.text:x.text);else add(x.c?parts.find(p=>p.from===x.c.id):parts[0],'think',x.text)}
   for(const x of byName(ex.inner.join('\n'),ctx)){if(x.c){if(seenI.has(x.c.id))continue;seenI.add(x.c.id)}
-    const tx=x.c?fitInner(withKao(x.text,tideOf(x.c)),x.c):x.text;
+    const tx=x.c?withKao(x.text,tideOf(x.c)):x.text;
     if(one)add(parts[0],'inner',x.c?x.c.name+'：'+tx:tx);else add(x.c?[...parts].reverse().find(p=>p.from===x.c.id):parts[parts.length-1],'inner',tx)}
 }
 function applyTide(ctx,ex){
@@ -1698,11 +1681,11 @@ function richBody(t,m,i,mine,c){const tap=`data-a="msg" data-i="${i}"`;
   switch(m.type){
     case'img':return`<button class="pmsg" ${tap}><img src="${esc(m.img)}" alt="照片"></button>${m.content?`<button class="bub" ${tap}>${esc(m.content)}</button>`:''}`;
     case'pic':return m.img?`<button class="pmsg" ${tap}><img src="${esc(m.img)}" alt="${esc(m.content)}"></button><span class="pcap">${esc(m.content)}</span>`
-      :`<div class="tphoto"><button class="tp-in" ${tap}>${ICONS.camera}<span>${esc(m.content)}</span></button><span class="tp-f"><small>照片</small></span></div>`;
+      :`<div class="tphoto"><button class="tp-in" ${tap}>${ICONS.camera}<span>${esc(m.content)}</span></button></div>`;
     case'loc':return`<button class="order loc" ${tap}><small>${ICONS.pin}位置 · ${mine?'我的位置':'TA的位置'}</small><b>${esc(m.content)}</b>${m.sub?`<span class="os">${esc(m.sub)}</span>`:''}</button>`;
     case'order':{const left=Math.max(1,Math.round((m.eta-Date.now())/60e3));return`<button class="order ${m.state==='done'?'done':''}" ${tap}><small>${ICONS.bowl}外卖 · ${mine?'送给TA':'TA给你点的'}</small><b>${esc(m.content)}</b><span class="os">¥${(+m.amt).toFixed(2)} · ${m.state==='done'?'已送达':'骑手在路上 · 约'+left+'分钟'}</span></button>`}
     case'parcel':return`<button class="order ${m.state==='done'?'done':''}" ${tap}><small>${ICONS.shop}网购 · ${mine?'寄给TA':'TA寄给你的'}</small><b>${esc(m.content)}</b><span class="os">¥${(+m.amt).toFixed(2)} · ${parcelStage(m)}</span></button>`;
-    case'voice':return`<button class="bub voice${m.open?' open':''}" data-a="voice" data-i="${i}"><span class="vrow">${ICONS.wave}<b>${m.dur||voiceDur(m.content)}″</b></span><span class="vtx">${esc(m.content)}</span></button>`;
+    case'voice':return`<button class="bub voice${m.open?' open':''}" data-a="voice" data-i="${i}" style="min-width:${Math.min(200,Math.round(52+19*Math.sqrt(m.dur||voiceDur(m.content))))}px"><span class="vrow">${ICONS.wave}<b>${m.dur||voiceDur(m.content)}″</b></span><span class="vtx">${esc(m.content)}</span></button>`;
     case'hb':case'tf':{const hb=m.type==='hb',st=m.state||'new';
       return`<button class="hb ${hb?'':'tf'} ${st}" data-a="money" data-i="${i}"><span class="hbi">${hb?ICONS.gift:ICONS.yen}</span><span class="hbt"><b>${hb?esc(m.content||'恭喜发财'):'¥'+(+m.amt).toFixed(2)}</b><small>${st==='got'?(mine?'对方已收下':'已收下'):st==='back'?'已退回':mine?'等TA收':(hb?'点开领取':'点开收款')}${!hb&&m.content?' · '+esc(m.content):''}</small></span><span class="hbf">${hb?'红包':'转账'}</span></button>`}
     case'call':return`<details class="callcard"><summary>${m.kind==='video'?ICONS.video:ICONS.phone}<span>${m.kind==='video'?'视频':'语音'}通话 ${fmt(m.dur||0)}</span></summary><div>${esc(m.content||'（没说什么）')}</div></details>`;
@@ -1798,7 +1781,7 @@ async function reply(t,extra,stamps){
 async function fillInner(t,ctx,posted,miss){const me=mask(t),C=S.chat,one=posted.length===1&&posted[0].type==='narr';
   const said=posted.map(m=>one?m.content:(charById(m.from)?.name||'?')+'：'+pv(m)).join('\n');
   try{const txt=String(await callAI(whoTag(miss.map(c=>`【${c.name}】\n${c.persona||''}`).join('\n\n'),t.id),[{role:'user',content:`刚刚${one?'见面时发生的':'群里说的'}：\n${wholeText(said,3000)}\n\n给下面每个人各写一句此刻没说出口的心声：${miss.map(c=>c.name).join('、')}。${String(C.innerStyle||INNER_DEF).replaceAll('{{char}}','TA').replaceAll('{{user}}',me.name)}各用自己的口吻、第一人称，提到${me.name}用平时的叫法。每人一行，「名字：心声」，别的都不要。`}],{max:512,side:true,temp:.8}));
-    for(const x of byName(txt.replace(/<think[\s\S]*?<\/think>/gi,''),ctx)){if(!x.c||!miss.includes(x.c))continue;const tx=fitInner(withKao(cuteKao(x.text.split('\n')[0]),tideOf(x.c)),x.c);if(!tx)continue;
+    for(const x of byName(txt.replace(/<think[\s\S]*?<\/think>/gi,''),ctx)){if(!x.c||!miss.includes(x.c))continue;const tx=withKao(cuteKao(x.text.split('\n')[0]),tideOf(x.c));if(!tx)continue;
       if(one){if(!new RegExp('(^|\\n)'+x.c.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'：').test(posted[0].inner||''))posted[0].inner=(posted[0].inner?posted[0].inner+'\n':'')+x.c.name+'：'+tx}
       else{const m=[...posted].reverse().find(p=>p.from===x.c.id);if(m&&!m.inner)m.inner=tx}}
     save();onThreadUpdate(t);if(cur()?.v==='chat'&&cur().id===t.id)render(true)}catch(e){}}
@@ -1813,7 +1796,7 @@ async function backfill(t,ctx,posted,lack){const C=S.chat,last=posted[posted.len
     const pick=k=>{const x=(txt.match(new RegExp(k+'[:：]\\s*([^\\n]+)'))||[])[1]?.trim()||one;return said.split('\n').some(l=>l.trim()===x)?'':x};
     const u=x=>ctx.group?x:String(x||'').replace(/[他她]|TA/g,'你');
     if(lack.think){const x=u(brief(pick('思考')));if(x)(posted.find(p=>p.from===c.id)||posted[0]).think=x}
-    if(lack.inner){const x=fitInner(withKao(cuteKao(u(pick('心声'))),tideOf(c)),c);if(x){const m=[...posted].reverse().find(p=>p.from===c.id)||last;m.inner=x}}
+    if(lack.inner){const x=withKao(cuteKao(u(pick('心声'))),tideOf(c));if(x){const m=[...posted].reverse().find(p=>p.from===c.id)||last;m.inner=x}}
     save();onThreadUpdate(t);if(cur()?.v==='chat'&&cur().id===t.id)render(true)}catch(e){}}
 
 const COAX=[['letter','写一封信','托人带给TA'],['gift','送个小礼物','托人送到TA手上'],['song','点一首歌','托朋友转给TA'],['post','发一条动态','只有TA看得到']];
