@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.45';</script>
+<script>window.BYJ_VER='2026.11.18.46';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -742,7 +742,7 @@ const PERSONA_TPL='姓名：\n年龄：\n性别：\n身份/职业：\n外貌：\
 const API_BLANK=id=>({id,name:'接口',key:'',base:'',model:'',temp:1,topP:null,topK:null,maxTokens:32000,stream:true});
 const isOldExample=p=>p&&p.name==='Claude'&&!String(p.key||'').trim()&&/anthropic\.com/.test(p.base||'')&&/^claude-/.test(p.model||'');
 const def=()=>({v:4,loc:null,wx:{},
-  media:{tts:{base:'',key:'',model:'',voice:''},img:{base:'',key:'',model:'',size:'sq',style:'',auto:false}},
+  media:{tts:{base:'',key:'',model:'',voice:''},img:{base:'',key:'',model:'',size:'sq',q:'medium',style:'',auto:false}},
   api:{active:'a1',side:'',profiles:[API_BLANK('a1')]},
   look:{font:'system',customFont:null,fs:15,alpha:.92,clear:30,wallpaper:'',photo:'',caption:'',icons:{},appWalls:{}},
   chat:CHAT_DEF(),
@@ -776,7 +776,7 @@ function mergeState(d){
   s.tok=Object.assign(def().tok,d.tok||{});if(!s.tok.by||typeof s.tok.by!=='object')s.tok.by={};
   if(!s.presets.length)s.presets=def().presets;if(!s.chat.thinkStyle)s.chat.thinkStyle=THINK_DEF;if(!s.masks.length)s.masks=def().masks;
   if(!s.stickers||!Array.isArray(s.stickers.groups))s.stickers=def().stickers;
-  s.media={tts:Object.assign(def().media.tts,d.media?.tts||{}),img:(I=>({base:String(I.base||''),key:String(I.key||''),model:String(I.model||''),size:{'1024x1536':'tall','1536x1024':'wide',tall:'tall',wide:'wide'}[I.size]||'sq',style:String(I.style||''),auto:!!I.auto,...(I.fix&&typeof I.fix==='object'?{fix:I.fix}:{})}))(d.media?.img&&typeof d.media.img==='object'?d.media.img:{})};delete s.media.tts.group;s.look.appWalls=s.look.appWalls||{};
+  s.media={tts:Object.assign(def().media.tts,d.media?.tts||{}),img:(I=>({base:String(I.base||''),key:String(I.key||''),model:String(I.model||''),size:{'1024x1536':'tall','1536x1024':'wide',tall:'tall',wide:'wide'}[I.size]||'sq',q:['low','high'].includes(I.q)?I.q:'medium',style:String(I.style||''),auto:!!I.auto,...(I.fix&&typeof I.fix==='object'?{fix:I.fix}:{})}))(d.media?.img&&typeof d.media.img==='object'?d.media.img:{})};delete s.media.tts.group;s.look.appWalls=s.look.appWalls||{};
   s.wx=s.wx&&typeof s.wx==='object'?s.wx:{};s.hol=s.hol&&typeof s.hol==='object'?s.hol:{};
   if(!Array.isArray(s.cards))s.cards=[];if(!Array.isArray(s.offStyles))s.offStyles=[];if(!Array.isArray(s.personaTpls))s.personaTpls=def().personaTpls;s.books=s.books.filter(b=>b.id!=='bk-yan');s.chars.forEach(c=>{if(Array.isArray(c.books))c.books=c.books.filter(x=>x!=='bk-yan')});s.presets.forEach(p=>{p.items=(p.items||[]).filter(i=>!(i.name==='病娇'&&String(i.content||'').startsWith('【病娇】')))});s.personaTpls=s.personaTpls.filter(x=>x.id!=='pt2');if(String(s.chat.thinkStyle||'').includes('该哄、该查还是该罚'))s.chat.thinkStyle=THINK_DEF;delete s.yanV;delete s.tplV;delete s.notes;delete s.caps;delete s.health;
   s.presets.forEach(p=>(p.items||[]).forEach(i=>{if(i.content===LANG_OLD)i.content=LANG_DEF}));
@@ -2257,9 +2257,10 @@ async function listModels(p){p={...p,provider:provOf(p)};const key=(p.key||'').t
   if(p.provider==='gemini')return(d.models||[]).filter(x=>!x.supportedGenerationMethods||x.supportedGenerationMethods.includes('generateContent')).map(x=>x.name.replace(/^models\//,''));
   return(d.data||[]).map(x=>x.id).filter(Boolean).sort()}
 
-const IMG_STYLE_DEF='手机随手拍的真实照片',IMG_AR={tall:'3:4',wide:'4:3'},IMG_BLOCK=/safety|moderat|content.?policy|sensitive|审核|敏感|违规|不合规|nsfw/i;
+const IMG_STYLE_DEF='手机随手拍的真实照片',IMG_BASE_DEF='https://api.openai.com/v1',IMG_MODEL_DEF='gpt-image-2',IMG_AR={tall:'3:4',wide:'4:3'},IMG_BLOCK=/safety|moderat|content.?policy|sensitive|审核|敏感|违规|不合规|nsfw/i;
 const PX='data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
-const imgOn=()=>{const I=S.media.img;return!!(String(I.base||'').trim()&&String(I.key||'').trim()&&String(I.model||'').trim())};
+const imgOn=()=>!!String(S.media.img.key||'').trim();
+const imgGpt=m=>/gpt-image/i.test(String(m||'').trim()||IMG_MODEL_DEF);
 const imgAuto=()=>imgOn()&&!!S.media.img.auto;
 const imgPx=(model,k)=>{if(k!=='tall'&&k!=='wide')return'1024x1024';const m=String(model).toLowerCase(),f=(a,b)=>k==='tall'?a+'x'+b:b+'x'+a;
   return/dall-e-3/.test(m)?f(1024,1792):/cogview/.test(m)?f(864,1152):/kolors|stable|sdxl|sd3/.test(m)?f(768,1024):f(1024,1536)};
@@ -2274,18 +2275,19 @@ function pickImg(d){let b='',u='';
       for(const[kk,v]of Object.entries(x))w(v,kk)}})(d,'');
   return b||u}
 const gemImg=d=>{const p=(d.candidates?.[0]?.content?.parts||[]).filter(x=>(x.inlineData||x.inline_data)&&!x.thought).pop();return p?pickImg(p):''};
-async function imgPost(url,H,body){const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),240000);let r,t;
+async function imgPost(url,H,body){const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),360000);let r,t;
   try{r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json',...H},body:JSON.stringify(body),signal:ctl.signal});t=await r.text()}
-  catch(e){const er=new Error(e?.name==='AbortError'?'生图等了四分钟没回应，再试一次':'生图接口连不上：检查地址和网络，或者这个地址不让网页直接访问');er.net=1;throw er}
+  catch(e){const er=new Error(e?.name==='AbortError'?'生图等了六分钟没回应，再试一次':'生图接口连不上：检查地址和网络，或者这个地址不让网页直接访问');er.net=1;throw er}
   finally{clearTimeout(tm)}
   let d={};try{d=JSON.parse(t)}catch(e){if(/^\s*data:/.test(t)){const L=[];let c='';for(const l of t.split('\n')){const s=l.trim();if(!s.startsWith('data:'))continue;try{const j=JSON.parse(s.slice(5));L.push(j);c+=j.choices?.[0]?.delta?.content||''}catch(e){}}d={sse:L,text:c}}}
   if(!d||typeof d!=='object')d={};
   const em=d.error&&(typeof d.error==='string'?d.error:d.error.message||d.error.msg);
-  if(!r.ok||em){const why=String(em||d.message||d.msg||t||'').slice(0,200),bl=IMG_BLOCK.test(why),er=new Error(bl?'这张被接口那边的审核拦了，换个说法':'生图失败'+(r.ok?'':' '+r.status)+'：'+why);
+  if(!r.ok||em){const why=String(em||d.message||d.msg||t||'').slice(0,200),bl=IMG_BLOCK.test(why),er=new Error(bl?'这张被接口那边的审核拦了，换个说法':/must be verified/i.test(why)?'这个 OpenAI 账号还没做组织认证，用不了 GPT 生图':'生图失败'+(r.ok?'':' '+r.status)+'：'+why);
     er.status=r.ok?400:r.status;er.block=bl;throw er}
   return d}
-async function genImage(prompt){const I=S.media.img,key=String(I.key||'').trim(),model=String(I.model||'').trim(),base=String(I.base||'').trim().replace(/\/+$/,'').replace(/\/(images\/generations|chat\/completions)$/,'');
-  if(!base||!key)throw new Error('先在「设置 · 生图」填接口地址和 Key');if(!model)throw new Error('先在「设置 · 生图」填模型');
+async function genImage(prompt){const I=S.media.img,key=String(I.key||'').trim(),model=String(I.model||'').trim()||IMG_MODEL_DEF,base=(String(I.base||'').trim()||IMG_BASE_DEF).replace(/\/+$/,'').replace(/\/(images\/generations|chat\/completions)$/,'');
+  if(!key)throw new Error('先在「设置 · 生图」填 Key');
+  const noImg=d=>{const tx=d.choices?.[0]?.message?.content||d.text||(d.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('')||'';return Object.assign(new Error('没拿到图片'+(typeof tx==='string'&&tx.trim()?'：'+tx.trim().slice(0,60):'')),{status:404})};
   const sig=model+'|'+base,fx=I.fix?.m===sig?{...I.fix}:{m:sig},ar=IMG_AR[I.size]||'',H={Authorization:'Bearer '+key};let d,u='';
   const steps=async(url,h,L)=>{L=L.filter((b,i)=>!i||JSON.stringify(b)!==JSON.stringify(L[i-1]));let e0;
     for(let i=Math.min(+fx.bare||0,L.length-1);i<L.length;i++)try{const x=await imgPost(url,h,L[i]);if(i)fx.bare=i;return x}catch(e){e0=e0||e;if(e.net||e.block||![400,422].includes(e.status))break}
@@ -2296,13 +2298,14 @@ async function genImage(prompt){const I=S.media.img,key=String(I.key||'').trim()
       u=gemImg(d);if(!u&&/SAFETY|PROHIBIT|BLOCK|SPII|RECITATION/i.test(String(d.promptFeedback?.blockReason||d.candidates?.[0]?.finishReason||'')))throw new Error('这张被接口那边的审核拦了，换个说法')}}
   else if(/minimax/i.test(base)){d=await imgPost(base.replace(/\/v1$/,'')+'/v1/image_generation',H,{model,prompt:prompt.slice(0,1500),aspect_ratio:ar||'1:1',response_format:'base64',n:1});
     const sc=+d.base_resp?.status_code||0;if(sc)throw new Error({1004:'生图的 Key 不对',2049:'生图的 Key 不对',1008:'生图的余额不够了',1026:'这张被内容审核拦了，换个说法',1027:'这张被内容审核拦了，换个说法',1002:'生图发太快被限流了，等一下'}[sc]||'生图失败 '+sc+'：'+(d.base_resp.status_msg||''))}
-  else{const sz=imgPx(model,I.size),rf=/gpt-image/i.test(model)?{}:{response_format:'b64_json'},
-      chat=()=>imgPost(base+'/chat/completions',H,{model,messages:[{role:'user',content:prompt}],stream:false,...(/openrouter/.test(base)?{modalities:['image','text']}:{})});
-    if(fx.chat)d=await chat();
-    else try{d=await steps(base+'/images/generations',H,[{model,prompt,size:sz,...(/siliconflow/.test(base)?{image_size:sz}:{}),...rf},{model,prompt,...rf},{model,prompt}]);if(!pickImg(d))throw Object.assign(new Error('没拿到图片'),{status:404})}
-      catch(e){if(e.net||e.block||![400,404,405,415,422,501].includes(e.status))throw e;let x;try{x=await chat()}catch(e2){throw e}if(!pickImg(x))throw e;d=x;fx.chat=1}}
-  u=u||pickImg(d);if(!u){const tx=d.choices?.[0]?.message?.content||d.text||(d.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('')||'';throw new Error('没拿到图片'+(typeof tx==='string'&&tx.trim()?'：'+tx.trim().slice(0,60):''))}
-  if(fx.bare||fx.chat)I.fix=fx;(S.tok||(S.tok=def().tok)).img=(S.tok.img||0)+1;save();return u}
+  else{const sz=imgPx(model,I.size),rf={response_format:'b64_json'},
+      L=imgGpt(model)?[{model,prompt,size:sz,quality:['low','high'].includes(I.q)?I.q:'medium',output_format:'jpeg'},{model,prompt,size:sz},{model,prompt}]:[{model,prompt,size:sz,...(/siliconflow/.test(base)?{image_size:sz}:{}),...rf},{model,prompt,...rf},{model,prompt}],
+      must=async f=>{const x=await f();if(!pickImg(x))throw noImg(x);return x},
+      viaImg=()=>must(()=>steps(base+'/images/generations',H,L)),viaChat=()=>must(()=>imgPost(base+'/chat/completions',H,{model,messages:[{role:'user',content:prompt}],stream:false,...(/openrouter/.test(base)?{modalities:['image','text']}:{})}));
+    try{d=await(fx.chat?viaChat:viaImg)()}
+    catch(e){if(e.net||e.block||[401,402,403,429].includes(e.status))throw e;try{d=await(fx.chat?viaImg:viaChat)()}catch(e2){throw e}fx.chat=fx.chat?0:1}}
+  u=u||pickImg(d);if(!u)throw noImg(d);
+  if(fx.bare||fx.chat)I.fix=fx;else delete I.fix;(S.tok||(S.tok=def().tok)).img=(S.tok.img||0)+1;save();return u}
 const PIC=new Map(),picJobs=new Map(),picNew=new Set(),drawing=new Set();let drawQ=Promise.resolve(),viewRef='';
 const picId=u=>/^idb:/.test(u||'')?String(u).slice(4):'';
 const picAttr=u=>{const id=picId(u);return!id?`src="${esc(u)}"${/^https?:/.test(u||'')?' referrerpolicy="no-referrer"':''}`:PIC.has(id)?`src="${PIC.get(id)}"`:`src="${PX}" data-idb="${esc(id)}"`};
@@ -2624,10 +2627,11 @@ settings(v){
   if(tab==='img'){const I=S.media.img;
     return{title:'设置',body:head+`
     <div class="panel">
-      <label class="f">接口地址<input type="url" id="mi-base" data-s="mimg" data-k="base" value="${esc(I.base)}" autocomplete="off"></label>
+      <label class="f">接口地址<input type="url" id="mi-base" data-s="mimg" data-k="base" value="${esc(I.base)}" placeholder="${IMG_BASE_DEF}" autocomplete="off"></label>
       <label class="f">Key<input type="password" id="mi-key" data-s="mimg" data-k="key" value="${esc(I.key)}" autocomplete="off"></label>
-      <div class="grid2"><label class="f">模型<input type="text" id="mi-model" data-s="mimg" data-k="model" value="${esc(I.model)}" autocomplete="off"><button class="tb" data-a="fetchModels" data-t="img" style="align-self:flex-start;padding:4px 0">拉取模型列表</button></label>
-      <label class="f">尺寸<select id="mi-size" data-s="mimg" data-k="size">${[['sq','方'],['tall','竖'],['wide','横']].map(([k,l])=>`<option value="${k}" ${(I.size||'sq')===k?'selected':''}>${l}</option>`).join('')}</select></label></div>
+      <label class="f">模型<input type="text" id="mi-model" data-s="mimg" data-k="model" value="${esc(I.model)}" placeholder="${IMG_MODEL_DEF}" autocomplete="off"><button class="tb" data-a="fetchModels" data-t="img" style="align-self:flex-start;padding:4px 0">拉取模型列表</button></label>
+      <div class="grid2"><label class="f">尺寸<select id="mi-size" data-s="mimg" data-k="size">${[['sq','方'],['tall','竖'],['wide','横']].map(([k,l])=>`<option value="${k}" ${(I.size||'sq')===k?'selected':''}>${l}</option>`).join('')}</select></label>
+      <label class="f" id="mi-qf"${imgGpt(I.model)?'':' hidden'}>画质<select id="mi-q" data-s="mimg" data-k="q">${[['low','低'],['medium','中'],['high','高']].map(([k,l])=>`<option value="${k}" ${(I.q||'medium')===k?'selected':''}>${l}</option>`).join('')}</select></label></div>
       <label class="f">画风<textarea id="mi-style" data-s="mimg" data-k="style" style="min-height:70px" placeholder="${IMG_STYLE_DEF}">${esc(I.style)}</textarea></label>
       <label class="ck"><input type="checkbox" id="mi-auto" data-s="mimg" data-k="auto" ${I.auto?'checked':''}>TA发的照片自动画出来</label></div>
     <div class="panel"><div class="inline" style="flex-wrap:nowrap"><input type="text" id="mi-try" placeholder="画什么" aria-label="画什么"><button class="btn" data-a="testImg">画一张</button></div></div>`}}
@@ -3127,7 +3131,10 @@ function bind(e){const el=e.target;if(!el.dataset||!el.dataset.k)return;const o=
   o[el.dataset.k]=val;save();const out=el.parentElement.querySelector('output');if(out)out.textContent=val;
   if(el.dataset.s==='look'){applyLook();if(el.dataset.k==='sfx')sfx(val)}}
 document.addEventListener('input',e=>{if(e.target.id==='mRange'){mSeek(+e.target.value/1000);return}
-  bind(e)});
+  bind(e);if(e.target.id==='mi-model'){const q=$('#mi-qf');if(q)q.hidden=!imgGpt(e.target.value)}});
+document.addEventListener('error',e=>{const el=e.target;if(!el||el.tagName!=='IMG'||!/^https?:/.test(el.getAttribute('src')||''))return;const b=el.closest('.pmsg'),f=el.closest('.mo-pic');
+  if(b&&b.nextElementSibling?.classList.contains('pcap')){b.nextElementSibling.remove();b.outerHTML=`<div class="tphoto"><button class="tp-in" data-a="msg" data-i="${esc(b.dataset.i)}">${ICONS.camera}<span>${esc(el.alt)}</span></button></div>`}
+  else if(f){f.classList.add('tp');f.innerHTML=ICONS.camera+`<span>${esc(el.alt)}</span>`}},true);
 document.addEventListener('change',async e=>{const el=e.target;bind(e);
   if(el.id==='c-ai'){render(true);return}
   if(el.dataset.a2==='member'){const t=thread(cur().id);if(el.checked){if(!t.chars.includes(el.dataset.id))t.chars.push(el.dataset.id)}else{if(t.chars.length<=2){el.checked=true;toast('群聊至少要 2 个角色');return}t.chars=t.chars.filter(x=>x!==el.dataset.id)}save()}
