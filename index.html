@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.51';</script>
+<script>window.BYJ_VER='2026.11.18.52';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -782,7 +782,7 @@ function mergeState(d){
   if(!Array.isArray(s.cards))s.cards=[];if(!Array.isArray(s.offStyles))s.offStyles=[];if(!Array.isArray(s.personaTpls))s.personaTpls=def().personaTpls;s.books=s.books.filter(b=>b.id!=='bk-yan');s.chars.forEach(c=>{if(Array.isArray(c.books))c.books=c.books.filter(x=>x!=='bk-yan')});s.presets.forEach(p=>{p.items=(p.items||[]).filter(i=>!(i.name==='病娇'&&String(i.content||'').startsWith('【病娇】')))});s.personaTpls=s.personaTpls.filter(x=>x.id!=='pt2');if(String(s.chat.thinkStyle||'').includes('该哄、该查还是该罚'))s.chat.thinkStyle=THINK_DEF;delete s.yanV;delete s.tplV;delete s.notes;delete s.caps;delete s.health;
   s.presets.forEach(p=>(p.items||[]).forEach(i=>{if(i.content===LANG_OLD)i.content=LANG_DEF}));
   {const seen=new Set();(s.chars||[]).forEach(c=>{c.books=(c.books||[]).filter(id=>{const b=(s.books||[]).find(x=>x.id===id);if(!b||b.scope==='global'||seen.has(id))return false;seen.add(id);return true})})}
-  delete s.chat.thinkSrc;delete s.chat.deep;for(const k of['casual','love','chase','away','autoPost'])delete s.chat[k];delete s.chat.web;delete s.look.shell;delete s.look.night;delete s.look.hide;s.chat.effort='';s.chat.think=true;s.chat.inner=true;
+  delete s.chat.thinkSrc;delete s.chat.deep;for(const k of['casual','love','chase','away','autoPost','bg'])delete s.chat[k];delete s.chat.web;delete s.look.shell;delete s.look.night;delete s.look.hide;s.chat.effort='';s.chat.think=true;s.chat.inner=true;
   if([THINK_OLD13,THINK_OLD14,THINK_OLD15,THINK_OLD16].includes(s.chat.thinkStyle))s.chat.thinkStyle=THINK_DEF;
   if(!s.presetV){const old=new Set([OLD_MAIN,ONLINE_OLD,ONLINE_DEF,OFFLINE_OLD,OFFLINE_DEF]);
     s.presets.forEach(p=>{const n=(p.items||[]).length;p.items=(p.items||[]).filter(i=>!old.has(i.content));if(p.items.length<n)BASE_ITEMS().slice(1).forEach(x=>p.items.push(x))});s.presetV=2}
@@ -1127,21 +1127,12 @@ function servedChk(ask,got,tag){if(tag==='chat'&&S.tok?.last){S.tok.last.q=ask;S
   if(!got||mdlSame(ask,got)||servedSeen.has(ask+'>'+got))return;servedSeen.add(ask+'>'+got);
   toast(`填的是 ${ask}，接口那边实际回的是 ${got}，可能被换了模型`,9000)}
 const RETRY_ST=new Set([408,409,425,429,500,502,503,504,520,521,522,523,524,525,526,527,529,530]);
-const bgOn=()=>!!S.chat.bg,away=()=>document.hidden&&!bgOn();
-let aliveEl,swReg;
-function alive(){const el=aliveEl;if(!el)return;if(bgOn()){if(el.paused)el.play().catch(()=>{})}else el.pause()}
-function aliveUp(){if(aliveEl||!bgOn())return alive();const n=80000,d=new DataView(new ArrayBuffer(44+n*2));
-  [...'RIFF    WAVEfmt '].forEach((c,i)=>d.setUint8(i,c.charCodeAt(0)));[...'data'].forEach((c,i)=>d.setUint8(36+i,c.charCodeAt(0)));
-  [[4,36+n*2],[16,16],[24,8000],[28,16000],[40,n*2]].forEach(([o,x])=>d.setUint32(o,x,true));[[20,1],[22,1],[32,2],[34,16]].forEach(([o,x])=>d.setUint16(o,x,true));
-  for(let i=0;i<n;i++)d.setInt16(44+i*2,Math.round(24*Math.sin(i/400*2*Math.PI)),true);
-  aliveEl=new Audio(URL.createObjectURL(new Blob([d.buffer],{type:'audio/wav'})));aliveEl.loop=true;alive()}
-function bgUp(ask){if(bgOn()){if(ask){if(!window.Notification)toast('通知要先把小手机添加到主屏幕');try{Notification.requestPermission()?.catch?.(()=>{})}catch(e){}}
-    navigator.serviceWorker?.register('sw.js').then(r=>swReg=r).catch(()=>{})}aliveUp()}
-function notify(c,body){if(!bgOn()||!document.hidden)return;
+let swReg;
+function bgUp(ask){try{if(ask&&Notification.permission==='default')Notification.requestPermission()?.catch?.(()=>{})}catch(e){}if(!swReg)navigator.serviceWorker?.register('sw.js').then(r=>swReg=r).catch(()=>{})}
+function notify(c,body){if(!document.hidden)return;
   try{navigator.setAppBadge?.(S.threads.reduce((n,t)=>n+(t.unread||0),0)||1)?.catch?.(()=>{})}catch(e){}
   try{if(Notification.permission!=='granted')return;const o={body:String(body||'').slice(0,80),tag:c?.id||'byj'};swReg?swReg.showNotification(dn(c),o):new Notification(dn(c),o)}catch(e){}}
-function bgSeen(){alive();try{navigator.clearAppBadge?.()?.catch?.(()=>{});swReg?.getNotifications().then(l=>l.forEach(n=>n.close())).catch(()=>{})}catch(e){}}
-for(const k of['click','touchend'])addEventListener(k,aliveUp,true);
+function bgSeen(){try{navigator.clearAppBadge?.()?.catch?.(()=>{});swReg?.getNotifications().then(l=>l.forEach(n=>n.close())).catch(()=>{})}catch(e){}}
 async function callAI(system,messages,o={}){
   for(let n=0;;n++){
     try{return await callAI1(system,messages,o)}
@@ -1152,7 +1143,7 @@ async function callAI(system,messages,o={}){
 async function callAI1(system,messages,o={}){let hid=document.hidden;const vh=()=>{if(document.hidden)hid=true};document.addEventListener('visibilitychange',vh);
   try{return await callAI0(system,messages,o)}
   catch(e){if(!hid||o._bg||!e.net)throw e;
-    if(away())await new Promise(r=>{const f=()=>{if(!document.hidden){document.removeEventListener('visibilitychange',f);r()}};document.addEventListener('visibilitychange',f)});
+    if(document.hidden)await new Promise(r=>{const f=()=>{if(!document.hidden){document.removeEventListener('visibilitychange',f);r()}};document.addEventListener('visibilitychange',f)});
     toast('刚才切出去断了，重新发一次…',6000);return callAI0(system,messages,{...o,_bg:1})}
   finally{document.removeEventListener('visibilitychange',vh)}}
 const CK=new Map();let ckN=0;
@@ -2168,7 +2159,7 @@ function lifeTick(mins){const now=Date.now();{const d=new Date();ensureHolidays(
     if(c){postBusy=true;c.postAt=now;charPost(c).then(()=>{if(onFeed())render(true)}).catch(()=>{}).finally(()=>postBusy=false)}}
   if(api()?.key&&!busy.size&&!call&&!document.hidden&&!peekBusy){const t=S.threads.find(t=>{const c=charById(t.chars[0]);return t.type==='dm'&&reachable(c)&&now-(c.peekAt||0)>12*3600e3&&now-t.t<2*864e5&&t.msgs.some(m=>m.from==='me')});
     if(t&&Math.random()<1-Math.pow(1-1/1440,mins)){autoPeek(t,charById(t.chars[0]),'sneak');return}}
-  if(busy.size||call||away()||!api()?.key)return;
+  if(busy.size||call||!api()?.key)return;
   const dms=S.threads.filter(t=>t.type==='dm'&&!t.pending&&(t.mode||'online')==='online').sort(()=>Math.random()-.5);
   for(const c of S.chars.filter(reachable).sort(()=>Math.random()-.5)){if(statusOf(c)==='sleep'||now-(c.helloAt||0)<6*3600e3)continue;const old=(c.said||[]).length>0;
     const d=S.threads.find(x=>x.type==='dm'&&x.chars[0]===c.id);if(d&&(d.msgs.some(m=>m.type!=='sys')||d.pending||(d.mode||'online')!=='online'))continue;
@@ -2192,7 +2183,7 @@ function lifeTick(mins){const now=Date.now();{const d=new Date();ensureHolidays(
     if(!document.hidden&&statusOf(c)==='free'&&Math.random()<.18){incomingCall(t,Math.random()<.3?'video':'voice');return}
     reply(t,`（现在是${nowText()}。${me}已经${gapText(gap)}没有找你了。你主动找TA，从下面挑一个最自然的理由，话题和开头都别和你之前发过的重样：\n${whyReach(c).map(x=>'· '+x).join('\n')}）`);return}}
 function awayCatch(from,now){
-  if(S.chat.away===false||!api()?.key||busy.size||call||away())return false;
+  if(S.chat.away===false||!api()?.key||busy.size||call)return false;
   const dms=S.threads.filter(t=>t.type==='dm'&&!t.pending&&(t.mode||'online')==='online'&&t.msgs.some(m=>m.from==='me')).sort((a,b)=>(b.t||0)-(a.t||0));
   for(const t of dms){const c=charById(t.chars[0]),me=mask(c).name;if(!reachable(c))continue;
     const last=[...t.msgs].reverse().find(m=>m.type!=='sys');if(!last||now-last.t>3*864e5)continue;
@@ -2680,7 +2671,7 @@ chatPrefs(v){const C=S.chat,T=v?.tid&&thread(v.tid),cs=T?T.chars.map(charById).f
   return{title:'聊天设置',sub:T?threadTitle(T):'',body:`${cs.map(charBooksPanel).join('')}<div class="panel"><h2>回复</h2>
       <label class="f">条数<span class="inline"><input type="range" id="on-max" min="1" max="8" step="1" data-s="chat" data-k="onMax" value="${num(C.onMax)||3}"><output>${num(C.onMax)||3}</output></span></label>
       <label class="f">每条字数<span class="inline"><input type="range" id="on-len" min="1" max="60" step="1" data-s="chat" data-k="onLen" value="${num(C.onLen)||10}"><output>${num(C.onLen)||10}</output></span></label>
-      <label class="ck"><input type="checkbox" id="ch-bg" data-s="chat" data-k="bg" ${C.bg?'checked':''}>后台也收消息</label></div>
+</div>
     <div class="panel"><h2>记忆</h2>
       <label class="f">读最近几条<span class="inline"><input type="range" id="ch-ctx" min="6" max="200" step="2" data-s="chat" data-k="ctx" value="${C.ctx}"><output>${C.ctx}</output></span></label>
       <label class="f">每几条总结一次<span class="inline"><input type="range" id="ch-every" min="10" max="100" step="5" data-s="chat" data-k="sumEvery" value="${C.sumEvery}"><output>${C.sumEvery}</output></span></label></div>
@@ -2815,7 +2806,7 @@ const A={
   groupGo(){const ids=[...document.querySelectorAll('.gm:checked')].map(x=>x.value);if(ids.length<2){toast('至少选 2 个');return}
     const t={id:uid(),type:'group',chars:ids,title:$('#gName').value.trim(),mode:'online',msgs:[],unread:0,t:Date.now()};S.threads.push(t);save();closeSheet();go({v:'chat',id:t.id})},
   openThread(el){go({v:'chat',id:el.dataset.id})},
-  send(){sendMsg(thread(cur().id),$('#msgIn'))},
+  send(){bgUp(1);sendMsg(thread(cur().id),$('#msgIn'))},
   msg(el){const t=thread(cur().id),i=+el.dataset.i,m=t.msgs[i];if(!m)return;
     const lastTheirs=m.from!=='me'&&t.msgs.slice(i+1).every(x=>x.from!=='me');
     const plain=m.type!=='sticker'&&m.type!=='sys'&&!m.recalled;
@@ -3145,7 +3136,7 @@ function scopeObj(s){const v=cur()||{};
     case'api':return apiById(v.id);case'thread':return thread(v.id);case'off':{const t=thread(v.id);return t&&(t.offline||(t.offline={...S.offline}))}}}
 function bind(e){const el=e.target;if(!el.dataset||!el.dataset.k)return;const o=scopeObj(el.dataset.s);if(!o)return;
   const val=el.type==='checkbox'?el.checked:(el.type==='range'||el.type==='number')?(el.value===''&&el.dataset.null?null:+el.value):el.value;
-  o[el.dataset.k]=val;if(el.dataset.k==='bg')bgUp(1);if(el.dataset.s==='api'&&el.dataset.k==='effort'&&o.fix){delete o.fix.noEff;delete o.fix.eff}save();const out=el.parentElement.querySelector('output');if(out)out.textContent=val;
+  o[el.dataset.k]=val;if(el.dataset.s==='api'&&el.dataset.k==='effort'&&o.fix){delete o.fix.noEff;delete o.fix.eff}save();const out=el.parentElement.querySelector('output');if(out)out.textContent=val;
   if(el.dataset.s==='look'){applyLook();if(el.dataset.k==='sfx')sfx(val)}}
 document.addEventListener('input',e=>{if(e.target.id==='mRange'){mSeek(+e.target.value/1000);return}
   bind(e)});
@@ -3208,7 +3199,7 @@ function setTouchIcon(){try{let l=document.getElementById('touchIcon');if(!l){l=
   try{localStorage.removeItem('byj_try');localStorage.removeItem('byj_ver');DB.del('appHtml')}catch(e){}
   let tickSaved=0;const idle=f=>window.requestIdleCallback?requestIdleCallback(f,{timeout:3000}):setTimeout(f,200);
   const tick=()=>{const now=Date.now(),seen=S.seenAt||S.lastTick,m=S.lastTick?Math.min(180,(now-S.lastTick)/60e3):0;S.lastTick=now;
-    if(!away()){const gone=seen?now-seen:0;S.seenAt=now;if(gone>=90*60e3)awayCatch(now-gone,now)}
+    {const gone=seen?now-seen:0;S.seenAt=now;if(gone>=90*60e3)awayCatch(now-gone,now)}
     if(m>0){softTick();lifeTick(m)}if(now-tickSaved>60e3){tickSaved=now;idle(save)}};
   tick();setInterval(tick,20e3);
   document.addEventListener('visibilitychange',()=>{if(document.hidden){clearTimeout(saveT);DB.set('state',JSON.stringify(S))}else{setAppH();bgSeen();tick()}});
