@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.52';</script>
+<script>window.BYJ_VER='2026.11.18.53';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -708,7 +708,7 @@ const DB={db:null,
   blob(k){return new Promise(r=>{if(!this.db)return r();try{const q=this.db.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>r(q.result??null);q.onerror=()=>r()}catch(e){r()}})},
   keys(){return new Promise(r=>{if(!this.db)return r([]);try{const q=this.db.transaction('kv').objectStore('kv').getAllKeys();q.onsuccess=()=>r(q.result||[]);q.onerror=()=>r([])}catch(e){r([])}})}};
 let saveT;
-function save(){clearTimeout(saveT);saveT=setTimeout(()=>DB.set('state',JSON.stringify(S)),document.hidden?0:1200)}
+function save(){clearTimeout(saveT);saveT=setTimeout(()=>DB.set('state',JSON.stringify(S)),1200)}
 try{navigator.storage?.persisted?.().then(p=>{if(!p)navigator.storage.persist?.().catch(()=>{})}).catch(()=>{})}catch(e){}
 addEventListener('pagehide',()=>{clearTimeout(saveT);DB.set('state',JSON.stringify(S))});
 
@@ -782,7 +782,7 @@ function mergeState(d){
   if(!Array.isArray(s.cards))s.cards=[];if(!Array.isArray(s.offStyles))s.offStyles=[];if(!Array.isArray(s.personaTpls))s.personaTpls=def().personaTpls;s.books=s.books.filter(b=>b.id!=='bk-yan');s.chars.forEach(c=>{if(Array.isArray(c.books))c.books=c.books.filter(x=>x!=='bk-yan')});s.presets.forEach(p=>{p.items=(p.items||[]).filter(i=>!(i.name==='病娇'&&String(i.content||'').startsWith('【病娇】')))});s.personaTpls=s.personaTpls.filter(x=>x.id!=='pt2');if(String(s.chat.thinkStyle||'').includes('该哄、该查还是该罚'))s.chat.thinkStyle=THINK_DEF;delete s.yanV;delete s.tplV;delete s.notes;delete s.caps;delete s.health;
   s.presets.forEach(p=>(p.items||[]).forEach(i=>{if(i.content===LANG_OLD)i.content=LANG_DEF}));
   {const seen=new Set();(s.chars||[]).forEach(c=>{c.books=(c.books||[]).filter(id=>{const b=(s.books||[]).find(x=>x.id===id);if(!b||b.scope==='global'||seen.has(id))return false;seen.add(id);return true})})}
-  delete s.chat.thinkSrc;delete s.chat.deep;for(const k of['casual','love','chase','away','autoPost','bg'])delete s.chat[k];delete s.chat.web;delete s.look.shell;delete s.look.night;delete s.look.hide;s.chat.effort='';s.chat.think=true;s.chat.inner=true;
+  delete s.chat.thinkSrc;delete s.chat.deep;for(const k of['casual','love','chase','away','autoPost'])delete s.chat[k];delete s.chat.web;delete s.look.shell;delete s.look.night;delete s.look.hide;s.chat.effort='';s.chat.think=true;s.chat.inner=true;
   if([THINK_OLD13,THINK_OLD14,THINK_OLD15,THINK_OLD16].includes(s.chat.thinkStyle))s.chat.thinkStyle=THINK_DEF;
   if(!s.presetV){const old=new Set([OLD_MAIN,ONLINE_OLD,ONLINE_DEF,OFFLINE_OLD,OFFLINE_DEF]);
     s.presets.forEach(p=>{const n=(p.items||[]).length;p.items=(p.items||[]).filter(i=>!old.has(i.content));if(p.items.length<n)BASE_ITEMS().slice(1).forEach(x=>p.items.push(x))});s.presetV=2}
@@ -1127,12 +1127,6 @@ function servedChk(ask,got,tag){if(tag==='chat'&&S.tok?.last){S.tok.last.q=ask;S
   if(!got||mdlSame(ask,got)||servedSeen.has(ask+'>'+got))return;servedSeen.add(ask+'>'+got);
   toast(`填的是 ${ask}，接口那边实际回的是 ${got}，可能被换了模型`,9000)}
 const RETRY_ST=new Set([408,409,425,429,500,502,503,504,520,521,522,523,524,525,526,527,529,530]);
-let swReg;
-function bgUp(ask){try{if(ask&&Notification.permission==='default')Notification.requestPermission()?.catch?.(()=>{})}catch(e){}if(!swReg)navigator.serviceWorker?.register('sw.js').then(r=>swReg=r).catch(()=>{})}
-function notify(c,body){if(!document.hidden)return;
-  try{navigator.setAppBadge?.(S.threads.reduce((n,t)=>n+(t.unread||0),0)||1)?.catch?.(()=>{})}catch(e){}
-  try{if(Notification.permission!=='granted')return;const o={body:String(body||'').slice(0,80),tag:c?.id||'byj'};swReg?swReg.showNotification(dn(c),o):new Notification(dn(c),o)}catch(e){}}
-function bgSeen(){try{navigator.clearAppBadge?.()?.catch?.(()=>{});swReg?.getNotifications().then(l=>l.forEach(n=>n.close())).catch(()=>{})}catch(e){}}
 async function callAI(system,messages,o={}){
   for(let n=0;;n++){
     try{return await callAI1(system,messages,o)}
@@ -1670,17 +1664,17 @@ async function reply(t,extra,stamps){
     const posted=[],lack={think:S.chat.think&&!ex.think,inner:S.chat.inner&&!ex.inner.length};
     const miss=ctx.group&&S.chat.inner&&parts.length?ctx.chars.filter(c=>{const o=parts.length===1&&parts[0].type==='narr';return o?!new RegExp('(^|\\n)'+c.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'：').test(parts[0].inner||''):parts.some(p=>p.from===c.id)&&!parts.some(p=>p.from===c.id&&p.inner)}):[];
     for(let i=0;i<parts.length;i++){
-      if(i)await sleep(ctx.mode==='offline'||stamps||document.hidden?0:Math.min(1400,350+String(parts[i].content||'').length*25));
+      if(i)await sleep(ctx.mode==='offline'||stamps?0:Math.min(1400,350+String(parts[i].content||'').length*25));
       const pm={id:uid(),...parts[i],t:stamps?Math.min(Date.now(),stamps[Math.min(stamps.length-1,Math.floor(i*stamps.length/parts.length))]+i*20e3):Date.now()};t.msgs.push(pm);posted.push(pm);t.t=Date.now();if(pm.type==='pic'&&imgAuto())drawQ=drawQ.then(()=>drawMsg(t,pm));
       if(!viewing(t)){t.unread=(t.unread||0)+1;}
       if(i===parts.length-1)busy.delete(t.id);save();onThreadUpdate(t);
     }
-    busy.delete(t.id);onThreadUpdate(t);{const m=posted[posted.length-1];if(m)notify(charById(m.from)||ctx.chars[0],pv(m))}
+    busy.delete(t.id);onThreadUpdate(t);
     if(t.type==='dm'&&ctx.mode!=='offline'&&ctx.chars[0]){const c=ctx.chars[0];c.said=[...(c.said||[]).filter(x=>Date.now()-x.t<36*3600e3),...posted.filter(m=>(m.type==='text'||m.type==='voice')&&m.content).map(m=>({t:m.t,s:String(m.content).slice(0,60)}))].slice(-30);save()}
     if(t.type==='dm'&&cur()?.id===t.id&&cur().v==='chat')render(true);
     if(!isOpen())renderHome();
     if(ex.acts.includes('查手机')&&!ctx.group)setTimeout(()=>autoPeek(t,ctx.chars[0],'open'),2500);
-    if(callAct&&!ctx.group&&!call&&!document.hidden)setTimeout(()=>incomingCall(t,callAct==='视频通话'?'video':'voice'),1500);
+    if(callAct&&!ctx.group&&!call)setTimeout(()=>incomingCall(t,callAct==='视频通话'?'video':'voice'),1500);
     if(posted.length&&miss.length)fillInner(t,ctx,posted,miss);
     else if(posted.length&&(lack.think||lack.inner))backfill(t,ctx,posted,lack);
     maybeSummarize(t);
@@ -2159,7 +2153,7 @@ function lifeTick(mins){const now=Date.now();{const d=new Date();ensureHolidays(
     if(c){postBusy=true;c.postAt=now;charPost(c).then(()=>{if(onFeed())render(true)}).catch(()=>{}).finally(()=>postBusy=false)}}
   if(api()?.key&&!busy.size&&!call&&!document.hidden&&!peekBusy){const t=S.threads.find(t=>{const c=charById(t.chars[0]);return t.type==='dm'&&reachable(c)&&now-(c.peekAt||0)>12*3600e3&&now-t.t<2*864e5&&t.msgs.some(m=>m.from==='me')});
     if(t&&Math.random()<1-Math.pow(1-1/1440,mins)){autoPeek(t,charById(t.chars[0]),'sneak');return}}
-  if(busy.size||call||!api()?.key)return;
+  if(busy.size||call||document.hidden||!api()?.key)return;
   const dms=S.threads.filter(t=>t.type==='dm'&&!t.pending&&(t.mode||'online')==='online').sort(()=>Math.random()-.5);
   for(const c of S.chars.filter(reachable).sort(()=>Math.random()-.5)){if(statusOf(c)==='sleep'||now-(c.helloAt||0)<6*3600e3)continue;const old=(c.said||[]).length>0;
     const d=S.threads.find(x=>x.type==='dm'&&x.chars[0]===c.id);if(d&&(d.msgs.some(m=>m.type!=='sys')||d.pending||(d.mode||'online')!=='online'))continue;
@@ -2180,10 +2174,10 @@ function lifeTick(mins){const now=Date.now();{const d=new Date();ensureHolidays(
     if(gap<3600e3||(t.proAt&&t.proAt>lastMe))continue;
     if(Math.random()>1-Math.pow(1-.04,mins))continue;
     t.proAt=now;save();
-    if(!document.hidden&&statusOf(c)==='free'&&Math.random()<.18){incomingCall(t,Math.random()<.3?'video':'voice');return}
+    if(statusOf(c)==='free'&&Math.random()<.18){incomingCall(t,Math.random()<.3?'video':'voice');return}
     reply(t,`（现在是${nowText()}。${me}已经${gapText(gap)}没有找你了。你主动找TA，从下面挑一个最自然的理由，话题和开头都别和你之前发过的重样：\n${whyReach(c).map(x=>'· '+x).join('\n')}）`);return}}
 function awayCatch(from,now){
-  if(S.chat.away===false||!api()?.key||busy.size||call)return false;
+  if(S.chat.away===false||!api()?.key||busy.size||call||document.hidden)return false;
   const dms=S.threads.filter(t=>t.type==='dm'&&!t.pending&&(t.mode||'online')==='online'&&t.msgs.some(m=>m.from==='me')).sort((a,b)=>(b.t||0)-(a.t||0));
   for(const t of dms){const c=charById(t.chars[0]),me=mask(c).name;if(!reachable(c))continue;
     const last=[...t.msgs].reverse().find(m=>m.type!=='sys');if(!last||now-last.t>3*864e5)continue;
@@ -2806,7 +2800,7 @@ const A={
   groupGo(){const ids=[...document.querySelectorAll('.gm:checked')].map(x=>x.value);if(ids.length<2){toast('至少选 2 个');return}
     const t={id:uid(),type:'group',chars:ids,title:$('#gName').value.trim(),mode:'online',msgs:[],unread:0,t:Date.now()};S.threads.push(t);save();closeSheet();go({v:'chat',id:t.id})},
   openThread(el){go({v:'chat',id:el.dataset.id})},
-  send(){bgUp(1);sendMsg(thread(cur().id),$('#msgIn'))},
+  send(){sendMsg(thread(cur().id),$('#msgIn'))},
   msg(el){const t=thread(cur().id),i=+el.dataset.i,m=t.msgs[i];if(!m)return;
     const lastTheirs=m.from!=='me'&&t.msgs.slice(i+1).every(x=>x.from!=='me');
     const plain=m.type!=='sticker'&&m.type!=='sys'&&!m.recalled;
@@ -3195,14 +3189,14 @@ function setTouchIcon(){try{let l=document.getElementById('touchIcon');if(!l){l=
     raw=JSON.stringify(s)}}catch(e){}}
   let loaded=false;try{S=mergeState(raw?JSON.parse(raw):null);loaded=!!raw}catch(e){S=def()}
   applyLook();renderHome();loadFont();ensureHolidays();if(loaded)setTimeout(picGC,4000);
-  setTouchIcon();bgUp();
+  setTouchIcon();
   try{localStorage.removeItem('byj_try');localStorage.removeItem('byj_ver');DB.del('appHtml')}catch(e){}
   let tickSaved=0;const idle=f=>window.requestIdleCallback?requestIdleCallback(f,{timeout:3000}):setTimeout(f,200);
   const tick=()=>{const now=Date.now(),seen=S.seenAt||S.lastTick,m=S.lastTick?Math.min(180,(now-S.lastTick)/60e3):0;S.lastTick=now;
-    {const gone=seen?now-seen:0;S.seenAt=now;if(gone>=90*60e3)awayCatch(now-gone,now)}
+    if(!document.hidden){const gone=seen?now-seen:0;S.seenAt=now;if(gone>=90*60e3)awayCatch(now-gone,now)}
     if(m>0){softTick();lifeTick(m)}if(now-tickSaved>60e3){tickSaved=now;idle(save)}};
   tick();setInterval(tick,20e3);
-  document.addEventListener('visibilitychange',()=>{if(document.hidden){clearTimeout(saveT);DB.set('state',JSON.stringify(S))}else{setAppH();bgSeen();tick()}});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){clearTimeout(saveT);DB.set('state',JSON.stringify(S))}else{setAppH();tick()}});
 })();
 </script>
 </body>
