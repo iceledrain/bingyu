@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.46';</script>
+<script>window.BYJ_VER='2026.11.18.47';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -244,7 +244,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .qbar button{background:none;border:0;color:var(--deep);font-size:16px;padding:0 6px}
 @keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .pmsg{border:0;padding:0;background:none;border-radius:16px;overflow:hidden;display:block}
-.pmsg img{display:block;max-width:200px;max-height:260px;border-radius:16px}.pmsg img[data-idb]{background:var(--accent-soft)}
+.pmsg img{display:block;max-width:200px;max-height:260px;border-radius:16px}.pmsg img[data-idb]{background:var(--accent-soft)}.pmsg.pwait{display:grid;place-items:center;background:var(--accent-soft)}
 .tphoto{width:190px;border:0;padding:8px 8px 4px;background:#fff;border-radius:6px;box-shadow:0 4px 14px rgba(65,65,65,.15);display:flex;flex-direction:column;gap:4px;text-align:left;color:#484848}
 .tp-in{min-height:120px;border-radius:3px;background:linear-gradient(160deg,#e4e4e4,#f3f3f3 60%,#eaeaea);display:flex;flex-direction:column;justify-content:flex-end;gap:6px;padding:10px;font:13px/1.55 var(--display);color:#565656}
 .tp-in svg{width:18px;height:18px;opacity:.6}
@@ -742,13 +742,13 @@ const PERSONA_TPL='姓名：\n年龄：\n性别：\n身份/职业：\n外貌：\
 const API_BLANK=id=>({id,name:'接口',key:'',base:'',model:'',temp:1,topP:null,topK:null,maxTokens:32000,stream:true});
 const isOldExample=p=>p&&p.name==='Claude'&&!String(p.key||'').trim()&&/anthropic\.com/.test(p.base||'')&&/^claude-/.test(p.model||'');
 const def=()=>({v:4,loc:null,wx:{},
-  media:{tts:{base:'',key:'',model:'',voice:''},img:{base:'',key:'',model:'',size:'sq',q:'medium',style:'',auto:false}},
+  media:{tts:{base:'',key:'',model:'',voice:''},img:{base:'',key:'',model:'',size:'',q:'',cx:'',style:'',auto:true,books:[]}},
   api:{active:'a1',side:'',profiles:[API_BLANK('a1')]},
   look:{font:'system',customFont:null,fs:15,alpha:.92,clear:30,wallpaper:'',photo:'',caption:'',icons:{},appWalls:{}},
   chat:CHAT_DEF(),
   masks:[{id:'m1',name:'user',avatar:'',bday:'',persona:''}],activeMask:'m1',wallet:520,
   chars:[],books:[],
-  presets:[{id:'p1',name:'默认',core:1,items:DEFAULT_ITEMS()}],activePreset:'p1',loreV:1,
+  presets:[{id:'p1',name:'默认',core:1,items:DEFAULT_ITEMS()}],activePreset:'p1',loreV:1,imgV:1,
   offline:{style:OFF_STYLE_DEF,words:500,cpov:'third',upov:'second',evRate:10,lead:'char',books:[]},
   offStyles:[],cards:[],personaTpls:[{id:'pt1',name:'基础模板',text:PERSONA_TPL}],
   threads:[],feed:[],orders:[],shop:{food:[],goods:[]},days:[],
@@ -776,7 +776,7 @@ function mergeState(d){
   s.tok=Object.assign(def().tok,d.tok||{});if(!s.tok.by||typeof s.tok.by!=='object')s.tok.by={};
   if(!s.presets.length)s.presets=def().presets;if(!s.chat.thinkStyle)s.chat.thinkStyle=THINK_DEF;if(!s.masks.length)s.masks=def().masks;
   if(!s.stickers||!Array.isArray(s.stickers.groups))s.stickers=def().stickers;
-  s.media={tts:Object.assign(def().media.tts,d.media?.tts||{}),img:(I=>({base:String(I.base||''),key:String(I.key||''),model:String(I.model||''),size:{'1024x1536':'tall','1536x1024':'wide',tall:'tall',wide:'wide'}[I.size]||'sq',q:['low','high'].includes(I.q)?I.q:'medium',style:String(I.style||''),auto:!!I.auto,...(I.fix&&typeof I.fix==='object'?{fix:I.fix}:{})}))(d.media?.img&&typeof d.media.img==='object'?d.media.img:{})};delete s.media.tts.group;s.look.appWalls=s.look.appWalls||{};
+  s.media={tts:Object.assign(def().media.tts,d.media?.tts||{}),img:(I=>({base:String(I.base||''),key:String(I.key||''),model:String(I.model||''),size:{'1024x1536':'tall','1536x1024':'wide',tall:'tall',wide:'wide',sq:'sq'}[I.size]||'',q:IMG_Q.includes(I.q)?I.q:'',cx:IMG_CX.includes(I.cx)?I.cx:'',style:String(I.style||''),auto:I.auto!==false,books:Array.isArray(I.books)?I.books.filter(id=>s.books.some(b=>b.id===id)):[],...(I.fix&&typeof I.fix==='object'?{fix:I.fix}:{})}))(d.media?.img&&typeof d.media.img==='object'?d.media.img:{})};if(!d.imgV){const I=s.media.img;I.auto=true;if(I.size==='sq')I.size='';if(I.q==='medium')I.q=''}s.imgV=1;delete s.media.tts.group;s.look.appWalls=s.look.appWalls||{};
   s.wx=s.wx&&typeof s.wx==='object'?s.wx:{};s.hol=s.hol&&typeof s.hol==='object'?s.hol:{};
   if(!Array.isArray(s.cards))s.cards=[];if(!Array.isArray(s.offStyles))s.offStyles=[];if(!Array.isArray(s.personaTpls))s.personaTpls=def().personaTpls;s.books=s.books.filter(b=>b.id!=='bk-yan');s.chars.forEach(c=>{if(Array.isArray(c.books))c.books=c.books.filter(x=>x!=='bk-yan')});s.presets.forEach(p=>{p.items=(p.items||[]).filter(i=>!(i.name==='病娇'&&String(i.content||'').startsWith('【病娇】')))});s.personaTpls=s.personaTpls.filter(x=>x.id!=='pt2');if(String(s.chat.thinkStyle||'').includes('该哄、该查还是该罚'))s.chat.thinkStyle=THINK_DEF;delete s.yanV;delete s.tplV;delete s.notes;delete s.caps;delete s.health;
   s.presets.forEach(p=>(p.items||[]).forEach(i=>{if(i.content===LANG_OLD)i.content=LANG_DEF}));
@@ -1078,7 +1078,7 @@ function back(){closeSheet();
 function render(keep){$('#mpop')?.remove();
   const v=cur();if(!v)return;let r;
   try{r=VIEWS[v.v](v)}catch(e){console.error(e);toast('这个页面打不开：'+(e.message||e));stack.pop();if(stack.length)render();else{appEl.classList.remove('open');renderHome()}return}const sc=keep?$('#content')?.scrollTop:0;
-  const kept={};if(keep)for(const id of ['msgIn','postIn','replyIn','callIn']){const x=document.getElementById(id);if(x&&x.value)kept[id]=x.value}
+  const kept={};if(keep)for(const id of ['msgIn','postIn','replyIn','callIn','mi-try']){const x=document.getElementById(id);if(x&&x.value)kept[id]=x.value}
   const wp=S.look.wallpaper||'',wall=appEl.querySelector(':scope>.wall2')||Object.assign(document.createElement('div'),{className:'wall2 wall'});
   appEl.innerHTML=`<header class="bar">${r.noBack?(r.left||'<span></span>'):`<button class="bk" data-a="back" aria-label="返回">${ICONS.back}<span>返回</span></button>`}<h1>${r.head||esc(r.title)+(r.sub?`<small>${esc(r.sub)}</small>`:'')}</h1><div class="br">${r.right||''}</div></header>
   <main class="content ${r.cls||''}" id="content">${r.body}</main>${r.foot?`<footer class="foot ${r.footCls||''}">${r.foot}</footer>`:''}`;
@@ -1110,6 +1110,7 @@ function normalize(msgs){
 const num=v=>v===null||v===undefined||v===''||isNaN(+v)?null:+v;
 const TOKTAG={chat:'聊天',bg:'后台生成',other:'其他'};
 const isMM=model=>/minimax-m3\.1/i.test(model||'');
+const EFFS=['low','medium','high','xhigh','max'];
 const rzOf=d=>d.reasoning_content||(typeof d.reasoning==='string'?d.reasoning:'')||(Array.isArray(d.reasoning_details)?d.reasoning_details.map(x=>x?.text||'').join(''):'')||'';
 const antHdr=(base,key)=>/anthropic\.com/.test(base)?{'x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'}:{Authorization:'Bearer '+key};
 const deNote=x=>String(x||'').replace(/\]?<\]?minimax\[?>\[?/gi,'').replace(/<\/?voice_?call[^>\n]{0,20}>/gi,'[语音通话]').replace(/<\/?video_?call[^>\n]{0,20}>/gi,'[视频通话]').replace(/【(语音通话|视频通话|查手机|拉黑|解除拉黑|挂断|拒接)】/g,'[$1]').replace(/(\[(?:语音通话|视频通话)\])\s*\1/g,'$1').replace(/<[!！]\s*-{1,2}[\s\S]*?-{1,2}\s*>/g,'').replace(/^[ \t]*<[!！]\s*-{1,2}[^\n]*$/gm,'').replace(/\n{3,}/g,'\n\n');
@@ -1149,6 +1150,7 @@ async function callAI0(system,messages,o={}){
   if(!model)throw new Error('先在「设置 · 聊天」填模型名');
   if(!base)throw new Error('先在「设置 · 聊天」填接口地址');
   const fx=p.fix?.model===model?p.fix:{},temp='temp' in fx?fx.temp:o.temp??num(p.temp),topP=fx.noTopP?null:num(p.topP),topK=fx.noTopK?null:num(p.topK),max=Math.min(o.max!=null?o.max+4096:(num(p.maxTokens)||2048),+fx.cap||Infinity);
+  const ef0=o.thoughts&&EFFS.includes(p.effort)?p.effort:'',eff=fx.noEff?'':fx.eff&&EFFS.indexOf(ef0)>EFFS.indexOf(fx.eff)?fx.eff:ef0;
   const m=normalize(messages);let res,glm=null;
   const ckK=o.thoughts&&/claude/i.test(model)?(o.who||whoOf(system))+'|'+model+'|'+base:'',ckP=ckK?system+'\u0001'+m.slice(0,-1).map(x=>x.role+'\u0002'+x.content).join('\u0001'):'',ckT=p.cache==='1h'?3500e3:290e3;
   const ctl=new AbortController(),tmo=setTimeout(()=>ctl.abort(),o.timeout||300000),sig=ctl.signal;
@@ -1157,10 +1159,10 @@ async function callAI0(system,messages,o={}){
       const b={model,max_tokens:max,...(p.stream?{stream:true,stream_options:{include_usage:true}}:{}),...(isKimi(base)?{prompt_cache_options:{mode:'implicit',ttl:p.cache==='1h'?'1h':'5m'}}:{}),messages:[{role:'system',content:system},...m.map(x=>({role:x.role,content:x.imgs&&x.imgs.length?[{type:'text',text:x.content},...x.imgs.map(u=>({type:'image_url',image_url:{url:u}}))]:x.content}))]};if(temp!==null)b.temperature=temp;if(topP!==null)b.top_p=topP;if(topK!==null)b.top_k=topK;
       if(o.thoughts&&/claude/i.test(model)){const cc={type:'ephemeral',...(p.cache==='1h'?{ttl:'1h'}:{})},h=b.messages.length>2?b.messages[b.messages.length-2]:null;b.messages[0].content=[{type:'text',text:system,cache_control:cc}];
         if(h){if(typeof h.content==='string')h.content=[{type:'text',text:h.content,cache_control:cc}];else h.content[h.content.length-1].cache_control=cc}}
-      if(isMM(model))b.reasoning_effort=(o.thoughts&&S.chat.effort&&S.chat.effort!=='none'&&S.chat.effort)||'low';
+      if(isMM(model))b.reasoning_effort=eff||'low';else if(eff)b.reasoning_effort=eff==='max'&&!/claude/i.test(model)?'xhigh':eff;
       if(isDS(p)&&!o.thoughts)b.thinking={type:'disabled'};
       if(isGLM(base)){delete b.stream;delete b.stream_options;
-        if(/^glm-5/i.test(model))b.reasoning_effort='low';else if(!o.thoughts)b.thinking={type:'disabled'};
+        if(/^glm-5/i.test(model))b.reasoning_effort={low:'low',medium:'medium'}[eff]||(eff?'high':'low');else if(!o.thoughts)b.thinking={type:'disabled'};
         const H={Authorization:'Bearer '+key};
         res=await fetch(base+'/async/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',...H},body:JSON.stringify(b),signal:sig});
         if(res.ok){glm=await res.json().catch(()=>({}));const id=glm.id;
@@ -1168,6 +1170,7 @@ async function callAI0(system,messages,o={}){
       }else res=await fetch(base+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},body:JSON.stringify(b),signal:sig});
     }else if(p.provider==='gemini'){
       const g={maxOutputTokens:max};if(temp!==null)g.temperature=temp;if(topP!==null)g.topP=topP;if(topK!==null)g.topK=topK;
+      if(eff)g.thinkingConfig=/gemini-2\.5/i.test(model)?{thinkingBudget:{low:1024,medium:8192,high:24576}[eff]||32768}:{thinkingLevel:eff==='low'||eff==='medium'?eff:'high'};
       res=await fetch(`${base}/models/${encodeURIComponent(model)}:${p.stream?'streamGenerateContent?alt=sse&':'generateContent?'}key=${encodeURIComponent(key)}`,{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({systemInstruction:{parts:[{text:system}]},contents:m.map(x=>({role:x.role==='user'?'user':'model',parts:[{text:x.content},...(x.imgs||[]).map(u=>({inlineData:{mimeType:u.slice(5,u.indexOf(';')),data:u.split(',')[1]}}))]})),generationConfig:g,
           safetySettings:['HARASSMENT','HATE_SPEECH','SEXUALLY_EXPLICIT','DANGEROUS_CONTENT'].map(c=>({category:'HARM_CATEGORY_'+c,threshold:'BLOCK_ONLY_HIGH'}))}),signal:sig});
@@ -1175,10 +1178,10 @@ async function callAI0(system,messages,o={}){
       const cur=/claude-(opus|sonnet|haiku|fable|mythos)-(5|4-[78])/.test(model),fb=/api\.anthropic\.com/.test(base)&&/claude-(opus-5|fable-5|sonnet-5-5)/.test(model);
       const b={model,system,max_tokens:cur?Math.max(max,16000):max,...(p.stream?{stream:true}:{}),...(fb?{fallbacks:'default'}:{}),messages:m.map(x=>({role:x.role,content:x.imgs&&x.imgs.length?[...x.imgs.map(u=>({type:'image',source:{type:'base64',media_type:u.slice(5,u.indexOf(';')),data:u.split(',')[1]}})),{type:'text',text:x.content||'（图片）'}]:x.content}))};
       const ad=cur||/claude-(opus|sonnet)-4-6/.test(model),old=!ad&&/claude-(3-7|(opus|sonnet|haiku)-4)/.test(model);
-      if(o.thoughts&&S.chat.effort&&S.chat.effort!=='none'&&(ad||/claude-opus-4-5/.test(model)))b.output_config={effort:S.chat.effort};
+      if(eff&&(ad||/claude-opus-4-5/.test(model))){b.output_config={effort:(/claude-opus-4-5/.test(model)&&EFFS.indexOf(eff)>2)||(/claude-(opus|sonnet)-4-6/.test(model)&&eff==='xhigh')?'high':eff};if(/claude-(opus|sonnet)-4-[678]/.test(model))b.thinking={type:'adaptive'}}
       if(o.thoughts&&/claude/i.test(model)){const cc={type:'ephemeral',...(p.cache==='1h'?{ttl:'1h'}:{})},h=b.messages[b.messages.length-2];b.system=[{type:'text',text:system,cache_control:cc}];
         if(h){if(typeof h.content==='string')h.content=[{type:'text',text:h.content,cache_control:cc}];else h.content[h.content.length-1].cache_control=cc}}
-      if(isMM(model))b.output_config={effort:(o.thoughts&&S.chat.effort&&S.chat.effort!=='none'&&S.chat.effort)||'low'};
+      if(isMM(model))b.output_config={effort:eff||'low'};
       res=await fetch(base.replace(/\/v1$/,'')+'/v1/messages',{method:'POST',headers:{'content-type':'application/json',...antHdr(base,key),...(fb?{'anthropic-beta':'server-side-fallback-2026-07-01'}:{})},body:JSON.stringify(b),signal:sig});
     }
   }catch(e){if(e instanceof ReferenceError||e instanceof SyntaxError||e instanceof RangeError||(e instanceof TypeError&&/is not a function|is not defined|undefined|null|Cannot read|is not iterable/i.test(e.message)))throw new Error('小手机自己出错了：'+e.message);
@@ -1186,10 +1189,11 @@ async function callAI0(system,messages,o={}){
   finally{clearTimeout(tmo)}
   let data;try{data=glm||(p.stream&&res.ok?await sseData(res,p.provider):await res.json().catch(()=>({})))}catch(e){const er=new Error('流式读到一半断了，再试一次');er.net=true;throw er}
   if(!res.ok){const msg=String(data.error?.message||data.message||JSON.stringify(data).slice(0,160));
-    if(res.status===400&&!o._fix&&/temperature|top_?p|top_?k|max[_ ]?(completion[_ ]?|output[_ ]?)?tokens/i.test(msg)){const P=apiById(p.id),f={...(P?.fix?.model===model?P.fix:{}),model};let why='';
+    if(res.status===400&&!o._fix&&(/temperature|top_?p|top_?k|max[_ ]?(completion[_ ]?|output[_ ]?)?tokens/i.test(msg)||(eff&&/effort|thinking|reasoning/i.test(msg)))){const P=apiById(p.id),f={...(P?.fix?.model===model?P.fix:{}),model};let why='';
       if(/temperature/i.test(msg)&&temp!==null){const one=/only\s*1\b|must\s*be\s*1\b|only\s*(the\s*)?default\s*\(?1|1\s*is\s*the\s*only/i.test(msg);f.temp=one?1:null;why=one?'温度只能是 1':'不能设温度';if(P&&one)P.temp=1}
       if(/top_?p/i.test(msg)&&topP!==null){f.noTopP=true;why=why||'不能设 top_p'}
       if(/top_?k/i.test(msg)&&topK!==null){f.noTopK=true;why=why||'不能设 top_k'}
+      if(eff&&/effort|thinking|reasoning/i.test(msg)){if(EFFS.indexOf(eff)>2){f.eff='high';why=why||'思考深度最高只到「高」'}else{f.noEff=true;why=why||'不能设思考深度'}}
       if(/max[_ ]?(completion[_ ]?|output[_ ]?)?tokens/i.test(msg)){const cap=Math.max(0,...(msg.replace(/(\d),(?=\d{3})/g,'$1').match(/\d+/g)||[]).map(Number).filter(n=>n>=256&&n<max));if(cap){f.cap=cap;why=why||'最大长度只到 '+cap}}
       if(why){if(P){P.fix=f;save()}toast('这个模型'+why+'，已经自动改好重发了');return callAI(system,messages,{...o,_fix:1})}}
     if(isGLM(base)){const c=+data.error?.code||0,G={1000:'Key 不对，检查一下',1001:'Key 没带上，检查一下',1003:'Key 过期了，去智谱后台重新生成',1113:'智谱账户欠费了，去充一下',1211:'没有这个模型，检查模型名',1212:'这个模型不能这样用，换一个',1220:'这个 Key 没有权限用它',1261:'内容太长了，把记忆条数调小一点',1301:'被智谱的内容审核拦了，换个说法',1302:'发太快被限流了，等几秒再发',1305:'这个模型现在人太多，稍后再试',1309:'编码套餐到期了',1311:'你的套餐用不了这个模型，换一个',1315:'这个 Key 是企业编程套餐专用的，换一个普通的 Key'};
@@ -1230,6 +1234,7 @@ async function sseData(res,prov){const rd=res.body.getReader(),dec=new TextDecod
 
 const loreFor=(chars,scanText,part,skip)=>loreOf(S.books.filter(b=>(b.scope==='global'||chars.some(c=>(c.books||[]).includes(b.id)))&&!(skip&&skip.includes(b.id))),scanText,part);
 const offUse=id=>[S.offline,...S.threads.map(t=>t.offline)].some(o=>(o?.books||[]).includes(id));
+const bookUse=id=>offUse(id)?'见面文风':(S.media.img.books||[]).includes(id)?'生图':'';
 function loreOf(books,scanText,part){
   const low=scanText.toLowerCase();
   return books.flatMap(b=>b.entries).filter(e=>{
@@ -1584,7 +1589,8 @@ function richBody(t,m,i,mine,c){const tap=`data-a="msg" data-i="${i}"`;
   switch(m.type){
     case'img':return`<button class="pmsg" ${tap}><img ${picAttr(m.img)} alt="照片"></button>${m.content?`<button class="bub" ${tap}>${esc(m.content)}</button>`:''}`;
     case'pic':return m.img?`<button class="pmsg" ${tap}><img ${picAttr(m.img)} alt="${esc(m.content)}"${picBox(m)}></button><span class="pcap">${esc(m.content)}${drawing.has(m)?' · 重画中…':''}</span>`
-      :`<div class="tphoto"><button class="tp-in" ${tap}>${ICONS.camera}<span>${esc(m.content)}</span></button>${drawing.has(m)?'<small>画画中…</small>':''}</div>`;
+      :drawing.has(m)?`<div class="pmsg pwait" style="${S.media.img.size==='tall'?'width:195px;height:260px':S.media.img.size==='wide'?'width:200px;height:150px':'width:200px;height:200px'}"><span class="dots"><i></i><i></i><i></i></span></div><span class="pcap">${esc(m.content)}</span>`
+      :`<div class="tphoto"><button class="tp-in" ${tap}>${ICONS.camera}<span>${esc(m.content)}</span></button></div>`;
     case'loc':return`<button class="order loc" ${tap}><small>${ICONS.pin}位置 · ${mine?'我的位置':'TA的位置'}</small><b>${esc(m.content)}</b>${m.sub?`<span class="os">${esc(m.sub)}</span>`:''}</button>`;
     case'order':{const left=Math.max(1,Math.round((m.eta-Date.now())/60e3));return`<button class="order ${m.state==='done'?'done':''}" ${tap}><small>${ICONS.bowl}外卖 · ${mine?'送给TA':'TA给你点的'}</small><b>${esc(m.content)}</b><span class="os">¥${(+m.amt).toFixed(2)} · ${m.state==='done'?'已送达':'骑手在路上 · 约'+left+'分钟'}</span></button>`}
     case'parcel':return`<button class="order ${m.state==='done'?'done':''}" ${tap}><small>${ICONS.shop}网购 · ${mine?'寄给TA':'TA寄给你的'}</small><b>${esc(m.content)}</b><span class="os">¥${(+m.amt).toFixed(2)} · ${parcelStage(m)}</span></button>`;
@@ -2257,10 +2263,9 @@ async function listModels(p){p={...p,provider:provOf(p)};const key=(p.key||'').t
   if(p.provider==='gemini')return(d.models||[]).filter(x=>!x.supportedGenerationMethods||x.supportedGenerationMethods.includes('generateContent')).map(x=>x.name.replace(/^models\//,''));
   return(d.data||[]).map(x=>x.id).filter(Boolean).sort()}
 
-const IMG_STYLE_DEF='手机随手拍的真实照片',IMG_BASE_DEF='https://api.openai.com/v1',IMG_MODEL_DEF='gpt-image-2',IMG_AR={tall:'3:4',wide:'4:3'},IMG_BLOCK=/safety|moderat|content.?policy|sensitive|审核|敏感|违规|不合规|nsfw/i;
+const IMG_Q=['low','medium','high','xhigh','max'],IMG_CX=['low','medium','high'],IMG_AR={tall:'3:4',wide:'4:3'},IMG_BLOCK=/safety|moderat|content.?policy|sensitive|审核|敏感|违规|不合规|nsfw/i;
 const PX='data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
-const imgOn=()=>!!String(S.media.img.key||'').trim();
-const imgGpt=m=>/gpt-image/i.test(String(m||'').trim()||IMG_MODEL_DEF);
+const imgOn=()=>{const I=S.media.img;return!!(String(I.base||'').trim()&&String(I.key||'').trim()&&String(I.model||'').trim())};
 const imgAuto=()=>imgOn()&&!!S.media.img.auto;
 const imgPx=(model,k)=>{if(k!=='tall'&&k!=='wide')return'1024x1024';const m=String(model).toLowerCase(),f=(a,b)=>k==='tall'?a+'x'+b:b+'x'+a;
   return/dall-e-3/.test(m)?f(1024,1792):/cogview/.test(m)?f(864,1152):/kolors|stable|sdxl|sd3/.test(m)?f(768,1024):f(1024,1536)};
@@ -2285,27 +2290,28 @@ async function imgPost(url,H,body){const ctl=new AbortController(),tm=setTimeout
   if(!r.ok||em){const why=String(em||d.message||d.msg||t||'').slice(0,200),bl=IMG_BLOCK.test(why),er=new Error(bl?'这张被接口那边的审核拦了，换个说法':/must be verified/i.test(why)?'这个 OpenAI 账号还没做组织认证，用不了 GPT 生图':'生图失败'+(r.ok?'':' '+r.status)+'：'+why);
     er.status=r.ok?400:r.status;er.block=bl;throw er}
   return d}
-async function genImage(prompt){const I=S.media.img,key=String(I.key||'').trim(),model=String(I.model||'').trim()||IMG_MODEL_DEF,base=(String(I.base||'').trim()||IMG_BASE_DEF).replace(/\/+$/,'').replace(/\/(images\/generations|chat\/completions)$/,'');
-  if(!key)throw new Error('先在「设置 · 生图」填 Key');
+async function genImage(prompt){const I=S.media.img,key=String(I.key||'').trim(),model=String(I.model||'').trim(),base=String(I.base||'').trim().replace(/\/+$/,'').replace(/\/(images\/generations|chat\/completions)$/,'');
+  if(!base||!key||!model)throw new Error('先在「设置 · 生图」填接口地址、Key 和模型');
   const noImg=d=>{const tx=d.choices?.[0]?.message?.content||d.text||(d.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('')||'';return Object.assign(new Error('没拿到图片'+(typeof tx==='string'&&tx.trim()?'：'+tx.trim().slice(0,60):'')),{status:404})};
-  const sig=model+'|'+base,fx=I.fix?.m===sig?{...I.fix}:{m:sig},ar=IMG_AR[I.size]||'',H={Authorization:'Bearer '+key};let d,u='';
-  const steps=async(url,h,L)=>{L=L.filter((b,i)=>!i||JSON.stringify(b)!==JSON.stringify(L[i-1]));let e0;
-    for(let i=Math.min(+fx.bare||0,L.length-1);i<L.length;i++)try{const x=await imgPost(url,h,L[i]);if(i)fx.bare=i;return x}catch(e){e0=e0||e;if(e.net||e.block||![400,422].includes(e.status))break}
-    throw e0};
+  const sig=model+'|'+base,fx=I.fix?.m===sig?{...I.fix}:{m:sig},ar=IMG_AR[I.size]||undefined,H={Authorization:'Bearer '+key};let d,u='';
+  const steps=async(url,h,vals,G,mk)=>{const was=fx.drop||{},js=k=>JSON.stringify(vals[k]),drop=new Set(Object.keys(vals).filter(k=>vals[k]!==undefined&&was[k]===js(k))),kept=()=>Object.fromEntries(Object.entries(vals).filter(([k,v])=>v!==undefined&&!drop.has(k)));let e0;
+    for(;;)try{const x=await imgPost(url,h,mk(kept()));fx.drop={...was,...Object.fromEntries([...drop].map(k=>[k,js(k)]))};return x}
+      catch(e){e0=e0||e;if(e.net||e.block||![400,422].includes(e.status))throw e0;const k0=kept(),g=G.find(g=>g.some(k=>k in k0));if(!g)throw e0;g.forEach(k=>{if(k in k0)drop.add(k)})}};
   if(/generativelanguage\.googleapis/.test(base)){const q='?key='+encodeURIComponent(key),mp=`${base}/models/${encodeURIComponent(model)}`;
-    if(/^imagen/i.test(model))d=await steps(mp+':predict'+q,{},[{instances:[{prompt}],parameters:{sampleCount:1,...(ar?{aspectRatio:ar}:{})}},{instances:[{prompt}],parameters:{sampleCount:1}}]);
-    else{const c=[{role:'user',parts:[{text:prompt}]}],g={responseModalities:['TEXT','IMAGE']};d=await steps(mp+':generateContent'+q,{},[{contents:c,generationConfig:{...g,...(ar?{imageConfig:{aspectRatio:ar}}:{})}},{contents:c,generationConfig:g}]);
+    if(/^imagen/i.test(model))d=await steps(mp+':predict'+q,{},{ar},[['ar']],v=>({instances:[{prompt}],parameters:{sampleCount:1,...(v.ar?{aspectRatio:v.ar}:{})}}));
+    else{const c=[{role:'user',parts:[{text:prompt}]}],g={responseModalities:['TEXT','IMAGE']};d=await steps(mp+':generateContent'+q,{},{ar},[['ar']],v=>({contents:c,generationConfig:{...g,...(v.ar?{imageConfig:{aspectRatio:v.ar}}:{})}}));
       u=gemImg(d);if(!u&&/SAFETY|PROHIBIT|BLOCK|SPII|RECITATION/i.test(String(d.promptFeedback?.blockReason||d.candidates?.[0]?.finishReason||'')))throw new Error('这张被接口那边的审核拦了，换个说法')}}
-  else if(/minimax/i.test(base)){d=await imgPost(base.replace(/\/v1$/,'')+'/v1/image_generation',H,{model,prompt:prompt.slice(0,1500),aspect_ratio:ar||'1:1',response_format:'base64',n:1});
+  else if(/minimax/i.test(base)){d=await imgPost(base.replace(/\/v1$/,'')+'/v1/image_generation',H,{model,prompt:prompt.slice(0,1500),...(ar?{aspect_ratio:ar}:{}),response_format:'base64',n:1});
     const sc=+d.base_resp?.status_code||0;if(sc)throw new Error({1004:'生图的 Key 不对',2049:'生图的 Key 不对',1008:'生图的余额不够了',1026:'这张被内容审核拦了，换个说法',1027:'这张被内容审核拦了，换个说法',1002:'生图发太快被限流了，等一下'}[sc]||'生图失败 '+sc+'：'+(d.base_resp.status_msg||''))}
-  else{const sz=imgPx(model,I.size),rf={response_format:'b64_json'},
-      L=imgGpt(model)?[{model,prompt,size:sz,quality:['low','high'].includes(I.q)?I.q:'medium',output_format:'jpeg'},{model,prompt,size:sz},{model,prompt}]:[{model,prompt,size:sz,...(/siliconflow/.test(base)?{image_size:sz}:{}),...rf},{model,prompt,...rf},{model,prompt}],
+  else{const gpt=/gpt-image/i.test(model),sz=I.size?imgPx(model,I.size):undefined,
+      vals={complexity:IMG_CX.includes(I.cx)?I.cx:undefined,quality:IMG_Q.includes(I.q)?I.q:undefined,output_format:gpt?'jpeg':undefined,size:sz,image_size:sz&&/siliconflow/.test(base)?sz:undefined,response_format:gpt?undefined:'b64_json'},
       must=async f=>{const x=await f();if(!pickImg(x))throw noImg(x);return x},
-      viaImg=()=>must(()=>steps(base+'/images/generations',H,L)),viaChat=()=>must(()=>imgPost(base+'/chat/completions',H,{model,messages:[{role:'user',content:prompt}],stream:false,...(/openrouter/.test(base)?{modalities:['image','text']}:{})}));
+      viaImg=()=>must(()=>steps(base+'/images/generations',H,vals,[['complexity'],['quality'],['output_format'],['size','image_size'],['response_format']],v=>({model,prompt,...v}))),
+      viaChat=()=>must(()=>imgPost(base+'/chat/completions',H,{model,messages:[{role:'user',content:prompt}],stream:false,...(/openrouter/.test(base)?{modalities:['image','text']}:{})}));
     try{d=await(fx.chat?viaChat:viaImg)()}
     catch(e){if(e.net||e.block||[401,402,403,429].includes(e.status))throw e;try{d=await(fx.chat?viaImg:viaChat)()}catch(e2){throw e}fx.chat=fx.chat?0:1}}
   u=u||pickImg(d);if(!u)throw noImg(d);
-  if(fx.bare||fx.chat)I.fix=fx;else delete I.fix;(S.tok||(S.tok=def().tok)).img=(S.tok.img||0)+1;save();return u}
+  delete fx.bare;if(Object.keys(fx.drop||{}).length||fx.chat)I.fix=fx;else delete I.fix;(S.tok||(S.tok=def().tok)).img=(S.tok.img||0)+1;save();return u}
 const PIC=new Map(),picJobs=new Map(),picNew=new Set(),drawing=new Set();let drawQ=Promise.resolve(),viewRef='';
 const picId=u=>/^idb:/.test(u||'')?String(u).slice(4):'';
 const picAttr=u=>{const id=picId(u);return!id?`src="${esc(u)}"${/^https?:/.test(u||'')?' referrerpolicy="no-referrer"':''}`:PIC.has(id)?`src="${PIC.get(id)}"`:`src="${PX}" data-idb="${esc(id)}"`};
@@ -2326,10 +2332,11 @@ async function picKeep(u){let src=u,tmp='';
 async function lookOf(x){const p=String(x?.persona||'').trim();if(!p)return'';if(x.lookAuto?.src===p)return x.lookAuto.text||'';
   const txt=String(await callAI('你在从人物设定里摘外貌。',[{role:'user',content:`${p.slice(0,3000)}\n\n从上面的设定里找出这个人的样子：性别、大概年纪、长相、发型、身材、常穿的衣服。一句话，50字以内。设定里完全没写就只输出：无`}],{max:256,side:true}).catch(()=>'')).replace(/<think[\s\S]*?<\/think>/gi,'').trim();
   if(!txt)return'';const text=/^无[。.]?$/.test(txt)?'':txt.replace(/\s+/g,' ').slice(0,90);x.lookAuto={src:p,text};save();return text}
-const picPrompt=(what,desc,looks)=>[(S.media.img.style||'').trim()||IMG_STYLE_DEF,`${what}：${String(desc||'').trim()}`,...looks.filter(([x,l])=>x&&l).map(([x,l])=>`${x.name}的样子（出现在画面里才画）：${l}`),'不要水印和边框'].join('。').replace(/。{2,}/g,'。');
+const imgLore=(scan,c)=>{const B=(S.media.img.books||[]).map(id=>S.books.find(b=>b.id===id)).filter(Boolean);return B.length?loreOf(B,String(scan||'')).map(x=>macOf(x,c)):[]};
+const picPrompt=(what,desc,looks,lore)=>[(S.media.img.style||'').trim(),(what?what+'：':'')+String(desc||'').trim(),...looks.filter(([x,l])=>x&&l).map(([x,l])=>`${x.name}的样子（出现在画面里才画）：${l}`),lore.length?'照这些设定画：\n'+lore.join('\n'):'',what?'不要水印和边框':''].filter(Boolean).join('。').replace(/。{2,}/g,'。');
 async function imgPrompt(m,t){const me=mask(t),c=m.from!=='me'?charById(m.from):t.type==='dm'?charById(t.chars[0]):null,by=m.from==='me'?me:c,[cl,ml]=await Promise.all([lookOf(c),lookOf(me)]);
-  return picPrompt(`${by&&by.name!=='user'?by.name:''}用手机拍的照片`,m.content,[[c,cl],[me.name==='user'?null:me,ml]])}
-async function postPrompt(p,x){const c=charById(p.author);return picPrompt(`${c?c.name:'TA'}发在朋友圈的照片`,x.desc,[[c,await lookOf(c)]])}
+  return picPrompt(`${by&&by.name!=='user'?by.name:''}用手机拍的照片`,m.content,[[c,cl],[me.name==='user'?null:me,ml]],imgLore(`${m.content} ${c?.name||''} ${me.name}`,c))}
+async function postPrompt(p,x){const c=charById(p.author);return picPrompt(`${c?c.name:'TA'}发在朋友圈的照片`,x.desc,[[c,await lookOf(c)]],imgLore(`${x.desc} ${c?.name||''}`,c))}
 async function drawPic(o,prompt,ref){if(drawing.has(o))return;drawing.add(o);ref();
   try{const k=await picKeep(await genImage(await prompt())),old=o.img;o.img=k.ref;if(k.w)o.wh=[k.w,k.h];else delete o.wh;save();if(old&&old!==k.ref)picDrop(old)}
   catch(e){toast(e.message||'没画出来',5600)}finally{drawing.delete(o);ref()}}
@@ -2522,7 +2529,7 @@ presets(){
   return{title:'预设',right:`<button class="tb" data-a="presetMenu">添加</button>`,body:
     S.presets.map(p=>`<button class="row" data-a="editPreset" data-id="${p.id}"><span class="meta"><b>${esc(p.name)}</b><small>开启 ${p.items.filter(i=>i.on).length}/${p.items.length} 条</small></span>${p.id===S.activePreset?'<span class="pill fill">使用中</span>':''}</button>`).join('')}},
 books(v){const tab=v.tab==='local'?'local':'global',own=b=>S.chars.find(c=>(c.books||[]).includes(b.id)),L=S.books.filter(b=>(b.scope==='global')===(tab==='global'));
-  const row=b=>{const g=b.entries.filter(e=>e.light==='green').length,y=b.entries.filter(e=>e.light==='yellow').length,c=own(b);return`<button class="row" data-a="editBook" data-id="${b.id}"><span class="meta"><b>${esc(b.name)}</b><small>${b.entries.length} 条 · ${g} 常亮 · ${y} 关键词</small></span>${tab==='local'?`<span class="pill">${c?esc(dn(c)):offUse(b.id)?'见面文风':'还没选给谁'}</span>`:''}</button>`};
+  const row=b=>{const g=b.entries.filter(e=>e.light==='green').length,y=b.entries.filter(e=>e.light==='yellow').length,c=own(b);return`<button class="row" data-a="editBook" data-id="${b.id}"><span class="meta"><b>${esc(b.name)}</b><small>${b.entries.length} 条 · ${g} 常亮 · ${y} 关键词</small></span>${tab==='local'?`<span class="pill">${c?esc(dn(c)):bookUse(b.id)||'还没选给谁'}</span>`:''}</button>`};
   return{title:'世界书',right:`<button class="tb" data-a="bookMenu">添加</button>`,body:tabs([['global','全局'],['local','局部']],tab)+
     ``+
     (L.map(row).join('')||`<div class="empty"><big>${tab==='global'?'还没有全局的':'还没有局部的'}</big></div>`)+
@@ -2531,7 +2538,7 @@ bookEdit(v){
   const b=S.books.find(x=>x.id===v.id);if(!b)return{title:'不见了',body:''};
   return{title:b.name||'世界书',sub:'世界书',right:`<button class="tb" data-a="newEntry">加条目</button>`,body:`
   <div class="panel"><label class="f">名字<input type="text" id="b-name" data-s="book" data-k="name" value="${esc(b.name)}"></label>
-    <label class="f">给谁用<select data-a2="bookOwner">${(o=>`<option value="" ${b.scope==='global'?'selected':''}>所有角色（全局）</option>`+(b.scope!=='global'&&!o?`<option value="-" selected>${offUse(b.id)?'只当见面文风':'还没选给谁'}</option>`:'')+S.chars.map(c=>`<option value="${c.id}" ${b.scope!=='global'&&o===c.id?'selected':''}>只给 ${esc(dn(c))}（局部）</option>`).join(''))(S.chars.find(c=>(c.books||[]).includes(b.id))?.id)}</select></label></div>`+
+    <label class="f">给谁用<select data-a2="bookOwner">${(o=>`<option value="" ${b.scope==='global'?'selected':''}>所有角色（全局）</option>`+(b.scope!=='global'&&!o?`<option value="-" selected>${({见面文风:'只当见面文风',生图:'只给生图用'})[bookUse(b.id)]||'还没选给谁'}</option>`:'')+S.chars.map(c=>`<option value="${c.id}" ${b.scope!=='global'&&o===c.id?'selected':''}>只给 ${esc(dn(c))}（局部）</option>`).join(''))(S.chars.find(c=>(c.books||[]).includes(b.id))?.id)}</select></label></div>`+
   ([...b.entries].sort((a,c)=>(a.order||0)-(c.order||0)).map(e=>`<button class="row" data-a="editEntry" data-id="${e.id}"><span class="light ${e.light}"></span><span class="meta"><b>${esc(e.title||'未命名')}</b><small>${e.light==='green'?'常亮':e.light==='red'?'关闭':esc(e.keys||'⚠ 没填关键词')}${(e.prob??100)<100?' · '+e.prob+'%':''}</small></span><span class="side">#${e.order||0}</span></button>`).join('')||'')+
   `<div class="btns"><button class="btn o" data-a="exportBook">复制</button><button class="btn o" data-a="dlBook">下载</button><button class="btn red" data-a="delBook">删除</button></div>`};
 },
@@ -2624,15 +2631,17 @@ data(v){
 settings(v){
   const tab=['chat','img','tts','look','data'].includes(v.tab)?v.tab:'chat';v.tab=tab;
   const head=tabs([['chat','聊天'],['img','生图'],['tts','语音'],['look','外观'],['data','数据']],tab);
-  if(tab==='img'){const I=S.media.img;
+  if(tab==='img'){const I=S.media.img,sel=(id,k,L)=>`<select id="${id}" data-s="mimg" data-k="${k}">${L.map(([v,l])=>`<option value="${v}" ${(I[k]||'')===v?'selected':''}>${l}</option>`).join('')}</select>`;
     return{title:'设置',body:head+`
     <div class="panel">
-      <label class="f">接口地址<input type="url" id="mi-base" data-s="mimg" data-k="base" value="${esc(I.base)}" placeholder="${IMG_BASE_DEF}" autocomplete="off"></label>
+      <label class="f">接口地址<input type="url" id="mi-base" data-s="mimg" data-k="base" value="${esc(I.base)}" autocomplete="off"></label>
       <label class="f">Key<input type="password" id="mi-key" data-s="mimg" data-k="key" value="${esc(I.key)}" autocomplete="off"></label>
-      <label class="f">模型<input type="text" id="mi-model" data-s="mimg" data-k="model" value="${esc(I.model)}" placeholder="${IMG_MODEL_DEF}" autocomplete="off"><button class="tb" data-a="fetchModels" data-t="img" style="align-self:flex-start;padding:4px 0">拉取模型列表</button></label>
-      <div class="grid2"><label class="f">尺寸<select id="mi-size" data-s="mimg" data-k="size">${[['sq','方'],['tall','竖'],['wide','横']].map(([k,l])=>`<option value="${k}" ${(I.size||'sq')===k?'selected':''}>${l}</option>`).join('')}</select></label>
-      <label class="f" id="mi-qf"${imgGpt(I.model)?'':' hidden'}>画质<select id="mi-q" data-s="mimg" data-k="q">${[['low','低'],['medium','中'],['high','高']].map(([k,l])=>`<option value="${k}" ${(I.q||'medium')===k?'selected':''}>${l}</option>`).join('')}</select></label></div>
-      <label class="f">画风<textarea id="mi-style" data-s="mimg" data-k="style" style="min-height:70px" placeholder="${IMG_STYLE_DEF}">${esc(I.style)}</textarea></label>
+      <label class="f">模型<input type="text" id="mi-model" data-s="mimg" data-k="model" value="${esc(I.model)}" autocomplete="off"><button class="tb" data-a="fetchModels" data-t="img" style="align-self:flex-start;padding:4px 0">拉取模型列表</button></label>
+      <div class="grid2" style="grid-template-columns:repeat(3,minmax(0,1fr))"><label class="f">尺寸${sel('mi-size','size',[['','默认'],['sq','方'],['tall','竖'],['wide','横']])}</label>
+      <label class="f">画质${sel('mi-q','q',[['','默认'],['low','低'],['medium','中'],['high','高'],['xhigh','超高'],['max','最高']])}</label>
+      <label class="f">思考深度${sel('mi-cx','cx',[['','默认'],['low','低'],['medium','中'],['high','高']])}</label></div>
+      <label class="f">画风<textarea id="mi-style" data-s="mimg" data-k="style" style="min-height:70px">${esc(I.style)}</textarea></label>
+      <div class="f">世界书<div class="chips">${S.books.map(b=>`<button class="${(I.books||[]).includes(b.id)?'on':''}" data-a="imgBook" data-id="${b.id}">${esc(b.name||'世界书')}</button>`).join('')}<button data-a="imgBookNew">＋ 新建</button></div></div>
       <label class="ck"><input type="checkbox" id="mi-auto" data-s="mimg" data-k="auto" ${I.auto?'checked':''}>TA发的照片自动画出来</label></div>
     <div class="panel"><div class="inline" style="flex-wrap:nowrap"><input type="text" id="mi-try" placeholder="画什么" aria-label="画什么"><button class="btn" data-a="testImg">画一张</button></div></div>`}}
   if(tab==='look'){const L=S.look,cl=Math.min(60,Math.max(0,num(L.clear)??30));
@@ -2686,7 +2695,8 @@ apiEdit(v){
     <label class="f">API Key<input type="password" id="a-key" data-s="api" data-k="key" value="${esc(p.key)}" autocomplete="off"></label>
     <label class="f">接口地址<input type="url" id="a-base" data-s="api" data-k="base" value="${esc(p.base)}" autocomplete="off"></label></div>
   <div class="panel"><h2>模型<button class="tb" data-a="fetchModels">拉取列表</button></h2>
-    <input type="text" id="a-model" data-s="api" data-k="model" value="${esc(p.model)}" autocomplete="off" aria-label="模型"></div>
+    <input type="text" id="a-model" data-s="api" data-k="model" value="${esc(p.model)}" autocomplete="off" aria-label="模型">
+    <label class="f">思考深度<select id="a-eff" data-s="api" data-k="effort">${[['','默认'],['low','低'],['medium','中'],['high','高'],['xhigh','超高'],['max','最高']].map(([k,l])=>`<option value="${k}" ${(p.effort||'')===k?'selected':''}>${l}</option>`).join('')}</select></label></div>
   <button class="tb" data-a="apiMore" style="align-self:center">${v.more?'收起':'更多'}</button>
   ${v.more?`<div class="panel"><h2>输出</h2><div class="seg">${[[false,'非流式'],[true,'流式']].map(([k,l])=>`<button class="${!!p.stream===k?'on':''}" data-a="setStream" data-v="${k?1:''}">${l}</button>`).join('')}</div></div>
   ${isKimi(p.base)?`<div class="panel"><h2>缓存时长</h2><div class="seg">${[['5m','5 分钟'],['1h','1 小时']].map(([k,l])=>`<button class="${(p.cache==='1h'?'1h':'5m')===k?'on':''}" data-a="setCache" data-v="${k}">${l}</button>`).join('')}</div>
@@ -2815,8 +2825,8 @@ const A={
   picDraw(el){const t=thread(cur().id),m=t?.msgs[+el.dataset.i];closeSheet();if(m&&m.type==='pic')drawMsg(t,m)},
   picSave(){savePic(viewRef)},
   moDraw(el){const p=S.feed.find(x=>x.id===el.dataset.id),x=p&&postPics(p)[+el.dataset.i];closeSheet();if(x&&x.desc)drawPost(p,x)},
-  async testImg(el){const q=($('#mi-try')?.value||'').trim()||'一只在窗边晒太阳的白猫，窗外是淡蓝色的海';el.disabled=true;el.textContent='画画中…';
-    try{const u=await genImage([(S.media.img.style||'').trim()||IMG_STYLE_DEF,q].join('。'));picSheet(u,'')}catch(e){toast(e.message,6000)}
+  async testImg(el){const q=($('#mi-try')?.value||'').trim();if(!q){toast('先写画什么');return}el.disabled=true;el.textContent='画画中…';
+    try{picSheet(await genImage(picPrompt('',q,[],imgLore(q,null))),'')}catch(e){toast(e.message,6000)}
     finally{if(el.isConnected){el.disabled=false;el.textContent='画一张'}}},
   mRecall(el){const m=thread(cur().id).msgs[+el.dataset.i];if(!m)return;
     m.was=m.type==='text'?m.content:'';m.recalled=1;save();closeSheet();refreshChat()},
@@ -2850,6 +2860,8 @@ const A={
   gavClear(){const t=thread(cur().id);if(!t)return;delete t.avatar;save();render(true)},
   offStyleDef(){const t=thread(cur().id);if(!t)return;const o=t.offline=t.offline||{...S.offline};o.style='';o.books=[];save();render(true)},
   offBook(el){const t=thread(cur().id);if(!t)return;const o=t.offline=t.offline||{...S.offline},id=el.dataset.id,L=o.books||[];o.books=L.includes(id)?L.filter(x=>x!==id):[...L,id];save();render(true)},
+  imgBook(el){const I=S.media.img,id=el.dataset.id,L=I.books||[];I.books=L.includes(id)?L.filter(x=>x!==id):[...L,id];save();render(true)},
+  imgBookNew(){const I=S.media.img,b={id:uid(),name:'生图',scope:'local',entries:[]};S.books.push(b);I.books=[...(I.books||[]),b.id];save();go({v:'bookEdit',id:b.id})},
   offBookNew(){const t=thread(cur().id);if(!t)return;const o=t.offline=t.offline||{...S.offline},b={id:uid(),name:'文风',scope:'local',entries:[]};S.books.push(b);o.books=[...(o.books||[]),b.id];save();go({v:'bookEdit',id:b.id})},
   offStylePick(el){const x=S.offStyles.find(x=>x.id===el.dataset.id),t=thread(cur().id);if(!x||!t)return;(t.offline=t.offline||{...S.offline}).style=x.text;save();render(true);toast('换成「'+x.name+'」了')},
   offStyleSave(){const o=thread(cur().id)?.offline,tx=String(o?.style||'').trim();if(!tx){toast('先写文风');return}
@@ -2980,7 +2992,7 @@ const A={
   dupApiGo(){const p=apiById(cur().id);const n={...p,id:uid(),name:$('#apiNm').value.trim()||p.name+' 副本'};closeSheet();S.api.profiles.push(n);save();stack[stack.length-1]={v:'apiEdit',id:n.id};render();toast('存好了')},
   async fetchModels(el){const tg=el.dataset.t||'api';const lbl=el.textContent;
     const p=tg==='tts'?{model:S.media.tts.model}:tg==='img'?S.media.img:apiById(el.dataset.id||cur().id);el.disabled=true;el.textContent='拉取中…';
-    try{const L=tg==='tts'?MM_TTS.slice():tg==='img'&&/minimax/i.test(p.base||'')?['image-01']:await listModels({...p,base:p.base||'https://api.openai.com/v1'});
+    try{if(tg==='img'&&!String(p.base||'').trim())throw new Error('先填接口地址');const L=tg==='tts'?MM_TTS.slice():tg==='img'&&/minimax/i.test(p.base||'')?['image-01']:await listModels({...p,base:p.base||'https://api.openai.com/v1'});
       if(tg==='img'){const im=x=>/image|imagen|dall|flux|kolors|cogview|seedream|banana|stable|sdxl|sd3|midjourney|jimeng|ideogram|recraft|hidream/i.test(x)?0:1;L.sort((a,b)=>im(a)-im(b))}
       if(!L.length)throw new Error('列表是空的');sheet(`<h3>选一个模型</h3><input type="text" id="mdQ" placeholder="搜索" aria-label="搜索模型"><div class="mlist" id="mdL">${L.map(x=>`<button class="opt" data-a="pickModel" data-t="${tg}"${el.dataset.id?` data-id="${esc(el.dataset.id)}"`:''} data-m="${esc(x)}">${esc(x)}${p.model===x?' ✓':''}</button>`).join('')}</div>`);
       $('#mdQ').addEventListener('input',e=>{const q=e.target.value.toLowerCase();document.querySelectorAll('#mdL .opt').forEach(b=>b.hidden=!b.dataset.m.toLowerCase().includes(q))})}
@@ -3043,7 +3055,7 @@ const A={
   editEntry(el){go({v:'entryEdit',id:cur().id,eid:el.dataset.id})},
   light(el){const v=cur();S.books.find(b=>b.id===v.id).entries.find(e=>e.id===v.eid).light=el.dataset.l;save();render(true)},
   delEntry(el){confirmTap(el,()=>{const v=cur(),b=S.books.find(x=>x.id===v.id);b.entries=b.entries.filter(e=>e.id!==v.eid);save();back()})},
-  delBook(el){confirmTap(el,()=>{const id=cur().id;S.books=S.books.filter(b=>b.id!==id);S.chars.forEach(c=>c.books=(c.books||[]).filter(x=>x!==id));[S.offline,...S.threads.map(t=>t.offline)].forEach(o=>{if(o?.books)o.books=o.books.filter(x=>x!==id)});save();back()})},
+  delBook(el){confirmTap(el,()=>{const id=cur().id;S.books=S.books.filter(b=>b.id!==id);S.chars.forEach(c=>c.books=(c.books||[]).filter(x=>x!==id));[S.offline,...S.threads.map(t=>t.offline),S.media.img].forEach(o=>{if(o?.books)o.books=o.books.filter(x=>x!==id)});save();back()})},
   exportBook(){copy(JSON.stringify(S.books.find(x=>x.id===cur().id)),'复制好了')},
   presetMenu(){sheet(`<h3>预设</h3><button class="opt" data-a="newPreset">新建</button><button class="opt" data-a="defPreset">默认预设</button><button class="opt" data-a="importPresetSheet">导入</button>${CANCEL}`)},
   defPreset(){const p={id:uid(),name:'默认',core:1,items:DEFAULT_ITEMS()};S.presets.push(p);save();closeSheet();go({v:'presetEdit',id:p.id})},
@@ -3128,10 +3140,10 @@ function scopeObj(s){const v=cur()||{};
     case'api':return apiById(v.id);case'thread':return thread(v.id);case'off':{const t=thread(v.id);return t&&(t.offline||(t.offline={...S.offline}))}}}
 function bind(e){const el=e.target;if(!el.dataset||!el.dataset.k)return;const o=scopeObj(el.dataset.s);if(!o)return;
   const val=el.type==='checkbox'?el.checked:(el.type==='range'||el.type==='number')?(el.value===''&&el.dataset.null?null:+el.value):el.value;
-  o[el.dataset.k]=val;save();const out=el.parentElement.querySelector('output');if(out)out.textContent=val;
+  o[el.dataset.k]=val;if(el.dataset.s==='api'&&el.dataset.k==='effort'&&o.fix){delete o.fix.noEff;delete o.fix.eff}save();const out=el.parentElement.querySelector('output');if(out)out.textContent=val;
   if(el.dataset.s==='look'){applyLook();if(el.dataset.k==='sfx')sfx(val)}}
 document.addEventListener('input',e=>{if(e.target.id==='mRange'){mSeek(+e.target.value/1000);return}
-  bind(e);if(e.target.id==='mi-model'){const q=$('#mi-qf');if(q)q.hidden=!imgGpt(e.target.value)}});
+  bind(e)});
 document.addEventListener('error',e=>{const el=e.target;if(!el||el.tagName!=='IMG'||!/^https?:/.test(el.getAttribute('src')||''))return;const b=el.closest('.pmsg'),f=el.closest('.mo-pic');
   if(b&&b.nextElementSibling?.classList.contains('pcap')){b.nextElementSibling.remove();b.outerHTML=`<div class="tphoto"><button class="tp-in" data-a="msg" data-i="${esc(b.dataset.i)}">${ICONS.camera}<span>${esc(el.alt)}</span></button></div>`}
   else if(f){f.classList.add('tp');f.innerHTML=ICONS.camera+`<span>${esc(el.alt)}</span>`}},true);
