@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.56';</script>
+<script>window.BYJ_VER='2026.11.18.57';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1253,8 +1253,8 @@ function bodyText(m){switch(m.type){
   case'loc':return`[定位:${m.content}${m.sub?' · '+m.sub:''}]`;
   case'img':return'[照片]'+(m.content?' '+m.content:'');case'pic':return`[图片:${m.content}]`;case'voice':return`[语音:${m.content}]`;
   case'hb':return`[红包:${m.amt}:${m.content}]（${HBS[m.state]||'还没收'}）`;case'tf':return`[转账:${m.amt}:${m.content}]（${HBS[m.state]||'还没收'}）`;
-  case'order':return`[外卖:${m.content}:${m.amt}]（${m.state==='done'?'已送达':'配送中'}）`;
-  case'parcel':return`[网购:${m.content}:${m.amt}]（${m.state==='done'?'已签收':'快递在路上'}）`;
+  case'order':return`[外卖:${m.content}:${m.amt}]`;
+  case'parcel':return`[网购:${m.content}:${m.amt}]`;
   case'call':return`[${m.kind==='video'?'视频':'语音'}通话 ${fmt(m.dur||0)}]\n${m.content}`;
   case'share':return`[分享了一${m.kind==='song'?'首歌':'条动态'}]《${m.title}》${m.sub?'（'+m.sub+'）':''}${m.text?'\n'+m.text:''}${m.from==='me'?'\n（自然地接一句，像真的看了/听了，不用每次都夸）':''}`;
   case'narr':return'[线下] '+m.content;
@@ -1280,7 +1280,7 @@ const bornAt=c=>{const n=parseInt(String(c?.id||'').slice(0,-5),36);return n>1.4
 function eventsFor(c,lim=Date.now()-30*864e5){const from=Math.max(lim,bornAt(c),c.evFrom||0);
   return(S.events||[]).filter(e=>e.t>=from&&(e.who===c.id||e.who===null)&&(!e.me||e.me===mask(c).id))}
 const whenAbs=t=>{const d=locDate(t);return`${d.getMonth()+1}月${d.getDate()}日${pad(d.getHours())}:${pad(d.getMinutes())}`};
-function elsewhere(c,exceptId,lo=0,hi=Infinity){const me=mask(c),from=Math.max(Date.now()-3*864e5,c.evFrom||0,lo),in1=x=>x.t>lo&&x.t<=hi;
+function elsewhere(c,exceptId,lo=0,hi=Infinity){const me=mask(c),from=Math.max((hi<Infinity?hi:Date.now())-3*864e5,c.evFrom||0,lo),in1=x=>x.t>lo&&x.t<=hi;
   const ev=eventsFor(c).filter(in1).slice(-14).map(e=>({t:e.t,s:`· ${whenAbs(e.t)}：${e.text}`}));
   const gl=S.threads.filter(t=>t.type==='group'&&t.chars.includes(c.id)&&t.id!==exceptId).flatMap(t=>t.msgs.filter(m=>m.t>from&&m.t<=hi&&m.type!=='sys').slice(-5).map(m=>({t:m.t,s:`· ${whenAbs(m.t)} 群「${threadTitle(t)}」里 ${m.from==='me'?me.name:(charById(m.from)?.name||'?')}：${pv(m)}`})));
   const dm=S.threads.find(t=>t.type==='dm'&&t.chars[0]===c.id&&t.id!==exceptId);
@@ -1379,7 +1379,7 @@ function buildCtx(t,o={}){
     {const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal?.type==='narr')ctxs.push(`【刚分开】刚见过面，现在回到手机上。带着那时的情绪，只发消息，不写动作和长段。`)}
     rules.push(`【条数】一条一句话，${num(C.onLen)||10}字左右，平时${G('每人','')}发1到${num(C.onMax)||3}条，情绪上来最多${bubbleCap()}条。${C.casual!==false?'不打句号和逗号，停顿就换行。':''}`);
     const sp=['[图片:画面]','[语音:内容]'];
-    if(!group)sp.push('[红包:金额:祝福]','[转账:金额:备注]',...(boughtRecently(t)?[]:['[外卖:吃的:金额]','[网购:东西:金额]']),'[查手机]','[语音通话]','[视频通话]','[送亲属卡:月额度]');
+    if(!group)sp.push('[红包:金额:祝福]','[转账:金额:备注]','[外卖:吃的:金额]','[网购:东西:金额]','[查手机]','[语音通话]','[视频通话]','[送亲属卡:月额度]');
     sp.push('[分享歌曲:歌名 - 歌手]');sp.push('[定位:地点 · 一句备注]');
     const st=allStickers().map(s=>s.name).filter(Boolean).slice(0,80);if(st.length)sp.push('[表情:名字]（可用：'+st.join('、')+'）');
     rules.push(`【特殊消息】单独一行写。这些是你手机上能用的，想用就用：\n${sp.join('\n')}\n图片写清楚拍到了什么，自拍写清楚长相、神态、穿着。${mm28()?'语音里可以带（轻笑）（叹气）这类语气。':''}`);
@@ -1387,6 +1387,7 @@ function buildCtx(t,o={}){
       const mine=cs.filter(k=>k.dir!=='out'),theirs=cs.filter(k=>k.dir==='out');
       if(cs.length)tail.push(`【亲属卡】${mine.length?`你给${me.name}开了（${mine.map(q).join('；')}）。`:''}${theirs.length?`${me.name}给你开了（${theirs.map(q).join('；')}），用时写 [刷亲属卡:东西:金额]。`:''}`)}
     const pend=!group&&[...t.msgs].reverse().find(m=>m.from==='me'&&(m.type==='hb'||m.type==='tf')&&m.state==='new');
+    if(!group&&boughtRecently(t))tail.push(`【刚买过】刚给${me.name}买过东西，这次不写 [外卖]、[网购]。`);
     if(pend)tail.push(`【没收的钱】${me.name}发来${pend.type==='hb'?'红包':'转账'}¥${pend.amt}${pend.content?'：'+pend.content:''}，写 [收下] 或 [退回]。`);
   }
   if(C.inner){const styles=chars.map(c=>c.innerStyle?`${c.name}：${mac(c.innerStyle)}`:'').filter(Boolean).join('；');
