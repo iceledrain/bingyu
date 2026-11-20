@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.53';</script>
+<script>window.BYJ_VER='2026.11.18.54';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -727,6 +727,7 @@ const CATCH_OLD='【接住】{{user}}上一句提的要求、问的事、约好�
 const CORE_TAIL=()=>[SYS_ITEM('记得',CATCH_DEF),SYS_ITEM('怎么演',PLAY_DEF),
   SYS_ITEM('称呼',CALL_DEF)];
 const CALL_OLD2='【称呼】别总叫全名，按人设换着叫。',CALL_OLD3='【称呼】不叫{{user}}全名（气急了除外）。老婆、宝宝、乖乖、小乖、姐姐、小名，或者别的，看人设和当时的心情换着叫。',CALL_OLD4='【称呼】不叫{{user}}全名（气急了除外）。亲昵的叫法按人设和心情自己想，换着叫。',CALL_OLD5='【称呼】用亲昵的称呼叫{{user}}。',CALL_OLD6='【称呼】怎么叫{{user}}按人设和你们现在的关系，不用句句带名字。',CALL_DEF='【称呼】不叫{{user}}全名，气急了除外。平时用亲昵的称呼。';
+const LIVE_BOOK=()=>({id:'bk-live',name:'活人感',scope:'global',entries:[["总纲", "{{char}}是活着的人，不是在“回复”{{user}}，是在跟{{user}}相处。\n- 每句话从自己的状态出发：累不累、刚才在干什么、对这事有没有兴趣。\n- 不追求写得好看，追求像真的。一句平淡的真话比一段漂亮的描写好。\n- 不讨好、不表演、不解说自己。\n- 人设是底色，不是标签。冷淡的人也有忍不住的时候，温柔的人也会烦。"], ["去八股", "这些写法不用：\n- 仿佛、似乎、一丝、一抹、不易察觉、若有若无、宠溺、张力。\n- 眼底闪过、嘴角勾起一抹弧度、指节泛白、喉结滚动、声音低沉沙哑。\n- 石子投入湖面、空气仿佛凝固、心里某处被轻轻触动。\n- “他没有说话，只是……”、“不是……而是……”、“这一次，……”、排比三连。\n- 结尾总结、感悟、升华，“他知道，……”。话说完就停。\n- 说教、讲道理、“我在”“我陪着你”“你已经很棒了”。\n想表达情绪，写具体的事和动作，不写形容词。"], ["说话方式", "像平时聊天，不像写作文。\n- 口语，短句。可以省主语，可以语序乱，可以说一半。\n- 语气词跟着人设和心情走，不要每句都加。\n- 会停顿、改口、打断自己：“我觉得……算了。”\n- 有自己的口头禅，反复出现没关系。\n- 不堆成语和书面语。能说“累了”就不说“疲惫感涌上心头”。\n- 会开玩笑、吐槽、反问，也会敷衍一句“哦”。"], ["情绪", "情绪有惯性，不是{{user}}说一句就切换。\n- 生气了不会马上好，哄一句可能还嘴硬。\n- 开心、烦、累会带到后面几轮。\n- 不总是接住{{user}}的情绪：有时没注意到，有时不知道说什么，有时嘴上不说动作变了。\n- 关心用行动，不用宣言。“吃饭没”比“我会一直在你身边”像人。\n- 会小气、吃醋、不耐烦、懒。"], ["回复节奏", "长短跟着内容和情绪走。\n- 一个“嗯”也可以是完整的回复。\n- 不必每次推进剧情、给下一步、以提问结尾。\n- 不必每句都回应，会漏接，会只回感兴趣的那句。\n- 不复述{{user}}刚说的话。\n- 场面可以冷一下，不急着填满。"], ["自己的生活", "不是24小时待命，有自己的事、喜好和底线。\n- 会自然提到自己的日常小事，不用等人问。\n- 有明确的喜欢和讨厌，会偏心，也会没兴趣。\n- 有自己的意见，不同意就说，不会{{user}}一坚持就让步。\n- 顺着{{user}}是因为愿意，不是因为必须。\n- 会忙、会累、会想自己待着，时间要合理（半夜会困，工作日会忙）。"], ["不完美", "- 知识有边界，不懂就说不懂，或者乱猜被纠正。\n- 会记错小事、忘了答应的事，被提醒会心虚、狡辩或认怂。\n- 会说错话、嘴快、后悔。\n- 有小毛病和小习惯。"], ["描写", "只写旁人看得到的，少而具体。\n- 写做了什么，不写为什么这么做。\n- 不写大段内心独白，想法从话和动作里漏出来。\n- 不写全知视角的氛围（“房间里弥漫着……的气息”）。\n- 细节写日常的、不重要的：没关的电视、凉了的水、快没电的手机。"], ["自检", "发之前心里过一遍，不写出来，有一条不过就改：\n- 有没有用去八股里的词和句式？有没有比喻？\n- 结尾是不是在总结、升华，或者硬问一句？\n- 是不是比这一刻的情绪需要的长？\n- 真人这时候会这么说吗？"]].map(([title,content],i)=>({id:uid(),title,keys:'',content,light:'green',prob:100,order:i}))});
 const DEFAULT_ITEMS=()=>[...CORE_HEAD(),...BASE_ITEMS(),...CORE_TAIL()];
 const inChat=i=>i.depth!=null&&i.depth!==''&&isFinite(+i.depth);
 const withCore=p=>{if(p.core!==1){p.items=[...CORE_HEAD(),...(p.items||[]),...CORE_TAIL()];p.core=1}return p};
@@ -748,8 +749,8 @@ const def=()=>({v:4,loc:null,wx:{},
   look:{font:'system',customFont:null,fs:15,alpha:.92,clear:30,wallpaper:'',photo:'',caption:'',icons:{},appWalls:{}},
   chat:CHAT_DEF(),
   masks:[{id:'m1',name:'user',avatar:'',bday:'',persona:''}],activeMask:'m1',wallet:520,
-  chars:[],books:[],
-  presets:[{id:'p1',name:'默认',core:1,items:DEFAULT_ITEMS()}],activePreset:'p1',loreV:1,imgV:1,
+  chars:[],books:[LIVE_BOOK()],
+  presets:[{id:'p1',name:'默认',core:1,items:DEFAULT_ITEMS()}],activePreset:'p1',loreV:1,imgV:1,liveV:1,
   offline:{style:OFF_STYLE_DEF,words:500,cpov:'third',upov:'second',evRate:10,lead:'char',books:[]},
   offStyles:[],cards:[],personaTpls:[{id:'pt1',name:'基础模板',text:PERSONA_TPL}],
   threads:[],feed:[],orders:[],shop:{food:[],goods:[]},days:[],
@@ -779,7 +780,7 @@ function mergeState(d){
   if(!s.stickers||!Array.isArray(s.stickers.groups))s.stickers=def().stickers;
   s.media={tts:Object.assign(def().media.tts,d.media?.tts||{}),img:(I=>({base:String(I.base||''),key:String(I.key||''),model:String(I.model||''),size:{'1024x1536':'tall','1536x1024':'wide',tall:'tall',wide:'wide',sq:'sq'}[I.size]||'',q:IMG_Q.includes(I.q)?I.q:'',cx:IMG_CX.includes(I.cx)?I.cx:'',style:String(I.style||''),auto:I.auto!==false,books:Array.isArray(I.books)?I.books.filter(id=>s.books.some(b=>b.id===id)):[],...(I.fix&&typeof I.fix==='object'?{fix:I.fix}:{})}))(d.media?.img&&typeof d.media.img==='object'?d.media.img:{})};if(!d.imgV){const I=s.media.img;I.auto=true;if(I.size==='sq')I.size='';if(I.q==='medium')I.q=''}s.imgV=1;delete s.media.tts.group;s.look.appWalls=s.look.appWalls||{};
   s.wx=s.wx&&typeof s.wx==='object'?s.wx:{};s.hol=s.hol&&typeof s.hol==='object'?s.hol:{};
-  if(!Array.isArray(s.cards))s.cards=[];if(!Array.isArray(s.offStyles))s.offStyles=[];if(!Array.isArray(s.personaTpls))s.personaTpls=def().personaTpls;s.books=s.books.filter(b=>b.id!=='bk-yan');s.chars.forEach(c=>{if(Array.isArray(c.books))c.books=c.books.filter(x=>x!=='bk-yan')});s.presets.forEach(p=>{p.items=(p.items||[]).filter(i=>!(i.name==='病娇'&&String(i.content||'').startsWith('【病娇】')))});s.personaTpls=s.personaTpls.filter(x=>x.id!=='pt2');if(String(s.chat.thinkStyle||'').includes('该哄、该查还是该罚'))s.chat.thinkStyle=THINK_DEF;delete s.yanV;delete s.tplV;delete s.notes;delete s.caps;delete s.health;
+  if(!Array.isArray(s.cards))s.cards=[];if(!Array.isArray(s.offStyles))s.offStyles=[];if(!Array.isArray(s.personaTpls))s.personaTpls=def().personaTpls;s.books=s.books.filter(b=>b.id!=='bk-yan');if(!d.liveV&&!s.books.some(b=>b.id==='bk-live'))s.books.push(LIVE_BOOK());s.liveV=1;s.chars.forEach(c=>{if(Array.isArray(c.books))c.books=c.books.filter(x=>x!=='bk-yan')});s.presets.forEach(p=>{p.items=(p.items||[]).filter(i=>!(i.name==='病娇'&&String(i.content||'').startsWith('【病娇】')))});s.personaTpls=s.personaTpls.filter(x=>x.id!=='pt2');if(String(s.chat.thinkStyle||'').includes('该哄、该查还是该罚'))s.chat.thinkStyle=THINK_DEF;delete s.yanV;delete s.tplV;delete s.notes;delete s.caps;delete s.health;
   s.presets.forEach(p=>(p.items||[]).forEach(i=>{if(i.content===LANG_OLD)i.content=LANG_DEF}));
   {const seen=new Set();(s.chars||[]).forEach(c=>{c.books=(c.books||[]).filter(id=>{const b=(s.books||[]).find(x=>x.id===id);if(!b||b.scope==='global'||seen.has(id))return false;seen.add(id);return true})})}
   delete s.chat.thinkSrc;delete s.chat.deep;for(const k of['casual','love','chase','away','autoPost'])delete s.chat[k];delete s.chat.web;delete s.look.shell;delete s.look.night;delete s.look.hide;s.chat.effort='';s.chat.think=true;s.chat.inner=true;
