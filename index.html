@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.57';</script>
+<script>window.BYJ_VER='2026.11.18.58';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1861,7 +1861,7 @@ const lrcJobs=new Set();
 async function mLyric(s){if(!s||s.lrc!==undefined||lrcJobs.has(s.id))return;if(!s.online?.id){if(s.src){s.lrc=[];save()}return}lrcJobs.add(s.id);
   try{const d=await mApi({types:'lyric',source:s.online.src||'netease',id:s.online.id}),L=lrcParse(d.lyric),T=lrcParse(d.tlyric);
     L.forEach(x=>{const y=T.find(z=>Math.abs(z.t-x.t)<.05);if(y&&y.x)x.tr=y.x});s.lrc=L.filter(x=>x.x).map(x=>({t:Math.round(x.t*100)/100,x:x.x,...(x.tr?{tr:x.tr}:{})}));save()}
-  catch(e){toast(e.message,4200)}finally{lrcJobs.delete(s.id);if(cur()?.v==='music')render(true)}}
+  catch(e){toast(e.message,4200)}finally{if(cur()?.v==='music')render(true)}}
 function lrcHTML(s){if(!s)return'<p class="lyn">还没有在放歌</p>';if(s.lrc===undefined)return'<p class="lyn">歌词加载中…</p>';if(!s.lrc.length)return'<p class="lyn">这首没有歌词</p>';
   return s.lrc.map((x,i)=>`<p data-i="${i}">${esc(x.x)}${x.tr?`<small>${esc(x.tr)}</small>`:''}</p>`).join('')}
 function lrcTick(){const box=$('#lyr'),s=songById(S.music.cur);if(!box||!s?.lrc?.length)return;const p=audio.currentTime||0;let k=-1;for(let i=0;i<s.lrc.length;i++){if(s.lrc[i].t<=p+.25)k=i;else break}
@@ -1908,7 +1908,7 @@ async function mRec(force){const F=favSongs(),R=S.music.rec;if(recBusy.on)return
       if(hit&&!list.some(x=>x.online.id===hit.online.id)&&!S.music.songs.some(y=>y.online&&y.online.id===hit.online.id&&y.fav))list.push(hit)}catch(e){}}
     if(!list.length)throw new Error('挑的歌一首都没搜到，可能是音乐接口连不上');
     S.music.rec={day:dayKey(),list};save()}
-  catch(e){if(force)toast(e.message||'没挑出来',4500)}
+  catch(e){if(force)toast(e.message||'没挑出来',4500);S.music.rec={list:R?.list||[],day:dayKey()}}
   finally{recBusy.on=false;if(cur()?.v==='music'&&isOpen())render(true)}}
 const favSongs=()=>S.music.songs.filter(x=>x.fav).sort((a,b)=>(b.favAt||0)-(a.favAt||0));
 function mNext(auto){const L=mQueue();if(!L.length)return;const i=L.findIndex(s=>s.id===S.music.cur);
