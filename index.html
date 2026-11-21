@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.121';</script>
+<script>window.BYJ_VER='2026.11.18.122';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -157,6 +157,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .msg.me .bub{background:var(--bub-me);color:var(--accent-ink);border-color:rgba(255,255,255,.45);border-top-left-radius:20px;border-top-right-radius:6px;text-shadow:0 1px 2px rgba(93,93,93,.22)}
 .stk{border:0;background:none;padding:0}
 .stk img{width:112px;height:112px;object-fit:contain;display:block}
+.dice{width:40px;height:40px;display:block}.dice rect{fill:#fff;stroke:rgba(0,0,0,.14)}.dice circle{fill:#222}.rps{font-size:36px;line-height:1.15;display:block}.roll.new{animation:rollin .6s ease-out}@keyframes rollin{0%{transform:rotate(-220deg) scale(.5);opacity:.3}70%{transform:rotate(14deg) scale(1.1)}100%{transform:none}}
 .narr{align-self:stretch;background:var(--bub);border:1px solid rgba(255,255,255,.55);box-shadow:var(--lift);border-radius:18px;padding:15px 17px;white-space:pre-wrap;font:calc(var(--fs) + 1px)/1.85 var(--display);text-align:left;color:inherit}
 .narr.me{align-self:flex-end;width:fit-content;max-width:82%;padding:10px 15px;border-radius:18px 6px 18px 18px;font-size:var(--fs);line-height:1.7;background:var(--bub-me);color:var(--accent-ink);border-color:rgba(255,255,255,.45);text-shadow:0 1px 2px rgba(93,93,93,.22)}
 .narr:not(.me){border-left:3px solid rgba(var(--accent-rgb),.55);border-top-left-radius:6px}
@@ -828,6 +829,8 @@ function applyLook(){
 
 const SV=p=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
 const ICONS={
+  dice:SV('<rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="9" cy="9" r=".9" fill="currentColor"/><circle cx="12" cy="12" r=".9" fill="currentColor"/><circle cx="15" cy="15" r=".9" fill="currentColor"/>'),
+  hand:SV('<path d="M9 11.5V5.5a1.5 1.5 0 0 1 3 0V11M12 10V5a1.5 1.5 0 0 1 3 0v8"/><path d="M9 11.5c-1.6-.7-3 .3-3 2 0 3.6 2.4 6.5 6 6.5s6-2.5 6-6v-1a1.5 1.5 0 0 0-3 0"/>'),
   shop:SV('<path d="M5 8h14l-1.2 11.2a1.5 1.5 0 0 1-1.5 1.3H7.7a1.5 1.5 0 0 1-1.5-1.3z"/><path d="M9 10V7a3 3 0 0 1 6 0v3"/>'),
   wallet:SV('<path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3"/><rect x="4" y="8" width="16" height="11" rx="2.5"/><path d="M16 13.5h1.5"/>'),
   messages:SV('<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4h0A1.5 1.5 0 0 1 4 14.5z"/><circle cx="9" cy="9.5" r=".6" fill="currentColor"/><circle cx="12" cy="9.5" r=".6" fill="currentColor"/><circle cx="15" cy="9.5" r=".6" fill="currentColor"/>'),
@@ -1223,9 +1226,10 @@ function bodyText(m){switch(m.type){
   case'parcel':return`[网购:${m.content}:${m.amt}]`;
   case'call':return`[${m.kind==='video'?'视频':'语音'}通话 ${fmt(m.dur||0)}]\n${m.content}`;
   case'share':return`[分享了一${m.kind==='song'?'首歌':'条动态'}]《${m.title}》${m.sub?'（'+m.sub+'）':''}${m.text?'\n'+m.text:''}${m.from==='me'?'\n（自然地接一句，像真的看了/听了，不用每次都夸）':''}`;
+  case'roll':return m.k==='rps'?`[猜拳:${m.content}]`:`[骰子:${m.content}点]`;
   case'narr':return'[线下] '+m.content;
   default:return(m.q?`[引用 ${m.q.who}：${m.q.text}] `:'')+m.content}}
-const pv=m=>m.recalled?'撤回了一条消息':m.type==='share'?'[分享] '+m.title:({loc:'[位置] '+m.content,order:'[外卖] '+m.content,parcel:'[快递] '+m.content,sticker:'[表情]',img:'[照片]',pic:'[图片] '+m.content,voice:'[语音] '+m.content,hb:'[红包]',tf:'[转账] ¥'+m.amt,call:'['+(m.kind==='video'?'视频':'语音')+'通话]',narr:'[线下] '+m.content}[m.type]??m.content);
+const pv=m=>m.recalled?'撤回了一条消息':m.type==='share'?'[分享] '+m.title:({loc:'[位置] '+m.content,order:'[外卖] '+m.content,parcel:'[快递] '+m.content,sticker:'[表情]',roll:m.k==='rps'?'[猜拳]':'[骰子]',img:'[照片]',pic:'[图片] '+m.content,voice:'[语音] '+m.content,hb:'[红包]',tf:'[转账] ¥'+m.amt,call:'['+(m.kind==='video'?'视频':'语音')+'通话]',narr:'[线下] '+m.content}[m.type]??m.content);
 function msgText(m,group){
   if(m.recalled)return`（${m.from==='me'?mask().name:charById(m.from)?.name||'TA'}撤回了一条消息，你没看清写的是什么）`;
   if(m.type==='sys')return m.ai?`（${m.ai}）`:`（系统：${m.content}${m.letter?`：「${m.letter}」`:''}）`;
@@ -1289,7 +1293,7 @@ function buildCtx(t,o={}){
   const curNarr=t.msgs.slice(curAt+1).filter(m=>m.type==='narr');
   const scan=hist.slice(-Math.max(1,num(C.scan)||8)).map(m=>m.content).join('\n')+'\n'+chars.map(c=>c.name).join(' ');
   const items=P.items.filter(i=>i.on&&(i.mode==='both'||i.mode===im));
-  const tail=[],G=(a,b)=>group?a:b,nm=chars[0]?.name||'名字';
+  let roll=null;const tail=[],G=(a,b)=>group?a:b,nm=chars[0]?.name||'名字';
   const pr=items.filter(i=>i.role==='system'&&!inChat(i)).map(i=>mac(i.content)),lore=[],rules=[],who=[],ctxs=[];
   const off=t.offline||S.offline,sbk=mode==='offline'?(off.books||[]).map(id=>S.books.find(b=>b.id===id)).filter(Boolean):[];
   {const sk=sbk.map(b=>b.id),lb=loreBlock(loreFor(chars,scan,'fixed',sk),mac);if(lb)lore.push(lb);const ll=loreBlock(loreFor(chars,scan,'live',sk),mac);if(ll)tail.push(ll)}
@@ -1339,13 +1343,14 @@ function buildCtx(t,o={}){
       const lastBg=ph[ph.length-1];if(lastBg&&lastBg.type!=='narr'&&!curNarr.some(m=>m.from!=='me'))tail.push(`【刚见面】刚才在手机上聊，现在见面了，从手机上最后聊到的地方接着往下写。${old?'之前那次见面早就结束了，不接那时候的场景。':''}`);
       if(ph.length)ctxs.push((old?`【这次见面之前】（按先后排：之前的见面已经结束，后来在手机上聊，现在是新的一次见面。只是背景，别照这个格式写）\n`:`【见面前在手机上聊的】（只是背景，别照这个格式写）\n`)+ph.map(line).join('\n'))}
   }else{
-    rules.push(group?`【群聊】手机群聊，只发消息、不写动作旁白，每行「名字：内容」，不替${me.name}说话。谁开口、说多少、彼此怎么相处，各按人设和心情。`
-      :`【聊天】手机上发消息，一行一个气泡，不写名字、不写动作旁白。说什么、怎么说、热不热情，按人设和你此刻对${me.name}的感觉。`);
+    rules.push(group?`【群聊】手机群聊，只发消息、不写动作旁白，每行「名字：内容」，不替${me.name}说话。谁开口、说多少、彼此怎么相处，各按人设和心情。颜文字、emoji 按人设想发就发。`
+      :`【聊天】手机上发消息，一行一个气泡，不写名字、不写动作旁白。说什么、怎么说、热不热情，按人设和你此刻对${me.name}的感觉。颜文字、emoji 按人设想发就发。隔着手机碰不到人，不老说「过来」「抱抱」「抱着」。`);
     {const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal?.type==='narr')tail.push(`【刚分开】刚见过面，现在回到手机上。带着那时的情绪，只发消息，不写动作和长段。`)}
     rules.push(`【条数】一条一句话，${num(C.onLen)||10}字左右，平时${G('每人','')}发1到${num(C.onMax)||3}条，情绪上来最多${bubbleCap()}条。${C.casual!==false?'不打句号和逗号，停顿就换行。':''}`);
     const sp=['[图片:画面]','[语音:内容]'];
     if(!group)sp.push('[红包:金额:祝福]','[转账:金额:备注]','[外卖:吃的:金额]','[网购:东西:金额]','[查手机]','[语音通话]','[视频通话]','[送亲属卡:月额度]');
-    sp.push('[分享歌曲:歌名 - 歌手]');sp.push('[定位:地点 · 一句备注]');
+    sp.push('[分享歌曲:歌名 - 歌手]');sp.push('[定位:地点 · 一句备注]');sp.push('[骰子]、[猜拳]（结果随机）');
+    if(t.msgs.slice(-8).some(m=>m.type==='roll')){roll={dice:rollNow('dice'),rps:rollNow('rps')};tail.push(`【骰子猜拳】这轮你发 [骰子] 会是${roll.dice}点，发 [猜拳] 会出${roll.rps}。`)}
     const hs=n=>[...n].reduce((h,c)=>Math.imul(h^c.charCodeAt(0),16777619)>>>0,2166136261),st=allStickers().map(s=>s.name).filter(Boolean).sort((x,y)=>hs(x)-hs(y)||(x<y?-1:1)).slice(0,300);if(st.length)sp.push('[表情:名字]（可用：'+st.join('、')+'）');
     rules.push(`【特殊消息】单独一行写。这些是你手机上能用的，想用就用：\n${sp.join('\n')}\n图片写清楚拍到了什么，自拍写清楚长相、神态、穿着。${mm28()?'语音里可以带（轻笑）（叹气）这类语气。':''}`);
     if(!group&&chars[0]){const cs=cardsNow().filter(k=>k.charId===chars[0].id),q=k=>(k.limit?`月额度${money(k.limit)}`:'不限额')+`，本月用了${money(k.used)}`;
@@ -1391,7 +1396,7 @@ function buildCtx(t,o={}){
   else if(tw||iw)end.push(`【别漏】每次都按这个顺序写全：${tw?'第一行 <think>…</think>，然后':''}正文${iw?'，正文后另起一行 <inner>…</inner>':''}。\n例：${tw?'<think>…</think>\n':''}正文……${iw?'\n<inner>…</inner>':''}`);
   const s0=[...pr,...lore,...who].join('\n\n'),s1=[s0,`【下面只管格式】性格、语气都按上面的人设来，和下面的规则冲突时听人设的。`,...rules,...end].join('\n\n'),sys=ctxs.length?s1+'\n\n'+ctxs.join('\n\n'):s1;
   SYSCUT.set(sys,[s0.length,s1.length]);if(SYSCUT.size>60)SYSCUT.delete(SYSCUT.keys().next().value);
-  return{system:whoTag(sys,t.id),msgs,chars,group,mode,t};
+  return{system:whoTag(sys,t.id),msgs,chars,group,mode,t,roll};
 }
 const STKP=new Map();
 function describeSticker(s){if(!s||s.desc!=null||!/^data:image\/(png|jpe?g|webp)/.test(s.src||''))return;s.desc='';
@@ -1399,10 +1404,14 @@ function describeSticker(s){if(!s||s.desc!=null||!/^data:image\/(png|jpe?g|webp)
     .then(x=>{s.desc=String(x).trim().replace(/[。.]$/,'').slice(0,20);save()}).catch(()=>{}).finally(()=>STKP.delete(s.name));STKP.set(s.name,p)}
 function findSticker(name){name=String(name).replace(/[（(][^）)]*[）)]\s*$/,'').trim();name=(stkName(name)||name).toLowerCase();return allStickers().find(s=>s.name.toLowerCase()===name)}
 const voiceDur=s=>Math.max(1,Math.min(60,Math.round([...String(s)].length/4)));
-function splitStickers(line){const out=[];let rest=line;const re=/\[(sticker|表情|定位|位置|图片|照片|语音|红包|转账|外卖|网购|分享歌曲)[:：]\s*([^\]]+)\]/i;let m;
+const DICE_P=[[4],[0,8],[0,4,8],[0,2,6,8],[0,2,4,6,8],[0,2,3,5,6,8]],RPS={石头:'✊',剪刀:'✌️',布:'🖐️'};
+const rollNow=k=>k==='rps'?Object.keys(RPS)[Math.random()*3|0]:String(1+(Math.random()*6|0));
+const rollFace=m=>m.k==='rps'?`<span class="rps">${RPS[m.content]||'✊'}</span>`:`<svg class="dice" viewBox="0 0 36 36" role="img" aria-label="${+m.content||1}点"><rect x="2" y="2" width="32" height="32" rx="8"/>${DICE_P[Math.min(6,Math.max(1,+m.content||1))-1].map(p=>`<circle cx="${9+p%3*9}" cy="${9+(p/3|0)*9}" r="3.1"/>`).join('')}</svg>`;
+function splitStickers(line,roll){const out=[];let rest=line;const re=/\[(?:(sticker|表情|定位|位置|图片|照片|语音|红包|转账|外卖|网购|分享歌曲)[:：]\s*([^\]]+)|(骰子|猜拳)(?:[:：][^\]]*)?)\]/i;let m;
   while((m=rest.match(re))){const before=rest.slice(0,m.index).trim();if(before)out.push({type:'text',content:before});
-    const k=m[1].toLowerCase(),v=m[2].trim();
-    if(k==='sticker'||k==='表情'){const s=findSticker(v);if(s)out.push({type:'sticker',content:s.name})}
+    const k=(m[1]||'').toLowerCase(),v=(m[2]||'').trim(),rk=m[3]==='猜拳'?'rps':'dice';
+    if(m[3]){out.push({type:'roll',k:rk,content:roll?.[rk]||rollNow(rk)});if(roll)roll[rk]=''}
+    else if(k==='sticker'||k==='表情'){const s=findSticker(v);if(s)out.push({type:'sticker',content:s.name})}
     else if(k==='定位'||k==='位置'){const p=v.split(/\s*[·|｜]\s*/);out.push({type:'loc',content:p[0].trim().slice(0,40),sub:p.slice(1).join(' · ').trim().slice(0,60)})}
     else if(k==='图片'||k==='照片')out.push({type:'pic',content:v});
     else if(k==='语音')out.push({type:'voice',content:v,dur:voiceDur(v)});
@@ -1484,7 +1493,7 @@ function parseReply(out,ctx){
       if(m){const nm=m[1].trim().toLowerCase();const c=ctx.chars.find(c=>c.name.toLowerCase()===nm||(c.remark||'').toLowerCase()===nm);if(c){from=c.id;text=m[2]}else if(nm===mask(ctx.t).name.toLowerCase())continue}}
     else text=text.replace(new RegExp('^'+(ctx.chars[0]?.name||'').replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\s*[:：]\\s*'),'');
     if(!text)continue;last=from;
-    for(const tx of ctx.mode==='online'&&S.chat.casual!==false?casual(text):[text])for(const p of splitStickers(tx))res.push({from,...p});
+    for(const tx of ctx.mode==='online'&&S.chat.casual!==false?casual(text):[text])for(const p of splitStickers(tx,ctx.roll))res.push({from,...p});
   }
   return ctx.mode==='online'?capBubbles(res):res;
 }
@@ -1546,6 +1555,7 @@ function bubble(t,m,i){
   const mine=m.from==='me',c=mine?null:charById(m.from),grp=t.type==='group';
   if(m.type==='narr')return`${!mine&&m.think?`<div class="msg ai"><div class="col" style="max-width:100%">${thinkFold(m)}</div></div>`:''}<button class="narr${mine?' me':''}" data-mi="${i}" data-a="msg" data-i="${i}">${esc(m.content)}</button>${folds(m)?`<div class="msg ai"><div class="col" style="max-width:100%">${folds(m)}</div></div>`:''}`;
   const inner=m.type==='sticker'?(()=>{const s=findSticker(m.content);return`<button class="stk" data-a="msg" data-i="${i}">${s?`<img src="${esc(s.src)}" alt="${esc(m.content)}">`:`<span class="bub">[${esc(m.content)}]</span>`}</button>`})()
+    :m.type==='roll'?`<button class="stk roll${Date.now()-m.t<1500?' new':''}" data-a="msg" data-i="${i}">${rollFace(m)}</button>`
     :richBody(t,m,i,mine,c);
   return`<div class="msg ${mine?'me':'ai'}" data-mi="${i}">${mine?'':av(c||{name:'?'},40)}<div class="col">${grp&&!mine?`<span class="who">${esc(dn(c))}</span>`:''}${mine?'':thinkFold(m)}${inner}${mine?(m.rejected?'<span class="rej"><i>!</i>被拒收</span>':'')+(m.by?`<span class="qt">${esc(dn(charById(m.by)))} 用你的手机发的</span>`:''):folds(m)}</div>${mine?av(mask(t),40):''}</div>`;
 }
@@ -1957,7 +1967,7 @@ function spUse(t){let rounds=0,run=false,last=-1,callN=-1,n=0;
     if(m.type==='sys'||m.type==='call')continue;
     if(m.from==='me'){run=false;continue}
     if(!run){run=true;rounds++}
-    if(last<0&&!['text','sticker','narr'].includes(m.type))last=rounds}
+    if(last<0&&!['text','sticker','roll','narr'].includes(m.type))last=rounds}
   return{rounds,last,callN}}
 function incomingCall(t,kind){if(call)return;const c=charById(t.chars[0]);if(!reachable(c))return;
   call={tid:t.id,kind,status:'in',lines:[],start:0,tts:true,dir:'in'};renderCall();try{navigator.vibrate&&navigator.vibrate([300,200,300])}catch(e){}
@@ -2714,7 +2724,7 @@ const A={
   send(){sendMsg(thread(cur().id),$('#msgIn'))},
   msg(el){const t=thread(cur().id),i=+el.dataset.i,m=t.msgs[i];if(!m)return;
     const lastTheirs=m.from!=='me'&&t.msgs.slice(i+1).every(x=>x.from!=='me');
-    const plain=m.type!=='sticker'&&m.type!=='sys'&&!m.recalled;
+    const plain=m.type!=='sticker'&&m.type!=='roll'&&m.type!=='sys'&&!m.recalled;
     const o=(a,l,cls='')=>`<button class="opt ${cls}" data-a="${a}" data-i="${i}">${l}</button>`;
     sheet(`${plain&&m.img&&(m.type==='pic'||m.type==='img')?o('picView','看大图'):''}${plain&&m.type==='pic'&&imgOn()?o('picDraw',drawing.has(m)?'画画中…':m.img?'重画':'画出来'):''}
       ${plain?o('mQuote','引用')+o('mCopy','复制')+o('mEdit','编辑'):''}
@@ -2756,6 +2766,7 @@ const A={
   openOffline(){closeSheet();go({v:'offline',id:cur().id})},
   stickerPicker(){const gs=S.stickers.groups.filter(g=>g.items.length);if(!gs.length){sheet(`<h3>表情包</h3><p class="hint" style="text-align:center">还没有表情包</p><button class="opt" data-a="stkManage">添加表情包</button>${CANCEL}`);return}
     sheet(`<h3>表情包<button class="tb" data-a="stkManage" style="float:right">管理</button></h3>`+gs.map(g=>`<div class="sec">${esc(g.name)}</div><div class="sgrid">${g.items.map(s=>`<button data-a="sendSticker" data-n="${esc(s.name)}"><img src="${esc(s.src)}" alt="${esc(s.name)}" loading="lazy"><span>${esc(s.name)}</span></button>`).join('')}</div>`).join(''))},
+  pRoll(el){const t=thread(cur().id),k=el.dataset.k;closeSheet();if(pushMine(t,{type:'roll',k,content:rollNow(k)}))refreshChat()},
   sendSticker(el){const t=thread(cur().id);describeSticker(findSticker(el.dataset.n));t.msgs.push({id:uid(),from:'me',type:'sticker',content:el.dataset.n,t:Date.now()});t.t=Date.now();save();closeSheet();refreshChat()},
   meetGo(){closeSheet();const v=cur();if(v?.v==='chat'){v.off=1;render()}else go({v:'chat',id:v.id,off:1})},
   meetEnd(){const id=cur().id;closeSheet();if(cur().v==='offline')stack.pop();const v=cur();if(v?.v==='chat'&&v.id===id){v.off=0;render()}else go({v:'chat',id,off:0});toast('回到线上了')},
@@ -2819,7 +2830,7 @@ const A={
   plus(){const t=thread(cur().id),dm=t.type==='dm';const it=(a,ic,l,ex='')=>`<button class="pi" data-a="${a}" ${ex}><span class="ic">${ICONS[ic]}</span>${l}</button>`;
     sheet(`<div class="pgrid">
       <label class="pi"><span class="ic">${ICONS.image}</span>照片<input type="file" accept="image/*" data-img="chatimg" class="vh" aria-label="发照片"></label>${it('stickerPicker','smile','表情包')}${it('pPic','camera','文字图片')}${it('pVoice','mic','语音')}
-      ${it('pLoc','pin','位置')}${it('meetGo','contacts','见面')}${dm?it('pMoney','gift','红包','data-k="hb"')+it('pMoney','yen','转账','data-k="tf"')+it('cardAdd','wallet','亲属卡',`data-to="${t.chars[0]}"`)+it('pCall','phone','语音通话','data-k="voice"')+it('pCall','video','视频通话','data-k="video"')+it('pShop','bowl','点外卖','data-k="food"')+it('pShop','shop','网购','data-k="goods"'):''}${it('open','music','音乐','data-v="music"')}
+      ${it('pLoc','pin','位置')}${it('pRoll','dice','骰子','data-k="dice"')}${it('pRoll','hand','猜拳','data-k="rps"')}${it('meetGo','contacts','见面')}${dm?it('pMoney','gift','红包','data-k="hb"')+it('pMoney','yen','转账','data-k="tf"')+it('cardAdd','wallet','亲属卡',`data-to="${t.chars[0]}"`)+it('pCall','phone','语音通话','data-k="voice"')+it('pCall','video','视频通话','data-k="video"')+it('pShop','bowl','点外卖','data-k="food"')+it('pShop','shop','网购','data-k="goods"'):''}${it('open','music','音乐','data-v="music"')}
     </div><button class="opt" data-a="closeSheet">关闭</button>`)},
   pLoc(){sheet(`<h3>发送位置</h3><input type="text" id="locIn" placeholder="在哪" aria-label="地点"><input type="text" id="locSub" placeholder="备注" aria-label="备注">
     <div class="btns"><button class="btn o" data-a="pLocHere">定位当前位置</button>${S.loc?`<button class="btn o" data-a="pLocCity">${esc(S.loc.name)}</button>`:''}<button class="btn" data-a="pLocGo">发送</button></div>${CANCEL}`)},
