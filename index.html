@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.76';</script>
+<script>window.BYJ_VER='2026.11.18.77';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2935,7 +2935,7 @@ const A={
     sheet(`<h3>${esc(dn(charById(m.from)))}${hb?'的红包':'给你转账'}</h3><div class="money-big">¥${(+m.amt).toFixed(2)}</div><p class="hint" style="text-align:center">${esc(m.content||'')}</p><button class="btn" data-a="moneyGet" data-i="${el.dataset.i}">${hb?'领取':'收款'}</button>${hb?'':`<button class="opt" data-a="moneyBack" data-i="${el.dataset.i}">退还</button>`}<button class="opt red" data-a="mDel" data-i="${el.dataset.i}">删除</button>`)},
   moneyGet(el){const t=thread(cur().id),m=t.msgs[+el.dataset.i],c=charById(m.from);m.state='got';S.wallet=Math.round(((+S.wallet||0)+m.amt)*100)/100;sysMsg(t,`你${m.type==='hb'?'领取':'收下'}了${dn(c)}的${m.type==='hb'?'红包':'转账'} ¥${(+m.amt).toFixed(2)}`);save();closeSheet();refreshChat();toast('钱包 +¥'+(+m.amt).toFixed(2))},
   moneyBack(el){const t=thread(cur().id),m=t.msgs[+el.dataset.i],c=charById(m.from);m.state='back';sysMsg(t,`你退还了${dn(c)}的转账`);save();closeSheet();refreshChat()},
-  voice(el){const t=thread(cur().id),m=t.msgs[+el.dataset.i];if(!m)return;m.open=!m.open;el.classList.toggle('open',m.open);save();if(m.open)speak(m.content,m.from==='me'?null:charById(m.from),m.id)},
+  voice(el){const t=thread(cur().id),m=t.msgs[+el.dataset.i];if(!m)return;m.open=!m.open;el.classList.toggle('open',m.open);save();if(m.open&&m.from!=='me')speak(m.content,charById(m.from),m.id)},
   pCall(el){startCall(thread(cur().id),el.dataset.k)},
   callAccept(){if(!call)return;clearTimeout(call.ring);callOn();callTurn()},
   callEnd(){if(!call)return;endCall(call.status==='in'?'declined':'done')},
