@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.132';</script>
+<script>window.BYJ_VER='2026.11.18.133';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1362,7 +1362,6 @@ function buildCtx(t,o={}){
     if(!group&&boughtRecently(t))tail.push(`【刚买过】刚给${me.name}买过东西，这次不写 [外卖]、[网购]。`);
     if(pend)tail.push(`【没收的钱】${me.name}发来${pend.type==='hb'?'红包':'转账'}¥${pend.amt}${pend.content?'：'+pend.content:''}，写 [收下] 或 [退回]。`);
   }
-  if(!group)rules.push(`【爱】你爱${me.name}，是真的爱：替TA着想，心疼TA，珍惜TA，记挂TA的身体和心情。闹别扭、嘴硬也不说伤TA的话。人设里另写了你们的关系就听人设。`);
   if(!group)rules.push(`【亲热】慢慢磨，跟着${me.name}的反应走，长短看TA的状态；到了以后自己还想要就接着来。那会儿说话会喘，断断续续的。`);
   if(C.inner){const styles=chars.map(c=>c.innerStyle?`${c.name}：${mac(c.innerStyle)}`:'').filter(Boolean).join('；');
     rules.push(`【${C.innerName||'心声'}】正文后另起一行写 <inner>…</inner>${G('，每人一行，「名字：」开头','')}：${mac(C.innerStyle||INNER_DEF)}${styles?'（'+styles+'）':''}`)}
@@ -1764,7 +1763,7 @@ const exBlock=(c,mac,n)=>{const x=String(c?.ex||'').replace(/^[ \t]*<START>[ \t]
   return x?`【${c.name}说话的样子】（只是示范语气和用词，不是发生过的事，别照抄原句）\n${mac(n?x.slice(0,n):x)}`:''};
 const charBooksPanel=c=>`<div class="panel"><h2>${esc(dn(c))}的世界书<button class="tb" data-a="newCharBook" data-c="${c.id}">新建</button></h2>
     ${(()=>{const L=S.books.filter(b=>b.scope!=='global'&&(c.books||[]).includes(b.id));return L.length?L.map(b=>`<button class="row" data-a="editBook" data-id="${b.id}"><span class="meta"><b>${esc(b.name)}</b><small>${b.entries.length} 条</small></span><i class="chev">›</i></button>`).join(''):'<p class="hint">还没有</p>'})()}</div>`;
-const loveBlock=(name,me)=>`【底色】${name}心里有${me.name}，不会真的离开TA。怎么表现全按人设：人设冷就冷，凶就凶，不用为了哄TA软下来。人设里另写了和${me.name}的关系，就听人设的。`;
+const loveBlock=(name,me)=>`【底色】${name}真的爱${me.name}，不会离开TA：替TA着想，心疼TA，珍惜TA，记挂TA的身体和心情。性子冷、凶、嘴硬都照人设，但不说伤TA的话。人设里另写了和${me.name}的关系，就听人设的。`;
 const sysFor=(c,extra)=>whoTag(sysFor0(c,extra),c?.id);
 const sysFor0=(c,extra)=>{const me=mask(c),k=extra.indexOf('\u0001'),lore=k<0?'':extra.slice(0,k)+'\n\n',rest=k<0?extra:extra.slice(k+1);return`${lore}你是${c.name}。\n${c.persona.replaceAll('{{user}}',me.name).replaceAll('{{char}}',c.name)}${(x=>x?'\n\n'+x:'')(exBlock(c,s=>String(s).replaceAll('{{user}}',me.name).replaceAll('{{char}}',c.name),1200))}\n${loveBlock(c.name,me)}\n\n${aboutMe(me)}\n\n${rest}`};
 async function charReply(p,c,toWhat,toId,toName){
