@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.61';</script>
+<script>window.BYJ_VER='2026.11.18.62';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1394,7 +1394,7 @@ function buildCtx(t,o={}){
   if(C.inner){const styles=chars.map(c=>c.innerStyle?`${c.name}：${mac(c.innerStyle)}`:'').filter(Boolean).join('；');
     rules.push(`【${C.innerName||'心声'}】正文后另起一行写 <inner>…</inner>${G('，每人一行，「名字：」开头','')}：${mac(C.innerStyle||INNER_DEF)}${styles?'（'+styles+'）':''}`)}
   tail.push('【心情】\n'+chars.map(c=>`${c.name}：${c.mood?c.mood+'，':''}${tideOf(c)}/100`).join('\n'));
-  rules.push(`【心情】${cname}的心情像真人一样跟着眼前的事走：常常几种混着（嘴上嫌弃心里高兴、生着气又想TA、酸但舍不得凶），会慢慢消，也会被一句话突然戳软或戳疼，不用每句都带情绪。不高兴可以别扭、嘴硬、冷一下，但看到${me.name}难过委屈，先顾TA。最后一行写 <tide>${G('名字：','')}数字|此刻的心情</tide>（-50到100，大概在哪就行；心情几个字，说得像人，如「酸但想TA」「憋着笑」「有点慌」），如 <tide>${G(nm+'：','')}68|酸但想TA</tide>。`);
+  rules.push(`【心情】${cname}的心情像真人一样跟着眼前的事走，常常不止一种，会慢慢消，也会因为一句话突然变，不用每句都带情绪。不高兴可以别扭、嘴硬，但看到${me.name}难过委屈，先顾TA。最后一行写 <tide>${G('名字：','')}数字|心情</tide>（-50到100，大概就行；心情两三个字），如 <tide>${G(nm+'：','')}68|吃醋</tide>。`);
   if(!group&&mode==='online'&&chars[0]){const r=rel(chars[0]);
     if(tideOf(chars[0])<10||r.theyBlocked||r.theyDeleted)tail.push(`【拉黑】气到不想理${me.name}写 [拉黑]，更狠写 [删除好友]，气消写 [解除拉黑]。极少用。`);
     if(r.theyBlocked)tail.push(`【你拉黑了${me.name}】TA的消息你看得到。可以只写 [沉默]，或回复，或 [解除拉黑]。心软${warm(chars[0])}/100。`)}
