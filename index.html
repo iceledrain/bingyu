@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.109';</script>
+<script>window.BYJ_VER='2026.11.18.110';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -953,11 +953,12 @@ const KAO_BAD=/[ಠ益Дд╬ﾟ皿凸◣◢⊙눈罒ʖ͜͡卍☠💢⊿▼▲�
 function softFace(k){return/[╥ಥ;；TＴ]|﹏/.test(k)?'T_T':/[益╬皿凸💢ꐦ▼◣◢]/.test(k)?'(｡ì _ í｡)':/[ﾟД⊙]/.test(k)?'(O_o)':'(｡･ω･｡)'}
 const cuteKao=x=>String(x??'').replace(/(?:[^\s\u4e00-\u9fff，。！？、：；“”‘’「」]|[益皿])+/g,k=>k.length>=2&&k.length<=30&&KAO_BAD.test(k)?softFace(k):k);
 const MOOD_BAD=/偏执|疯|病态|崩溃|绝望|杀|毁|占有|黑化|阴暗|阴郁|窒息|恨|囚|锁|血|死|暴怒|狂|扭曲|失控|厌世|恶心|发狠|暴躁|阴沉|冷漠|阴冷|戾/;
-const moodBy=v=>v>=80?'开心':v>=60?'不错':v>=40?'平静':v>=20?'委屈':v>=0?'生气':'发火';
+const MOODS='开心 得意 想你 黏人 心动 害羞 吃醋 委屈 别扭 心软 发呆 犯困 平静 生气 难过'.split(' ');
+const moodBy=v=>v>=75?'开心':v>=45?'平静':v>=20?'委屈':v>=0?'别扭':'生气';
 const softMood=(w,v)=>{if(!w)return w;v=v??60;if(MOOD_BAD.test(w))return moodBy(v);let x=String(w).replace(/[^\u4e00-\u9fff]/g,'');
-  const M={美滋滋:'开心',乐呵呵:'开心',笑嘻嘻:'开心',甜滋滋:'甜蜜',气鼓鼓:'生气',气呼呼:'生气',想贴贴:'想你',懵懵:'懵了',心虚虚:'心虚',酸溜溜:'吃醋',委屈巴巴:'委屈',可怜巴巴:'委屈',困兮兮:'犯困',软乎乎:'心软',暖洋洋:'温暖',平平静静:'平静',开开心心:'开心'};
+  const M={美滋滋:'开心',乐呵呵:'开心',笑嘻嘻:'开心',甜滋滋:'甜蜜',气鼓鼓:'生气',气呼呼:'生气',想贴贴:'想你',懵懵:'懵了',心虚虚:'心虚',酸溜溜:'吃醋',委屈巴巴:'委屈',可怜巴巴:'委屈',困兮兮:'犯困',软乎乎:'心软',暖洋洋:'温暖',平平静静:'平静',开开心心:'开心',心痒:'心动',上头:'心动',想要:'心动',动情:'心动',高兴:'开心',想念:'想你',脸红:'害羞',撒娇:'黏人',失落:'难过',伤心:'难过',困了:'犯困',懵了:'发呆',温暖:'心软',甜蜜:'开心'};
   x=x.replace(/^(心情|有点儿?|有些|有一点|一点点?|好|超|很|特别|非常|贼|巨|小小|微微|略|小(?=..$))+/,'').replace(/[的了啦呀哦嘛呢]+$/,'');if(M[x])return M[x];
-  return x.length===2?x:moodBy(v)};
+  return MOODS.includes(x)?x:moodBy(v)};
 const KAO_CH=/[()（）ω︿ᴗ´`•｡≧≦╥﹏>＜<^ˊˋ]/;
 const kaoIn=x=>(String(x||'').match(/[^\s\u4e00-\u9fff，。！？、：；“”‘’「」]{3,24}/g)||[]).find(k=>KAO_CH.test(k)&&!KAO_BAD.test(k))||'';
 const noKao=x=>String(x||'').replace(/[^\s\u4e00-\u9fff，。！？、：；“”‘’「」…~～]{2,30}/g,k=>KAO_CH.test(k)||KAO_BAD.test(k)||/[✧♡♥☆★ﾉ و∀ᐛ]/.test(k)?'':k).replace(/[ \t]{2,}/g,' ').trim();
@@ -1348,7 +1349,7 @@ function buildCtx(t,o={}){
   if(C.inner){const styles=chars.map(c=>c.innerStyle?`${c.name}：${mac(c.innerStyle)}`:'').filter(Boolean).join('；');
     rules.push(`【${C.innerName||'心声'}】正文后另起一行写 <inner>…</inner>${G('，每人一行，「名字：」开头','')}：${mac(C.innerStyle||INNER_DEF)}${styles?'（'+styles+'）':''}`)}
   tail.push('【心情】\n'+chars.map(c=>`${c.name}：${c.mood?c.mood+'，':''}${tideOf(c)}/100`).join('\n'));
-  rules.push(`【心情】${cname}的心情像真人一样跟着眼前的事走，常常不止一种，会慢慢消，也会因为一句话突然变，不用每句都带情绪。不高兴可以别扭、嘴硬，但看到${me.name}难过委屈，先顾TA。最后一行写 <tide>${G('名字：','')}数字|心情</tide>（-50到100，大概就行；心情两三个字），如 <tide>${G(nm+'：','')}68|吃醋</tide>。`);
+  rules.push(`【心情】${cname}的心情像真人一样跟着眼前的事走，常常不止一种，会慢慢消，也会因为一句话突然变，不用每句都带情绪。不高兴可以别扭、嘴硬，但看到${me.name}难过委屈，先顾TA。最后一行写 <tide>${G('名字：','')}数字|心情</tide>（-50到100，大概就行；心情从这些里挑一个：${MOODS.join('、')}），如 <tide>${G(nm+'：','')}68|吃醋</tide>。`);
   if(!group&&mode==='online'&&chars[0]){const r=rel(chars[0]);
     if(tideOf(chars[0])<10||r.theyBlocked||r.theyDeleted)tail.push(`【拉黑】气到不想理${me.name}写 [拉黑]，更狠写 [删除好友]，气消写 [解除拉黑]。极少用。`);
     if(r.theyBlocked)tail.push(`【你拉黑了${me.name}】TA的消息你看得到。可以只写 [沉默]，或回复，或 [解除拉黑]。心软${warm(chars[0])}/100。`)}
