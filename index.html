@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.88';</script>
+<script>window.BYJ_VER='2026.11.18.89';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1981,12 +1981,14 @@ function endCall(how,why){const c0=call;if(!c0)return;call=null;clearInterval(ca
 
 function jsonFrom(out){const a=out.indexOf('{'),b=out.lastIndexOf('}');if(a<0||b<a)throw new Error('没翻出东西，再试一次');try{return JSON.parse(out.slice(a,b+1))}catch(e){throw new Error('没翻出东西，再试一次')}}
 async function genPeek(c,how){const me=mask(c),t=dmFor(c.id);
-  const L=[];S.threads.filter(x=>!(x.type==='dm'&&x.chars[0]===c.id)&&x.msgs.some(m=>m.type!=='sys')).sort((a,b)=>b.t-a.t).slice(0,5).forEach(x=>L.push(`聊天「${threadTitle(x)}」最近：`+x.msgs.filter(m=>m.type!=='sys').slice(-4).map(m=>(m.from==='me'?'我':charById(m.from)?.name||'?')+'：'+pv(m)).join(' / ')));
-  const posts=S.feed.filter(p=>p.author==='me').slice(-3);if(posts.length)L.push('朋友圈：'+posts.map(postDesc).join(' / '));
+  const L=[];S.threads.filter(x=>!(x.type==='dm'&&x.chars[0]===c.id)&&x.msgs.some(m=>m.type!=='sys')).sort((a,b)=>b.t-a.t).slice(0,8).forEach(x=>L.push(`聊天「${threadTitle(x)}」：`+x.msgs.filter(m=>m.type!=='sys').slice(-15).map(m=>(m.from==='me'?'我':charById(m.from)?.name||'?')+'：'+(m.recalled&&m.was?'（撤回了）'+m.was:pv(m))).join(' / ')));
+  const posts=S.feed.filter(p=>p.author==='me').slice(-6);if(posts.length)L.push('朋友圈：'+posts.map(postDesc).join(' / '));
+  {const o=S.orders.slice(-8);if(o.length)L.push('外卖和网购：'+o.map(x=>x.content+' ¥'+x.amt+' '+ago(x.t)).join(' / '))}
+  {const f=favSongs().slice(0,10),n=songById(S.music.cur);if(f.length||n)L.push('音乐：'+(n?'正在听 '+n.title+' - '+(n.artist||'')+'；':'')+(f.length?'收藏 '+f.map(x=>x.title+' - '+(x.artist||'')).join('、'):''))}
   const bal=+S.wallet||0;L.push(`钱包余额：¥${bal.toFixed(2)}${bal<50?'（几乎没钱了）':bal<200?'（没剩多少了）':''}`);
   const others=S.chars.filter(x=>x.id!==c.id&&visible(x));if(others.length)L.push('通讯录：'+others.map(x=>x.name+(x.remark&&x.remark!==x.name?`（备注「${x.remark}」）`:'')).join('、'));
   const ctx=buildCtx(t);
-  const out=await callAI(ctx.system,[...ctx.msgs,{role:'user',content:`（${how==='open'?me.name+'把手机递给你，让你随便看':'你趁'+me.name+'不注意，偷偷拿起了TA的手机'}。下面是TA手机里真实的内容：\n${L.join('\n')}\n\n按你翻看的顺序写4到7步，每步一行，格式「应用｜看到了什么｜心里想什么」。看完以后，最后一行写「[说] 你要对${me.name}说的话」，几句话用 / 分开${how==='open'?'':'（如果你不想让TA知道你偷看了，也可以装作什么都没发生，说点别的）'}。${others.length?`\n看完你也可以动TA的手机（按人设和心情，不是每次都动，多数时候什么都不做）：\n[替发:名字:内容] 用TA的手机给通讯录里的人发一条消息，对方会以为是${me.name}发的\n[拉黑:名字] 把通讯录里的人拉黑\n[删除:名字] 把通讯录里的人删掉\n这些各占一行，写在「[说]」之前，名字用通讯录里的。`:''}\n看到TA钱包里没什么钱，按人设和你们的关系，可以直接往TA钱包里充钱（心疼、嫌弃、嘴硬都行，${bal<200?'现在TA钱很少，大多数人这时会充':'钱够用就不用充'}）：[充钱:金额:一句话]，单独一行，写在「[说]」之前。最后写 <tide>数字|心情</tide>。）`}],{max:2048});
+  const out=await callAI(ctx.system,[...ctx.msgs,{role:'user',content:`（${how==='open'?me.name+'把手机递给你，让你随便看':'你趁'+me.name+'不注意，偷偷拿起了TA的手机'}。下面是TA手机里真实的内容：\n${L.join('\n')}\n\n按你翻看的顺序写6到10步，每步一行，格式「应用｜看到了什么｜心里想什么」。看完以后，最后一行写「[说] 你要对${me.name}说的话」，几句话用 / 分开${how==='open'?'':'（如果你不想让TA知道你偷看了，也可以装作什么都没发生，说点别的）'}。${others.length?`\n看完你也可以动TA的手机（按人设和心情，不是每次都动，多数时候什么都不做）：\n[替发:名字:内容] 用TA的手机给通讯录里的人发一条消息，对方会以为是${me.name}发的\n[拉黑:名字] 把通讯录里的人拉黑\n[删除:名字] 把通讯录里的人删掉\n这些各占一行，写在「[说]」之前，名字用通讯录里的。`:''}\n看到TA钱包里没什么钱，按人设和你们的关系，可以直接往TA钱包里充钱（心疼、嫌弃、嘴硬都行，${bal<200?'现在TA钱很少，大多数人这时会充':'钱够用就不用充'}）：[充钱:金额:一句话]，单独一行，写在「[说]」之前。最后写 <tide>数字|心情</tide>。）`}],{max:2048});
   const ex=extractExtras(out);applyTide(ctx,ex);
   const lines=ex.text.split('\n').map(s=>s.trim()).filter(Boolean);const steps=[];let say='';
   const acts=[];
@@ -2054,8 +2056,8 @@ function lifeTick(mins){const now=Date.now();{const d=new Date();ensureHolidays(
   for(const t of S.threads){if(t.pending&&now>=t.pending&&!busy.has(t.id)&&!call){const g=now-(t.msgs.filter(m=>m.from==='me').slice(-1)[0]?.t||now);const why={sleep:`（你本来睡着了，被消息吵醒，过了${gapText(g)}才看到。）`,work:`（你刚才在上班或上课，过了${gapText(g)}才看到消息。）`}[t.pendWhy]||(g>90e3?`（你刚才在忙，过了${gapText(g)}才看到消息。）`:'');t.pending=0;t.pendWhy='';save();reply(t,why);return}}
   if(api()?.key&&S.chat.autoPost!==false&&!document.hidden&&!postBusy){const c=S.chars.filter(reachable).find(c=>{const t=S.threads.find(x=>x.type==='dm'&&x.chars[0]===c.id),f=t?.msgs?.[0]?.t||now;if(!c.postNext)c.postNext=(c.postAt||now)+postGap();return now>c.postNext&&now-f>12*3600e3});
     if(c){postBusy=true;c.postAt=now;charPost(c).then(()=>{if(onFeed())render(true)}).catch(()=>{}).finally(()=>postBusy=false)}}
-  if(api()?.key&&!busy.size&&!call&&!document.hidden&&!peekBusy){const t=S.threads.find(t=>{const c=charById(t.chars[0]);return t.type==='dm'&&reachable(c)&&now-(c.peekAt||0)>4*3600e3&&now-t.t<2*864e5&&t.msgs.some(m=>m.from==='me')});
-    if(t&&Math.random()<1-Math.pow(1-1/240,mins)){autoPeek(t,charById(t.chars[0]),'sneak');return}}
+  if(api()?.key&&!busy.size&&!call&&!document.hidden&&!peekBusy){const t=S.threads.find(t=>{const c=charById(t.chars[0]);return t.type==='dm'&&reachable(c)&&now-(c.peekAt||0)>1.5*3600e3&&now-t.t<2*864e5&&t.msgs.some(m=>m.from==='me')});
+    if(t&&Math.random()<1-Math.pow(1-1/90,mins)){autoPeek(t,charById(t.chars[0]),'sneak');return}}
   if(busy.size||call||document.hidden||!api()?.key)return;
   const dms=S.threads.filter(t=>t.type==='dm'&&!t.pending&&(t.mode||'online')==='online').sort(()=>Math.random()-.5);
   for(const c of S.chars.filter(reachable).sort(()=>Math.random()-.5)){if(statusOf(c)==='sleep'||now-(c.helloAt||0)<6*3600e3)continue;const old=(c.said||[]).length>0;
