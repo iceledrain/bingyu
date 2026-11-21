@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.103';</script>
+<script>window.BYJ_VER='2026.11.18.104';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1344,7 +1344,7 @@ function buildCtx(t,o={}){
     if(!group&&boughtRecently(t))tail.push(`【刚买过】刚给${me.name}买过东西，这次不写 [外卖]、[网购]。`);
     if(pend)tail.push(`【没收的钱】${me.name}发来${pend.type==='hb'?'红包':'转账'}¥${pend.amt}${pend.content?'：'+pend.content:''}，写 [收下] 或 [退回]。`);
   }
-  if(!group)rules.push(`【亲热】有起有落，铺够了就到，不草草了事，也不拖好几轮不收；那会儿说话会喘，断断续续的。`);
+  if(!group)rules.push(`【亲热】别急着到，慢慢磨，跟着${me.name}的反应走，也别没完没了；到了不算完，TA还想要就接着来。那会儿说话会喘，断断续续的。`);
   if(C.inner){const styles=chars.map(c=>c.innerStyle?`${c.name}：${mac(c.innerStyle)}`:'').filter(Boolean).join('；');
     rules.push(`【${C.innerName||'心声'}】正文后另起一行写 <inner>…</inner>${G('，每人一行，「名字：」开头','')}：${mac(C.innerStyle||INNER_DEF)}${styles?'（'+styles+'）':''}`)}
   tail.push('【心情】\n'+chars.map(c=>`${c.name}：${c.mood?c.mood+'，':''}${tideOf(c)}/100`).join('\n'));
