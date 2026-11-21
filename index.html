@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.99';</script>
+<script>window.BYJ_VER='2026.11.18.100';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1262,7 +1262,7 @@ function offEvent(t,off,me){const p=num(off.evRate)??10;t.evGap=(t.evGap||0)+1;
   const r=Math.random(),k=r<.42?'good':r<.84?'bad':'odd',L=OFF_EV[k],last=t.evLast||[];
   let i,n=0;do i=Math.floor(Math.random()*L.length);while(last.includes(k+i)&&++n<9);
   t.evGap=0;t.evLast=[...last,k+i].slice(-10);
-  return`【意外】这一段里发生一件${{good:'好事',bad:'不太顺的事',odd:'意想不到的事'}[k]}：${L[i]}。按现在的地点、时间改成合适的样子，放不进当前场景就换一件差不多的。正在亲热的话，多半当没这条；偶尔写也只当添点情趣的小插曲，被打断一下接着来，别就这么停了。自然地写进情节，别突兀，也别一笔带过；是小事，不是大灾难。${me.name}怎么反应留给TA。`}
+  return`【意外】这一段里发生一件${{good:'好事',bad:'不太顺的事',odd:'意想不到的事'}[k]}：${L[i]}。按现在的地点、时间改成合适的样子，放不进当前场景就换一件差不多的。正在亲热的话，多半当没这条；偶尔写也只当添点情趣的小插曲，同一段里就接回去，接着做，不拿它当停下的理由。自然地写进情节，别突兀，也别一笔带过；是小事，不是大灾难。${me.name}怎么反应留给TA。`}
 const boughtRecently=t=>{const L=t.msgs.filter(m=>m.from!=='me'&&(m.type==='order'||m.type==='parcel')&&Date.now()-m.t<24*3600e3);return L.length>=5||L.some(m=>Date.now()-m.t<2*3600e3)};
 const saidGone=(c,t)=>(c.said||[]).filter(x=>Date.now()-x.t<36*3600e3&&!(t&&t.msgs.some(m=>m.from===c.id&&String(m.content||'').slice(0,60)===x.s)));
 const langOf=c=>String(c?.voice?.lang||'').trim();
