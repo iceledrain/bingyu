@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.100';</script>
+<script>window.BYJ_VER='2026.11.18.101';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1314,7 +1314,7 @@ function buildCtx(t,o={}){
     const sf=loreOf(sbk,scan,'fixed').map(mac),sl=loreOf(sbk,scan,'live').map(mac),own=String(off.style||'').trim();
     const ost=mac(own&&own!==OFF_STYLE_DEF?own:sf.length||sl.length?'':OFF_STYLE_DEF),oshort=!!ost&&!sf.length&&ost.length<=12&&!/\n/.test(ost);
     rules.push(pov);rules.push(`【见面】${oshort?`文风${ost}，`:''}每次${Math.round((num(off.words)||500)*.8)}到${Math.round((num(off.words)||500)*1.2)}字。场景里该有的旁人也写出来。`);
-    {rules.push(`【推剧情】${cname}有自己的主意和情绪，想做什么、配不配合，按人设和当下来，不用等${me.name}点头。不替${me.name}写话、动作和心理。`);
+    {rules.push(`【推剧情】${cname}有自己的主意和情绪，想做什么、配不配合，按人设和当下来，不用等${me.name}点头。亲热有起有落，铺够了就到，不草草了事，也不拖好几轮不收。不替${me.name}写话、动作和心理。`);
       const ln=curNarr[curNarr.length-1];if(ln&&ln.from!=='me')tail.push(`【接着写】${me.name}这轮没写，接着往后写。`)}
     if(group)rules.push(`【都在场】${cname}都在场，谁说话、谁做什么，各按人设。`);
     if(!oshort&&(ost||sf.length))rules.push('【文风】'+[ost,...sf].filter(Boolean).join('\n'));
