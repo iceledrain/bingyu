@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.119';</script>
+<script>window.BYJ_VER='2026.11.18.120';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1076,7 +1076,7 @@ const isDS=p=>/deepseek/i.test((p?.base||'')+' '+(p?.model||''));
 const isKimi=base=>/moonshot\.(cn|ai)|kimi\.(com|ai)/.test(base||'');
 const isGLM=base=>/bigmodel\.cn/.test(base||'');
 function addTok(tag,i,o,c=0,w=0){if(!i&&!o)return;const T=S.tok||(S.tok=def().tok);T.n++;T.i+=i;T.o+=o;T.c=(T.c||0)+c;T.w=(T.w||0)+w;
-  const b=T.by[tag]||(T.by[tag]={n:0,i:0,o:0});b.n++;b.i+=i;b.o+=o;b.c=(b.c||0)+c;if(tag==='chat')T.last={i,o,c,t:Date.now()};save()}
+  const b=T.by[tag]||(T.by[tag]={n:0,i:0,o:0});b.n++;b.i+=i;b.o+=o;b.c=(b.c||0)+c;if(tag==='chat'){T.last={i,o,c,t:Date.now()};(T.rc=T.rc||[]).push([i,c]);if(T.rc.length>30)T.rc.shift()}save()}
 const mdlKey=x=>String(x||'').toLowerCase().replace(/^.*\//,'').replace(/[^a-z0-9]/g,'');
 const mdlSame=(a,b)=>{a=mdlKey(a);b=mdlKey(b);return!a||!b||a.includes(b)||b.includes(a)};
 const servedSeen=new Set();
@@ -1101,6 +1101,13 @@ const CK=new Map();let ckN=0;
 function cacheChk(k,pre,cr,cw,ttl){if(!k)return;const a=CK.get(k);CK.set(k,{pre,t:Date.now(),ok:cr+cw>0});if(!a||!a.ok||Date.now()-a.t>ttl||cr>0||ckN>=3)return;ckN++;
   if(pre.startsWith(a.pre))toast('缓存没读到：发的和上次一样，是站子没认',7000);
   else{let i=0;while(i<a.pre.length&&a.pre[i]===pre[i])i++;toast('缓存没读到：前面变了「'+pre.slice(Math.max(0,i-14),i+26).replace(/[\s\u0001\u0002]+/g,' ')+'」',10000)}}
+const KA=new Map();let kaBusy=0;
+async function keepWarm(){if(kaBusy||document.hidden)return;const now=Date.now();
+  for(const[k,e]of KA){const th=thread(e.k),me=th?.msgs.filter(m=>m.from==='me').slice(-1)[0]?.t||0,a=now-e.t;
+    if(!th||a>57*60e3||now-me>6*3600e3){KA.delete(k);continue}
+    if(a<40*60e3||busy.has(th.id))continue;
+    kaBusy=1;try{const r=await fetch(e.u,{method:'POST',headers:e.hd,body:JSON.stringify({...e.b,max_tokens:0,stream:undefined})}),u=(await r.json()).usage||{},cr=+u.cache_read_input_tokens||0,cw=+u.cache_creation_input_tokens||0;
+      if(r.ok&&cr>0&&KA.get(k)===e){e.t=now;const c=CK.get(k);if(c)c.t=now;addTok('bg',(+u.input_tokens||0)+cr+cw,0,cr,cw)}else if(KA.get(k)===e)KA.delete(k)}catch(x){}finally{kaBusy=0}return}}
 async function callAI0(system,messages,o={}){
   let p=api(o.who||whoOf(system));if(!p)throw new Error('先在「设置 · 聊天」里添加一个模型');p={...p,provider:provOf(p)};
   const key=(p.key||'').trim(),model=(p.model||'').trim();const base=(p.base||'').trim().replace(/\/+$/,'');
@@ -1108,14 +1115,14 @@ async function callAI0(system,messages,o={}){
   if(!model)throw new Error('先在「设置 · 聊天」填模型名');
   if(!base)throw new Error('先在「设置 · 聊天」填接口地址');
   const fx=p.fix?.model===model?p.fix:{},temp='temp' in fx?fx.temp:o.temp??num(p.temp),topP=fx.noTopP?null:num(p.topP),topK=fx.noTopK?null:num(p.topK),max=Math.min(o.max!=null?o.max+4096:(num(p.maxTokens)||2048),+fx.cap||Infinity);
-  const ef0=o.thoughts&&EFFS.includes(p.effort)?p.effort:'',eff=fx.noEff?'':fx.eff&&EFFS.indexOf(ef0)>EFFS.indexOf(fx.eff)?fx.eff:ef0;
+  const ef0=(o.thoughts||o.cache===2&&/claude/i.test(model))&&EFFS.includes(p.effort)?p.effort:'',eff=fx.noEff?'':fx.eff&&EFFS.indexOf(ef0)>EFFS.indexOf(fx.eff)?fx.eff:ef0;
   const m=normalize(messages);let res,glm=null;
-  const ckK=(o.thoughts||o.cache)&&/claude/i.test(model)?(o.who||whoOf(system))+'|'+model+'|'+base:'',ckP=ckK?system+'\u0001'+m.slice(0,-1).map(x=>x.role+'\u0002'+x.content).join('\u0001'):'',cAuto=!['5m','1h'].includes(p.cache),ckPrev=CK.get(ckK)?.t,ccS={type:'ephemeral',...(p.cache==='1h'||cAuto?{ttl:'1h'}:{})},ccH={type:'ephemeral',...(p.cache==='1h'||cAuto&&(!ckPrev||Date.now()-ckPrev>4*60e3)?{ttl:'1h'}:{})},ckT=ccH.ttl?3500e3:290e3;
+  const ckK=(o.thoughts||o.cache)&&/claude/i.test(model)?(o.who||whoOf(system))+'|'+model+'|'+base:'',ckP=ckK?system+'\u0001'+m.slice(0,-1).map(x=>x.role+'\u0002'+x.content).join('\u0001'):'',cc={type:'ephemeral',...(p.cache==='5m'?{}:{ttl:'1h'})},ckT=cc.ttl?3500e3:290e3,t0=Date.now();let ka=null;
   const ctl=new AbortController(),tmo=setTimeout(()=>ctl.abort(),o.timeout||300000),sig=ctl.signal;
   try{
     if(p.provider==='openai'){
       const b={model,max_tokens:max,...(p.stream?{stream:true,stream_options:{include_usage:true}}:{}),...(isKimi(base)?{prompt_cache_options:{mode:'implicit',ttl:p.cache==='1h'?'1h':'5m'}}:{}),messages:[{role:'system',content:system},...m.map(x=>({role:x.role,content:x.imgs&&x.imgs.length?[{type:'text',text:x.content},...x.imgs.map(u=>({type:'image_url',image_url:{url:u}}))]:x.content}))]};if(temp!==null)b.temperature=temp;if(topP!==null)b.top_p=topP;if(topK!==null)b.top_k=topK;
-      if((o.thoughts||o.cache)&&/claude/i.test(model)){const cc=ccH,h=b.messages.length>2?b.messages[b.messages.length-2]:null;b.messages[0].content=sysBlocks(system,ccS);
+      if((o.thoughts||o.cache)&&/claude/i.test(model)){const h=b.messages.length>2?b.messages[b.messages.length-2]:null;b.messages[0].content=sysBlocks(system,cc);
         if(h){if(typeof h.content==='string')h.content=[{type:'text',text:h.content,cache_control:cc}];else h.content[h.content.length-1].cache_control=cc}}
       if(isMM(model))b.reasoning_effort=eff||'low';else if(eff)b.reasoning_effort=eff==='max'&&!/claude/i.test(model)?'xhigh':eff;
       if(isDS(p)&&!o.thoughts)b.thinking={type:'disabled'};
@@ -1137,10 +1144,12 @@ async function callAI0(system,messages,o={}){
       const b={model,system,max_tokens:cur?Math.max(max,16000):max,...(p.stream?{stream:true}:{}),...(fb?{fallbacks:'default'}:{}),messages:m.map(x=>({role:x.role,content:x.imgs&&x.imgs.length?[...x.imgs.map(u=>({type:'image',source:{type:'base64',media_type:u.slice(5,u.indexOf(';')),data:u.split(',')[1]}})),{type:'text',text:x.content||'（图片）'}]:x.content}))};
       const ad=cur||/claude-(opus|sonnet)-4-6/.test(model),old=!ad&&/claude-(3-7|(opus|sonnet|haiku)-4)/.test(model);
       if(eff&&(ad||/claude-opus-4-5/.test(model))){b.output_config={effort:(/claude-opus-4-5/.test(model)&&EFFS.indexOf(eff)>2)||(/claude-(opus|sonnet)-4-6/.test(model)&&eff==='xhigh')?'high':eff};if(/claude-(opus|sonnet)-4-[678]/.test(model))b.thinking={type:'adaptive'}}
-      if((o.thoughts||o.cache)&&/claude/i.test(model)){const cc=ccH,h=b.messages[b.messages.length-2];b.system=sysBlocks(system,ccS);
+      if((o.thoughts||o.cache)&&/claude/i.test(model)){const h=b.messages[b.messages.length-2];b.system=sysBlocks(system,cc);
         if(h){if(typeof h.content==='string')h.content=[{type:'text',text:h.content,cache_control:cc}];else h.content[h.content.length-1].cache_control=cc}}
       if(isMM(model))b.output_config={effort:eff||'low'};
-      res=await fetch(base.replace(/\/v1$/,'')+'/v1/messages',{method:'POST',headers:{'content-type':'application/json',...antHdr(base,key),...(fb?{'anthropic-beta':'server-side-fallback-2026-07-01'}:{})},body:JSON.stringify(b),signal:sig});
+      const u=base.replace(/\/v1$/,'')+'/v1/messages',hd={'content-type':'application/json',...antHdr(base,key),...(fb?{'anthropic-beta':'server-side-fallback-2026-07-01'}:{})};
+      if(ckK&&cc.ttl&&/api\.anthropic\.com/.test(base))ka={u,hd,b};
+      res=await fetch(u,{method:'POST',headers:hd,body:JSON.stringify(b),signal:sig});
     }
   }catch(e){if(e instanceof ReferenceError||e instanceof SyntaxError||e instanceof RangeError||(e instanceof TypeError&&/is not a function|is not defined|undefined|null|Cannot read|is not iterable/i.test(e.message)))throw new Error('小手机自己出错了：'+e.message);
     const er=new Error(e?.name==='AbortError'?'五分钟没回应，再试一次（会思考的模型写长文很慢）':'连不上：检查网络和接口地址，或中转站不允许网页访问');er.net=true;if(e?.name==='AbortError')er.timeout=true;throw er}
@@ -1160,7 +1169,7 @@ async function callAI0(system,messages,o={}){
     const er=new Error('出错了 '+res.status+'：'+msg);er.status=res.status;{const ra=+res.headers.get('retry-after');if(ra>0)er.retryAfter=ra*1000}throw er}
   {const tag=o.tag||(o.side?'bg':'chat');
     if(p.provider==='gemini'){const u=data.usageMetadata||{};addTok(tag,+u.promptTokenCount||0,(+u.candidatesTokenCount||0)+(+u.thoughtsTokenCount||0),+u.cachedContentTokenCount||0)}
-    else if(p.provider==='claude'){const u=data.usage||{},cr=+u.cache_read_input_tokens||0,cw=+u.cache_creation_input_tokens||0;addTok(tag,(+u.input_tokens||0)+cr+cw,+u.output_tokens||0,cr,cw);cacheChk(ckK,ckP,cr,cw,ckT)}
+    else if(p.provider==='claude'){const u=data.usage||{},cr=+u.cache_read_input_tokens||0,cw=+u.cache_creation_input_tokens||0;addTok(tag,(+u.input_tokens||0)+cr+cw,+u.output_tokens||0,cr,cw);cacheChk(ckK,ckP,cr,cw,ckT);if(ka&&cr+cw>0){KA.delete(ckK);KA.set(ckK,{...ka,t:t0,k:o.who||whoOf(system)});if(KA.size>8)KA.delete(KA.keys().next().value)}}
     else{const u=data.usage||{},d=u.prompt_tokens_details||u.input_tokens_details||{};addTok(tag,+u.prompt_tokens||+u.input_tokens||0,+u.completion_tokens||+u.output_tokens||0,+d.cached_tokens||+u.cached_tokens||0,+d.cache_write_tokens||0);cacheChk(ckK,ckP,+d.cached_tokens||+u.cached_tokens||+u.cache_read_input_tokens||0,+d.cache_write_tokens||+u.cache_creation_input_tokens||0,ckT)}
     servedChk(model,String(data.model||data.modelVersion||''),tag)}
   {const br=data.base_resp,sc=+br?.status_code||0;if(sc){const M={1002:'发太快被限流了，等几秒再发',1004:'Key 不对，检查一下',2049:'Key 不对，检查一下',1008:'余额不够了，去充一下',2053:'积分不够了',2067:'套餐额度用完了',1026:'这句被内容审核拦了，换个说法',1027:'他的回复被内容审核拦了，换个说法或重试',1039:'太长了，把最大长度调小一点',2013:'参数不对：'+(br.status_msg||''),2064:'那边太忙，稍后再试',2066:'那边超时了，再试一次',1001:'那边超时了，再试一次',1000:'那边出了点问题，再试一次',1024:'那边出了点问题，再试一次',1033:'那边出了点问题，再试一次'};
@@ -1682,7 +1691,7 @@ async function doCoax(t,c,kind,content){
   save();onThreadUpdate(t);toast(dn(c)+' 好像看到了…',9000);
   try{
     const ctx=buildCtx(t),before=tideOf(c);
-    const out=await callAI(ctx.system,[...ctx.msgs,{role:'user',content:`（${me.name}现在${r.theyDeleted?'被你删掉了':'被你拉黑了'}，联系不到你。但TA${desc}${kind==='letter'||kind==='post'?'：「'+content+'」':''}。你看到了。\n先另起一行写 <tide>数字|两个字的心情</tide>，再写 <inner>你看到之后心里真实的想法，一两句</inner>。\n想原谅就另起一行写 [解除拉黑]，下一行写你要发给TA的第一句话；不想就到此为止，不写别的。原不原谅按人设和你现在的心情。）`}],{max:1536});
+    const out=await callAI(ctx.system,[...ctx.msgs,{role:'user',content:`（${me.name}现在${r.theyDeleted?'被你删掉了':'被你拉黑了'}，联系不到你。但TA${desc}${kind==='letter'||kind==='post'?'：「'+content+'」':''}。你看到了。\n先另起一行写 <tide>数字|两个字的心情</tide>，再写 <inner>你看到之后心里真实的想法，一两句</inner>。\n想原谅就另起一行写 [解除拉黑]，下一行写你要发给TA的第一句话；不想就到此为止，不写别的。原不原谅按人设和你现在的心情。）`}],{max:1536,cache:2});
     const ex=extractExtras(out);applyTide(ctx,ex);const after=tideOf(c);
     c.tide=Math.min(100,Math.max(after,before+3));
     if(ex.inner.length)note.inner=ex.inner.join('\n');
@@ -1991,7 +2000,7 @@ async function genPeek(c,how){const me=mask(c),t=dmFor(c.id);
   const bal=+S.wallet||0;L.push(`钱包余额：¥${bal.toFixed(2)}${bal<50?'（几乎没钱了）':bal<200?'（没剩多少了）':''}`);
   const others=S.chars.filter(x=>x.id!==c.id&&visible(x));if(others.length)L.push('通讯录：'+others.map(x=>x.name+(x.remark&&x.remark!==x.name?`（备注「${x.remark}」）`:'')).join('、'));
   const ctx=buildCtx(t);
-  const out=await callAI(ctx.system,[...ctx.msgs,{role:'user',content:`（${how==='open'?me.name+'把手机递给你，让你随便看':'你趁'+me.name+'不注意，偷偷拿起了TA的手机'}。下面是TA手机里真实的内容：\n${L.join('\n')}\n\n按你翻看的顺序写6到10步，每步一行，格式「应用｜看到了什么｜心里想什么」。看完以后，最后一行写「[说] 你要对${me.name}说的话」，几句话用 / 分开${how==='open'?'':'（如果你不想让TA知道你偷看了，也可以装作什么都没发生，说点别的）'}。${others.length?`\n看完你也可以动TA的手机（按人设和心情，不是每次都动，多数时候什么都不做）：\n[替发:名字:内容] 用TA的手机给通讯录里的人发一条消息，对方会以为是${me.name}发的\n[拉黑:名字] 把通讯录里的人拉黑\n[删除:名字] 把通讯录里的人删掉\n这些各占一行，写在「[说]」之前，名字用通讯录里的。`:''}\n看到TA钱包里没什么钱，按人设和你们的关系，可以直接往TA钱包里充钱（心疼、嫌弃、嘴硬都行，${bal<200?'现在TA钱很少，大多数人这时会充':'钱够用就不用充'}）：[充钱:金额:一句话]，单独一行，写在「[说]」之前。最后写 <tide>数字|心情</tide>。）`}],{max:2048});
+  const out=await callAI(ctx.system,[...ctx.msgs,{role:'user',content:`（${how==='open'?me.name+'把手机递给你，让你随便看':'你趁'+me.name+'不注意，偷偷拿起了TA的手机'}。下面是TA手机里真实的内容：\n${L.join('\n')}\n\n按你翻看的顺序写6到10步，每步一行，格式「应用｜看到了什么｜心里想什么」。看完以后，最后一行写「[说] 你要对${me.name}说的话」，几句话用 / 分开${how==='open'?'':'（如果你不想让TA知道你偷看了，也可以装作什么都没发生，说点别的）'}。${others.length?`\n看完你也可以动TA的手机（按人设和心情，不是每次都动，多数时候什么都不做）：\n[替发:名字:内容] 用TA的手机给通讯录里的人发一条消息，对方会以为是${me.name}发的\n[拉黑:名字] 把通讯录里的人拉黑\n[删除:名字] 把通讯录里的人删掉\n这些各占一行，写在「[说]」之前，名字用通讯录里的。`:''}\n看到TA钱包里没什么钱，按人设和你们的关系，可以直接往TA钱包里充钱（心疼、嫌弃、嘴硬都行，${bal<200?'现在TA钱很少，大多数人这时会充':'钱够用就不用充'}）：[充钱:金额:一句话]，单独一行，写在「[说]」之前。最后写 <tide>数字|心情</tide>。）`}],{max:2048,cache:2});
   const ex=extractExtras(out);applyTide(ctx,ex);
   const lines=ex.text.split('\n').map(s=>s.trim()).filter(Boolean);const steps=[];let say='';
   const acts=[];
@@ -2508,7 +2517,7 @@ data(v){
     <div class="panel"><h2>用量<button class="tb" data-a="dataMore">${v.more?'收起':'详情'}</button></h2>
       <p class="hint">${kn(T.i+T.o)} token · 文字 ${mb(size)}<span id="dataUse"></span></p>
       ${v.more?`<p class="hint">${rows.map(([k,n])=>n+' '+k).join(' · ')}</p>
-      <p class="hint">${esc(ago(T.since))}起</p><div class="grid2"><div class="mi"><b>${kn(T.i+T.o)}</b><span>总共</span></div><div class="mi"><b>${kn(T.i)}</b><span>输入</span></div><div class="mi"><b>${kn(T.o)}</b><span>输出</span></div>${T.img?`<div class="mi"><b>${T.img}</b><span>生图</span></div>`:''}${T.c||T.w?`<div class="mi"><b>${kn(T.c)}</b><span>缓存命中${T.by.chat?.c?' · 聊天 '+Math.round(T.by.chat.c/T.by.chat.i*100)+'%':T.i?' · '+Math.round(T.c/T.i*100)+'%':''}</span></div><div class="mi"><b>${kn(T.w)}</b><span>缓存写入</span></div>`:''}</div>
+      <p class="hint">${esc(ago(T.since))}起</p><div class="grid2"><div class="mi"><b>${kn(T.i+T.o)}</b><span>总共</span></div><div class="mi"><b>${kn(T.i)}</b><span>输入</span></div><div class="mi"><b>${kn(T.o)}</b><span>输出</span></div>${T.img?`<div class="mi"><b>${T.img}</b><span>生图</span></div>`:''}${T.c||T.w?`<div class="mi"><b>${kn(T.c)}</b><span>缓存命中${(r=>r.length?` · 近${r.length}次聊天 `+Math.round(r.reduce((s,x)=>s+x[1],0)/(r.reduce((s,x)=>s+x[0],0)||1)*100)+'%':'')(T.rc||[])}</span></div><div class="mi"><b>${kn(T.w)}</b><span>缓存写入</span></div>`:''}</div>
       ${cats.length?`<div class="grid2">${cats.map(([k,b])=>`<div class="mi"><b>${kn(b.i+b.o)}</b><span>${TOKTAG[k]||k}</span></div>`).join('')}</div>`:''}
       ${T.last?`<p class="hint">上一次聊天（${esc(ago(T.last.t))}）：发过去 ${kn(T.last.i)}，回来 ${kn(T.last.o)}${T.last.c?`，其中缓存命中 ${kn(T.last.c)}`:''}</p>`:''}
       ${T.last?.m?`<p class="hint">填的模型 ${esc(T.last.q||'')}，接口实际回的 ${esc(T.last.m)}${mdlSame(T.last.q,T.last.m)?'':' ⚠ 对不上，可能被换了模型'}</p>`:T.last?`<p class="hint">接口没说实际用的是哪个模型</p>`:''}
@@ -2590,7 +2599,7 @@ apiEdit(v){
     <label class="f">思考深度<select id="a-eff" data-s="api" data-k="effort">${[['','默认'],['low','低'],['medium','中'],['high','高'],['xhigh','超高'],['max','最高']].map(([k,l])=>`<option value="${k}" ${(p.effort||'')===k?'selected':''}>${l}</option>`).join('')}</select></label></div>
   <button class="tb" data-a="apiMore" style="align-self:center">${v.more?'收起':'更多'}</button>
   ${v.more?`<div class="panel"><h2>输出</h2><div class="seg">${[[false,'非流式'],[true,'流式']].map(([k,l])=>`<button class="${!!p.stream===k?'on':''}" data-a="setStream" data-v="${k?1:''}">${l}</button>`).join('')}</div></div>
-  ${isKimi(p.base)||/claude/i.test(p.model||'')?`<div class="panel"><h2>缓存时长</h2><div class="seg">${[...(/claude/i.test(p.model||'')?[['auto','自动']]:[]),['5m','5 分钟'],['1h','1 小时']].map(([k,l])=>`<button class="${(['5m','1h'].includes(p.cache)?p.cache:/claude/i.test(p.model||'')?'auto':'5m')===k?'on':''}" data-a="setCache" data-v="${k}">${l}</button>`).join('')}</div>
+  ${isKimi(p.base)||/claude/i.test(p.model||'')?`<div class="panel"><h2>缓存时长</h2><div class="seg">${[['5m','5 分钟'],['1h','1 小时']].map(([k,l])=>`<button class="${(p.cache==='5m'?'5m':p.cache==='1h'||/claude/i.test(p.model||'')?'1h':'5m')===k?'on':''}" data-a="setCache" data-v="${k}">${l}</button>`).join('')}</div>
     </div>`:''}
   <div class="panel"><h2>参数</h2>${/anthropic\.com/.test(p.base||'')&&/claude-(opus|sonnet|haiku|fable|mythos)-(5|4-[78])/.test(p.model||'')?'':`
     <label class="f">温度<span class="inline"><input type="range" id="a-temp" min="0" max="2" step="0.05" data-s="api" data-k="temp" value="${p.temp??1}"><output>${p.temp??1}</output></span></label>
@@ -2687,7 +2696,7 @@ const A={
   reAdd(el){const c=charById(el.dataset.id);rel(c).youDeleted=false;if(!rel(c).youBlocked)delete rel(c).blockBy;const t=dmFor(c.id);sysMsg(t,`你重新添加了 ${dn(c)}`);save();render();toast('重新加上了')},
   async friendReq(el){const t=thread(cur().id),c=charById(t.chars[0]);const msg=($('#reqIn')?.value||'').trim()||'我想加回你';
     el.disabled=true;el.textContent='等待验证…';sysMsg(t,`你发送了朋友验证：「${msg}」`);save();refreshChat();
-    try{const ctx=buildCtx(t);const out=await callAI(ctx.system,[...ctx.msgs,{role:'user',content:`（${mask(t).name}向你发来朋友验证：「${msg}」。你要通过吗？第一行只写「通过」或「拒绝」，第二行写你此刻心里的一句话。${langOf(c)?'「通过」「拒绝」照原样写。':''}）`}],{max:1024});
+    try{const ctx=buildCtx(t);const out=await callAI(ctx.system,[...ctx.msgs,{role:'user',content:`（${mask(t).name}向你发来朋友验证：「${msg}」。你要通过吗？第一行只写「通过」或「拒绝」，第二行写你此刻心里的一句话。${langOf(c)?'「通过」「拒绝」照原样写。':''}）`}],{max:1024,cache:2});
       const ex=extractExtras(out);applyTide(ctx,ex);const lines=ex.text.split('\n').map(s=>s.trim()).filter(Boolean);const ok=/^通过/.test(lines[0]||'');
       if(ok)rel(c).theyDeleted=false;sysMsg(t,ok?`${dn(c)} 通过了你的朋友验证，现在可以聊天了`:`${dn(c)} 拒绝了你的朋友验证`);
       const heart=(ex.inner[0]||lines.slice(1).join(' ')).trim();if(heart)t.msgs[t.msgs.length-1].inner=heart;save();render()}
@@ -3095,7 +3104,7 @@ function setTouchIcon(){try{let l=document.getElementById('touchIcon');if(!l){l=
   let tickSaved=0;const idle=f=>window.requestIdleCallback?requestIdleCallback(f,{timeout:3000}):setTimeout(f,200);
   const tick=()=>{const now=Date.now(),seen=S.seenAt||S.lastTick,m=S.lastTick?Math.min(180,(now-S.lastTick)/60e3):0;S.lastTick=now;
     if(!document.hidden){const gone=seen?now-seen:0;S.seenAt=now;if(gone>=90*60e3)awayCatch(now-gone,now)}
-    if(m>0){softTick();lifeTick(m)}if(now-tickSaved>60e3){tickSaved=now;idle(save)}};
+    if(m>0){softTick();lifeTick(m)}keepWarm();if(now-tickSaved>60e3){tickSaved=now;idle(save)}};
   tick();setInterval(tick,20e3);
   document.addEventListener('visibilitychange',()=>{if(document.hidden)flush();else{setAppH();tick()}});
 })();
