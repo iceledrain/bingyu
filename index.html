@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.72';</script>
+<script>window.BYJ_VER='2026.11.18.73';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -739,7 +739,7 @@ const INNER_OLD8='一个软萌的颜文字加半句没说出口的真心话，�
 const INNER_OLD9='{{char}}此刻没说出口的真心话。',INNER_DEF='一句没说出口的真心话，带点小情绪，可以和嘴上相反，15字内，不用颜文字。';
 const OFF_STYLE_OLD='细腻，有画面感',OFF_STYLE_DEF='清爽干净';
 const THINK_OLD13='一句话，{{char}}脑子里是怎么想的：{{user}}这句是什么意思、想要什么，{{char}}决定怎么回。用{{char}}自己的口气，口语，25字内。',THINK_OLD14='只写关键：{{user}}要什么，{{char}}怎么回。{{char}}自己的口气，能几个字说完就几个字，最多一句，15字内。不铺垫，不复述，不解释。',THINK_OLD15='一句话，{{char}}自己的口气：{{user}}这句要什么，{{char}}打算怎么回。30字内，不复述，不解释。',THINK_OLD16='用{{char}}自己的口气，写此刻心里真实的想法和打算。',THINK_DEF='用{{char}}的口气写一句：{{user}}要什么，{{char}}怎么回，30字内。';
-const CHAT_DEF=()=>({lean:true,onMax:3,onLen:10,casual:true,ctx:80,sumEvery:60,inner:true,innerOpen:false,innerName:'心声',innerStyle:INNER_DEF,think:true,thinkName:'思维链',thinkStyle:THINK_DEF,effort:'',scan:8});
+const CHAT_DEF=()=>({lean:true,onMax:3,onLen:10,casual:true,ctx:40,sumEvery:30,inner:true,innerOpen:false,innerName:'心声',innerStyle:INNER_DEF,think:true,thinkName:'思维链',thinkStyle:THINK_DEF,effort:'',scan:8});
 const PERSONA_TPL='姓名：\n年龄：\n性别：\n身份/职业：\n外貌：\n性格：\n说话方式：\n喜欢：\n讨厌：\n背景经历：\n和{{user}}的关系：';
 const API_BLANK=id=>({id,name:'接口',key:'',base:'',model:'',temp:1,topP:null,topK:null,maxTokens:32000,stream:true});
 const isOldExample=p=>p&&p.name==='Claude'&&!String(p.key||'').trim()&&/anthropic\.com/.test(p.base||'')&&/^claude-/.test(p.model||'');
@@ -766,7 +766,7 @@ function mergeState(d){
   if(!(s.look.font in FONTS))s.look.font='system';
   if(d.v===2){s.look.alpha=.92;s.look.icons={}}
   s.look.alpha=Math.max(.6,+s.look.alpha||.92);
-  s.chat=Object.assign(CHAT_DEF(),d.chat||{});if(!s.ctxV){if(+s.chat.ctx===40)s.chat.ctx=80;s.ctxV=1}if(!s.sumV){if(+s.chat.sumEvery===30)s.chat.sumEvery=60;s.sumV=1}
+  s.chat=Object.assign(CHAT_DEF(),d.chat||{});if(!s.ctxV){if(+s.chat.ctx===40)s.chat.ctx=80;s.ctxV=1}if(!s.sumV){if(+s.chat.sumEvery===30)s.chat.sumEvery=60;s.sumV=1}if(!s.ctxV2){if(+s.chat.ctx===80)s.chat.ctx=40;if(+s.chat.sumEvery===60)s.chat.sumEvery=30;s.ctxV2=1}
   s.api=d.api&&Array.isArray(d.api.profiles)&&d.api.profiles.length?d.api:def().api;
   s.offline=Object.assign(def().offline,d.offline||{});
   for(const k of ['chars','books','presets','masks','threads','feed','events','orders','days'])if(!Array.isArray(s[k]))s[k]=def()[k];
