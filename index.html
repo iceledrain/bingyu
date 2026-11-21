@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.89';</script>
+<script>window.BYJ_VER='2026.11.18.90';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -441,29 +441,30 @@ html.eco .bar,html.eco .call .ln{-webkit-backdrop-filter:none;backdrop-filter:no
 .goods button{border:1px solid var(--line);background:var(--bg2);border-radius:14px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:13px;color:var(--ink)}
 .goods button small{font-size:11.5px;color:var(--muted)}
 .goods button.on{border-color:var(--accent);background:var(--accent-soft)}
-.player{display:flex;flex-direction:column;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:26px;padding:18px 16px 14px;flex:none}
-.duet{display:flex;align-items:center;gap:6px}
-.duet .wv{width:60px;height:20px;color:var(--accent)}
-.duet .addw{width:40px;height:40px;border-radius:50%;border:1px dashed var(--accent);background:none;color:var(--deep);font-size:20px;padding:0}
-.duet .stk{background:none;border:0;padding:0}
-.vinyl{width:100%;aspect-ratio:1;height:auto;border-radius:18px;flex:none;position:relative;display:block;overflow:hidden;
-  background:var(--accent-soft);
-  box-shadow:0 12px 30px rgba(143,143,143,.22)}
+.player{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:26px;padding:16px 16px 10px;flex:none}
+.player::before{content:'';position:absolute;inset:-40px;background:var(--cv,none) center/cover;filter:blur(40px) saturate(1.6);opacity:.4;pointer-events:none}
+.player>*{position:relative}
+.mtop{display:flex;align-items:center;gap:14px}
+.mcov{width:92px;height:92px;flex:none;border-radius:14px;border:0;padding:0;background:var(--accent-soft) center/cover;color:var(--deep);font-size:26px;box-shadow:0 8px 20px rgba(0,0,0,.16);cursor:pointer}
+.mi{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.mi b{font-weight:600;font-size:16.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mi small{color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.duo{display:flex;margin-top:8px}.duo>*+*{margin-left:-7px}
+.duo .av{box-shadow:0 0 0 2px var(--panel)}
+.duo button{background:none;border:0;padding:0;display:flex}
+.duo .addw{width:26px;height:26px;border-radius:50%;border:1px dashed var(--accent);background:var(--panel);color:var(--deep);font-size:15px;display:grid;place-items:center}
+.player .prog input::-webkit-slider-runnable-track{height:4px}.player .prog input::-webkit-slider-thumb{width:12px;height:12px;margin-top:-4px;box-shadow:none}
+.player .prog input::-moz-range-track,.player .prog input::-moz-range-progress{height:4px}.player .prog input::-moz-range-thumb{width:12px;height:12px}
 
-.vinyl .lbl{position:absolute;inset:0;border-radius:0;background:var(--accent-soft) center/cover no-repeat}
-
-@keyframes spin{to{transform:rotate(360deg)}}
 
 
-.np{text-align:center;display:flex;flex-direction:column;gap:2px;max-width:100%}
-.np b{font:400 20px var(--display);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.np small{color:var(--muted);font-size:12.5px}
+
 .prog{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums;width:100%}
 .prog input{flex:1;min-width:0}
 .ctrl{display:flex;justify-content:center;align-items:center;gap:14px}
 .ctrl button{background:none;border:0;color:var(--deep);padding:6px;display:grid;place-items:center}
 .ctrl button svg{width:24px;height:24px}
-.ctrl .pp{width:58px;height:58px;border-radius:50%;background:var(--accent);color:var(--accent-ink)}
+.ctrl .pp{width:48px;height:48px;border-radius:50%;background:var(--accent);color:var(--accent-ink)}
 .ctrl .pp svg{width:26px;height:26px}
 .ctrl .mini svg{width:20px;height:20px;opacity:.8}
 .scov{width:46px;height:46px;flex:none;border-radius:12px;border:0;padding:0;background:var(--accent-soft) center/cover;color:var(--deep);font-size:18px}
@@ -544,7 +545,6 @@ html.dark input[type=range]::-webkit-slider-thumb{background:#e8e8ea}
 html.dark .tabs button.on{box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
 html.dark .polaroid::before{background:repeating-linear-gradient(45deg,rgba(255,255,255,.18) 0 6px,rgba(120,120,120,.35) 6px 12px)}
 html.dark .ava .ring i{border-color:rgba(200,200,200,.35)}
-html.dark .vinyl{box-shadow:0 12px 30px rgba(0,0,0,.5)}
 
 .content.mo{gap:0;padding-left:0;padding-right:0;padding-top:0}
 .mo-cover{position:relative;height:200px;flex:none;margin-bottom:30px;background:radial-gradient(110% 90% at 80% 0%,rgba(255,255,255,.95),transparent 60%),linear-gradient(170deg,#f4f4f4 0%,#dcdcdc 60%,#c4c4c4 100%);display:flex;align-items:flex-end;justify-content:flex-end;gap:14px;padding:0 16px;box-sizing:border-box}
@@ -599,8 +599,6 @@ html.dark .mo-pic.tp{background:linear-gradient(150deg,#303030,#212121 60%,#2929
 .lyr p small{display:block;font-size:12px;opacity:.85}
 .lyr p.on{color:var(--ink);font-weight:600;transform:scale(1.06)}
 .lyr .lyn{margin-top:30px}
-.vinyl{cursor:pointer}
-.npr{display:flex;align-items:center;gap:8px;max-width:100%}.npr .np{flex:1;min-width:0}.npr .sp{width:34px;flex:none}
 .mfav{background:none;border:0;padding:6px;color:var(--muted);display:grid;place-items:center;flex:none;cursor:pointer}
 .mfav svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linejoin:round}
 .mfav.on{color:#f4b3c7}.mfav.on svg{fill:currentColor}
@@ -1824,7 +1822,7 @@ function lrcTick(){const box=$('#lyr'),s=songById(S.music.cur);if(!box||!s?.lrc?
 const hasAudio=()=>!!audio.getAttribute('src');
 function splitSong(line){line=String(line||'').replace(/^[「《"“\s]+|[」》"”\s]+$/g,'').trim();const m=line.split(/\s+[-—–]\s+|\s*[—–]\s*|\s*《|》\s*/).map(s=>s.trim()).filter(Boolean);return m.length>1?[m[0],m.slice(1).join(' ')]:[line,'']}
 function mUI(){npUI();const v=cur();if(isOpen()&&v?.v==='music'&&v.tab==='fav'){render(true);return}
-  if(isOpen()&&v?.v==='music'){$('#vinyl')?.classList.toggle('on',mState.playing);const pp=$('#mPP');if(pp){pp.innerHTML=mState.playing?ICONS.pause:ICONS.play;pp.setAttribute('aria-label',mState.playing?'暂停':'播放')}mTick()}}
+  if(isOpen()&&v?.v==='music'){const pp=$('#mPP');if(pp){pp.innerHTML=mState.playing?ICONS.pause:ICONS.play;pp.setAttribute('aria-label',mState.playing?'暂停':'播放')}mTick()}}
 function mTick(){lrcTick();const r=$('#mRange');if(!r)return;const p=audio.currentTime||0,d=audio.duration||0;
   if(document.activeElement!==r)r.value=d?Math.round(p/d*1000):0;$('#mCur').textContent=fmt(p);$('#mDur').textContent=fmt(d)}
 audio.addEventListener('timeupdate',mTick);
@@ -1893,10 +1891,10 @@ function musicView(v={}){
   <div class="panel">
     <div class="inline" style="flex-wrap:nowrap"><input type="text" id="mQ" value="${esc(mState.q)}" placeholder="搜歌" enterkeyhint="search" aria-label="搜歌"><button class="btn" data-a="mFind">${mState.busy?'搜索中…':'搜索'}</button></div>
     ${mState.res.length?`<div class="mlist">${mState.res.map((x,i)=>`<button class="opt l" data-a="mPick" data-i="${i}"><span><b>${esc(x.title)}</b><small class="sec"> ${esc(x.artist)}</small></span><i>▶</i></button>`).join('')}</div><button class="tb" data-a="mClear" style="align-self:flex-start">收起结果</button>`:''}</div>
-  <div class="player">
-    <div class="duet">${av(me,40)}<svg class="wv" viewBox="0 0 60 20" aria-hidden="true"><path d="M0 10 Q 7.5 2 15 10 T 30 10 T 45 10 T 60 10" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>${c?`<button class="stk" data-a="mInvite" aria-label="换一起听的人">${av(c,40)}</button>`:`<button class="addw" data-a="mInvite" aria-label="邀请 TA 一起听">+</button>`}</div>
-    ${mState.lyr?`<div class="lyr" id="lyr" data-a="mLyr" role="button" aria-label="收起歌词">${lrcHTML(s)}</div>`:`<span class="vinyl ${mState.playing?'on':''}" id="vinyl" data-a="mLyr" role="button" aria-label="看歌词"><span class="lbl" style="${cov?`background-image:url(${esc(cov)})`:''}"></span></span>`}
-    <div class="npr">${s?'<span class="sp"></span>':''}<div class="np"><b>${s?esc(s.title):'还没有在放歌'}</b><small>${s?esc(s.artist||'未知歌手'):''}</small></div>${s?heart(s):''}</div>
+  <div class="player" style="${cov?`--cv:url(${esc(cov)})`:''}">
+    <div class="mtop"><button class="mcov" data-a="mLyr" aria-label="${mState.lyr?'收起歌词':'看歌词'}" style="${cov?`background-image:url(${esc(cov)})`:''}">${cov?'':'♪'}</button>
+      <div class="mi"><b>${s?esc(s.title):'还没有在放歌'}</b><small>${s?esc(s.artist||'未知歌手'):''}</small><div class="duo">${av(me,26)}${c?`<button data-a="mInvite" aria-label="换一起听的人">${av(c,26)}</button>`:`<button class="addw" data-a="mInvite" aria-label="邀请 TA 一起听">+</button>`}</div></div>${s?heart(s):''}</div>
+    ${mState.lyr?`<div class="lyr" id="lyr" data-a="mLyr" role="button" aria-label="收起歌词">${lrcHTML(s)}</div>`:''}
     <div class="prog"><span id="mCur">${fmt(p)}</span><input type="range" id="mRange" min="0" max="1000" value="${d?Math.round(p/d*1000):0}" aria-label="进度"><span id="mDur">${fmt(d)}</span></div>
     <div class="ctrl"><button class="mini" data-a="mMode" aria-label="${modeIc[1]}" title="${modeIc[1]}">${ICONS[modeIc[0]]}</button><button data-a="mPrev" aria-label="上一首">${ICONS.prev}</button><button class="pp" id="mPP" data-a="mToggle" aria-label="${mState.playing?'暂停':'播放'}">${mState.playing?ICONS.pause:ICONS.play}</button><button data-a="mNext" aria-label="下一首">${ICONS.next}</button><button class="mini" data-a="${s?'shareSong':'mInvite'}" data-id="${s?.id||''}" aria-label="${s?'分享这首':'一起听'}" title="${s?'分享这首':'一起听'}">${s?ICONS.send:ICONS.contacts}</button></div>
   </div>
@@ -2631,7 +2629,7 @@ const A={
     if(pushMine(t,{...pendShare})){pendShare=null;stack=[{v:'threads'}];go({v:'chat',id:t.id})}},
   shareOpen(el){const t=thread(cur().id),m=t?.msgs[+el.dataset.i];if(!m)return;const r=m.ref||{};
     if(r.post&&S.feed.some(x=>x.id===r.post)){go({v:'post',id:r.post});return}
-    if(m.kind==='song'){if(r.song&&songById(r.song)){go({v:'music'});mLoad(r.song)}else playShared(m.title,m.sub,m.from==='me'?'me':m.from);return}
+    if(m.kind==='song'){if(t.type==='dm'&&m.from!=='me'&&reachable(charById(m.from)))S.music.with=m.from;if(r.song&&songById(r.song)){go({v:'music'});mLoad(r.song)}else playShared(m.title,m.sub,m.from==='me'?'me':m.from);return}
     sheet(`<h3>${esc(m.title)}</h3>${m.sub?`<p class="hint" style="text-align:center">${esc(m.sub)}</p>`:''}<div class="letter"><p>${esc(m.text||'（没有内容）')}</p></div>${CANCEL}`)},
   shopTo(el){cur().to=el.dataset.id;render(true)},
   shopPay(el){cur().pay=el.dataset.id;render(true)},
