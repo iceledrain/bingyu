@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.139';</script>
+<script>window.BYJ_VER='2026.11.18.140';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1344,7 +1344,7 @@ function buildCtx(t,o={}){
       const lastBg=ph[ph.length-1];if(lastBg&&lastBg.type!=='narr'&&!curNarr.some(m=>m.from!=='me'))tail.push(`【刚见面】刚才在手机上聊，现在见面了，从手机上最后聊到的地方接着往下写。${old?'之前那次见面早就结束了，不接那时候的场景。':''}`);
       if(ph.length)ctxs.push((old?`【这次见面之前】（按先后排：之前的见面已经结束，后来在手机上聊，现在是新的一次见面。只是背景，别照这个格式写）\n`:`【见面前在手机上聊的】（只是背景，别照这个格式写）\n`)+ph.map(line).join('\n'))}
   }else{
-    rules.push(group?`【群聊】手机群聊，每行「名字：内容」，内容就是发出去的那句话本身，只写${cname}发的。谁开口、说多少、彼此怎么相处，各按人设和心情。彼此认不认识、熟不熟，看人设和世界书，没写的就是在这个群里才认识，按群里聊过的来。待不下去可以写 名字：[退群]；想拉人进群写 名字：[邀请:TA的名字]${(o=>o.length?'（能拉：'+o.join('、')+'）':'')(S.chars.filter(c=>visible(c)&&!chars.some(y=>y.id===c.id)).map(c=>c.name))}。emoji 按人设想发就发。`
+    rules.push(group?`【群聊】手机群聊，每行「名字：内容」，内容就是发出去的那句话本身，只写${cname}发的。大家都看得到彼此的话，会接别人的话、叫别人、互相搭腔拌嘴，不是各自跟${me.name}单聊，也不用人人都开口。谁开口、说多少、彼此怎么相处，各按人设和心情。彼此认不认识、熟不熟，看人设和世界书，没写的就是在这个群里才认识，按群里聊过的来。待不下去可以写 名字：[退群]；想拉人进群写 名字：[邀请:TA的名字]${(o=>o.length?'（能拉：'+o.join('、')+'）':'')(S.chars.filter(c=>visible(c)&&!chars.some(y=>y.id===c.id)).map(c=>c.name))}。emoji 按人设想发就发。`
       :`【聊天】手机上发消息，一行一个气泡，每行就是发出去的那句话本身。说什么、怎么说、热不热情，按人设和你此刻对${me.name}的感觉。emoji 按人设想发就发。人不在身边：想TA就直说，问TA在哪、在干嘛，发语音、拍照片、打电话，约见面。`);
     if(!group&&chars[0]&&mode==='online'){const lg=leftGroups(chars[0]);if(lg.length)tail.push(`【退过的群】你退了${lg.map(g=>'「'+threadTitle(g)+'」').join('、')}，想回去就写 [回群]。`)}
     if(!group&&chars[0]){rules.push(`【此刻】你是在过自己日子的真人，这会儿在某个地方做着某件事。正在做的事影响你回得快慢、长短、说什么，也会顺口提，但消息里只有说的话，不写动作。时间往前走，事情会做完、换下一件。`);
@@ -1390,7 +1390,7 @@ function buildCtx(t,o={}){
   {const L=chars.filter(langOf);if(L.length)tail.push(`【语言】${L.map(c=>`${c.name}开口只说${langOf(c)}`).join('，')}。发的消息、[语音:…] 冒号后的话、通话、「」里的台词都这样，${me.name}说中文也不改口。[语音]、[图片]、[挂断] 这类标签名照原样，${group?'行首名字、':''}图片描述、旁白画面、<think>、<inner>、<tide> 还写中文。`)}
   if(mode==='online'&&(C.think||C.inner))tail.push(`【这次回复】照【回复格式】写全：${C.think?'<think>…</think>、':''}<reply>…</reply>${C.inner?'、<inner>…</inner>':''}${group?'':'、<now>…</now>'}、<tide>…</tide>，一样都不能少。`);
   if(tail.length){let k=msgs.length;while(k>0&&msgs[k-1].role==='user'&&k>pre.length)k--;const last=k<msgs.length;
-    msgs.splice(k,0,{role:'user',content:`（此刻的情况，系统告诉你的，不是${me.name}发的消息）\n`+tail.join('\n\n')+(last?`\n\n（下面是${me.name}${mode==='online'?'刚发的，主要回这几条；前面的已经回过了，不用再回':'发的'}）`:'')})}
+    msgs.splice(k,0,{role:'user',content:`（此刻的情况，系统告诉你的，不是${me.name}发的消息）\n`+tail.join('\n\n')+(last?`\n\n（下面是${me.name}${mode==='online'?group?'刚发的；前面的已经接过了，群里接着往下聊':'刚发的，主要回这几条；前面的已经回过了，不用再回':'发的'}）`:'')})}
   if(mode==='offline'){const w=num(off.words)||500,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字；不替${me.name}写话和心理；不写成手机消息${(off.upov||'second')==='second'?`；叙述里称呼${me.name}只用「你」`:''}${(l=>l.length?`；${l.join('和')}别漏`:'')([C.think&&'开头的 <think>',C.inner&&(group?'结尾的 <inner>（每人一行）':'结尾的 <inner>')].filter(Boolean))}）`,last=msgs[msgs.length-1];
     if(last&&last.role==='user')last.content+='\n\n'+note;else msgs.push({role:'user',content:note})}
   const end=[];
