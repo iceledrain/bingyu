@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.135';</script>
+<script>window.BYJ_VER='2026.11.18.136';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1237,7 +1237,8 @@ function msgText(m,group){
   if(m.from==='me')return m.rejected?`[被拒收] ${body}`:body;
   return group?`${charById(m.from)?.name||'?'}：${body}`:body;
 }
-function nowText(){const d=locNow(),h=d.getHours();const per=h<5?'深夜':h<8?'清晨':h<11?'上午':h<13?'中午':h<17?'下午':h<19?'傍晚':h<23?'晚上':'深夜';return`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 星期${WK[d.getDay()]} ${pad(h)}:${pad(d.getMinutes())}（${per}）${(o=>o?o.off?`，今天放假${o.name?'（'+o.name+'）':''}`:`，今天${o.name?o.name+'调休':''}补班`:'')(dayOff(d))}`}
+function nowText(){const d=locNow(),h=d.getHours();const per=h<5?'深夜':h<8?'清晨':h<11?'上午':h<13?'中午':h<17?'下午':h<19?'傍晚':h<23?'晚上':'深夜';return`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 星期${WK[d.getDay()]} ${pad(h)}:${pad(d.getMinutes())}（${per}），今天${dayTag(d)}，明天${dayTag(new Date(d.getFullYear(),d.getMonth(),d.getDate()+1))}`}
+const dayTag=d=>{const o=dayOff(d);return o?o.off?'放假'+(o.name?'（'+o.name+'）':''):(o.name?o.name+'调休':'')+'补班':d.getDay()%6===0?'周末休息':'工作日'};
 const dayDiff=t=>Math.round((locNow().setHours(0,0,0,0)-locDate(t).setHours(0,0,0,0))/864e5);
 const dayLabel=t=>{const d=locDate(t);return`${d.getMonth()+1}月${d.getDate()}日 星期${WK[d.getDay()]}`};
 const dayWord=n=>n===1?'昨天':n===2?'前天':n+'天前';
