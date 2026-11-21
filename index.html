@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.73';</script>
+<script>window.BYJ_VER='2026.11.18.74';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1740,7 +1740,7 @@ function softTick(){
 }
 
 let summing=false;
-const sumBlock=t=>[t.summary?'【现在的关系】\n'+t.summary:'',t.big?'【一起经历的大事】\n'+t.big:'',t.todo?'【答应了还没做的】\n'+t.todo:'',t.wish?'【心愿】\n'+t.wish:''].filter(Boolean).join('\n');
+const sumBlock=t=>[t.summary?'【前情】\n'+t.summary:'',t.big?'【一起经历的大事】\n'+t.big:'',t.todo?'【答应了还没做的】\n'+t.todo:'',t.wish?'【心愿】\n'+t.wish:''].filter(Boolean).join('\n');
 const sumItems=s=>String(s||'').split(/[；;\n]\s*/).map(x=>x.trim().replace(/^[·\-•\s]+/,'').replace(/[。.]$/,'')).filter(x=>x&&!/^(无|没有)$/.test(x));
 const hasSum=t=>!!(t.summary||t.big||t.todo||t.wish);
 async function summarize(t,manual){
@@ -1748,14 +1748,10 @@ async function summarize(t,manual){
   const chunk=t.msgs.slice(from,to);if(!chunk.length){if(manual)toast('还没有需要总结的旧消息');return}
   const me=mask(t),c=t.type==='dm'?charById(t.chars[0]):null,log=(()=>{let k0='';return chunk.map(m=>{const k=m.t?dayLabel(m.t):'';const h=k&&k!==k0?`（${k}）\n`:'';if(k)k0=k;return h+(m.from==='me'?me.name:(charById(m.from)?.name||'?'))+'：'+pv(m)}).join('\n')})();
   const voice=c?`用${c.name}自己的口吻、第一人称「我」写`:'用旁白的口吻写',who=c?`${c.name}和${me.name}`:'大家';
-  const prev=[['关系',t.summary],['大事',t.big],['待办',t.todo],['心愿',t.wish]].filter(x=>x[1]).map(x=>x[0]+'：'+x[1]).join('\n');
-  const txt=String(await callAI(c?sysFor(c,''):'你在整理一段群聊的记录。',[{role:'user',content:(prev?`之前记下的：\n${prev}\n`:'')+`\n新的聊天记录：\n${log}\n\n输出四行，别的不写，日期写几月几日：\n关系：${voice}，${who}现在什么关系，60字内；没变写「不变」。\n大事：新记录里改变关系的事（在一起、分手、和好、大吵、表白、第一次），日常不算。每件「几月几日+15字内」，最多两件，「；」隔开；${!t.big&&t.summary?'之前「关系」里的大事也补上；':''}记过的不写，没有写「无」。\n待办：答应了没做的、约好的（带日期），合并之前的，做完和过期的删掉，每条20字内，「；」隔开；没有写「无」。\n心愿：${c?c.name+'自己':'每个人自己'}想要想做还没实现的${c?'，'+me.name+'的不记':''}，合并之前的，实现的删掉，每条20字内，「；」隔开；没有写「无」。`}],{max:1024,temp:.4,side:true})).replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
-  const K='关系|大事|待办|心愿',has=k=>new RegExp('(^|\\n)\\s*'+k+'[:：]').test(txt),part=k=>{const m=txt.match(new RegExp('(?:^|\\n)\\s*'+k+'[:：]\\s*([\\s\\S]*?)(?=\\n\\s*(?:'+K+')[:：]|$)'));return m?m[1].replace(/\s*\n\s*/g,' ').trim():''};
-  if(!new RegExp('(^|\\n)\\s*(?:'+K+')[:：]').test(txt))throw new Error('总结没写对格式，再点一次');
-  if(part('关系')&&!/^(无|不变|没变)[。.]?$/.test(part('关系')))t.summary=wholeText(part('关系'),90);
-  if(has('大事'))t.big=[...new Set([...sumItems(t.big),...sumItems(part('大事')).slice(0,2)])].join('；');
-  if(has('待办'))t.todo=sumItems(part('待办')).slice(0,20).join('；');
-  if(has('心愿'))t.wish=sumItems(part('心愿')).slice(0,20).join('；');
+  const prev=[t.summary,t.big,t.todo,t.wish].filter(Boolean).join('\n');
+  const txt=String(await callAI(c?sysFor(c,''):'你在整理一段群聊的记录。',[{role:'user',content:(prev?`之前记下的：\n${prev}\n`:'')+`\n新的聊天记录：\n${log}\n\n把之前记下的和新的合成一段前情，${voice}：${who}现在什么关系、发生过的要紧事、约好还没做的，日期写几月几日。200字内，只输出这段。`}],{max:1024,temp:.4,side:true})).replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
+  if(!txt)throw new Error('总结没写出来，再点一次');
+  t.summary=wholeText(txt,300);t.big='';t.todo='';t.wish='';
   t.sumUpTo=to;save();
 }
 async function maybeSummarize(t){
@@ -2469,10 +2465,10 @@ offline(v){
 summaryEdit(v){
   const t=thread(v.id);
   return{title:'总结',sub:threadTitle(t),body:`<div class="panel">
-    <label class="f">关系<textarea id="sum-ta" data-s="thread" data-k="summary">${esc(t.summary||'')}</textarea></label>
-    <label class="f">大事<textarea id="sum-big" data-s="thread" data-k="big">${esc(t.big||'')}</textarea></label>
-    <label class="f">待办<textarea id="sum-todo" data-s="thread" data-k="todo">${esc(t.todo||'')}</textarea></label>
-    <label class="f">心愿<textarea id="sum-wish" data-s="thread" data-k="wish">${esc(t.wish||'')}</textarea></label>
+    <label class="f">前情<textarea id="sum-ta" data-s="thread" data-k="summary">${esc(t.summary||'')}</textarea></label>
+    ${t.big?`<label class="f">大事<textarea id="sum-big" data-s="thread" data-k="big">${esc(t.big)}</textarea></label>`:''}
+    ${t.todo?`<label class="f">待办<textarea id="sum-todo" data-s="thread" data-k="todo">${esc(t.todo)}</textarea></label>`:''}
+    ${t.wish?`<label class="f">心愿<textarea id="sum-wish" data-s="thread" data-k="wish">${esc(t.wish)}</textarea></label>`:''}
     <div class="btns"><button class="btn" data-a="sumNow">总结</button><button class="btn red" data-a="sumClear">清空</button></div></div>`};
 },
 groupEdit(v){
