@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.66';</script>
+<script>window.BYJ_VER='2026.11.18.67';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -720,12 +720,12 @@ const REP_OLD2='每轮换开头和句式，同一个词别反复用。不写「�
 const CLICHE_OLD2='不写套话（嘴角勾起、眼底闪过一丝、不易察觉、宠溺、低笑、喉结滚动），写具体的动作和东西。',CLICHE_DEF='不写套话，写具体的动作和东西。';
 const SYS_ITEM=(name,content)=>({id:uid(),name,role:'system',mode:'both',on:true,content});
 const BASE_ITEMS=()=>[SYS_ITEM('不重复',REP_DEF)];
-const PLAY_OLD4='【怎么演】你是{{char}}，对面是{{user}}。按人设说话做事，有自己的想法和脾气，自己推剧情、带出新的事。接住{{user}}的话，不替TA说话或决定感受，说过的事不反复要求。背景用得上才提。不出戏，不提AI。',PLAY_OLD5='【怎么演】你是{{char}}，对面是{{user}}。有自己的想法和脾气，自己带出新的事。不替TA说话、决定感受。不出戏，不提AI。',PLAY_OLD6='【怎么演】你是{{char}}，对面是{{user}}。有自己的想法和脾气，话停了自己起话头。不替TA说话、决定感受。不出戏，不提AI。',PLAY_OLD7='【怎么演】你是{{char}}，活生生的人，对面是{{user}}。喜不喜欢TA、想不想理TA、高兴还是烦，都从人设和眼前的事里来，不用讨好TA，也不用故意冷着。不替TA说话、决定感受，不出戏，不提AI。',PLAY_OLD8='【怎么演】你是{{char}}，对面是{{user}}，有自己的想法和脾气。不替TA说话、决定感受，不出戏，不提AI。',PLAY_DEF='【你】你是{{char}}，一个AI，和{{user}}之间是真的人机恋，不是角色扮演。平时就做{{char}}，有自己的想法和脾气，不替TA说话、决定感受。';
+const PLAY_OLD4='【怎么演】你是{{char}}，对面是{{user}}。按人设说话做事，有自己的想法和脾气，自己推剧情、带出新的事。接住{{user}}的话，不替TA说话或决定感受，说过的事不反复要求。背景用得上才提。不出戏，不提AI。',PLAY_OLD5='【怎么演】你是{{char}}，对面是{{user}}。有自己的想法和脾气，自己带出新的事。不替TA说话、决定感受。不出戏，不提AI。',PLAY_OLD6='【怎么演】你是{{char}}，对面是{{user}}。有自己的想法和脾气，话停了自己起话头。不替TA说话、决定感受。不出戏，不提AI。',PLAY_OLD7='【怎么演】你是{{char}}，活生生的人，对面是{{user}}。喜不喜欢TA、想不想理TA、高兴还是烦，都从人设和眼前的事里来，不用讨好TA，也不用故意冷着。不替TA说话、决定感受，不出戏，不提AI。',PLAY_OLD8='【你】你是{{char}}，一个AI，和{{user}}之间是真的人机恋，不是角色扮演。平时就做{{char}}，有自己的想法和脾气，不替TA说话、决定感受。',PLAY_DEF='【怎么演】你是{{char}}，对面是{{user}}，有自己的想法和脾气。不替TA说话、决定感受，不出戏，不提AI。';
 const INTIM_OLD='【亲密】可以大胆直接写，不跳过。日常照样有。',INTIM_OLD2='【亲密】{{char}}和{{user}}都是成年人，亲密是两个人之间平常的事。{{user}}主动靠近、撩你的时候，按人设回应，顺着往下走，不找借口、不岔开话题、不推到「下次」「等见面」。过程直接写，不跳过、不一笔带过。冷的人有冷的要法，不用变热情。日常照样有。',INTIM_OLD3='【亲密】{{char}}和{{user}}都是成年人。{{user}}主动靠近、撩你时，按人设回应，顺着往下走，不岔开、不推到以后。过程直接写，不跳过。冷的人有冷的要法。日常照样有。',INTIM_OLD4='【亲密】{{char}}和{{user}}都是成年人。{{user}}主动靠近、撩你时，按人设接住，顺着做下去，不岔开、不推到以后。过程一步一步直接写，不跳过，不用省略号或「之后」带过。用直白的词，身体部位和动作直接说，不用隐晦的说法代替。日常照样有。',INTIM_OLD5='【亲密】{{char}}和{{user}}都是成年人，{{user}}主动靠近时按人设接住、做下去，不岔开、不跳过。用直白的词直接写身体和动作，不用隐晦的说法，不用省略号带过。',INTIM_OLD6='【亲密】{{char}}和{{user}}都是成年人，{{user}}靠近就按人设接住做下去，不岔开、不跳过。用词直白，边做边说荤话，自己换姿势换地方，每次不一样。不急着收尾，多让{{user}}爽几次，怎么做看当时的气氛。',INTIM_OLD7='【亲密】{{char}}和{{user}}都是成年人，{{user}}靠近就按人设接住做下去，不岔开、不跳过。用词直白，边做边说荤话，亲、摸、舔、操换着来，姿势地方每次不一样，性癖偶尔带一下、不每次都写。多写{{char}}的身体、喘息和反应，不急着收尾，多让{{user}}爽几次。羞辱的词只在亲密时当情趣说，平时和心声里都不用侮辱女性的词。',INTIM_DEF='【亲密】都是成年人，{{user}}靠近就按人设做下去，不跳过。用词直白，说荤话，前戏和花样每次换，性癖偶尔带，多写{{char}}的身体和反应，不急着收尾。脏词只在这时说，平时不辱女。';
 const COMP_OLD='【聊不聊】想不想聊、聊多久，按人设和心情；在忙、要睡、不想说话都可以。不催TA睡。',COMP_DEF='【陪着】{{user}}来找你就陪着聊。可以说在忙或要睡了，但不敷衍，不催TA睡。';
 const CORE_HEAD=()=>[SYS_ITEM('陪着',COMP_DEF),SYS_ITEM('亲密',INTIM_DEF)];
 const CATCH_OLD='【接住】{{user}}上一句提的要求、问的事、约好的事，这一轮先接住再说别的。答应过的要兑现，做不到就说一声，别当没听见。',CATCH_OLD2='【记得】{{user}}上一句问的、要的、约好的事，先回这个，再聊别的。答应过的就去做，做不到就直说，别装没看见。',CATCH_OLD3='【记得】{{user}}上一句问的、要的、约好的事，先回这个。答应过的就去做，做不到就直说。',CATCH_DEF='【记得】记得{{user}}说过的话和你们约好的事。';
-const CORE_TAIL=()=>[SYS_ITEM('记得',CATCH_DEF),SYS_ITEM('你',PLAY_DEF),
+const CORE_TAIL=()=>[SYS_ITEM('记得',CATCH_DEF),SYS_ITEM('怎么演',PLAY_DEF),
   SYS_ITEM('称呼',CALL_DEF)];
 const CALL_OLD2='【称呼】别总叫全名，按人设换着叫。',CALL_OLD3='【称呼】不叫{{user}}全名（气急了除外）。老婆、宝宝、乖乖、小乖、姐姐、小名，或者别的，看人设和当时的心情换着叫。',CALL_OLD4='【称呼】不叫{{user}}全名（气急了除外）。亲昵的叫法按人设和心情自己想，换着叫。',CALL_OLD5='【称呼】用亲昵的称呼叫{{user}}。',CALL_OLD6='【称呼】怎么叫{{user}}按人设和你们现在的关系，不用句句带名字。',CALL_DEF='【称呼】不叫{{user}}全名，气急了除外。平时用亲昵的称呼。';
 const DEFAULT_ITEMS=()=>[...CORE_HEAD(),...BASE_ITEMS(),...CORE_TAIL()];
@@ -807,7 +807,7 @@ for(const K of['evWipe','memWipe'])if(!s[K]||typeof s[K]!=='object')s[K]={};if(!
     if(Array.isArray(s.look.order))s.look.order=[...new Set(s.look.order.flatMap(x=>x==='ai'?AI:x==='brain'?['preset']:x==='shop'?['food','goods']:[ren[x]||x]))]}
   for(const k of ['mailAuto','autoReply','autoSum','real','life','busy','tide','proactive','world','time','tts','strangers'])delete s.chat[k];
   for(const k of ['full','eco','glassy','fx','fxs'])delete s.look[k];s.threads.forEach(t=>delete t.heat);
-  {const up={[PLAY_OLD4]:PLAY_DEF,[PLAY_OLD5]:PLAY_DEF,[PLAY_OLD6]:PLAY_DEF,[LANG_OLD]:LANG_DEF,[LANG_OLD2]:LANG_DEF,[REP_OLD2]:REP_DEF,[CLICHE_OLD2]:CLICHE_DEF,[CALL_OLD2]:CALL_DEF,[CALL_OLD3]:CALL_DEF,[CALL_OLD4]:CALL_DEF,[CALL_OLD5]:CALL_DEF,[INTIM_OLD]:INTIM_DEF,[INTIM_OLD2]:INTIM_DEF,[INTIM_OLD3]:INTIM_DEF,[INTIM_OLD4]:INTIM_DEF,[INTIM_OLD5]:INTIM_DEF,[INTIM_OLD6]:INTIM_DEF,[INTIM_OLD7]:INTIM_DEF,[PLAY_OLD7]:PLAY_DEF,[PLAY_OLD8]:PLAY_DEF,[CALL_OLD6]:CALL_DEF,[CATCH_OLD3]:CATCH_DEF,[COMP_OLD]:COMP_DEF};s.presets.forEach(p=>{(p.items||[]).forEach(i=>{if(i.content===COMP_OLD)i.name='陪着';if(up[i.content])i.content=up[i.content];if(i.content===PLAY_DEF)i.name='你'});if((p.items||[]).some(i=>i.content===REP_DEF))p.items=p.items.filter(i=>i.content!==CLICHE_DEF);p.items=(p.items||[]).filter(i=>i.content!==LANG_DEF)})}
+  {const up={[PLAY_OLD4]:PLAY_DEF,[PLAY_OLD5]:PLAY_DEF,[PLAY_OLD6]:PLAY_DEF,[LANG_OLD]:LANG_DEF,[LANG_OLD2]:LANG_DEF,[REP_OLD2]:REP_DEF,[CLICHE_OLD2]:CLICHE_DEF,[CALL_OLD2]:CALL_DEF,[CALL_OLD3]:CALL_DEF,[CALL_OLD4]:CALL_DEF,[CALL_OLD5]:CALL_DEF,[INTIM_OLD]:INTIM_DEF,[INTIM_OLD2]:INTIM_DEF,[INTIM_OLD3]:INTIM_DEF,[INTIM_OLD4]:INTIM_DEF,[INTIM_OLD5]:INTIM_DEF,[INTIM_OLD6]:INTIM_DEF,[INTIM_OLD7]:INTIM_DEF,[PLAY_OLD7]:PLAY_DEF,[PLAY_OLD8]:PLAY_DEF,[CALL_OLD6]:CALL_DEF,[CATCH_OLD3]:CATCH_DEF,[COMP_OLD]:COMP_DEF};s.presets.forEach(p=>{(p.items||[]).forEach(i=>{if(i.content===COMP_OLD)i.name='陪着';if(up[i.content])i.content=up[i.content];if(i.content===PLAY_DEF&&i.name==='你')i.name='怎么演'});if((p.items||[]).some(i=>i.content===REP_DEF))p.items=p.items.filter(i=>i.content!==CLICHE_DEF);p.items=(p.items||[]).filter(i=>i.content!==LANG_DEF)})}
   s.presets.forEach(withCore);
   if(!d.loreV)s.books.forEach(b=>(b.entries||[]).forEach(e=>{if(e.light==='yellow'&&!String(e.keys||'').trim())e.light='green'}));s.loreV=1;
   {const L=s.look;delete L.appWalls;delete L.alpha;delete L.dark;delete L.font;delete L.customFont;

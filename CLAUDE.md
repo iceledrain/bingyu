@@ -1,6 +1,7 @@
 # bingyu
 
 小手机「冰雨机」，全在 `index.html` 一个文件里，没有构建。
+`love/index.html` 是人机恋版，从冰雨机复制来的，存档 `ledphone_love`；角色知道自己是 AI。两边通用的改动两边都改。
 
 - 改了 `index.html` 就把开头 `BYJ_VER` 末位加 1。
 - 存档在浏览器 IndexedDB（`ledphone`），删改字段要在读档那段兼容旧数据。
