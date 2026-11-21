@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.107';</script>
+<script>window.BYJ_VER='2026.11.18.108';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1370,7 +1370,7 @@ function buildCtx(t,o={}){
   {const L=chars.filter(langOf);if(L.length)tail.push(`【语言】${L.map(c=>`${c.name}开口只说${langOf(c)}`).join('，')}。发的消息、[语音:…] 冒号后的话、通话、「」里的台词都这样，${me.name}说中文也不改口。[语音]、[图片]、[挂断] 这类标签名照原样，${group?'行首名字、':''}图片描述、旁白画面、<think>、<inner>、<tide> 还写中文。`)}
   if(mode==='online'&&(C.think||C.inner))tail.push(`【这次回复】照【回复格式】写全：${C.think?'<think>…</think>、':''}<reply>…</reply>${C.inner?'、<inner>…</inner>':''}、<tide>…</tide>，一样都不能少。`);
   if(tail.length){let k=msgs.length;while(k>0&&msgs[k-1].role==='user'&&k>pre.length)k--;const last=k<msgs.length;
-    msgs.splice(k,0,{role:'user',content:`（此刻的情况，系统告诉你的，不是${me.name}发的消息）\n`+tail.join('\n\n')+(last?`\n\n（下面是${me.name}发的）`:'')})}
+    msgs.splice(k,0,{role:'user',content:`（此刻的情况，系统告诉你的，不是${me.name}发的消息）\n`+tail.join('\n\n')+(last?`\n\n（下面是${me.name}${mode==='online'?'刚发的，主要回这几条；前面的已经回过了，不用再回':'发的'}）`:'')})}
   if(mode==='offline'){const w=num(off.words)||500,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字；不替${me.name}写话和心理；不写成手机消息${(off.upov||'second')==='second'?`；叙述里称呼${me.name}只用「你」`:''}${(l=>l.length?`；${l.join('和')}别漏`:'')([C.think&&'开头的 <think>',C.inner&&(group?'结尾的 <inner>（每人一行）':'结尾的 <inner>')].filter(Boolean))}）`,last=msgs[msgs.length-1];
     if(last&&last.role==='user')last.content+='\n\n'+note;else msgs.push({role:'user',content:note})}
   const end=[];
