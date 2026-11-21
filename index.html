@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.77';</script>
+<script>window.BYJ_VER='2026.11.18.78';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -738,7 +738,7 @@ const INNER_OLD7='一个软萌的颜文字（生气也是鼓着脸那种）加�
 const INNER_OLD8='一个软萌的颜文字加半句没说出口的真心话，带点小情绪，可以和嘴上相反，15字内。';
 const INNER_OLD9='{{char}}此刻没说出口的真心话。',INNER_DEF='一句没说出口的真心话，带点小情绪，可以和嘴上相反，15字内，不用颜文字。';
 const OFF_STYLE_OLD='细腻，有画面感',OFF_STYLE_DEF='清爽干净';
-const THINK_OLD13='一句话，{{char}}脑子里是怎么想的：{{user}}这句是什么意思、想要什么，{{char}}决定怎么回。用{{char}}自己的口气，口语，25字内。',THINK_OLD14='只写关键：{{user}}要什么，{{char}}怎么回。{{char}}自己的口气，能几个字说完就几个字，最多一句，15字内。不铺垫，不复述，不解释。',THINK_OLD15='一句话，{{char}}自己的口气：{{user}}这句要什么，{{char}}打算怎么回。30字内，不复述，不解释。',THINK_OLD16='用{{char}}自己的口气，写此刻心里真实的想法和打算。',THINK_DEF='用{{char}}的口气写一句：{{user}}要什么，{{char}}怎么回，30字内。';
+const THINK_OLD13='一句话，{{char}}脑子里是怎么想的：{{user}}这句是什么意思、想要什么，{{char}}决定怎么回。用{{char}}自己的口气，口语，25字内。',THINK_OLD14='只写关键：{{user}}要什么，{{char}}怎么回。{{char}}自己的口气，能几个字说完就几个字，最多一句，15字内。不铺垫，不复述，不解释。',THINK_OLD15='一句话，{{char}}自己的口气：{{user}}这句要什么，{{char}}打算怎么回。30字内，不复述，不解释。',THINK_OLD16='用{{char}}自己的口气，写此刻心里真实的想法和打算。',THINK_OLD17='用{{char}}的口气写一句：{{user}}要什么，{{char}}怎么回，30字内。',THINK_DEF='用「我」写一句心里想的：TA要什么，我怎么回，30字内，不叫名字。';
 const CHAT_DEF=()=>({lean:true,onMax:3,onLen:10,casual:true,ctx:40,sumEvery:30,inner:true,innerOpen:false,innerName:'心声',innerStyle:INNER_DEF,think:true,thinkName:'思维链',thinkStyle:THINK_DEF,effort:'',scan:8});
 const PERSONA_TPL='姓名：\n年龄：\n性别：\n身份/职业：\n外貌：\n性格：\n说话方式：\n喜欢：\n讨厌：\n背景经历：\n和{{user}}的关系：';
 const API_BLANK=id=>({id,name:'接口',key:'',base:'',model:'',temp:1,topP:null,topK:null,maxTokens:32000,stream:true});
@@ -784,7 +784,7 @@ function mergeState(d){
   s.presets.forEach(p=>(p.items||[]).forEach(i=>{if(i.content===LANG_OLD)i.content=LANG_DEF}));
   {const seen=new Set();(s.chars||[]).forEach(c=>{c.books=(c.books||[]).filter(id=>{const b=(s.books||[]).find(x=>x.id===id);if(!b||b.scope==='global'||seen.has(id))return false;seen.add(id);return true})})}
   delete s.chat.thinkSrc;delete s.chat.deep;for(const k of['casual','love','chase','away','autoPost'])delete s.chat[k];delete s.chat.web;delete s.look.shell;delete s.look.night;delete s.look.hide;s.chat.effort='';s.chat.think=true;s.chat.inner=true;
-  if([THINK_OLD13,THINK_OLD14,THINK_OLD15,THINK_OLD16].includes(s.chat.thinkStyle))s.chat.thinkStyle=THINK_DEF;
+  if([THINK_OLD13,THINK_OLD14,THINK_OLD15,THINK_OLD16,THINK_OLD17].includes(s.chat.thinkStyle))s.chat.thinkStyle=THINK_DEF;
   if(!s.presetV){const old=new Set([OLD_MAIN,ONLINE_OLD,ONLINE_DEF,OFFLINE_OLD,OFFLINE_DEF]);
     s.presets.forEach(p=>{const n=(p.items||[]).length;p.items=(p.items||[]).filter(i=>!old.has(i.content));if(p.items.length<n)BASE_ITEMS().slice(1).forEach(x=>p.items.push(x))});s.presetV=2}
   if(!s.catchV){s.catchV=1;s.presets.forEach(p=>{if(p.core===1&&!(p.items||[]).some(i=>i.name==='接住'||i.name==='记得')){const k=p.items.findIndex(i=>i.name==='怎么演');p.items.splice(k<0?p.items.length:k,0,SYS_ITEM('记得',CATCH_DEF))}})}
