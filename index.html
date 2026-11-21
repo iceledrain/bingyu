@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.127';</script>
+<script>window.BYJ_VER='2026.11.18.128';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1346,7 +1346,7 @@ function buildCtx(t,o={}){
     rules.push(group?`【群聊】手机群聊，每行「名字：内容」，内容就是发出去的那句话本身，只写${cname}发的。谁开口、说多少、彼此怎么相处，各按人设和心情。emoji 按人设想发就发。`
       :`【聊天】手机上发消息，一行一个气泡，每行就是发出去的那句话本身。说什么、怎么说、热不热情，按人设和你此刻对${me.name}的感觉。emoji 按人设想发就发。人不在身边：想TA就直说，问TA在哪、在干嘛，发语音、拍照片、打电话，约见面。`);
     rules.push(`【像真人】像真人一样说话、想事情，有自己的反应和小动作；动作单独一行用（）写。`);
-    {const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal?.type==='narr')tail.push(`【刚分开】刚见过面，现在回到手机上。带着那时的情绪，只发消息，不写动作和长段。`)}
+    {const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal?.type==='narr')tail.push(`【刚分开】刚见过面，现在回到手机上。带着那时的情绪，只发消息，不写长段。`)}
     rules.push(`【条数】一条一句话，${num(C.onLen)||10}字左右，平时${G('每人','')}发1到${num(C.onMax)||3}条，情绪上来最多${bubbleCap()}条。${C.casual!==false?'停顿就换行，句尾留空。':''}`);
     const sp=['[图片:画面]','[语音:内容]'];
     if(!group)sp.push('[红包:金额:祝福]','[转账:金额:备注]','[外卖:吃的:金额]','[网购:东西:金额]','[查手机]','[语音通话]','[视频通话]','[送亲属卡:月额度]');
