@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.134';</script>
+<script>window.BYJ_VER='2026.11.18.135';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1353,7 +1353,7 @@ function buildCtx(t,o={}){
     if(!group)sp.push('[红包:金额:祝福]','[转账:金额:备注]','[外卖:吃的:金额]','[网购:东西:金额]','[查手机]','[语音通话]','[视频通话]','[送亲属卡:月额度]');
     sp.push('[分享歌曲:歌名 - 歌手]');sp.push('[定位:地点 · 一句备注]');sp.push('[骰子]、[猜拳]（结果随机）');
     if(t.msgs.slice(-8).some(m=>m.type==='roll')){roll={dice:rollNow('dice'),rps:rollNow('rps')};tail.push(`【骰子猜拳】这轮你发 [骰子] 会是${roll.dice}点，发 [猜拳] 会出${roll.rps}。`)}
-    const hs=n=>[...n].reduce((h,c)=>Math.imul(h^c.charCodeAt(0),16777619)>>>0,2166136261),st=allStickers().map(s=>s.name).filter(Boolean).sort((x,y)=>hs(x)-hs(y)||(x<y?-1:1)).slice(0,300);if(st.length)sp.push('[表情:名字]（可用：'+st.join('、')+'）');
+    const hs=n=>[...n].reduce((h,c)=>Math.imul(h^c.charCodeAt(0),16777619)>>>0,2166136261),usedS=recentStk(t,group?'':chars[0]?.id),st=allStickers().map(s=>s.name).filter(n=>n&&!usedS.has(n)).sort((x,y)=>hs(x)-hs(y)||(x<y?-1:1)).slice(0,300);if(st.length)sp.push('[表情:名字]（可用：'+st.join('、')+'）');
     rules.push(`【特殊消息】单独一行写。这些是你手机上能用的，想用就用：\n${sp.join('\n')}\n图片写清楚拍到了什么，自拍写清楚长相、神态、穿着。${mm28()?'语音里可以带（轻笑）（叹气）这类语气。':''}`);
     if(!group&&chars[0]){const cs=cardsNow().filter(k=>k.charId===chars[0].id),q=k=>(k.limit?`月额度${money(k.limit)}`:'不限额')+`，本月用了${money(k.used)}`;
       const mine=cs.filter(k=>k.dir!=='out'),theirs=cs.filter(k=>k.dir==='out');
@@ -1498,8 +1498,10 @@ function parseReply(out,ctx){
     if(!text)continue;last=from;
     for(const tx of ctx.mode==='online'&&S.chat.casual!==false?casual(text):[text])for(const p of splitStickers(tx,ctx.roll))res.push({from,...p});
   }
+  {const seen={};const r2=res.filter(p=>{if(p.type!=='sticker')return true;const u=seen[p.from]||=recentStk(ctx.t,p.from);if(u.has(p.content))return false;u.add(p.content);return true});res.length=0;res.push(...r2)}
   return ctx.mode==='online'?capBubbles(res):res;
 }
+const recentStk=(t,id)=>new Set((t?.msgs||[]).slice(-30).filter(m=>m.type==='sticker'&&(!id||m.from===id)).slice(-4).map(m=>m.content));
 const BUBBLE_MAX=8,CALL_MAX=3;
 const bubbleCap=()=>Math.min(8,Math.max(num(S.chat.onMax)||3,6));
 function capBubbles(res){const cap=BUBBLE_MAX,n={};return res.filter(p=>(n[p.from]=(n[p.from]||0)+1)<=cap)}
