@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.117';</script>
+<script>window.BYJ_VER='2026.11.18.118';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1076,7 +1076,7 @@ const isDS=p=>/deepseek/i.test((p?.base||'')+' '+(p?.model||''));
 const isKimi=base=>/moonshot\.(cn|ai)|kimi\.(com|ai)/.test(base||'');
 const isGLM=base=>/bigmodel\.cn/.test(base||'');
 function addTok(tag,i,o,c=0,w=0){if(!i&&!o)return;const T=S.tok||(S.tok=def().tok);T.n++;T.i+=i;T.o+=o;T.c=(T.c||0)+c;T.w=(T.w||0)+w;
-  const b=T.by[tag]||(T.by[tag]={n:0,i:0,o:0});b.n++;b.i+=i;b.o+=o;if(tag==='chat')T.last={i,o,c,t:Date.now()};save()}
+  const b=T.by[tag]||(T.by[tag]={n:0,i:0,o:0});b.n++;b.i+=i;b.o+=o;b.c=(b.c||0)+c;if(tag==='chat')T.last={i,o,c,t:Date.now()};save()}
 const mdlKey=x=>String(x||'').toLowerCase().replace(/^.*\//,'').replace(/[^a-z0-9]/g,'');
 const mdlSame=(a,b)=>{a=mdlKey(a);b=mdlKey(b);return!a||!b||a.includes(b)||b.includes(a)};
 const servedSeen=new Set();
@@ -1110,12 +1110,12 @@ async function callAI0(system,messages,o={}){
   const fx=p.fix?.model===model?p.fix:{},temp='temp' in fx?fx.temp:o.temp??num(p.temp),topP=fx.noTopP?null:num(p.topP),topK=fx.noTopK?null:num(p.topK),max=Math.min(o.max!=null?o.max+4096:(num(p.maxTokens)||2048),+fx.cap||Infinity);
   const ef0=o.thoughts&&EFFS.includes(p.effort)?p.effort:'',eff=fx.noEff?'':fx.eff&&EFFS.indexOf(ef0)>EFFS.indexOf(fx.eff)?fx.eff:ef0;
   const m=normalize(messages);let res,glm=null;
-  const ckK=o.thoughts&&/claude/i.test(model)?(o.who||whoOf(system))+'|'+model+'|'+base:'',ckP=ckK?system+'\u0001'+m.slice(0,-1).map(x=>x.role+'\u0002'+x.content).join('\u0001'):'',ckT=p.cache==='1h'?3500e3:290e3;
+  const ckK=(o.thoughts||o.cache)&&/claude/i.test(model)?(o.who||whoOf(system))+'|'+model+'|'+base:'',ckP=ckK?system+'\u0001'+m.slice(0,-1).map(x=>x.role+'\u0002'+x.content).join('\u0001'):'',ckT=p.cache==='1h'?3500e3:290e3;
   const ctl=new AbortController(),tmo=setTimeout(()=>ctl.abort(),o.timeout||300000),sig=ctl.signal;
   try{
     if(p.provider==='openai'){
       const b={model,max_tokens:max,...(p.stream?{stream:true,stream_options:{include_usage:true}}:{}),...(isKimi(base)?{prompt_cache_options:{mode:'implicit',ttl:p.cache==='1h'?'1h':'5m'}}:{}),messages:[{role:'system',content:system},...m.map(x=>({role:x.role,content:x.imgs&&x.imgs.length?[{type:'text',text:x.content},...x.imgs.map(u=>({type:'image_url',image_url:{url:u}}))]:x.content}))]};if(temp!==null)b.temperature=temp;if(topP!==null)b.top_p=topP;if(topK!==null)b.top_k=topK;
-      if(o.thoughts&&/claude/i.test(model)){const cc={type:'ephemeral',...(p.cache==='1h'?{ttl:'1h'}:{})},h=b.messages.length>2?b.messages[b.messages.length-2]:null;b.messages[0].content=sysBlocks(system,cc);
+      if((o.thoughts||o.cache)&&/claude/i.test(model)){const cc={type:'ephemeral',...(p.cache==='1h'?{ttl:'1h'}:{})},h=b.messages.length>2?b.messages[b.messages.length-2]:null;b.messages[0].content=sysBlocks(system,cc);
         if(h){if(typeof h.content==='string')h.content=[{type:'text',text:h.content,cache_control:cc}];else h.content[h.content.length-1].cache_control=cc}}
       if(isMM(model))b.reasoning_effort=eff||'low';else if(eff)b.reasoning_effort=eff==='max'&&!/claude/i.test(model)?'xhigh':eff;
       if(isDS(p)&&!o.thoughts)b.thinking={type:'disabled'};
@@ -1137,7 +1137,7 @@ async function callAI0(system,messages,o={}){
       const b={model,system,max_tokens:cur?Math.max(max,16000):max,...(p.stream?{stream:true}:{}),...(fb?{fallbacks:'default'}:{}),messages:m.map(x=>({role:x.role,content:x.imgs&&x.imgs.length?[...x.imgs.map(u=>({type:'image',source:{type:'base64',media_type:u.slice(5,u.indexOf(';')),data:u.split(',')[1]}})),{type:'text',text:x.content||'（图片）'}]:x.content}))};
       const ad=cur||/claude-(opus|sonnet)-4-6/.test(model),old=!ad&&/claude-(3-7|(opus|sonnet|haiku)-4)/.test(model);
       if(eff&&(ad||/claude-opus-4-5/.test(model))){b.output_config={effort:(/claude-opus-4-5/.test(model)&&EFFS.indexOf(eff)>2)||(/claude-(opus|sonnet)-4-6/.test(model)&&eff==='xhigh')?'high':eff};if(/claude-(opus|sonnet)-4-[678]/.test(model))b.thinking={type:'adaptive'}}
-      if(o.thoughts&&/claude/i.test(model)){const cc={type:'ephemeral',...(p.cache==='1h'?{ttl:'1h'}:{})},h=b.messages[b.messages.length-2];b.system=sysBlocks(system,cc);
+      if((o.thoughts||o.cache)&&/claude/i.test(model)){const cc={type:'ephemeral',...(p.cache==='1h'?{ttl:'1h'}:{})},h=b.messages[b.messages.length-2];b.system=sysBlocks(system,cc);
         if(h){if(typeof h.content==='string')h.content=[{type:'text',text:h.content,cache_control:cc}];else h.content[h.content.length-1].cache_control=cc}}
       if(isMM(model))b.output_config={effort:eff||'low'};
       res=await fetch(base.replace(/\/v1$/,'')+'/v1/messages',{method:'POST',headers:{'content-type':'application/json',...antHdr(base,key),...(fb?{'anthropic-beta':'server-side-fallback-2026-07-01'}:{})},body:JSON.stringify(b),signal:sig});
@@ -1384,9 +1384,10 @@ function buildCtx(t,o={}){
   if(ctxs.length){SYSCUT.set(sys,s1.length);if(SYSCUT.size>60)SYSCUT.delete(SYSCUT.keys().next().value)}
   return{system:whoTag(sys,t.id),msgs,chars,group,mode,t};
 }
+const STKP=new Map();
 function describeSticker(s){if(!s||s.desc!=null||!/^data:image\/(png|jpe?g|webp)/.test(s.src||''))return;s.desc='';
-  callAI('你在给表情包写备注。',[{role:'user',content:`这个表情包叫「${s.name}」。用10个字以内说它画的是什么、什么表情。只输出这句话。`,imgs:[s.src]}],{max:256,side:true})
-    .then(x=>{s.desc=String(x).trim().replace(/[。.]$/,'').slice(0,20);save()}).catch(()=>{})}
+  const p=callAI('你在给表情包写备注。',[{role:'user',content:`这个表情包叫「${s.name}」。用10个字以内说它画的是什么、什么表情。只输出这句话。`,imgs:[s.src]}],{max:256,side:true})
+    .then(x=>{s.desc=String(x).trim().replace(/[。.]$/,'').slice(0,20);save()}).catch(()=>{}).finally(()=>STKP.delete(s.name));STKP.set(s.name,p)}
 function findSticker(name){name=String(name).replace(/[（(][^）)]*[）)]\s*$/,'').trim();name=(stkName(name)||name).toLowerCase();return allStickers().find(s=>s.name.toLowerCase()===name)}
 const voiceDur=s=>Math.max(1,Math.min(60,Math.round([...String(s)].length/4)));
 function splitStickers(line){const out=[];let rest=line;const re=/\[(sticker|表情|定位|位置|图片|照片|语音|红包|转账|外卖|网购|分享歌曲)[:：]\s*([^\]]+)\]/i;let m;
@@ -1607,7 +1608,7 @@ const RAW=new Map();
 async function reply(t,extra,stamps){
   if(busy.has(t.id))return;busy.add(t.id);onThreadUpdate(t);
   try{
-    await Promise.all([ensureWx(S.loc),...t.chars.map(id=>ensureWx(charById(id)?.loc))].map(p=>p.catch(()=>{})));
+    await Promise.all([...STKP.values(),ensureWx(S.loc),...t.chars.map(id=>ensureWx(charById(id)?.loc))].map(p=>p.catch(()=>{})));
     const ctx=buildCtx(t,{ev:1,pro:!!extra});if(extra)ctx.msgs.push({role:'user',content:extra});
     const offMax=ctx.mode==='offline'?{max:Math.max((num(api()?.maxTokens)||2048)-4096,Math.round((num((t.offline||S.offline).words)||500)*3)+2000)}:{};
     let r=await callAI(ctx.system,ctx.msgs,{thoughts:true,...offMax});RAW.set(t.id,[r.text,r.thoughts]);
@@ -1957,7 +1958,7 @@ async function callTurn(){if(!call)return;const t=thread(call.tid),c=charById(t.
   try{const ctx=buildCtx(t,{mode:'call',kind:call.kind});const msgs=[...ctx.msgs,...call.lines.map(l=>({role:l.me?'user':'assistant',content:l.text}))];
     const v=call.kind==='video';if(call.status==='out')msgs.push({role:'user',content:`（${mask(c).name}给你打来${k}通话。愿意接就${v?'先用（）写接起来时屏幕里的你，再':'直接'}说你接起来的第一句话；如果真的不方便或者不想接，只写 [拒接]，下一行写一句原因，会作为消息发给${mask(c).name}。）`});
     else if(!call.lines.length)msgs.push({role:'user',content:`（你给${mask(c).name}打的${k}通话，TA接起来了。${v?'先用（）写TA屏幕里的你，再':''}说第一句话。）`});
-    const out=await callAI(ctx.system,msgs,{max:1024});if(!call||call.tid!==t.id)return;
+    const out=await callAI(ctx.system,msgs,{max:1024,cache:1});if(!call||call.tid!==t.id)return;
     const ex=extractExtras(out,true,false,!!langOf(c));applyTide(ctx,ex);
     if(ex.acts.includes('拒接')){call.wait=false;endCall('refused',ex.text);return}
     if(call.status==='out')callOn();
@@ -2507,7 +2508,7 @@ data(v){
     <div class="panel"><h2>用量<button class="tb" data-a="dataMore">${v.more?'收起':'详情'}</button></h2>
       <p class="hint">${kn(T.i+T.o)} token · 文字 ${mb(size)}<span id="dataUse"></span></p>
       ${v.more?`<p class="hint">${rows.map(([k,n])=>n+' '+k).join(' · ')}</p>
-      <p class="hint">${esc(ago(T.since))}起</p><div class="grid2"><div class="mi"><b>${kn(T.i+T.o)}</b><span>总共</span></div><div class="mi"><b>${kn(T.i)}</b><span>输入</span></div><div class="mi"><b>${kn(T.o)}</b><span>输出</span></div>${T.img?`<div class="mi"><b>${T.img}</b><span>生图</span></div>`:''}${T.c||T.w?`<div class="mi"><b>${kn(T.c)}</b><span>缓存命中${T.i?' · '+Math.round(T.c/T.i*100)+'%':''}</span></div><div class="mi"><b>${kn(T.w)}</b><span>缓存写入</span></div>`:''}</div>
+      <p class="hint">${esc(ago(T.since))}起</p><div class="grid2"><div class="mi"><b>${kn(T.i+T.o)}</b><span>总共</span></div><div class="mi"><b>${kn(T.i)}</b><span>输入</span></div><div class="mi"><b>${kn(T.o)}</b><span>输出</span></div>${T.img?`<div class="mi"><b>${T.img}</b><span>生图</span></div>`:''}${T.c||T.w?`<div class="mi"><b>${kn(T.c)}</b><span>缓存命中${T.by.chat?.c?' · 聊天 '+Math.round(T.by.chat.c/T.by.chat.i*100)+'%':T.i?' · '+Math.round(T.c/T.i*100)+'%':''}</span></div><div class="mi"><b>${kn(T.w)}</b><span>缓存写入</span></div>`:''}</div>
       ${cats.length?`<div class="grid2">${cats.map(([k,b])=>`<div class="mi"><b>${kn(b.i+b.o)}</b><span>${TOKTAG[k]||k}</span></div>`).join('')}</div>`:''}
       ${T.last?`<p class="hint">上一次聊天（${esc(ago(T.last.t))}）：发过去 ${kn(T.last.i)}，回来 ${kn(T.last.o)}${T.last.c?`，其中缓存命中 ${kn(T.last.c)}`:''}</p>`:''}
       ${T.last?.m?`<p class="hint">填的模型 ${esc(T.last.q||'')}，接口实际回的 ${esc(T.last.m)}${mdlSame(T.last.q,T.last.m)?'':' ⚠ 对不上，可能被换了模型'}</p>`:T.last?`<p class="hint">接口没说实际用的是哪个模型</p>`:''}
