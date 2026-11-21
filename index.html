@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.108';</script>
+<script>window.BYJ_VER='2026.11.18.109';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -812,8 +812,8 @@ async function loadFont(){const F=S.look.customFont;if(!F)return;const sig=F.loc
     else{FONTS.custom='"LedCustom"';const srcv=F.local?await (await DB.get('font:custom'))?.arrayBuffer():`url(${JSON.stringify(F.src)})`;if(!srcv)throw 0;
       const ff=new FontFace('LedCustom',srcv);await ff.load();document.fonts.add(ff)}
     applyLook()}catch(e){fontLoaded='';toast('字体加载不了')}}
-const isNight=()=>{const h=new Date().getHours();return h<7||h>=19};
-const darkOn=()=>{const n=S.look.night||'auto';return n==='on'||(n==='auto'&&isNight())};
+const isNight=()=>{const h=locNow().getHours();return h<7||h>=19};
+const darkOn=()=>{const n=S.look.theme||'auto';return n==='on'||(n==='auto'&&isNight())};
 function applyLook(){
   const L=S.look,r=document.documentElement;r.classList.toggle('full',!!(navigator.standalone||matchMedia('(display-mode: standalone)').matches));
   setAppH();r.style.setProperty('--fs',L.fs+'px');
@@ -2536,6 +2536,7 @@ settings(v){
     <div class="panel"><h2>壁纸</h2>${L.wallpaper?`<div class="wpv" style="background-image:url(${L.wallpaper})"></div>`:''}
       <div class="btns">${fileBtn(L.wallpaper?'换一张':'选一张','accept="image/*" data-img="wall"')}${L.wallpaper?'<button class="btn o" data-a="clrWall">去掉</button>':''}</div>
       </div>
+    <div class="panel"><h2>夜间</h2><div class="chips">${[['auto',S.loc?'跟'+esc(S.loc.name)+'时间':'跟时间'],['off','日间'],['on','夜间']].map(([k,n])=>`<button class="${(L.theme||'auto')===k?'on':''}" data-a="lookTheme" data-v="${k}">${n}</button>`).join('')}</div></div>
     ${L.wallpaper?`<div class="panel"><h2>毛玻璃</h2>
       <label class="f">透明程度<span class="inline"><input type="range" id="lk-clear" min="0" max="60" step="5" data-s="look" data-k="clear" value="${cl}"><output>${cl}</output></span></label>
       </div>`:''}`}}
@@ -2894,6 +2895,7 @@ const A={
     el.disabled=true;el.textContent='连接中…';
     try{const b=await ttsAudio(line);try{vAudio&&vAudio.pause()}catch(e){}vAudio=new Audio(URL.createObjectURL(b));vAudio.play().catch(()=>{});toast('连上啦 🫧')}catch(e){toast(e.message,6500)}
     finally{if(el.isConnected){el.disabled=false;el.textContent='测试连接'}}},
+  lookTheme(el){S.look.theme=el.dataset.v;save();applyLook();render(true)},
   clrWall(){S.look.wallpaper='';save();applyLook();render(true)},
   useMask(el){S.activeMask=el.dataset.id;save();closeSheet();render(true);toast('现在戴着：'+mask().name)},
   editMask(el){closeSheet();go({v:'maskEdit',id:el.dataset.id})},
