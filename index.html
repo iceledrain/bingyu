@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.114';</script>
+<script>window.BYJ_VER='2026.11.18.115';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1563,7 +1563,7 @@ function msgsHTML(t){
   t.msgs.forEach((m,i)=>{if(i<st)return;
     if(off){if(m.type!=='narr'&&!isMark(m))return;if(isMark(m)){if(m.content!=='回到线上'&&!/线上$/.test(m.content))h+=`<div class="stamp">${ago(m.t)} · ${hm(m.t)}</div>`;last=m.t;return}}
     else{if(m.type==='narr'){run++;return}if(isMark(m))return;flush()}
-    if(!off&&m.t-last>40*60e3)h+=`<div class="stamp">${ago(m.t)} · ${hm(m.t)}</div>`;last=m.t;h+=bubble(t,m,i)});
+    if(!m.aw&&m.t-last>40*60e3)h+=`<div class="stamp">${ago(m.t)} · ${hm(m.t)}</div>`;last=m.t;h+=bubble(t,m,i)});
   if(!off)flush();
   if(busy.has(t.id))h+=`<div class="msg ai">${av(charById(t.chars[0])||{name:'?'},40)}<div class="col"><span class="bub"><span class="dots"><i></i><i></i><i></i></span></span></div></div>`;
     return h;
@@ -1625,7 +1625,7 @@ async function reply(t,extra,stamps){
     const miss=ctx.group&&S.chat.inner&&parts.length?ctx.chars.filter(c=>{const o=parts.length===1&&parts[0].type==='narr';return o?!new RegExp('(^|\\n)'+c.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'：').test(parts[0].inner||''):parts.some(p=>p.from===c.id)&&!parts.some(p=>p.from===c.id&&p.inner)}):[];
     for(let i=0;i<parts.length;i++){
       if(i)await sleep(ctx.mode==='offline'||stamps?0:Math.min(1400,350+String(parts[i].content||'').length*25));
-      const pm={id:uid(),...parts[i],t:stamps?Math.min(Date.now(),stamps[Math.min(stamps.length-1,Math.floor(i*stamps.length/parts.length))]+i*20e3):Date.now()};t.msgs.push(pm);posted.push(pm);t.t=Date.now();if(pm.type==='pic'&&imgAuto())drawQ=drawQ.then(()=>drawMsg(t,pm));
+      const pm={id:uid(),...parts[i],...(stamps?{aw:1}:{}),t:stamps?Math.min(Date.now(),stamps[Math.min(stamps.length-1,Math.floor(i*stamps.length/parts.length))]+i*20e3):Date.now()};t.msgs.push(pm);posted.push(pm);t.t=Date.now();if(pm.type==='pic'&&imgAuto())drawQ=drawQ.then(()=>drawMsg(t,pm));
       if(!viewing(t)){t.unread=(t.unread||0)+1;}
       if(i===parts.length-1)busy.delete(t.id);save();onThreadUpdate(t);
     }
