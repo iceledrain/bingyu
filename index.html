@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.62';</script>
+<script>window.BYJ_VER='2026.11.18.63';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2153,7 +2153,7 @@ function lifeTick(mins){const now=Date.now();{const d=new Date();ensureHolidays(
     sysMsg(t,m.from==='me'?`外卖送到${dn(c)}那里了`:`${dn(c)}给你点的外卖到了`);t.t=now;save();onThreadUpdate(t);
     if(m.from==='me'){if(!busy.has(t.id)&&!call)reply(t,'（你刚刚收到了'+mask(t).name+'给你点的外卖：'+m.content+'。）')}else{if(!viewing(t)){t.unread=(t.unread||0)+1}}}
   for(const t of S.threads){if(t.pending&&now>=t.pending&&!busy.has(t.id)&&!call){const g=now-(t.msgs.filter(m=>m.from==='me').slice(-1)[0]?.t||now);const why={sleep:`（你本来睡着了，被消息吵醒，过了${gapText(g)}才看到。）`,work:`（你刚才在上班或上课，过了${gapText(g)}才看到消息。）`}[t.pendWhy]||(g>90e3?`（你刚才在忙，过了${gapText(g)}才看到消息。）`:'');t.pending=0;t.pendWhy='';save();reply(t,why);return}}
-  if(api()?.key&&S.chat.autoPost!==false&&!document.hidden&&!postBusy){const c=S.chars.filter(reachable).find(c=>now-(c.postAt||0)>5*3600e3&&Math.random()<1-Math.pow(1-.004,mins));
+  if(api()?.key&&S.chat.autoPost!==false&&!document.hidden&&!postBusy){const c=S.chars.filter(reachable).find(c=>now-(c.postAt||0)>40*3600e3&&Math.random()<1-Math.pow(1-.001,mins));
     if(c){postBusy=true;c.postAt=now;charPost(c).then(()=>{if(onFeed())render(true)}).catch(()=>{}).finally(()=>postBusy=false)}}
   if(api()?.key&&!busy.size&&!call&&!document.hidden&&!peekBusy){const t=S.threads.find(t=>{const c=charById(t.chars[0]);return t.type==='dm'&&reachable(c)&&now-(c.peekAt||0)>12*3600e3&&now-t.t<2*864e5&&t.msgs.some(m=>m.from==='me')});
     if(t&&Math.random()<1-Math.pow(1-1/1440,mins)){autoPeek(t,charById(t.chars[0]),'sneak');return}}
