@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.115';</script>
+<script>window.BYJ_VER='2026.11.18.117';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2064,10 +2064,10 @@ function lifeTick(mins){const now=Date.now();{const d=new Date();ensureHolidays(
   const dms=S.threads.filter(t=>t.type==='dm'&&!t.pending&&(t.mode||'online')==='online').sort(()=>Math.random()-.5);
   for(const c of S.chars.filter(reachable).sort(()=>Math.random()-.5)){if(statusOf(c)==='sleep'||now-(c.helloAt||0)<6*3600e3)continue;const old=(c.said||[]).length>0;
     const d=S.threads.find(x=>x.type==='dm'&&x.chars[0]===c.id);if(d&&(d.msgs.some(m=>m.type!=='sys')||d.pending||(d.mode||'online')!=='online'))continue;
-    const g=S.threads.filter(x=>x.type==='group'&&x.chars.includes(c.id)&&x.msgs.some(m=>m.from==='me')).sort((a,b)=>(b.t||0)-(a.t||0))[0];if(!old&&(c.helloAt||!g||now-(g.t||0)<10*60e3))continue;
+    const g=S.threads.filter(x=>x.type==='group'&&x.chars.includes(c.id)&&x.msgs.some(m=>m.from==='me')).sort((a,b)=>(b.t||0)-(a.t||0))[0];if(!old&&(c.helloAt||g&&now-(g.t||0)<10*60e3))continue;
     if(Math.random()>1-Math.pow(1-.04,mins))continue;
     const t=dmFor(c.id);c.helloAt=now;t.proAt=now;save();
-    reply(t,old?`（现在是${nowText()}。你主动找${mask(c).name}，从下面挑一个最自然的理由，话题和开头都别和你之前说过的重样：\n${whyReach(c).map(x=>'· '+x).join('\n')}）`:`（现在是${nowText()}。你和${mask(c).name}在群「${threadTitle(g)}」里聊过，还没私下说过话。你主动私聊TA，按你的性子开个头，1到2条。）`);return}
+    reply(t,`（现在是${nowText()}，你${STATUS_TXT[statusOf(c)]}。${old?`你想找${mask(c).name}了`:g?`你和${mask(c).name}在群「${threadTitle(g)}」里聊过，还没私下说过话，你想私聊TA`:`你和${mask(c).name}刚加上好友，还没说过话，你想找TA`}。${whyReach(c)}）`);return}
   for(const t of dms){const c=charById(t.chars[0]),me=mask(c).name;if(!reachable(c)||statusOf(c)==='sleep')continue;
     const last=[...t.msgs].reverse().find(m=>m.type!=='sys');if(!last)continue;const gap=now-last.t;
     const lastMe=t.msgs.filter(m=>m.from==='me').slice(-1)[0]?.t||0;
@@ -2078,14 +2078,14 @@ function lifeTick(mins){const now=Date.now();{const d=new Date();ensureHolidays(
           ?`（现在是${nowText()}。你上一条消息${me}还没回，过了${gapText(gap)}。按你的性子追发1到2条。接着刚才聊的那件事往下说，或者问TA在干嘛；不突然扯别的，也不把上一条换个说法再说一遍。）`
           :`（${me}还是没回。最后追1条，和前面发的不一样，之后等TA。）`);return}
       continue}
-    if(gap<3600e3||(t.proAt&&t.proAt>lastMe))continue;
+    if(gap<3600e3||(t.proAt&&t.proAt>lastMe&&now-t.proAt<6*3600e3))continue;
     if(Math.random()>1-Math.pow(1-.04,mins))continue;
     t.proAt=now;save();
     if(statusOf(c)==='free'&&Math.random()<.18){incomingCall(t,Math.random()<.3?'video':'voice');return}
-    reply(t,`（现在是${nowText()}。${me}已经${gapText(gap)}没有找你了。你主动找TA，从下面挑一个最自然的理由，话题和开头都别和你之前发过的重样：\n${whyReach(c).map(x=>'· '+x).join('\n')}）`);return}}
+    reply(t,`（现在是${nowText()}，你${STATUS_TXT[statusOf(c)]}。${me}已经${gapText(gap)}没找你了，你想找TA。${whyReach(c)}）`);return}}
 function awayCatch(from,now){
   if(S.chat.away===false||!api()?.key||busy.size||call||document.hidden)return false;
-  const dms=S.threads.filter(t=>t.type==='dm'&&!t.pending&&(t.mode||'online')==='online'&&t.msgs.some(m=>m.from==='me')).sort((a,b)=>(b.t||0)-(a.t||0));
+  const dms=S.threads.filter(t=>t.type==='dm'&&!t.pending&&(t.mode||'online')==='online'&&t.msgs.some(m=>m.type!=='sys')).sort((a,b)=>(b.t||0)-(a.t||0));
   for(const t of dms){const c=charById(t.chars[0]),me=mask(c).name;if(!reachable(c))continue;
     const last=[...t.msgs].reverse().find(m=>m.type!=='sys');if(!last||now-last.t>3*864e5)continue;
     const a=Math.max(from,last.t)+10*60e3,b=now-3*60e3;if(b-a<75*60e3)continue;
@@ -2094,13 +2094,12 @@ function awayCatch(from,now){
     if(!st.length)continue;st.sort((x,y)=>x-y);
     const lab=x=>{const k=dayDiff(x);return(k>0?dayWord(k):'')+hm(x)+'（你当时'+STATUS_TXT[statusOf(c,new Date(x))]+'）'};
     t.proAt=now;save();
-    reply(t,`（现在是${nowText()}。${me}已经${gapText(now-last.t)}没看手机。这期间你给TA发过消息，时刻：${st.map(lab).join('、')}。按顺序写出来，每个时刻1到2条，像当时随手发的，短。别当TA已经回来。）`,st);return true}
+    reply(t,`（现在是${nowText()}。${me}已经${gapText(now-last.t)}没看手机。这期间你给TA发过消息，时刻：${st.map(lab).join('、')}。按顺序写出来，每个时刻发什么、发几条看你当时在干嘛、什么心情。别当TA已经回来。）`,st);return true}
   return false}
 function whyReach(c){const me=mask(c).name,L=[];
   {const w=wxNow(S.loc);if(w&&/雨|雪|雷|雾|冻/.test(w.desc))L.push(`${me}那边现在${w.desc}`);if(w&&(w.max>=33||w.min<=2))L.push(`${me}那边今天${w.min}~${w.max}°C`);
     upcomingFest(1).forEach(f=>L.push((f.in?'明天是':'今天是')+f.name));myDays(mask(c)).filter(x=>x.in<=1&&(x.who===null||x.who===c.id)).forEach(x=>L.push((x.in?'明天是':'今天是')+x.name))}
-  const st=statusOf(c);if(st==='work')L.push('你在上班或上课，偷空摸鱼');
-  L.push(`上次没聊完、该问后续的事`,'刚想到TA','分享此刻在做的、看到的、吃到的（可配 [图片:…]）','刚遇到一件好笑或烦人的事','想问TA一个有意思的问题','想拉TA一起做点什么（听歌、玩游戏、约见面）');return L}
+  return(L.length?L.join('；')+'。':'')+'像真人拿起手机那样发，别和之前发过的重样。'}
 const bkJSON=()=>JSON.stringify(S,(k,v)=>k==='key'&&!S.bkKey?'':v);
 function dlJSON(o,name){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(o,null,1)],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();a.remove()}
 function extraFor(c){const e=elsewhere(c);return(e.length?'\n\n【最近在别处发生的事】\n'+e.join('\n'):'')+'\n\n【现在】'+nowText()}
