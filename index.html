@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.83';</script>
+<script>window.BYJ_VER='2026.11.18.84';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -999,7 +999,7 @@ function avaHTML(){const c=moodChar()||S.chars.find(visible),R='<span class="rin
   const t=S.threads.find(x=>x.type==='dm'&&x.chars[0]===c.id),im=t&&[...t.msgs].reverse().find(m=>m.inner&&m.from===c.id),v=tideOf(c);
   return`<button class="ava" data-a="tideOpen" data-id="${c.id}" aria-label="和${esc(dn(c))}聊天">${R}${av(c,92)}</span><b class="kao">${esc(kaoOf(cuteKao(im&&im.inner),v,c.mood,t?t.msgs.length:0))}</b></button>`}
 const KAO_BAD=/[ಠ益Дд╬ﾟ皿凸◣◢⊙눈罒ʖ͜͡卍☠💢⊿▼▲༼༽ꐦ凵]/;
-function softFace(k){return/[╥ಥ;；TＴ]|﹏/.test(k)?'(｡•́︿•̀｡)':/[益╬皿凸💢ꐦ▼◣◢]/.test(k)?'(￣^￣)':/[ﾟД⊙]/.test(k)?'(°ー°〃)':'(｡･ω･｡)'}
+function softFace(k){return/[╥ಥ;；TＴ]|﹏/.test(k)?'T_T':/[益╬皿凸💢ꐦ▼◣◢]/.test(k)?'(｡ì _ í｡)':/[ﾟД⊙]/.test(k)?'(O_o)':'(｡･ω･｡)'}
 const cuteKao=x=>String(x??'').replace(/(?:[^\s\u4e00-\u9fff，。！？、：；“”‘’「」]|[益皿])+/g,k=>k.length>=2&&k.length<=30&&KAO_BAD.test(k)?softFace(k):k);
 const MOOD_BAD=/偏执|疯|病态|崩溃|绝望|杀|毁|占有|黑化|阴暗|阴郁|窒息|恨|囚|锁|血|死|暴怒|狂|扭曲|失控|厌世|恶心|发狠|暴躁|阴沉|冷漠|阴冷|戾/;
 const moodBy=v=>v>=80?'开心':v>=60?'不错':v>=40?'平静':v>=20?'委屈':v>=0?'生气':'发火';
@@ -1011,17 +1011,18 @@ const KAO_CH=/[()（）ω︿ᴗ´`•｡≧≦╥﹏>＜<^ˊˋ]/;
 const kaoIn=x=>(String(x||'').match(/[^\s\u4e00-\u9fff，。！？、：；“”‘’「」]{3,24}/g)||[]).find(k=>KAO_CH.test(k)&&!KAO_BAD.test(k))||'';
 const noKao=x=>String(x||'').replace(/[^\s\u4e00-\u9fff，。！？、：；“”‘’「」…~～]{2,30}/g,k=>KAO_CH.test(k)||KAO_BAD.test(k)||/[✧♡♥☆★ﾉ و∀ᐛ]/.test(k)?'':k).replace(/[ \t]{2,}/g,' ').trim();
 const withKao=(x,v)=>noKao(x);
-const MOOD_KAO=[[/开心|高兴|愉快|满足|得意|雀跃|兴奋|期待|欢喜|甜/,['(๑>ᴗ<๑)♡','(≧▽≦)','٩(ˊᗜˋ*)و','(*´▽`*)']],
-  [/害羞|脸红|心动|心跳|慌|紧张/,['(〃ω〃)','(*/ω＼*)','(⁄ ⁄•⁄ω⁄•⁄ ⁄)']],
-  [/想|念|惦记|牵挂|盼/,['(´･ω･`)♡','(っ´ω`)っ','(｡•ᴗ•｡)♡']],
-  [/吃醋|别扭|不爽|闷|烦|酸/,['(￣^￣)','(｀へ´)','(￣ヘ￣)']],
-  [/生气|恼|火|怒/,['(｀^´)','(╯︿╰)','(｀へ´)']],
-  [/难过|委屈|失落|低落|心疼|担心|不安|愧/,['(｡•́︿•̀｡)','(´；ω；`)','(っ˘̩╭╮˘̩)っ']],
-  [/困|累|疲|倦/,['(－ω－)zzZ','( ˘ω˘ )']],
-  [/心软|温柔|安心|平静|安静|平常|放松|踏实|安稳|平淡/,['(｡･ω･｡)','( ˘ᴗ˘ )','(´-ω-`)']]];
+const MOOD_KAO=[[/开心|高兴|愉快|满足|得意|雀跃|兴奋|期待|欢喜|甜/,['^_^','↖(^ω^)↗','( ^ω^ )','(*≧ω≦)','(OvO)','(☆_☆)']],
+  [/害羞|脸红|心动|心跳|慌|紧张/,['⁄(⁄ ⁄ ⁄ω⁄ ⁄ ⁄)⁄','(/ω＼)','(ノ_＜)','^^;']],
+  [/懵|惊|疑|愣|诧|奇怪|困惑/,['(O_o)','( ? _ ? )']],
+  [/想|念|惦记|牵挂|盼/,['(｡･ω･｡)ﾉ','U・x・U','(´･ω･`)']],
+  [/吃醋|别扭|不爽|闷|烦|酸/,['(¬_¬)','(╯3╰)','=_=']],
+  [/生气|恼|火|怒/,['(｡ì _ í｡)','(>_<)','(¬_¬)']],
+  [/难过|委屈|失落|低落|心疼|担心|不安|愧/,['T_T','(T . T)','(´･ω･`)']],
+  [/困|累|疲|倦/,['(( _ _ ))..zzzZZ','(-.-)y-., o O','(´-ω-`)']],
+  [/心软|温柔|安心|平静|安静|平常|放松|踏实|安稳|平淡/,['(｡･ω･｡)','^ ^','(´-ω-`)']]];
 function kaoOf(x,v,mood,seed){const k=kaoIn(x);if(k)return k;
   if(mood){const m=MOOD_KAO.find(([re])=>re.test(mood));if(m)return m[1][Math.abs(seed|0)%m[1].length]}
-  return v>=80?'(๑>ᴗ<๑)♡':v>=60?'(｡･ω･｡)':v>=40?'(´･ᴗ･`)':v>=20?'(｡•́︿•̀｡)':v>=0?'(╥﹏╥)':'(｀へ´)'}
+  return v>=80?'(*≧ω≦)':v>=60?'(｡･ω･｡)':v>=40?'^_^':v>=20?'T_T':v>=0?'(｡ì _ í｡)':'(¬_¬)'}
 let sfxAC;
 function sfx(k){if(!k||k==='off')return;try{sfxAC=sfxAC||new (window.AudioContext||window.webkitAudioContext)();if(sfxAC.state==='suspended')sfxAC.resume()}catch(e){return}
   if(k==='mix')k=['drop','ice','bubble'][Math.floor(Math.random()*3)];
