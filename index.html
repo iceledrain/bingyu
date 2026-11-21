@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.59';</script>
+<script>window.BYJ_VER='2026.11.18.60';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2694,7 +2694,7 @@ apiEdit(v){
     <label class="f">思考深度<select id="a-eff" data-s="api" data-k="effort">${[['','默认'],['low','低'],['medium','中'],['high','高'],['xhigh','超高'],['max','最高']].map(([k,l])=>`<option value="${k}" ${(p.effort||'')===k?'selected':''}>${l}</option>`).join('')}</select></label></div>
   <button class="tb" data-a="apiMore" style="align-self:center">${v.more?'收起':'更多'}</button>
   ${v.more?`<div class="panel"><h2>输出</h2><div class="seg">${[[false,'非流式'],[true,'流式']].map(([k,l])=>`<button class="${!!p.stream===k?'on':''}" data-a="setStream" data-v="${k?1:''}">${l}</button>`).join('')}</div></div>
-  ${isKimi(p.base)?`<div class="panel"><h2>缓存时长</h2><div class="seg">${[['5m','5 分钟'],['1h','1 小时']].map(([k,l])=>`<button class="${(p.cache==='1h'?'1h':'5m')===k?'on':''}" data-a="setCache" data-v="${k}">${l}</button>`).join('')}</div>
+  ${isKimi(p.base)||/claude/i.test(p.model||'')?`<div class="panel"><h2>缓存时长</h2><div class="seg">${[['5m','5 分钟'],['1h','1 小时']].map(([k,l])=>`<button class="${(p.cache==='1h'?'1h':'5m')===k?'on':''}" data-a="setCache" data-v="${k}">${l}</button>`).join('')}</div>
     </div>`:''}
   <div class="panel"><h2>参数</h2>${/anthropic\.com/.test(p.base||'')&&/claude-(opus|sonnet|haiku|fable|mythos)-(5|4-[78])/.test(p.model||'')?'':`
     <label class="f">温度<span class="inline"><input type="range" id="a-temp" min="0" max="2" step="0.05" data-s="api" data-k="temp" value="${p.temp??1}"><output>${p.temp??1}</output></span></label>
