@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.113';</script>
+<script>window.BYJ_VER='2026.11.18.114';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -783,6 +783,7 @@ const apiPin=k=>{if(!k)return'';const x=typeof k==='string'?(S.chars.find(c=>c.i
   if(Array.isArray(x.chars))return x.api||(x.type!=='group'?S.chars.find(c=>c.id===x.chars[0])?.api||'':'');return x.api||''};
 const api=k=>{const id=apiPin(k);return(id&&S.api.profiles.find(p=>p.id===id))||S.api.profiles.find(p=>p.id===S.api.active)||S.api.profiles[0]};
 const WHO=new Map();const whoTag=(sys,k)=>{if(k&&sys){WHO.delete(sys);WHO.set(sys,k);if(WHO.size>60)WHO.delete(WHO.keys().next().value)}return sys};
+const SYSCUT=new Map(),sysBlocks=(sys,cc)=>{const n=SYSCUT.get(sys);return n&&n<sys.length?[{type:'text',text:sys.slice(0,n),cache_control:cc},{type:'text',text:sys.slice(n),cache_control:cc}]:[{type:'text',text:sys,cache_control:cc}]};
 const whoOf=sys=>{if(!sys)return'';const k=WHO.get(sys);if(k)return k;for(const[x,v]of WHO)if(sys.startsWith(x))return v;return''};
 const thread=id=>S.threads.find(t=>t.id===id);
 const presetById=id=>S.presets.find(p=>p.id===id);
@@ -1114,7 +1115,7 @@ async function callAI0(system,messages,o={}){
   try{
     if(p.provider==='openai'){
       const b={model,max_tokens:max,...(p.stream?{stream:true,stream_options:{include_usage:true}}:{}),...(isKimi(base)?{prompt_cache_options:{mode:'implicit',ttl:p.cache==='1h'?'1h':'5m'}}:{}),messages:[{role:'system',content:system},...m.map(x=>({role:x.role,content:x.imgs&&x.imgs.length?[{type:'text',text:x.content},...x.imgs.map(u=>({type:'image_url',image_url:{url:u}}))]:x.content}))]};if(temp!==null)b.temperature=temp;if(topP!==null)b.top_p=topP;if(topK!==null)b.top_k=topK;
-      if(o.thoughts&&/claude/i.test(model)){const cc={type:'ephemeral',...(p.cache==='1h'?{ttl:'1h'}:{})},h=b.messages.length>2?b.messages[b.messages.length-2]:null;b.messages[0].content=[{type:'text',text:system,cache_control:cc}];
+      if(o.thoughts&&/claude/i.test(model)){const cc={type:'ephemeral',...(p.cache==='1h'?{ttl:'1h'}:{})},h=b.messages.length>2?b.messages[b.messages.length-2]:null;b.messages[0].content=sysBlocks(system,cc);
         if(h){if(typeof h.content==='string')h.content=[{type:'text',text:h.content,cache_control:cc}];else h.content[h.content.length-1].cache_control=cc}}
       if(isMM(model))b.reasoning_effort=eff||'low';else if(eff)b.reasoning_effort=eff==='max'&&!/claude/i.test(model)?'xhigh':eff;
       if(isDS(p)&&!o.thoughts)b.thinking={type:'disabled'};
@@ -1136,7 +1137,7 @@ async function callAI0(system,messages,o={}){
       const b={model,system,max_tokens:cur?Math.max(max,16000):max,...(p.stream?{stream:true}:{}),...(fb?{fallbacks:'default'}:{}),messages:m.map(x=>({role:x.role,content:x.imgs&&x.imgs.length?[...x.imgs.map(u=>({type:'image',source:{type:'base64',media_type:u.slice(5,u.indexOf(';')),data:u.split(',')[1]}})),{type:'text',text:x.content||'（图片）'}]:x.content}))};
       const ad=cur||/claude-(opus|sonnet)-4-6/.test(model),old=!ad&&/claude-(3-7|(opus|sonnet|haiku)-4)/.test(model);
       if(eff&&(ad||/claude-opus-4-5/.test(model))){b.output_config={effort:(/claude-opus-4-5/.test(model)&&EFFS.indexOf(eff)>2)||(/claude-(opus|sonnet)-4-6/.test(model)&&eff==='xhigh')?'high':eff};if(/claude-(opus|sonnet)-4-[678]/.test(model))b.thinking={type:'adaptive'}}
-      if(o.thoughts&&/claude/i.test(model)){const cc={type:'ephemeral',...(p.cache==='1h'?{ttl:'1h'}:{})},h=b.messages[b.messages.length-2];b.system=[{type:'text',text:system,cache_control:cc}];
+      if(o.thoughts&&/claude/i.test(model)){const cc={type:'ephemeral',...(p.cache==='1h'?{ttl:'1h'}:{})},h=b.messages[b.messages.length-2];b.system=sysBlocks(system,cc);
         if(h){if(typeof h.content==='string')h.content=[{type:'text',text:h.content,cache_control:cc}];else h.content[h.content.length-1].cache_control=cc}}
       if(isMM(model))b.output_config={effort:eff||'low'};
       res=await fetch(base.replace(/\/v1$/,'')+'/v1/messages',{method:'POST',headers:{'content-type':'application/json',...antHdr(base,key),...(fb?{'anthropic-beta':'server-side-fallback-2026-07-01'}:{})},body:JSON.stringify(b),signal:sig});
@@ -1379,8 +1380,9 @@ function buildCtx(t,o={}){
   const tw=C.think,iw=!!C.inner;
   if(mode!=='offline')end.push(`【回复格式】${tw?'先写 <think>…</think>，再':''}把发给${me.name}的话全写进 <reply>…</reply>，一行一条，${iw?'<inner> 和 ':''}<tide> 写在后面。<reply> 外的字不会发出去，每次都写全。\n例：${tw?'<think>…</think>\n':''}<reply>\n第一条\n第二条\n</reply>${iw?'\n<inner>…</inner>':''}\n<tide>…</tide>`);
   else if(tw||iw)end.push(`【别漏】每次都按这个顺序写全：${tw?'第一行 <think>…</think>，然后':''}正文${iw?'，正文后另起一行 <inner>…</inner>':''}。\n例：${tw?'<think>…</think>\n':''}正文……${iw?'\n<inner>…</inner>':''}`);
-  const sys=[...pr,...lore,...who,`【下面只管格式】性格、语气都按上面的人设来，和下面的规则冲突时听人设的。`,...rules,...ctxs,...end];
-  return{system:whoTag(sys.join('\n\n'),t.id),msgs,chars,group,mode,t};
+  const s1=[...pr,...lore,...who,`【下面只管格式】性格、语气都按上面的人设来，和下面的规则冲突时听人设的。`,...rules,...end].join('\n\n'),sys=ctxs.length?s1+'\n\n'+ctxs.join('\n\n'):s1;
+  if(ctxs.length){SYSCUT.set(sys,s1.length);if(SYSCUT.size>60)SYSCUT.delete(SYSCUT.keys().next().value)}
+  return{system:whoTag(sys,t.id),msgs,chars,group,mode,t};
 }
 function describeSticker(s){if(!s||s.desc!=null||!/^data:image\/(png|jpe?g|webp)/.test(s.src||''))return;s.desc='';
   callAI('你在给表情包写备注。',[{role:'user',content:`这个表情包叫「${s.name}」。用10个字以内说它画的是什么、什么表情。只输出这句话。`,imgs:[s.src]}],{max:256,side:true})
