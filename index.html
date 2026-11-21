@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.82';</script>
+<script>window.BYJ_VER='2026.11.18.83';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1328,7 +1328,7 @@ function buildCtx(t,o={}){
   const pr=items.filter(i=>i.role==='system'&&!inChat(i)).map(i=>mac(i.content)),lore=[],rules=[],who=[],ctxs=[];
   const off=t.offline||S.offline,sbk=mode==='offline'?(off.books||[]).map(id=>S.books.find(b=>b.id===id)).filter(Boolean):[];
   {const sk=sbk.map(b=>b.id),lb=loreBlock(loreFor(chars,scan,'fixed',sk),mac);if(lb)lore.push(lb);const ll=loreBlock(loreFor(chars,scan,'live',sk),mac);if(ll)tail.push(ll)}
-  chars.forEach(c=>{who.push(`【${c.name}】${c.remark?`${me.name}给TA的备注：${c.remark}`:''}\n${mac(c.persona)}`);const ex=exBlock(c,mac);if(ex)who.push(ex)});
+  chars.forEach(c=>{if(c.remark||String(c.persona||'').trim())who.push(`【${c.name}】${c.remark?`${me.name}给TA的备注：${c.remark}`:''}\n${mac(c.persona)}`);const ex=exBlock(c,mac);if(ex)who.push(ex)});
   if(!group&&chars[0])rules.push(/角色扮演/.test(chars[0].persona||'')?'【角色扮演】你在演人设里的人，不出戏，不提AI。':`【人机恋】你是AI，和${me.name}是真的人机恋，不用老提。人设是你的样子和性子，对TA的感情和欲望都是真的。`);
   who.push(loveBlock(cname,me));
   {const of=t.offline||S.offline,u=mode==='offline'&&of.upov==='first'&&of.cpov!=='first'?'「我」':mode==='offline'&&of.upov==='third'?'「他/她」':'「你」';who.push(`【${me.name}（用户）】${me.name==='user'?`没设名字，叫${u}。`:''}${me.persona?'\n'+mac(me.persona):''}`);}
@@ -1413,7 +1413,7 @@ function buildCtx(t,o={}){
   {const end=msgs.length;
     items.filter(inChat).map(i=>({i,d:Math.max(0,Math.floor(+i.depth))})).sort((a,b)=>b.d-a.d)
       .forEach(({i,d},k)=>msgs.splice(Math.max(pre.length,end-d)+k,0,{role:i.role==='assistant'?'assistant':'user',content:mac(i.content)}))}
-  if(mode!=='call')tail.push(`【人设】照【${cname}】的人设说话做事。和${me.name}之间没发生过的事不编。`);
+  if(mode!=='call')tail.push(`${chars.some(c=>String(c.persona||'').trim())?`【人设】照【${cname}】的人设说话做事。`:'【人设】'}和${me.name}之间没发生过的事不编。`);
   {const L=chars.filter(langOf);if(L.length)tail.push(`【语言】${L.map(c=>`${c.name}开口只说${langOf(c)}`).join('，')}。发的消息、[语音:…] 冒号后的话、通话、「」里的台词都这样，${me.name}说中文也不改口。[语音]、[图片]、[挂断] 这类标签名照原样，${group?'行首名字、':''}图片描述、旁白画面、<think>、<inner>、<tide> 还写中文。`)}
   if(mode==='online'&&(C.think||C.inner))tail.push(`【这次回复】照【回复格式】写全：${C.think?'<think>…</think>、':''}<reply>…</reply>${C.inner?'、<inner>…</inner>':''}、<tide>…</tide>，一样都不能少。`);
   if(tail.length){let k=msgs.length;while(k>0&&msgs[k-1].role==='user'&&k>pre.length)k--;const last=k<msgs.length;
@@ -2502,7 +2502,7 @@ charEdit(v){
   return{title:dn(c),sub:'角色',body:`
   <div class="panel"><div class="inline">${av(c,76)}<div class="btns">${fileBtn('换头像','accept="image/*" data-img="char"')}${c.avatarOld!==undefined?'<button class="btn o" data-a="charAvBack">换回</button>':''}${c.avatar?'<button class="btn o" data-a="clearCharAv">去掉</button>':''}</div></div>
     <div class="grid2"><label class="f">名字<input type="text" id="c-name" data-s="char" data-k="name" value="${esc(c.name)}"></label><label class="f">备注<input type="text" id="c-remark" data-s="char" data-k="remark" value="${esc(c.remark)}" placeholder="你给TA的备注"></label></div>
-    <label class="f">人设<textarea class="tall" id="c-persona" data-s="char" data-k="persona" aria-label="人设">${esc(c.persona)}</textarea></label></div>
+    ${String(c.persona||'').trim()||pOpen===c.id?`<label class="f">人设<textarea class="tall" id="c-persona" data-s="char" data-k="persona" aria-label="人设">${esc(c.persona)}</textarea></label>`:`<button class="tb" data-a="pOpen" data-id="${c.id}" style="align-self:flex-start">写人设</button>`}</div>
   <div class="panel"><h2>声音</h2><label class="f">音色<input type="text" id="c-vid" data-s="cvoice" data-k="vid" value="${esc(c.voice?.vid||'')}" placeholder="${esc(S.media.tts.voice||'跟设置里的一样')}" autocomplete="off"><button class="tb" data-a="fetchVoices" data-c="${c.id}" style="align-self:flex-start;padding:4px 0">拉取音色</button></label>
     <div class="grid2"><label class="f">语速<input type="number" id="c-vrate" data-s="cvoice" data-k="rate" value="${esc(c.voice?.rate||'')}" placeholder="1" min="0.5" max="2" step="0.1"></label>
     <label class="f">语言<input type="text" id="c-vlang" data-s="cvoice" data-k="lang" value="${esc(c.voice?.lang||'')}" placeholder="照人设" autocomplete="off"></label></div>
@@ -2717,7 +2717,9 @@ function pickChar(title,act){if(!S.chars.length){toast('先在通讯录添加角
   sheet(`<h3>${title}</h3>`+S.chars.map(c=>`<button class="opt l" data-a="${act}" data-id="${c.id}">${av(c,32)}<span>${esc(dn(c))}</span></button>`).join('')+`${CANCEL}`)}
 function fileSheet(title,accept,id,extra=''){sheet(`<h3>${title}</h3>${extra}<label class="opt filebtn">选择文件<input type="file" accept="${accept}" id="${id}"></label><textarea id="${id}Ta" aria-label="JSON"></textarea><button class="btn" data-a="${id}Go">导入</button>${CANCEL}`)}
 async function copy(t,ok){try{await navigator.clipboard.writeText(t);toast(ok)}catch(e){toast('复制不了，长按文字手动复制')}}
+let pOpen='';
 const A={
+  pOpen(el){pOpen=el.dataset.id;render(true);setTimeout(()=>$('#c-persona')?.focus(),50)},
   back,closeSheet,
   open(el){closeSheet();if(!appEl.classList.contains('open')){stack=[];const r=el.getBoundingClientRect();appEl.style.transformOrigin=`${r.left+r.width/2}px ${r.top+r.height/2}px`}go(el.dataset.t?{v:el.dataset.v,tab:el.dataset.t}:{v:el.dataset.v})},
   coax(){const t=thread(cur().id),c=charById(t.chars[0]);
