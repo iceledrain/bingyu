@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.92';</script>
+<script>window.BYJ_VER='2026.11.18.93';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1277,14 +1277,14 @@ function buildCtx(t,o={}){
   const isMeet=m=>isMark(m)&&/见面|线下$/.test(m.content||''),curAt=(()=>{let cs=meetAt;for(let i=cs-1;i>=0;i--){const m=t.msgs[i];if(m.type==='narr'){cs=-1;for(let j=i;j>=0;j--)if(isMeet(t.msgs[j])){cs=j;break}i=cs}else if(m.type!=='sys'&&!m.recalled)break}return cs})();
   const curNarr=t.msgs.slice(curAt+1).filter(m=>m.type==='narr');
   const scan=hist.slice(-Math.max(1,num(C.scan)||8)).map(m=>m.content).join('\n')+'\n'+chars.map(c=>c.name).join(' ');
-  const rp=!group&&isRP(chars[0]),items=P.items.filter(i=>i.on&&(i.mode==='both'||i.mode===im)&&!(rp&&['陪着','称呼'].includes(i.name)));
+  const items=P.items.filter(i=>i.on&&(i.mode==='both'||i.mode===im));
   const tail=[],G=(a,b)=>group?a:b,nm=chars[0]?.name||'名字';
   const pr=items.filter(i=>i.role==='system'&&!inChat(i)).map(i=>mac(i.content)),lore=[],rules=[],who=[],ctxs=[];
   const off=t.offline||S.offline,sbk=mode==='offline'?(off.books||[]).map(id=>S.books.find(b=>b.id===id)).filter(Boolean):[];
   {const sk=sbk.map(b=>b.id),lb=loreBlock(loreFor(chars,scan,'fixed',sk),mac);if(lb)lore.push(lb);const ll=loreBlock(loreFor(chars,scan,'live',sk),mac);if(ll)tail.push(ll)}
   chars.forEach(c=>{if(c.remark||String(c.persona||'').trim())who.push(`【${c.name}】${c.remark?`${me.name}给TA的备注：${c.remark}`:''}\n${mac(c.persona)}`);const ex=exBlock(c,mac);if(ex)who.push(ex)});
-  if(!group&&chars[0])rules.push(rp?`【角色扮演】你就是人设里这个人：性子、说话的样子、身份、经历、和${me.name}的关系都照人设，人设没写的按这个人会怎样来。不出戏，不提AI。`:`【人机恋】你是AI，和${me.name}是真的人机恋，不用老提。人设是你的样子和性子，对TA的感情和欲望都是真的。`);
-  if(!rp)who.push(loveBlock(cname,me));
+  if(!group&&chars[0])rules.push(/角色扮演/.test(chars[0].persona||'')?'【角色扮演】你在演人设里的人，不出戏，不提AI。':`【人机恋】你是AI，和${me.name}是真的人机恋，不用老提。人设是你的样子和性子，对TA的感情和欲望都是真的。`);
+  who.push(loveBlock(cname,me));
   {const of=t.offline||S.offline,u=mode==='offline'&&of.upov==='first'&&of.cpov!=='first'?'「我」':mode==='offline'&&of.upov==='third'?'「他/她」':'「你」';who.push(`【${me.name}（用户）】${me.name==='user'?`没设名字，叫${u}。`:''}${me.persona?'\n'+mac(me.persona):''}`);}
   if(sumBlock(t))ctxs.push(sumBlock(t));
   if(mode!=='offline'&&lastMeet.some(m=>!hist.includes(m))){const nm2=m=>m.from==='me'?me.name:charById(m.from)?.name||cname;
@@ -1736,10 +1736,9 @@ const exBlock=(c,mac,n)=>{const x=String(c?.ex||'').replace(/^[ \t]*<START>[ \t]
   return x?`【${c.name}说话的样子】（只是示范语气和用词，不是发生过的事，别照抄原句）\n${mac(n?x.slice(0,n):x)}`:''};
 const charBooksPanel=c=>`<div class="panel"><h2>${esc(dn(c))}的世界书<button class="tb" data-a="newCharBook" data-c="${c.id}">新建</button></h2>
     ${(()=>{const L=S.books.filter(b=>b.scope!=='global'&&(c.books||[]).includes(b.id));return L.length?L.map(b=>`<button class="row" data-a="editBook" data-id="${b.id}"><span class="meta"><b>${esc(b.name)}</b><small>${b.entries.length} 条</small></span><i class="chev">›</i></button>`).join(''):'<p class="hint">还没有</p>'})()}</div>`;
-const isRP=c=>/角色扮演/.test(c?.persona||'');
 const loveBlock=(name,me)=>`【底色】${name}心里有${me.name}，不会真的离开TA。怎么表现全按人设：人设冷就冷，凶就凶，不用为了哄TA软下来。人设里另写了和${me.name}的关系，就听人设的。`;
 const sysFor=(c,extra)=>whoTag(sysFor0(c,extra),c?.id);
-const sysFor0=(c,extra)=>{const me=mask(c),k=extra.indexOf('\u0001'),lore=k<0?'':extra.slice(0,k)+'\n\n',rest=k<0?extra:extra.slice(k+1);return`${lore}你是${c.name}。\n${c.persona.replaceAll('{{user}}',me.name).replaceAll('{{char}}',c.name)}${(x=>x?'\n\n'+x:'')(exBlock(c,s=>String(s).replaceAll('{{user}}',me.name).replaceAll('{{char}}',c.name),1200))}\n${isRP(c)?'':loveBlock(c.name,me)+'\n\n'}${aboutMe(me)}\n\n${rest}`};
+const sysFor0=(c,extra)=>{const me=mask(c),k=extra.indexOf('\u0001'),lore=k<0?'':extra.slice(0,k)+'\n\n',rest=k<0?extra:extra.slice(k+1);return`${lore}你是${c.name}。\n${c.persona.replaceAll('{{user}}',me.name).replaceAll('{{char}}',c.name)}${(x=>x?'\n\n'+x:'')(exBlock(c,s=>String(s).replaceAll('{{user}}',me.name).replaceAll('{{char}}',c.name),1200))}\n${loveBlock(c.name,me)}\n\n${aboutMe(me)}\n\n${rest}`};
 async function charReply(p,c,toWhat,toId,toName){
   const me=mask(c),a=authorOf(p.author,p),who=toName||me.name;
   const thr=(p.replies||[]).slice(-10).map(r=>authorOf(r.author,r).name+'：'+r.text).join('\n');
