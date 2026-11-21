@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.64';</script>
+<script>window.BYJ_VER='2026.11.18.65';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1800,6 +1800,7 @@ async function charReply(p,c,toWhat,toId,toName){
   if(!(p.likes||[]).includes(c.id)&&p.author!==c.id&&Math.random()<.8)(p.likes||=[]).push(c.id);
   logEvent(c.id,`${c.name}在${p.author==='me'?me.name:p.author===c.id?'自己':a.name}的朋友圈下${toId?'回复'+who:'评论'}：${line}`);save();
 }
+const postGap=()=>(2+28*Math.random()**2)*864e5;
 async function charPost(c){
   const me=mask(c),t=S.threads.find(x=>x.type==='dm'&&x.chars[0]===c.id);
   const recent=t?t.msgs.slice(-12).map(m=>(m.from==='me'?me.name:c.name)+'：'+pv(m)).join('\n'):'';
@@ -1811,7 +1812,7 @@ async function charPost(c){
   for(const l of String(txt).split('\n')){let rest=l;for(const m of l.matchAll(/\[(?:图片|照片|图)[:：]\s*([^\]]+)\]/g)){pics.push({desc:m[1].trim()});rest=rest.replace(m[0],'')}rest=rest.trim();if(rest)lines.push(rest)}
   const text=lines.join('\n').replace(/^["“「]|["”」]$/g,'').trim().slice(0,300);
   if(!text&&!pics.length)throw new Error('TA没想好发什么，再试一次');
-  const p={id:uid(),author:c.id,text,pics:pics.slice(0,9),t:Date.now(),likes:[],replies:[]};S.feed.push(p);c.postAt=Date.now();logEvent(c.id,`${c.name}发了朋友圈：「${postDesc(p)}」`);save();
+  const p={id:uid(),author:c.id,text,pics:pics.slice(0,9),t:Date.now(),likes:[],replies:[]};S.feed.push(p);c.postAt=Date.now();c.postNext=c.postAt+postGap();logEvent(c.id,`${c.name}发了朋友圈：「${postDesc(p)}」`);save();
   if(imgAuto())p.pics.forEach(x=>{drawQ=drawQ.then(()=>drawPost(p,x))});
   buzzChar(p,c).catch(()=>{});
   return p}
@@ -2153,7 +2154,7 @@ function lifeTick(mins){const now=Date.now();{const d=new Date();ensureHolidays(
     sysMsg(t,m.from==='me'?`外卖送到${dn(c)}那里了`:`${dn(c)}给你点的外卖到了`);t.t=now;save();onThreadUpdate(t);
     if(m.from==='me'){if(!busy.has(t.id)&&!call)reply(t,'（你刚刚收到了'+mask(t).name+'给你点的外卖：'+m.content+'。）')}else{if(!viewing(t)){t.unread=(t.unread||0)+1}}}
   for(const t of S.threads){if(t.pending&&now>=t.pending&&!busy.has(t.id)&&!call){const g=now-(t.msgs.filter(m=>m.from==='me').slice(-1)[0]?.t||now);const why={sleep:`（你本来睡着了，被消息吵醒，过了${gapText(g)}才看到。）`,work:`（你刚才在上班或上课，过了${gapText(g)}才看到消息。）`}[t.pendWhy]||(g>90e3?`（你刚才在忙，过了${gapText(g)}才看到消息。）`:'');t.pending=0;t.pendWhy='';save();reply(t,why);return}}
-  if(api()?.key&&S.chat.autoPost!==false&&!document.hidden&&!postBusy){const c=S.chars.filter(reachable).find(c=>{const t=S.threads.find(x=>x.type==='dm'&&x.chars[0]===c.id),f=t?.msgs?.[0]?.t||now;return now-(c.postAt||0)>24*3600e3&&now-f>12*3600e3&&Math.random()<1-Math.pow(1-.002,mins)});
+  if(api()?.key&&S.chat.autoPost!==false&&!document.hidden&&!postBusy){const c=S.chars.filter(reachable).find(c=>{const t=S.threads.find(x=>x.type==='dm'&&x.chars[0]===c.id),f=t?.msgs?.[0]?.t||now;if(!c.postNext)c.postNext=(c.postAt||now)+postGap();return now>c.postNext&&now-f>12*3600e3});
     if(c){postBusy=true;c.postAt=now;charPost(c).then(()=>{if(onFeed())render(true)}).catch(()=>{}).finally(()=>postBusy=false)}}
   if(api()?.key&&!busy.size&&!call&&!document.hidden&&!peekBusy){const t=S.threads.find(t=>{const c=charById(t.chars[0]);return t.type==='dm'&&reachable(c)&&now-(c.peekAt||0)>12*3600e3&&now-t.t<2*864e5&&t.msgs.some(m=>m.from==='me')});
     if(t&&Math.random()<1-Math.pow(1-1/1440,mins)){autoPeek(t,charById(t.chars[0]),'sneak');return}}
