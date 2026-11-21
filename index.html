@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.123';</script>
+<script>window.BYJ_VER='2026.11.18.124';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1109,8 +1109,8 @@ async function keepWarm(){if(kaBusy||document.hidden)return;const now=Date.now()
   for(const[k,e]of KA){const th=thread(e.k),me=th?.msgs.filter(m=>m.from==='me').slice(-1)[0]?.t||0,a=now-e.t;
     if(!th||a>57*60e3||now-me>6*3600e3){KA.delete(k);continue}
     if(a<40*60e3||busy.has(th.id))continue;
-    kaBusy=1;try{const r=await fetch(e.u,{method:'POST',headers:e.hd,body:JSON.stringify({...e.b,max_tokens:0,stream:undefined})}),u=(await r.json()).usage||{},cr=+u.cache_read_input_tokens||0,cw=+u.cache_creation_input_tokens||0;
-      if(r.ok&&cr>0&&KA.get(k)===e){e.t=now;const c=CK.get(k);if(c)c.t=now;addTok('bg',(+u.input_tokens||0)+cr+cw,0,cr,cw)}else if(KA.get(k)===e)KA.delete(k)}catch(x){}finally{kaBusy=0}return}}
+    kaBusy=1;try{const r=await fetch(e.u,{method:'POST',headers:e.hd,body:JSON.stringify({...e.b,max_tokens:0,stream:undefined,...(e.h1?{}:{messages:e.b.messages.map(m=>Array.isArray(m.content)?{...m,content:m.content.map(({cache_control,...x})=>x)}:m)})})}),u=(await r.json()).usage||{},cr=+u.cache_read_input_tokens||0,cw=+u.cache_creation_input_tokens||0;
+      if(r.ok&&cr>0&&KA.get(k)===e){e.t=now;addTok('bg',(+u.input_tokens||0)+cr+cw,0,cr,cw)}else if(KA.get(k)===e)KA.delete(k)}catch(x){}finally{kaBusy=0}return}}
 async function callAI0(system,messages,o={}){
   let p=api(o.who||whoOf(system));if(!p)throw new Error('先在「设置 · 聊天」里添加一个模型');p={...p,provider:provOf(p)};
   const key=(p.key||'').trim(),model=(p.model||'').trim();const base=(p.base||'').trim().replace(/\/+$/,'');
@@ -1120,12 +1120,12 @@ async function callAI0(system,messages,o={}){
   const fx=p.fix?.model===model?p.fix:{},temp='temp' in fx?fx.temp:o.temp??num(p.temp),topP=fx.noTopP?null:num(p.topP),topK=fx.noTopK?null:num(p.topK),max=Math.min(o.max!=null?o.max+4096:(num(p.maxTokens)||2048),+fx.cap||Infinity);
   const ef0=(o.thoughts||o.cache===2&&/claude/i.test(model))&&EFFS.includes(p.effort)?p.effort:'',eff=fx.noEff?'':fx.eff&&EFFS.indexOf(ef0)>EFFS.indexOf(fx.eff)?fx.eff:ef0;
   const m=normalize(messages);let res,glm=null;
-  const ckK=(o.thoughts||o.cache)&&/claude/i.test(model)?(o.who||whoOf(system))+'|'+model+'|'+base:'',ckP=ckK?system+'\u0001'+m.slice(0,-1).map(x=>x.role+'\u0002'+x.content).join('\u0001'):'',cc={type:'ephemeral',...(p.cache==='5m'?{}:{ttl:'1h'})},ckT=cc.ttl?3500e3:290e3,t0=Date.now();let ka=null;
+  const ckK=(o.thoughts||o.cache)&&/claude/i.test(model)?(o.who||whoOf(system))+'|'+model+'|'+base:'',ckP=ckK?system+'\u0001'+m.slice(0,-1).map(x=>x.role+'\u0002'+x.content).join('\u0001'):'',cAuto=!['5m','1h'].includes(p.cache),ckPrev=CK.get(ckK)?.t,ccS={type:'ephemeral',...(p.cache==='1h'||cAuto?{ttl:'1h'}:{})},ccH={type:'ephemeral',...(p.cache==='1h'||cAuto&&(!ckPrev||Date.now()-ckPrev>4*60e3)?{ttl:'1h'}:{})},ckT=ccH.ttl?3500e3:290e3,t0=Date.now();let ka=null;
   const ctl=new AbortController(),tmo=setTimeout(()=>ctl.abort(),o.timeout||300000),sig=ctl.signal;
   try{
     if(p.provider==='openai'){
       const b={model,max_tokens:max,...(p.stream?{stream:true,stream_options:{include_usage:true}}:{}),...(isKimi(base)?{prompt_cache_options:{mode:'implicit',ttl:p.cache==='1h'?'1h':'5m'}}:{}),messages:[{role:'system',content:system},...m.map(x=>({role:x.role,content:x.imgs&&x.imgs.length?[{type:'text',text:x.content},...x.imgs.map(u=>({type:'image_url',image_url:{url:u}}))]:x.content}))]};if(temp!==null)b.temperature=temp;if(topP!==null)b.top_p=topP;if(topK!==null)b.top_k=topK;
-      if((o.thoughts||o.cache)&&/claude/i.test(model)){const h=b.messages.length>2?b.messages[b.messages.length-2]:null;b.messages[0].content=sysBlocks(system,cc);
+      if((o.thoughts||o.cache)&&/claude/i.test(model)){const cc=ccH,h=b.messages.length>2?b.messages[b.messages.length-2]:null;b.messages[0].content=sysBlocks(system,ccS);
         if(h){if(typeof h.content==='string')h.content=[{type:'text',text:h.content,cache_control:cc}];else h.content[h.content.length-1].cache_control=cc}}
       if(isMM(model))b.reasoning_effort=eff||'low';else if(eff)b.reasoning_effort=eff==='max'&&!/claude/i.test(model)?'xhigh':eff;
       if(isDS(p)&&!o.thoughts)b.thinking={type:'disabled'};
@@ -1147,11 +1147,11 @@ async function callAI0(system,messages,o={}){
       const b={model,system,max_tokens:cur?Math.max(max,16000):max,...(p.stream?{stream:true}:{}),...(fb?{fallbacks:'default'}:{}),messages:m.map(x=>({role:x.role,content:x.imgs&&x.imgs.length?[...x.imgs.map(u=>({type:'image',source:{type:'base64',media_type:u.slice(5,u.indexOf(';')),data:u.split(',')[1]}})),{type:'text',text:x.content||'（图片）'}]:x.content}))};
       const ad=cur||/claude-(opus|sonnet)-4-6/.test(model),old=!ad&&/claude-(3-7|(opus|sonnet|haiku)-4)/.test(model);
       if(eff&&(ad||/claude-opus-4-5/.test(model))){b.output_config={effort:(/claude-opus-4-5/.test(model)&&EFFS.indexOf(eff)>2)||(/claude-(opus|sonnet)-4-6/.test(model)&&eff==='xhigh')?'high':eff};if(/claude-(opus|sonnet)-4-[678]/.test(model))b.thinking={type:'adaptive'}}
-      if((o.thoughts||o.cache)&&/claude/i.test(model)){const h=b.messages[b.messages.length-2];b.system=sysBlocks(system,cc);
+      if((o.thoughts||o.cache)&&/claude/i.test(model)){const cc=ccH,h=b.messages[b.messages.length-2];b.system=sysBlocks(system,ccS);
         if(h){if(typeof h.content==='string')h.content=[{type:'text',text:h.content,cache_control:cc}];else h.content[h.content.length-1].cache_control=cc}}
       if(isMM(model))b.output_config={effort:eff||'low'};
       const u=base.replace(/\/v1$/,'')+'/v1/messages',hd={'content-type':'application/json',...antHdr(base,key),...(fb?{'anthropic-beta':'server-side-fallback-2026-07-01'}:{})};
-      if(ckK&&cc.ttl&&/api\.anthropic\.com/.test(base))ka={u,hd,b};
+      if(ckK&&ccS.ttl&&/api\.anthropic\.com/.test(base))ka={u,hd,b,h1:!!ccH.ttl};
       res=await fetch(u,{method:'POST',headers:hd,body:JSON.stringify(b),signal:sig});
     }
   }catch(e){if(e instanceof ReferenceError||e instanceof SyntaxError||e instanceof RangeError||(e instanceof TypeError&&/is not a function|is not defined|undefined|null|Cannot read|is not iterable/i.test(e.message)))throw new Error('小手机自己出错了：'+e.message);
@@ -1343,8 +1343,8 @@ function buildCtx(t,o={}){
       const lastBg=ph[ph.length-1];if(lastBg&&lastBg.type!=='narr'&&!curNarr.some(m=>m.from!=='me'))tail.push(`【刚见面】刚才在手机上聊，现在见面了，从手机上最后聊到的地方接着往下写。${old?'之前那次见面早就结束了，不接那时候的场景。':''}`);
       if(ph.length)ctxs.push((old?`【这次见面之前】（按先后排：之前的见面已经结束，后来在手机上聊，现在是新的一次见面。只是背景，别照这个格式写）\n`:`【见面前在手机上聊的】（只是背景，别照这个格式写）\n`)+ph.map(line).join('\n'))}
   }else{
-    rules.push(group?`【群聊】手机群聊，只发消息、不写动作旁白，每行「名字：内容」，不替${me.name}说话。谁开口、说多少、彼此怎么相处，各按人设和心情。颜文字、emoji 按人设想发就发。`
-      :`【聊天】手机上发消息，一行一个气泡，不写名字、不写动作旁白。说什么、怎么说、热不热情，按人设和你此刻对${me.name}的感觉。颜文字、emoji 按人设想发就发。人不在身边：想TA就直说，问TA在哪、在干嘛，发语音、拍照片、打电话，约见面。`);
+    rules.push(group?`【群聊】手机群聊，只发消息、不写动作旁白，每行「名字：内容」，不替${me.name}说话。谁开口、说多少、彼此怎么相处，各按人设和心情。emoji 按人设想发就发。`
+      :`【聊天】手机上发消息，一行一个气泡，不写名字、不写动作旁白。说什么、怎么说、热不热情，按人设和你此刻对${me.name}的感觉。emoji 按人设想发就发。人不在身边：想TA就直说，问TA在哪、在干嘛，发语音、拍照片、打电话，约见面。`);
     {const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal?.type==='narr')tail.push(`【刚分开】刚见过面，现在回到手机上。带着那时的情绪，只发消息，不写动作和长段。`)}
     rules.push(`【条数】一条一句话，${num(C.onLen)||10}字左右，平时${G('每人','')}发1到${num(C.onMax)||3}条，情绪上来最多${bubbleCap()}条。${C.casual!==false?'不打句号和逗号，停顿就换行。':''}`);
     const sp=['[图片:画面]','[语音:内容]'];
@@ -2609,7 +2609,7 @@ apiEdit(v){
     <label class="f">思考深度<select id="a-eff" data-s="api" data-k="effort">${[['','默认'],['low','低'],['medium','中'],['high','高'],['xhigh','超高'],['max','最高']].map(([k,l])=>`<option value="${k}" ${(p.effort||'')===k?'selected':''}>${l}</option>`).join('')}</select></label></div>
   <button class="tb" data-a="apiMore" style="align-self:center">${v.more?'收起':'更多'}</button>
   ${v.more?`<div class="panel"><h2>输出</h2><div class="seg">${[[false,'非流式'],[true,'流式']].map(([k,l])=>`<button class="${!!p.stream===k?'on':''}" data-a="setStream" data-v="${k?1:''}">${l}</button>`).join('')}</div></div>
-  ${isKimi(p.base)||/claude/i.test(p.model||'')?`<div class="panel"><h2>缓存时长</h2><div class="seg">${[['5m','5 分钟'],['1h','1 小时']].map(([k,l])=>`<button class="${(p.cache==='5m'?'5m':p.cache==='1h'||/claude/i.test(p.model||'')?'1h':'5m')===k?'on':''}" data-a="setCache" data-v="${k}">${l}</button>`).join('')}</div>
+  ${isKimi(p.base)||/claude/i.test(p.model||'')?`<div class="panel"><h2>缓存时长</h2><div class="seg">${[...(/claude/i.test(p.model||'')?[['auto','自动']]:[]),['5m','5 分钟'],['1h','1 小时']].map(([k,l])=>`<button class="${(['5m','1h'].includes(p.cache)?p.cache:/claude/i.test(p.model||'')?'auto':'5m')===k?'on':''}" data-a="setCache" data-v="${k}">${l}</button>`).join('')}</div>
     </div>`:''}
   <div class="panel"><h2>参数</h2>${/anthropic\.com/.test(p.base||'')&&/claude-(opus|sonnet|haiku|fable|mythos)-(5|4-[78])/.test(p.model||'')?'':`
     <label class="f">温度<span class="inline"><input type="range" id="a-temp" min="0" max="2" step="0.05" data-s="api" data-k="temp" value="${p.temp??1}"><output>${p.temp??1}</output></span></label>
