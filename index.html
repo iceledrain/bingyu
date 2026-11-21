@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.90';</script>
+<script>window.BYJ_VER='2026.11.18.91';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -216,7 +216,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .grp .sec{margin:4px 6px 0}
 .opt.red,.tb.red{color:var(--red)}
 .sec{font-size:12.5px;color:var(--muted);margin:6px 2px 0;letter-spacing:.04em}
-.order{width:fit-content;max-width:220px;border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:11px 13px;display:flex;flex-direction:column;gap:4px;text-align:left;color:var(--ink)}
+.order{width:220px;border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:11px 13px;display:flex;flex-direction:column;gap:4px;text-align:left;color:var(--ink)}
 .order small{font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:5px}
 .order small svg{width:14px;height:14px}
 .order b{font-size:15px;font-weight:600}
@@ -249,14 +249,16 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .tp-in{min-height:120px;border-radius:3px;background:linear-gradient(160deg,#e4e4e4,#f3f3f3 60%,#eaeaea);display:flex;flex-direction:column;justify-content:flex-end;gap:6px;padding:10px;font:13px/1.55 var(--display);color:#565656}
 .tp-in svg{width:18px;height:18px;opacity:.6}
 .tphoto small{font-size:10.5px;color:#a4a4a4;text-align:right}
-.msg .tphoto{width:fit-content;max-width:100%;padding:6px}.msg .tp-in{min-height:0;flex-direction:row;align-items:flex-start;justify-content:flex-start;padding:8px 10px}.msg .tp-in svg{flex:none;margin-top:1px}
-.voice{display:flex;flex-direction:column;gap:2px}
+.tp-f{display:flex;justify-content:space-between;align-items:center}
+.tp-f small{font-size:10.5px;color:#a4a4a4}
+.tp-f .tb{font-size:12px;padding:2px 4px;color:#747474}
+.voice{display:flex;flex-direction:column;gap:2px;min-width:96px}
 .vrow{display:flex;align-items:center;gap:8px}
 .vrow svg{width:22px;height:22px}
 .vrow b{font-weight:500;font-size:13px;font-variant-numeric:tabular-nums}
 .voice .vtx{display:none;font-size:13.5px;opacity:.85;border-top:1px dashed currentColor;padding-top:4px;margin-top:2px}
 .voice.open .vtx{display:block}
-.hb{width:fit-content;min-width:150px;max-width:216px;border:1px solid var(--line);border-radius:16px;padding:12px 14px 0;background:linear-gradient(135deg,#fff,var(--accent-soft));color:var(--ink);text-align:left;display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.hb{width:216px;border:1px solid var(--line);border-radius:16px;padding:12px 14px 0;background:linear-gradient(135deg,#fff,var(--accent-soft));color:var(--ink);text-align:left;display:flex;flex-wrap:wrap;align-items:center;gap:10px}
 .hb.tf{background:linear-gradient(135deg,var(--accent-soft),#e3e3e3)}
 .hb.got,.hb.back{opacity:.62}
 .hbi{width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center}
@@ -273,7 +275,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .callcard summary::-webkit-details-marker{display:none}
 .callcard summary svg{width:18px;height:18px}
 .callcard div{margin-top:6px;font-size:13px;white-space:pre-wrap;opacity:.85;border-top:1px dashed currentColor;padding-top:6px}
-.scard{display:flex;flex-direction:column;gap:3px;align-items:flex-start;text-align:left;width:fit-content;max-width:100%;background:var(--bub);border:1px solid rgba(255,255,255,.6);box-shadow:var(--lift);border-radius:16px;padding:10px 13px;color:inherit;font:inherit}
+.scard{display:flex;flex-direction:column;gap:3px;align-items:flex-start;text-align:left;width:100%;background:var(--bub);border:1px solid rgba(255,255,255,.6);box-shadow:var(--lift);border-radius:16px;padding:10px 13px;color:inherit;font:inherit}
 .scard small{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--muted)}
 .scard small svg{width:14px;height:14px;color:var(--deep)}
 .scard b{font:400 15px var(--display)}
@@ -1540,11 +1542,11 @@ function richBody(t,m,i,mine,c){const tap=`data-a="msg" data-i="${i}"`;
     case'img':return`<button class="pmsg" ${tap}><img ${picAttr(m.img)} alt="照片"></button>${m.content?`<button class="bub" ${tap}>${esc(m.content)}</button>`:''}`;
     case'pic':return m.img?`<button class="pmsg" ${tap}><img ${picAttr(m.img)} alt="${esc(m.content)}"${picBox(m)}></button><span class="pcap">${esc(m.content)}${drawing.has(m)?' · 重画中…':''}</span>`
       :drawing.has(m)?`<div class="pmsg pwait" style="${S.media.img.size==='tall'?'width:195px;height:260px':S.media.img.size==='wide'?'width:200px;height:150px':'width:200px;height:200px'}"><span class="dots"><i></i><i></i><i></i></span></div><span class="pcap">${esc(m.content)}</span>`
-      :`<div class="tphoto"><button class="tp-in" ${tap}>${ICONS.camera}<span>${esc(m.content)}</span></button></div>`;
+      :`<div class="tphoto"><button class="tp-in" ${tap}>${ICONS.camera}<span>${esc(m.content)}</span></button><span class="tp-f"><small>照片</small></span></div>`;
     case'loc':return`<button class="order loc" ${tap}><small>${ICONS.pin}位置 · ${mine?'我的位置':'TA的位置'}</small><b>${esc(m.content)}</b>${m.sub?`<span class="os">${esc(m.sub)}</span>`:''}</button>`;
     case'order':{const left=Math.max(1,Math.round((m.eta-Date.now())/60e3));return`<button class="order ${m.state==='done'?'done':''}" ${tap}><small>${ICONS.bowl}外卖 · ${mine?'送给TA':'TA给你点的'}</small><b>${esc(m.content)}</b><span class="os">¥${(+m.amt).toFixed(2)} · ${m.state==='done'?'已送达':'骑手在路上 · 约'+left+'分钟'}</span></button>`}
     case'parcel':return`<button class="order ${m.state==='done'?'done':''}" ${tap}><small>${ICONS.shop}网购 · ${mine?'寄给TA':'TA寄给你的'}</small><b>${esc(m.content)}</b><span class="os">¥${(+m.amt).toFixed(2)} · ${parcelStage(m)}</span></button>`;
-    case'voice':return`<button class="bub voice${m.open?' open':''}" data-a="voice" data-i="${i}" style="min-width:${Math.min(200,Math.round(52+19*Math.sqrt(m.dur||voiceDur(m.content))))}px"><span class="vrow">${ICONS.wave}<b>${m.dur||voiceDur(m.content)}″</b></span><span class="vtx">${esc(m.content)}</span></button>`;
+    case'voice':return`<button class="bub voice${m.open?' open':''}" data-a="voice" data-i="${i}"><span class="vrow">${ICONS.wave}<b>${m.dur||voiceDur(m.content)}″</b></span><span class="vtx">${esc(m.content)}</span></button>`;
     case'hb':case'tf':{const hb=m.type==='hb',st=m.state||'new';
       return`<button class="hb ${hb?'':'tf'} ${st}" data-a="money" data-i="${i}"><span class="hbi">${hb?ICONS.gift:ICONS.yen}</span><span class="hbt"><b>${hb?esc(m.content||'恭喜发财'):'¥'+(+m.amt).toFixed(2)}</b><small>${st==='got'?(mine?'对方已收下':'已收下'):st==='back'?'已退回':mine?'等TA收':(hb?'点开领取':'点开收款')}${!hb&&m.content?' · '+esc(m.content):''}</small></span><span class="hbf">${hb?'红包':'转账'}</span></button>`}
     case'call':return`<details class="callcard"><summary>${m.kind==='video'?ICONS.video:ICONS.phone}<span>${m.kind==='video'?'视频':'语音'}通话 ${fmt(m.dur||0)}</span></summary><div>${esc(m.content||'（没说什么）')}</div></details>`;
