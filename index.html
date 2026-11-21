@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.79';</script>
+<script>window.BYJ_VER='2026.11.18.80';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1338,7 +1338,7 @@ function buildCtx(t,o={}){
     ctxs.push(`【上次见面】（${md.getMonth()+1}月${md.getDate()}日 ${pad(md.getHours())}:${pad(md.getMinutes())}，已结束）\n${txt.length>3000?'…'+txt.slice(-3000):txt}`)}
   {const ms=t.msgs.filter(m=>m.type!=='sys'),g=ms.length>1?ms[ms.length-1].t-ms[ms.length-2].t:0;
     let j=ms.length-1;while(j>0&&ms[j].from==='me')j--;const dd=ms[j]?dayDiff(ms[j].t):0;
-    tail.push('【现在】'+nowText()+(ms.length>1?(g<60e3?'，上一条是刚刚发的':`，距上一条${gapText(g)}`)+'。说好去做的事要花时间，没过够时间别问做完没；按现在的钟点说话':'')+(dd>0?(Date.now()-ms[j].t<4*3600e3?`\n刚过零点，日期变成${dayLabel(Date.now())}了。你们一直在聊没断过，接着刚才的话说，不重新打招呼。`:`\n上次聊是${dayWord(dd)}（${dayLabel(ms[j].t)}），已经是新的一天。记录里的「今天」「明天」是按那天说的；现在的今天是${dayLabel(Date.now())}。`):''));
+    tail.push('【现在】'+nowText()+(ms.length>1?(g<60e3?'，上一条是刚刚发的':`，距上一条${gapText(g)}`)+'。说好去做的事要花时间，没过够时间别问做完没。日子有规律：工作日白天忙、周末和放假松一点，吃饭睡觉按平常的钟点':'')+(dd>0?(Date.now()-ms[j].t<4*3600e3?`\n刚过零点，日期变成${dayLabel(Date.now())}了。你们一直在聊没断过，接着刚才的话说，不重新打招呼。`:`\n上次聊是${dayWord(dd)}（${dayLabel(ms[j].t)}），已经是新的一天。记录里的「今天」「明天」是按那天说的；现在的今天是${dayLabel(Date.now())}。`):''));
     const wd=worldFor(chars);if(wd)tail.push(wd);
     const d0=new Date().setHours(0,0,0,0);if(myDays(me).some(x=>x.in===0&&chars.some(c=>c.id===x.who))&&t.msgs.some(m=>m.from==='me'&&m.t>=d0&&/生日快乐|happy birthday/i.test(m.content||'')))tail.push(`【生日】${me.name}今天说过生日快乐了。`);
     if(!group&&chars[0]){const c=chars[0],gone=saidGone(c,t);
