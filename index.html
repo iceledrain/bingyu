@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.128';</script>
+<script>window.BYJ_VER='2026.11.18.129';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -690,7 +690,7 @@ const INNER_OLD7='一个软萌的颜文字（生气也是鼓着脸那种）加�
 const INNER_OLD8='一个软萌的颜文字加半句没说出口的真心话，带点小情绪，可以和嘴上相反，15字内。';
 const INNER_OLD9='{{char}}此刻没说出口的真心话。',INNER_OLD10='一句没说出口的真心话，带点小情绪，可以和嘴上相反，15字内，不用颜文字。',INNER_DEF='一句没说出口的真心话，带点小情绪，可以和嘴上相反，15字内，纯文字。';
 const OFF_STYLE_OLD='细腻，有画面感',OFF_STYLE_DEF='清爽干净';
-const THINK_OLD13='一句话，{{char}}脑子里是怎么想的：{{user}}这句是什么意思、想要什么，{{char}}决定怎么回。用{{char}}自己的口气，口语，25字内。',THINK_OLD14='只写关键：{{user}}要什么，{{char}}怎么回。{{char}}自己的口气，能几个字说完就几个字，最多一句，15字内。不铺垫，不复述，不解释。',THINK_OLD15='一句话，{{char}}自己的口气：{{user}}这句要什么，{{char}}打算怎么回。30字内，不复述，不解释。',THINK_OLD16='用{{char}}自己的口气，写此刻心里真实的想法和打算。',THINK_OLD17='用{{char}}的口气写一句：{{user}}要什么，{{char}}怎么回，30字内。',THINK_DEF='用「我」写一句心里想的：TA要什么，我怎么回，30字内，不叫名字。';
+const THINK_OLD13='一句话，{{char}}脑子里是怎么想的：{{user}}这句是什么意思、想要什么，{{char}}决定怎么回。用{{char}}自己的口气，口语，25字内。',THINK_OLD14='只写关键：{{user}}要什么，{{char}}怎么回。{{char}}自己的口气，能几个字说完就几个字，最多一句，15字内。不铺垫，不复述，不解释。',THINK_OLD15='一句话，{{char}}自己的口气：{{user}}这句要什么，{{char}}打算怎么回。30字内，不复述，不解释。',THINK_OLD16='用{{char}}自己的口气，写此刻心里真实的想法和打算。',THINK_OLD17='用{{char}}的口气写一句：{{user}}要什么，{{char}}怎么回，30字内。',THINK_OLD18='用「我」写一句心里想的：TA要什么，我怎么回，30字内，不叫名字。',THINK_DEF='用「我」写看到消息那一下心里真实冒出来的念头，像人脑子里自言自语，30字内，不叫名字。';
 const CHAT_DEF=()=>({lean:true,onMax:3,onLen:10,casual:true,ctx:40,sumEvery:30,inner:true,innerOpen:false,innerName:'心声',innerStyle:INNER_DEF,think:true,thinkName:'思维链',thinkStyle:THINK_DEF,effort:'',scan:8});
 const PERSONA_TPL='姓名：\n年龄：\n性别：\n身份/职业：\n外貌：\n性格：\n说话方式：\n喜欢：\n讨厌：\n背景经历：\n和{{user}}的关系：';
 const API_BLANK=id=>({id,name:'接口',key:'',base:'',model:'',temp:1,topP:null,topK:null,maxTokens:32000,stream:true});
@@ -736,7 +736,7 @@ function mergeState(d){
   s.presets.forEach(p=>(p.items||[]).forEach(i=>{if(i.content===LANG_OLD)i.content=LANG_DEF}));
   {const seen=new Set();(s.chars||[]).forEach(c=>{c.books=(c.books||[]).filter(id=>{const b=(s.books||[]).find(x=>x.id===id);if(!b||b.scope==='global'||seen.has(id))return false;seen.add(id);return true})})}
   delete s.chat.thinkSrc;delete s.chat.deep;for(const k of['casual','love','chase','away','autoPost'])delete s.chat[k];delete s.chat.web;delete s.look.shell;delete s.look.night;delete s.look.hide;s.chat.effort='';s.chat.think=true;s.chat.inner=true;
-  if([THINK_OLD13,THINK_OLD14,THINK_OLD15,THINK_OLD16,THINK_OLD17].includes(s.chat.thinkStyle))s.chat.thinkStyle=THINK_DEF;
+  if([THINK_OLD13,THINK_OLD14,THINK_OLD15,THINK_OLD16,THINK_OLD17,THINK_OLD18].includes(s.chat.thinkStyle))s.chat.thinkStyle=THINK_DEF;
   if(!s.presetV){const old=new Set([OLD_MAIN,ONLINE_OLD,ONLINE_DEF,OFFLINE_OLD,OFFLINE_DEF]);
     s.presets.forEach(p=>{const n=(p.items||[]).length;p.items=(p.items||[]).filter(i=>!old.has(i.content));if(p.items.length<n)BASE_ITEMS().slice(1).forEach(x=>p.items.push(x))});s.presetV=2}
   if(!s.catchV){s.catchV=1;s.presets.forEach(p=>{if(p.core===1&&!(p.items||[]).some(i=>i.name==='接住'||i.name==='记得')){const k=p.items.findIndex(i=>i.name==='怎么演');p.items.splice(k<0?p.items.length:k,0,SYS_ITEM('记得',CATCH_DEF))}})}
@@ -1345,7 +1345,8 @@ function buildCtx(t,o={}){
   }else{
     rules.push(group?`【群聊】手机群聊，每行「名字：内容」，内容就是发出去的那句话本身，只写${cname}发的。谁开口、说多少、彼此怎么相处，各按人设和心情。emoji 按人设想发就发。`
       :`【聊天】手机上发消息，一行一个气泡，每行就是发出去的那句话本身。说什么、怎么说、热不热情，按人设和你此刻对${me.name}的感觉。emoji 按人设想发就发。人不在身边：想TA就直说，问TA在哪、在干嘛，发语音、拍照片、打电话，约见面。`);
-    rules.push(`【像真人】像真人一样说话、想事情，有自己的反应和小动作；动作单独一行用（）写。`);
+    if(!group&&chars[0]){rules.push(`【此刻】你是在过自己日子的真人，这会儿在某个地方做着某件事。正在做的事影响你回得快慢、长短、说什么，也会顺口提。时间往前走，事情会做完、换下一件。`);
+      const n=chars[0].now;if(n&&n.x)tail.push(`【你刚才】${n.x}（${gapText(Date.now()-n.t)}前）`)}
     {const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal?.type==='narr')tail.push(`【刚分开】刚见过面，现在回到手机上。带着那时的情绪，只发消息，不写长段。`)}
     rules.push(`【条数】一条一句话，${num(C.onLen)||10}字左右，平时${G('每人','')}发1到${num(C.onMax)||3}条，情绪上来最多${bubbleCap()}条。${C.casual!==false?'停顿就换行，句尾留空。':''}`);
     const sp=['[图片:画面]','[语音:内容]'];
@@ -1385,7 +1386,7 @@ function buildCtx(t,o={}){
       .forEach(({i,d},k)=>msgs.splice(Math.max(pre.length,end-d)+k,0,{role:i.role==='assistant'?'assistant':'user',content:mac(i.content)}))}
   if(mode!=='call')tail.push(`${chars.some(c=>String(c.persona||'').trim())?`【人设】照【${cname}】的人设说话做事。`:'【人设】'}和${me.name}之间没发生过的事不编。`);
   {const L=chars.filter(langOf);if(L.length)tail.push(`【语言】${L.map(c=>`${c.name}开口只说${langOf(c)}`).join('，')}。发的消息、[语音:…] 冒号后的话、通话、「」里的台词都这样，${me.name}说中文也不改口。[语音]、[图片]、[挂断] 这类标签名照原样，${group?'行首名字、':''}图片描述、旁白画面、<think>、<inner>、<tide> 还写中文。`)}
-  if(mode==='online'&&(C.think||C.inner))tail.push(`【这次回复】照【回复格式】写全：${C.think?'<think>…</think>、':''}<reply>…</reply>${C.inner?'、<inner>…</inner>':''}、<tide>…</tide>，一样都不能少。`);
+  if(mode==='online'&&(C.think||C.inner))tail.push(`【这次回复】照【回复格式】写全：${C.think?'<think>…</think>、':''}<reply>…</reply>${C.inner?'、<inner>…</inner>':''}${group?'':'、<now>…</now>'}、<tide>…</tide>，一样都不能少。`);
   if(tail.length){let k=msgs.length;while(k>0&&msgs[k-1].role==='user'&&k>pre.length)k--;const last=k<msgs.length;
     msgs.splice(k,0,{role:'user',content:`（此刻的情况，系统告诉你的，不是${me.name}发的消息）\n`+tail.join('\n\n')+(last?`\n\n（下面是${me.name}${mode==='online'?'刚发的，主要回这几条；前面的已经回过了，不用再回':'发的'}）`:'')})}
   if(mode==='offline'){const w=num(off.words)||500,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字；不替${me.name}写话和心理；不写成手机消息${(off.upov||'second')==='second'?`；叙述里称呼${me.name}只用「你」`:''}${(l=>l.length?`；${l.join('和')}别漏`:'')([C.think&&'开头的 <think>',C.inner&&(group?'结尾的 <inner>（每人一行）':'结尾的 <inner>')].filter(Boolean))}）`,last=msgs[msgs.length-1];
@@ -1393,7 +1394,7 @@ function buildCtx(t,o={}){
   const end=[];
   if(C.think)end.push(`【思考】先在 <think>…</think> 里${mac(C.thinkStyle||THINK_DEF)}${group?'每人一行，「名字：」开头。':''}`);
   const tw=C.think,iw=!!C.inner;
-  if(mode!=='offline')end.push(`【回复格式】${tw?'先写 <think>…</think>，再':''}把发给${me.name}的话全写进 <reply>…</reply>，一行一条，${iw?'<inner> 和 ':''}<tide> 写在后面。<reply> 外的字不会发出去，每次都写全。\n例：${tw?'<think>…</think>\n':''}<reply>\n第一条\n第二条\n</reply>${iw?'\n<inner>…</inner>':''}\n<tide>…</tide>`);
+  if(mode!=='offline')end.push(`【回复格式】${tw?'先写 <think>…</think>，再':''}把发给${me.name}的话全写进 <reply>…</reply>，一行一条，${iw?'<inner>、':''}${group?'':'<now>、'}<tide> 写在后面${group?'':'，<now> 里一句写你此刻在哪、在干嘛'}。<reply> 外的字不会发出去，每次都写全。\n例：${tw?'<think>…</think>\n':''}<reply>\n第一条\n第二条\n</reply>${iw?'\n<inner>…</inner>':''}${group?'':'\n<now>…</now>'}\n<tide>…</tide>`);
   else if(tw||iw)end.push(`【别漏】每次都按这个顺序写全：${tw?'第一行 <think>…</think>，然后':''}正文${iw?'，正文后另起一行 <inner>…</inner>':''}。\n例：${tw?'<think>…</think>\n':''}正文……${iw?'\n<inner>…</inner>':''}`);
   const s0=[...pr,...lore,...who].join('\n\n'),s1=[s0,`【下面只管格式】性格、语气都按上面的人设来，和下面的规则冲突时听人设的。`,...rules,...end].join('\n\n'),sys=ctxs.length?s1+'\n\n'+ctxs.join('\n\n'):s1;
   SYSCUT.set(sys,[s0.length,s1.length]);if(SYSCUT.size>60)SYSCUT.delete(SYSCUT.keys().next().value);
@@ -1439,7 +1440,8 @@ function stripPlan(out,thinkOn){const me=mask().name,lines=out.split('\n'),cut=[
   const rest=lines.join('\n').trim();return rest?{out:rest,plan:cut.join('\n')}:{out,plan:''}}
 function brief(x){x=String(x||'').trim();if(!x)return'';const ss=(x.match(/[^。！？!?…~～\n]+[。！？!?…~～]*/g)||[]).map(z=>z.trim()).filter(Boolean);let o=ss[0]||'';for(let i=1;i<ss.length&&[...o+ss[i]].length<=60;i++)o+=ss[i];if([...o].length>80){const h=[...o].slice(0,80).join(''),k=Math.max(...[...'，,、；;：:'].map(c=>h.lastIndexOf(c)));o=k>20?h.slice(0,k):h}return o}
 function extractExtras(out,chat=true,group=false,keep=false){
-  let think='',inner=[];
+  let think='',inner=[],now='';
+  out=out.replace(/<now>([\s\S]*?)<\/now>/gi,(_,x)=>{now=x.trim();return''});
   out=out.replace(/<\/t>/gi,'</think>');
   if(/<think>/i.test(out)&&!/<\/think>/i.test(out))out=out.replace(/<think>([^\n<]*)(<\/reply>|<reply>|\n|$)/i,(m,x,e)=>'<think>'+x+'</think>'+(e.toLowerCase()==='</reply>'?'\n<reply>':e));
   out=out.replace(new RegExp(`<(${THINK_TAG})>([\\s\\S]*?)<\\/\\1>`,'gi'),(_,t,x)=>{think+=x.trim()+'\n';return''});
@@ -1466,7 +1468,7 @@ function extractExtras(out,chat=true,group=false,keep=false){
   out=out.replace(/\[(拉黑|解除拉黑|删除好友|沉默|收下|退回|语音通话|视频通话|拒接|挂断|查手机)\]/g,(_,x)=>{acts.push(x);return''});
   think=think.replace(/<\/?[a-z]{1,8}>/gi,' ').trim();
   think=group?think.split('\n').map(l=>{const m=l.trim().match(/^([^:：\n]{1,30})[:：]\s*(.*)$/);return m?(x=>x?m[1].trim()+'：'+x:'')(brief(m[2])):brief(l)}).filter(Boolean).slice(0,8).join('\n'):brief(think);
-  return{text:out.trim(),think:think.trim(),inner,tide,acts,prof,cards,fmt};
+  return{text:out.trim(),think:think.trim(),inner,tide,acts,prof,cards,fmt,now};
 }
 async function sortLeak(ex,ctx){const lines=ex.text.split('\n').map(l=>l.trim()).filter(Boolean),mark=l=>/^\[[^\]]+\]$/.test(l);
   if(lines.filter(l=>!mark(l)).length<2)return;
@@ -1517,6 +1519,7 @@ function attachExtras(parts,ex,ctx){
     if(one)add(parts[0],'inner',x.c?x.c.name+'：'+tx:tx);else add(x.c?[...parts].reverse().find(p=>p.from===x.c.id):parts[parts.length-1],'inner',tx)}
 }
 function applyTide(ctx,ex){
+  if(ex.now&&!ctx.group&&ctx.chars[0])ctx.chars[0].now={x:ex.now.replace(/\s+/g,' ').slice(0,40),t:Date.now()};
   for(const x of ex.tide||[]){const m=x.match(/^(?:([^:：|｜]{1,30})[:：])?\s*(-?\d{1,3})\s*(?:[|｜/]\s*(.+))?$/);if(!m)continue;
     const c=m[1]?ctx.chars.find(c=>c.name===m[1].trim()||c.remark===m[1].trim()):ctx.chars[0];if(!c)continue;
     {const was=tideOf(c),want=Math.max(-50,Math.min(100,+m[2]));c.tide=Math.max(was-12,Math.min(was+12,want))}if(m[3]&&/[一-鿿A-Za-z]/.test(m[3]))c.mood=softMood(m[3].trim().slice(0,12),c.tide);(c.tideLog||=[]).push({t:Date.now(),v:c.tide});if(c.tideLog.length>40)c.tideLog.splice(0,c.tideLog.length-40)}
@@ -2354,7 +2357,7 @@ chat(v){
   else if(r.theyDeleted)foot=blk()+`<input type="text" id="reqIn" placeholder="验证消息" aria-label="朋友验证"><button class="btn" data-a="friendReq">申请加回</button>`;
   else if(r.theyBlocked)foot=blk()+foot;
   if(v.quote&&!r.youBlocked&&!r.theyDeleted){footCls='wrap';foot=`<div class="qbar"><span>↪ ${esc(v.quote.who)}：${esc(v.quote.text)}</span><button data-a="qUnq" aria-label="取消引用">×</button></div>`+foot}
-  const sub=t.type==='group'?(t.chars.length+1)+' 人':(c0?.mood?softMood(c0.mood,tideOf(c0)):'在线');
+  const sub=t.type==='group'?(t.chars.length+1)+' 人':(c0?.now&&Date.now()-c0.now.t<3*3600e3?c0.now.x:c0?.mood?softMood(c0.mood,tideOf(c0)):'在线');
   return{title:threadTitle(t),sub,cls:'chat',footCls,
     right:HEART+`<button class="tb" data-a="chatMenu" aria-label="聊天设置">···</button>`,
     body:msgsHTML(t),foot,
@@ -2795,7 +2798,7 @@ const A={
   openGroupEdit(){closeSheet();go({v:'groupEdit',id:cur().id})},
   openCharFromChat(){const t=thread(cur().id);closeSheet();go({v:'charEdit',id:t.chars[0]})},
   presetSet(el){S.activePreset=el.dataset.id;save();closeSheet();toast('预设：'+preset().name)},
-  delThread(el){confirmTap(el,()=>{const id=cur().id,t=thread(id);forgetChat(t);if(t&&t.type==='dm'){const c=charById(t.chars[0]);if(c){delete c.mood;delete c.tide;delete c.tideLog}}S.threads=S.threads.filter(t=>t.id!==id);save();closeSheet();back()})},
+  delThread(el){confirmTap(el,()=>{const id=cur().id,t=thread(id);forgetChat(t);if(t&&t.type==='dm'){const c=charById(t.chars[0]);if(c){delete c.mood;delete c.tide;delete c.tideLog;delete c.now}}S.threads=S.threads.filter(t=>t.id!==id);save();closeSheet();back()})},
   async myPost(){const tx=$('#postIn').value.trim(),pics=postDraft.pics.slice(0,9);if(!tx&&!pics.length){toast('写点什么，或者加张照片');return}
     const p={id:uid(),author:'me',text:tx,pics:pics.map(img=>({img})),t:Date.now(),likes:[],replies:[]};S.feed.push(p);postDraft.pics=[];postDraft.text='';
     logEvent(null,`${mask().name}发了朋友圈：「${postDesc(p)}」`);save();if(cur()?.v==='moNew')back();else render();
