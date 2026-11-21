@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.96';</script>
+<script>window.BYJ_VER='2026.11.18.97';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1298,10 +1298,8 @@ function buildCtx(t,o={}){
     const d0=new Date().setHours(0,0,0,0);if(myDays(me).some(x=>x.in===0&&chars.some(c=>c.id===x.who))&&t.msgs.some(m=>m.from==='me'&&m.t>=d0&&/生日快乐|happy birthday/i.test(m.content||'')))tail.push(`【生日】${me.name}今天说过生日快乐了。`);
     if(!group&&chars[0]){const c=chars[0],gone=saidGone(c,t);
       if(gone.length)tail.push(`【已经说过的】这些话${c.name}之前对${me.name}说过了（记录已经不在）。不再说差不多的内容，不换个说法重讲同一件事，讲别的。\n`+gone.slice(-16).map(x=>'· '+x.s).join('\n'))}}
-  if(!t.elCut)t.elCut=Date.now();let elNew=[...new Set(chars.flatMap(c=>elsewhere(c,t.id,t.elCut)))];if(elNew.length>=10){t.elCut=Date.now();elNew=[]}
-  const el=[...new Set(chars.flatMap(c=>elsewhere(c,t.id,0,t.elCut)))];const others=group?[]:[...new Set(S.threads.filter(x=>x.type==='group'&&chars[0]&&x.chars.includes(chars[0].id)).flatMap(x=>x.chars).filter(id=>id!==chars[0].id).map(id=>charById(id)?.name).filter(Boolean))];
-  if(el.length)ctxs.splice(sumBlock(t)?1:0,0,'【最近别处的事】'+(others.length?'（群里的事只当你知道，不在这里接着说）':'')+'\n'+el.join('\n'));
-  if(elNew.length)tail.push('【刚刚别处的事】'+(others.length?'（群里的事只当你知道，不在这里接着说）':'')+'\n'+elNew.join('\n'));
+  const el=[...new Set(chars.flatMap(c=>elsewhere(c,t.id)))];const others=group?[]:[...new Set(S.threads.filter(x=>x.type==='group'&&chars[0]&&x.chars.includes(chars[0].id)).flatMap(x=>x.chars).filter(id=>id!==chars[0].id).map(id=>charById(id)?.name).filter(Boolean))];
+  if(el.length)tail.push('【最近别处的事】'+(others.length?'（群里的事只当你知道，不在这里接着说）':'')+'\n'+el.join('\n'));
   if(others.length)tail.push(mode==='offline'?`【只有两个人】只有${cname}和${me.name}在。${others.join('、')}不在场，除非${me.name}写了他们来；可以提起，不写他们的动作和台词。`:`【这是私聊】只有${cname}和${me.name}两个人，${others.join('、')}看不到这里。可以聊起他们，不对他们说话、不喊他们。`);
   {const kn=chars.map(x=>{const o=S.chars.filter(c=>visible(c)&&!chars.some(y=>y.id===c.id||y.name===c.name)&&knows(x,c)).map(c=>c.name).slice(0,8);return o.length?`${x.name}认识${o.join('、')}`:''}).filter(Boolean);
     if(kn.length)ctxs.push(`【认识的人】${kn.join('；')}。关系按人设和世界书，没提到的人不认识。`)}
