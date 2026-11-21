@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.125';</script>
+<script>window.BYJ_VER='2026.11.18.126';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2794,7 +2794,7 @@ const A={
   openGroupEdit(){closeSheet();go({v:'groupEdit',id:cur().id})},
   openCharFromChat(){const t=thread(cur().id);closeSheet();go({v:'charEdit',id:t.chars[0]})},
   presetSet(el){S.activePreset=el.dataset.id;save();closeSheet();toast('预设：'+preset().name)},
-  delThread(el){confirmTap(el,()=>{const id=cur().id;forgetChat(thread(id));S.threads=S.threads.filter(t=>t.id!==id);save();closeSheet();back()})},
+  delThread(el){confirmTap(el,()=>{const id=cur().id,t=thread(id);forgetChat(t);if(t&&t.type==='dm'){const c=charById(t.chars[0]);if(c){delete c.mood;delete c.tide;delete c.tideLog}}S.threads=S.threads.filter(t=>t.id!==id);save();closeSheet();back()})},
   async myPost(){const tx=$('#postIn').value.trim(),pics=postDraft.pics.slice(0,9);if(!tx&&!pics.length){toast('写点什么，或者加张照片');return}
     const p={id:uid(),author:'me',text:tx,pics:pics.map(img=>({img})),t:Date.now(),likes:[],replies:[]};S.feed.push(p);postDraft.pics=[];postDraft.text='';
     logEvent(null,`${mask().name}发了朋友圈：「${postDesc(p)}」`);save();if(cur()?.v==='moNew')back();else render();
