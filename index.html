@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.163';</script>
+<script>window.BYJ_VER='2026.11.18.164';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1116,7 +1116,7 @@ async function callAI1(system,messages,o={}){let hid=document.hidden;const vh=()
 const CK=new Map();let ckN=0;
 function cacheChk(k,pre,cr,cw,ttl){if(!k)return;const a=CK.get(k);CK.set(k,{pre,t:Date.now(),ok:cr+cw>0});if(!a||!a.ok||Date.now()-a.t>ttl||cr>0||ckN>=3)return;ckN++;
   if(pre.startsWith(a.pre))toast('缓存没读到：发的和上次一样，是站子没认',7000);
-  else{let i=0;while(i<a.pre.length&&a.pre[i]===pre[i])i++;toast('缓存没读到：前面变了「'+pre.slice(Math.max(0,i-14),i+26).replace(/[\s\u0001\u0002]+/g,' ')+'」',10000)}}
+  else{let i=0;while(i<a.pre.length&&a.pre[i]===pre[i])i++;if([pre,a.pre].some(x=>/^【(前情|一起经历的大事|答应了还没做的|心愿)】/.test(x.slice(x.lastIndexOf('【',i)))))return;toast('缓存没读到：前面变了「'+pre.slice(Math.max(0,i-14),i+26).replace(/[\s\u0001\u0002]+/g,' ')+'」',10000)}}
 const KA=new Map();let kaBusy=0;
 async function keepWarm(){if(kaBusy||document.hidden)return;const now=Date.now();
   for(const[k,e]of KA){const th=thread(e.k),me=th?.msgs.filter(m=>m.from==='me').slice(-1)[0]?.t||0,a=now-e.t;
