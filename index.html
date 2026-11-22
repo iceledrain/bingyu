@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.161';</script>
+<script>window.BYJ_VER='2026.11.18.162';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1243,9 +1243,10 @@ function bodyText(m){switch(m.type){
   case'narr':return'[线下] '+m.content;
   default:return(m.q?`[引用 ${m.q.who}：${m.q.text}] `:'')+m.content}}
 const pv=m=>m.recalled?'撤回了一条消息':m.type==='share'?'[分享] '+m.title:({loc:'[位置] '+m.content,order:'[外卖] '+m.content,parcel:'[快递] '+m.content,sticker:'[表情]',roll:m.k==='rps'?'[猜拳]':'[骰子]',img:'[照片]',pic:'[图片] '+m.content,voice:'[语音] '+m.content,hb:'[红包]',tf:'[转账] ¥'+m.amt,call:'['+(m.kind==='video'?'视频':'语音')+'通话]',narr:'[线下] '+m.content}[m.type]??m.content);
-function msgText(m,group){
+const sysAI=(x,me)=>{const u=!me||me==='user'?'用户':me;let s=String(x||'');for(const c of S.chars)if(c.remark&&c.name&&c.remark!==c.name)s=s.split(c.remark).join(c.name);return s.split(/(「[^」]*」)/).map((p,i)=>i%2?p:p.replace(/你/g,u)).join('')};
+function msgText(m,group,me){
   if(m.recalled)return`（${m.from==='me'?mask().name:charById(m.from)?.name||'TA'}撤回了一条消息，你没看清写的是什么）`;
-  if(m.type==='sys')return m.ai?`（${m.ai}）`:`（系统：${m.content}${m.letter?`：「${m.letter}」`:''}）`;
+  if(m.type==='sys')return m.ai?`（${m.ai}）`:`（系统：${sysAI(m.content,me)}${m.letter?`：「${m.letter}」`:''}）`;
   const body=bodyText(m);
   if(m.from==='me')return m.rejected?`[被拒收] ${body}`:body;
   return group?`${charById(m.from)?.name||'?'}：${body}`:body;
@@ -1353,7 +1354,7 @@ function buildCtx(t,o={}){
     {const phAll=t.msgs.filter((m,i)=>!m.recalled&&!isMark(m)&&(m.type!=='narr'||i<=curAt));let ph=phAll.filter(m=>hist.includes(m));if(ph.length<30)ph=phAll.slice(-30);
       const old=ph.some(m=>m.type==='narr'),who1=m=>m.from==='me'?me.name:charById(m.from)?.name||'?';let seg='';
       const line=m=>{const k=m.type==='narr'?'之前见面时，已经结束':'手机上',h=old&&k!==seg?`（—— ${k} ——）\n`:'';seg=k;return h+(m.type==='narr'?who1(m)+'：'+wholeText(m.content,800):line1(m))};
-      const line1=m=>m.type==='sys'?`（${m.content}）`:(m.from==='me'?me.name:charById(m.from)?.name||'?')+'：'+(m.type==='call'?`[${m.kind==='video'?'视频':'语音'}通话] ${String(m.content||'').replace(/\n/g,' / ')}`:pv(m));
+      const line1=m=>m.type==='sys'?`（${sysAI(m.content,me.name)}）`:(m.from==='me'?me.name:charById(m.from)?.name||'?')+'：'+(m.type==='call'?`[${m.kind==='video'?'视频':'语音'}通话] ${String(m.content||'').replace(/\n/g,' / ')}`:pv(m));
       const lastBg=ph[ph.length-1];if(lastBg&&lastBg.type!=='narr'&&!curNarr.some(m=>m.from!=='me'))tail.push(`【刚见面】刚才在手机上聊，现在见面了，从手机上最后聊到的地方接着往下写。${old?'之前那次见面早就结束了，不接那时候的场景。':''}`);
       if(ph.length)ctxs.push((old?`【这次见面之前】（按先后排：之前的见面已经结束，后来在手机上聊，现在是新的一次见面。只是背景，别照这个格式写）\n`:`【见面前在手机上聊的】（只是背景，别照这个格式写）\n`)+ph.map(line).join('\n'))}
   }else{
@@ -1394,7 +1395,7 @@ function buildCtx(t,o={}){
     if(mode==='offline'){if(m.type==='narr'&&histStart+i>curAt)rows.push({role:m.from==='me'?'user':'assistant',content:m.content});return}
     if(m.type==='narr'){if(!run){run={role:'user',content:'（下面是你们见面时的经过，已经结束了，只是记忆）'};rows.push(run)}run.content+='\n'+nameOf(m)+'：'+(lastMeet.includes(m)?wholeText(m.content,4000):wholeText(m.content,800));return}
     if(!isMark(m))run=null;
-    rows.push({role:m.from==='me'||m.from==='sys'?'user':'assistant',content:msgText(m,group),...(imgIdx.has(i)?{imgs:[m.img]}:{})})});
+    rows.push({role:m.from==='me'||m.from==='sys'?'user':'assistant',content:msgText(m,group,me.name),...(imgIdx.has(i)?{imgs:[m.img]}:{})})});
   const msgs=[...pre,...rows];
   {const end=msgs.length;
     items.filter(inChat).map(i=>({i,d:Math.max(0,Math.floor(+i.depth))})).sort((a,b)=>b.d-a.d)
@@ -2163,14 +2164,15 @@ function dlJSON(o,name){const a=document.createElement('a');a.href=URL.createObj
 function extraFor(c){const e=elsewhere(c);return(e.length?'\n\n【最近在别处发生的事】\n'+e.join('\n'):'')+'\n\n【现在】'+nowText()}
 const peekStep=s=>`<div class="pstep"><b>${esc(s.app)}</b><p>${esc(s.saw)}</p>${s.think&&S.chat.inner?`<details class="fold inner" open><summary>${ICONS.bubble}${esc(S.chat.innerName||'心声')}</summary><div>${esc(s.think)}</div></details>`:''}</div>`;
 let peekBusy=false;
+const peekAI=(c,how,r)=>{const n=mask(c).name,u=n==='user'?'用户':n;return`${how==='open'?`${u}把自己的手机递给你，你翻了${u}的手机`:`你偷偷翻了${u}的手机`}（是${u}的手机，不是你的；${u}没看过你的手机）。你在${u}手机里看到的：${r.steps.map(s=>s.app+'：'+s.saw).join('；')}`};
 async function autoPeek(t,c,how){if(peekBusy||!c||!reachable(c))return;peekBusy=true;c.peekAt=Date.now();
-  try{const r=await genPeek(c,how);sysMsg(t,how==='open'?`${dn(c)} 看了你的手机`:`${dn(c)} 偷偷翻了你的手机`);t.msgs[t.msgs.length-1].inner=r.steps.map(s=>s.app+'：'+s.saw+(s.think?'（'+s.think+'）':'')).join('\n');applyPeekActs(c,r.acts);
+  try{const r=await genPeek(c,how);sysMsg(t,how==='open'?`${dn(c)} 看了你的手机`:`${dn(c)} 偷偷翻了你的手机`);t.msgs[t.msgs.length-1].inner=r.steps.map(s=>s.app+'：'+s.saw+(s.think?'（'+s.think+'）':'')).join('\n');t.msgs[t.msgs.length-1].ai=peekAI(c,how,r);applyPeekActs(c,r.acts);
     let n=0;for(const l of r.say.split(/[/／]/).map(s=>s.trim()).filter(Boolean).slice(0,bubbleCap()))for(const p of splitStickers(l)){t.msgs.push({id:uid(),from:c.id,...p,t:Date.now()});n++}
     t.t=Date.now();if(n&&!viewing(t))t.unread=(t.unread||0)+n;save();onThreadUpdate(t);if(cur()?.v==='chat'&&cur().id===t.id)render(true);if(!isOpen())renderHome()}
   catch(e){}finally{peekBusy=false}}
 async function peekRun(c,v){try{const r=await genPeek(c,v.how);v.shown=[];
     for(const s of r.steps){await sleep(1200);v.shown.push(s);if(cur()===v)render(true)}
-    const t=dmFor(c.id);sysMsg(t,v.how==='open'?`你把手机给 ${dn(c)} 看了`:`${dn(c)} 偷偷翻了你的手机`);t.msgs[t.msgs.length-1].inner=r.steps.map(s=>s.think).filter(Boolean).join('\n');v.acts=applyPeekActs(c,r.acts);
+    const t=dmFor(c.id);sysMsg(t,v.how==='open'?`你把手机给 ${dn(c)} 看了`:`${dn(c)} 偷偷翻了你的手机`);t.msgs[t.msgs.length-1].inner=r.steps.map(s=>s.think).filter(Boolean).join('\n');t.msgs[t.msgs.length-1].ai=peekAI(c,v.how,r);v.acts=applyPeekActs(c,r.acts);
     let n=0;for(const l of r.say.split(/[/／]/).map(s=>s.trim()).filter(Boolean).slice(0,bubbleCap()))for(const p of splitStickers(l)){t.msgs.push({id:uid(),from:c.id,...p,t:Date.now()});n++}
     t.t=Date.now();if(n&&!viewing(t))t.unread=(t.unread||0)+n;save();v.done=1;if(cur()===v)render(true)}
   catch(e){toast(e.message,5600);v.done=1;v.err=1;if(cur()===v)render(true)}}
