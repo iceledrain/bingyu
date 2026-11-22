@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.148';</script>
+<script>window.BYJ_VER='2026.11.18.149';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -536,6 +536,9 @@ html.dark.wp .chat .fold.inner div{background:rgba(22,22,26,.42);color:rgba(255,
 html.wp .chat .fold.inner div{background:rgba(255,255,255,.5);color:var(--ink);-webkit-backdrop-filter:var(--frost);backdrop-filter:var(--frost)}
 html.wp .content.offv,html.wp .content.mo{background:var(--bub);-webkit-backdrop-filter:blur(26px) saturate(1.4);backdrop-filter:blur(26px) saturate(1.4)}
 html.wp .bar{-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+html.wp{--bg2:rgba(var(--panel-rgb),.42);--accent-soft:rgba(var(--accent-rgb),.24)}html.dark.wp{--accent-soft:rgba(120,120,128,.3)}
+html.wp :is(.panel,.row,.post,.prof,.opt,.grp,.order,.callcard,.wxc,.mbar,.player,.letter,.wxg,.wxme,.tabs,.more,.pstep,.fold div,.fold summary,.sheet-in,#mpop){-webkit-backdrop-filter:var(--frost);backdrop-filter:var(--frost)}
+html.wp .sheet-in,html.wp #mpop{background:var(--panel)}html.wp .sheet-in :is(.row,.grp,.opt),html.wp .grp .row{background:rgba(var(--panel-rgb),.32);-webkit-backdrop-filter:none;backdrop-filter:none}
 body:has(#app.open) #home *{animation-play-state:paused!important}
 .wpv{height:160px;border-radius:14px;background:center/cover no-repeat;border:1px solid var(--line)}
 html.dark .bub,html.dark .msg.me .bub,html.dark .narr,html.dark .narr.me{border-color:rgba(255,255,255,.06);text-shadow:none}
