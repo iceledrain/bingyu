@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.140';</script>
+<script>window.BYJ_VER='2026.11.18.141';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1650,7 +1650,6 @@ async function reply(t,extra,stamps){
     if(S.chat.think&&r.text&&!/^\s*(?:\]?<\]?minimax\[?>\[?)?\s*<think>/i.test(r.text)){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:`（上面这条没按顺序写，作废。重写：第一行先写 <think>一句打算</think>，然后才是${ctx.mode==='offline'?'正文':' <reply>…</reply>'}，最后 <inner>…</inner>${ctx.mode==='offline'?'':' 和 <tide>…</tide>'}。内容可以和刚才一样。）`}],{thoughts:true,...offMax});RAW.get(t.id).push(r2.text,r2.thoughts);if(/<think>/i.test(r2.text))r=r2}catch(e){}}
     for(let k=0;k<2&&ctx.mode==='offline'&&r.cut&&r.text;k++){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:'（上面写到一半断了。从断掉的那个字接着把这一段写完，不重复前面，不另起开头。）'}],{thoughts:true,...offMax});r.text+=r2.text;r.cut=r2.cut&&!!r2.text}catch(e){break}}
     const ex=extractExtras(r.text,ctx.mode!=='offline',ctx.group,ctx.chars.some(langOf));if(ctx.mode!=='offline'&&!ex.fmt)await sortLeak(ex,ctx);if(ctx.mode==='online')ex.text=noAct(ex.text);if(!S.chat.think)ex.think='';
-    if(!ctx.group){const u=x=>String(x||'').replace(/[他她]|TA/g,'你');ex.think=u(ex.think);ex.inner=ex.inner.map(u)}
     applyTide(ctx,ex);applyActs(ctx,ex);if(!ctx.group&&ctx.chars[0]){applyMoney(t,ex,ctx.chars[0]);applyCards(t,ex,ctx.chars[0])}save();
     const callWas=spUse(t).callN,askedCall=/电话|视频|语音|通话|打给|打过来/.test(String([...t.msgs].reverse().find(m=>m.from==='me')?.content||''));
     const callAct=(callWas<0||callWas>=25||askedCall)&&ex.acts.find(a=>a==='语音通话'||a==='视频通话');
@@ -1695,7 +1694,7 @@ async function backfill(t,ctx,posted,lack){const C=S.chat,last=posted[posted.len
   try{const txt=String(await callAI(sysFor(c,''),[{role:'user',content:`${recent?`最近的对话：\n${recent}\n\n`:''}${c.name}刚刚回的是：\n${said}\n\n按${c.name}的人设，用${c.name}自己的口吻、第一人称，提到${me.name}只用平时的亲密叫法、不写他/她，输出${ask.length}行，别的都不要：\n${ask.join('\n')}`}],{max:512,side:true,temp:.8}));
     const one=ask.length===1?txt.trim().split('\n').filter(Boolean)[0]?.replace(/^(思考|心声)[:：]\s*/,'').trim()||'':'';
     const pick=k=>{const x=(txt.match(new RegExp(k+'[:：]\\s*([^\\n]+)'))||[])[1]?.trim()||one;return said.split('\n').some(l=>l.trim()===x)?'':x};
-    const u=x=>ctx.group?x:String(x||'').replace(/[他她]|TA/g,'你');
+    const u=x=>String(x||'');
     if(lack.think){const x=u(brief(pick('思考')));if(x)(posted.find(p=>p.from===c.id)||posted[0]).think=x}
     if(lack.inner){const x=withKao(cuteKao(u(pick('心声'))),tideOf(c));if(x){const m=[...posted].reverse().find(p=>p.from===c.id)||last;m.inner=x}}
     save();onThreadUpdate(t);if(cur()?.v==='chat'&&cur().id===t.id)render(true)}catch(e){}}
@@ -2370,7 +2369,7 @@ chat(v){
   else if(r.theyDeleted)foot=blk()+`<input type="text" id="reqIn" placeholder="验证消息" aria-label="朋友验证"><button class="btn" data-a="friendReq">申请加回</button>`;
   else if(r.theyBlocked)foot=blk()+foot;
   if(v.quote&&!r.youBlocked&&!r.theyDeleted){footCls='wrap';foot=`<div class="qbar"><span>↪ ${esc(v.quote.who)}：${esc(v.quote.text)}</span><button data-a="qUnq" aria-label="取消引用">×</button></div>`+foot}
-  const sub=t.type==='group'?(t.chars.length+1)+' 人':(c0?.now&&Date.now()-c0.now.t<3*3600e3?c0.now.x:c0?.mood?softMood(c0.mood,tideOf(c0)):'在线');
+  const sub=t.type==='group'?(t.chars.length+1)+' 人':(c0?.mood?softMood(c0.mood,tideOf(c0)):'在线');
   return{title:threadTitle(t),sub,cls:'chat',footCls,
     right:HEART+`<button class="tb" data-a="chatMenu" aria-label="聊天设置">···</button>`,
     body:msgsHTML(t),foot,
