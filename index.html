@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.158';</script>
+<script>window.BYJ_VER='2026.11.18.159';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -532,7 +532,9 @@ html.wp .polaroid,html.wp .ava .av,html.wp .chat .bub,html.wp .chat .stamp{-webk
 html.wp .chat .stamp{background:var(--bub-ai)}
 html.wp .chat .tphoto{color:var(--ink)}html.wp .chat :is(.fold div,.fold summary,.order,.callcard,.hb,.tphoto,.qt){background:var(--bub-ai);-webkit-backdrop-filter:var(--frost);backdrop-filter:var(--frost)}html.wp .chat .tp-in{background:var(--bg2);color:var(--ink)}
 html.wp .content.offv,html.wp .content.mo{background:var(--bub);-webkit-backdrop-filter:blur(26px) saturate(1.4);backdrop-filter:blur(26px) saturate(1.4)}
-html.wp .bar{-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+html.wp :is(.bar,.foot){background:none;-webkit-backdrop-filter:none;backdrop-filter:none;-webkit-clip-path:inset(0);clip-path:inset(0)}
+html.wp :is(.bar,.foot)::before{content:"";position:fixed;inset:-40px;z-index:-1;background:var(--wp) center/cover no-repeat;filter:blur(18px) saturate(1.5)}
+html.wp :is(.bar,.foot)::after{content:"";position:absolute;inset:0;z-index:-1;background:var(--panel)}
 html.wp{--bg2:rgba(var(--panel-rgb),.42);--accent-soft:rgba(var(--accent-rgb),.24)}html.dark.wp{--accent-soft:rgba(120,120,128,.3)}
 html.wp :is(.panel,.row,.post,.prof,.opt,.grp,.order,.callcard,.wxc,.mbar,.player,.letter,.wxg,.wxme,.tabs,.more,.pstep,.fold div,.fold summary,.sheet-in,#mpop){-webkit-backdrop-filter:var(--frost);backdrop-filter:var(--frost)}
 html.wp .sheet-in,html.wp #mpop{background:var(--panel)}
@@ -832,7 +834,8 @@ function applyLook(){
   const dk=darkOn();r.classList.toggle('dark',dk);
   {const wp=L.wallpaper||'',W=$('#wall'),cl=Math.min(60,Math.max(0,num(L.clear)??30));r.classList.toggle('wp',!!wp);
     if(W&&W._wp!==wp){W._wp=wp;W.style.background=wp?`url("${String(wp).replace(/"/g,'%22')}") center/cover no-repeat`:''}
-    if(wp)r.style.setProperty('--alpha',(1-cl/100).toFixed(2));else r.style.removeProperty('--alpha')}
+    if(wp)r.style.setProperty('--alpha',(1-cl/100).toFixed(2));else r.style.removeProperty('--alpha');
+    if(r._wp!==wp){r._wp=wp;wp?r.style.setProperty('--wp',`url("${String(wp).replace(/"/g,'%22')}")`):r.style.removeProperty('--wp')}}
   document.querySelector('meta[name=theme-color]').content=dk?'#000000':'#f5f5f5';
 }
 
