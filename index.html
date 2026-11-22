@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.156';</script>
+<script>window.BYJ_VER='2026.11.18.157';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1078,7 +1078,7 @@ function normalize(msgs){
   return m;
 }
 const num=v=>v===null||v===undefined||v===''||isNaN(+v)?null:+v;
-const foodEta=()=>Date.now()+(Math.random()<.12?12+Math.random()*8:30+Math.random()*20)*60e3,parcelEta=()=>Date.now()+(24+Math.random()*48)*3600e3;
+const foodEta=()=>Date.now()+(Math.random()<.12?12+Math.random()*8:25+Math.random()*10)*60e3,parcelEta=()=>Date.now()+(24+Math.random()*48)*3600e3;
 const TOKTAG={chat:'聊天',bg:'后台生成',other:'其他'};
 const isMM=model=>/minimax-m3\.1/i.test(model||'');
 const EFFS=['low','medium','high','xhigh','max'];
