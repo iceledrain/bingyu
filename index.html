@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.141';</script>
+<script>window.BYJ_VER='2026.11.18.142';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2118,7 +2118,11 @@ function lifeTick(mins){const now=Date.now();{const d=new Date();ensureHolidays(
     if(Math.random()>1-Math.pow(1-.04,mins))continue;
     t.proAt=now;save();
     if(statusOf(c)==='free'&&Math.random()<.18){incomingCall(t,Math.random()<.3?'video':'voice');return}
-    reply(t,`（现在是${nowText()}，你${STATUS_TXT[statusOf(c)]}。${me}已经${gapText(gap)}没找你了，你想找TA。${whyReach(c)}）`);return}}
+    reply(t,`（现在是${nowText()}，你${STATUS_TXT[statusOf(c)]}。${me}已经${gapText(gap)}没找你了，你想找TA。${whyReach(c)}）`);return}
+  for(const g of S.threads.filter(x=>x.type==='group'&&(x.mode||'online')==='online'&&!x.pending&&x.msgs.some(m=>m.from==='me')).sort(()=>Math.random()-.5)){
+    const cs=g.chars.map(charById).filter(c=>reachable(c)&&statusOf(c)!=='sleep');if(!cs.length)continue;const gap=now-(g.t||0);
+    if(gap<3600e3||(g.proAt&&now-g.proAt<4*3600e3))continue;if(Math.random()>1-Math.pow(1-.03,mins))continue;g.proAt=now;save();
+    reply(g,`（现在是${nowText()}，群里${gapText(gap)}没人说话了。${g.chars.map(charById).filter(Boolean).map(c=>c.name+STATUS_TXT[statusOf(c)]).join('，')}。谁想说点什么就开口：找${mask(g).name}、说自己的事、互相闲聊都行；睡着的不说话。）`);return}}
 function awayCatch(from,now){
   if(S.chat.away===false||!api()?.key||busy.size||call||document.hidden)return false;
   const dms=S.threads.filter(t=>t.type==='dm'&&!t.pending&&(t.mode||'online')==='online'&&t.msgs.some(m=>m.type!=='sys')).sort((a,b)=>(b.t||0)-(a.t||0));
@@ -2131,6 +2135,11 @@ function awayCatch(from,now){
     const lab=x=>{const k=dayDiff(x);return(k>0?dayWord(k):'')+hm(x)+'（你当时'+STATUS_TXT[statusOf(c,new Date(x))]+'）'};
     t.proAt=now;save();
     reply(t,`（现在是${nowText()}。${me}已经${gapText(now-last.t)}没看手机。这期间你给TA发过消息，时刻：${st.map(lab).join('、')}。按顺序写出来，每个时刻发什么、发几条看你当时在干嘛、什么心情。别当TA已经回来。）`,st);return true}
+  for(const g of S.threads.filter(t=>t.type==='group'&&!t.pending&&(t.mode||'online')==='online'&&t.msgs.some(m=>m.from==='me'))){const cs=g.chars.map(charById).filter(reachable);if(!cs.length)continue;
+    const last=[...g.msgs].reverse().find(m=>m.type!=='sys');if(!last||now-last.t>3*864e5)continue;const a=Math.max(from,last.t)+10*60e3,b=now-3*60e3;if(b-a<90*60e3)continue;
+    const n=Math.min(3,1+Math.floor((b-a)/(180*60e3))),st=[];for(let i=0;i<60&&st.length<n;i++){const x=a+Math.random()*(b-a);if(cs.some(c=>statusOf(c,new Date(x))!=='sleep')&&st.every(y=>Math.abs(y-x)>20*60e3))st.push(x)}
+    if(!st.length)continue;st.sort((x,y)=>x-y);const lab=x=>{const k=dayDiff(x);return(k>0?dayWord(k):'')+hm(x)+'（'+cs.map(c=>c.name+STATUS_TXT[statusOf(c,new Date(x))]).join('，')+'）'};
+    g.proAt=now;save();reply(g,`（现在是${nowText()}。${mask(g).name}已经${gapText(now-last.t)}没看手机。这期间群里有人说过话，时刻：${st.map(lab).join('、')}。按顺序写出来，每个时刻谁说、说什么看各自当时在干嘛；可以找${mask(g).name}，也可以互相聊。睡着的不说话。别当TA已经回来。）`,st);return true}
   return false}
 function whyReach(c){const me=mask(c).name,L=[];
   {const w=wxNow(S.loc);if(w&&/雨|雪|雷|雾|冻/.test(w.desc))L.push(`${me}那边现在${w.desc}`);if(w&&(w.max>=33||w.min<=2))L.push(`${me}那边今天${w.min}~${w.max}°C`);
@@ -2369,7 +2378,7 @@ chat(v){
   else if(r.theyDeleted)foot=blk()+`<input type="text" id="reqIn" placeholder="验证消息" aria-label="朋友验证"><button class="btn" data-a="friendReq">申请加回</button>`;
   else if(r.theyBlocked)foot=blk()+foot;
   if(v.quote&&!r.youBlocked&&!r.theyDeleted){footCls='wrap';foot=`<div class="qbar"><span>↪ ${esc(v.quote.who)}：${esc(v.quote.text)}</span><button data-a="qUnq" aria-label="取消引用">×</button></div>`+foot}
-  const sub=t.type==='group'?(t.chars.length+1)+' 人':(c0?.mood?softMood(c0.mood,tideOf(c0)):'在线');
+  const sub=t.type==='group'?(t.chars.length+1)+' 人':[c0?.mood?softMood(c0.mood,tideOf(c0)):'在线',c0?.now&&Date.now()-c0.now.t<3*3600e3?c0.now.x:''].filter(Boolean).join(' · ');
   return{title:threadTitle(t),sub,cls:'chat',footCls,
     right:HEART+`<button class="tb" data-a="chatMenu" aria-label="聊天设置">···</button>`,
     body:msgsHTML(t),foot,
