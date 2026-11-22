@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.155';</script>
+<script>window.BYJ_VER='2026.11.18.156';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1078,6 +1078,7 @@ function normalize(msgs){
   return m;
 }
 const num=v=>v===null||v===undefined||v===''||isNaN(+v)?null:+v;
+const foodEta=()=>Date.now()+(Math.random()<.12?12+Math.random()*8:30+Math.random()*20)*60e3,parcelEta=()=>Date.now()+(24+Math.random()*48)*3600e3;
 const TOKTAG={chat:'聊天',bg:'后台生成',other:'其他'};
 const isMM=model=>/minimax-m3\.1/i.test(model||'');
 const EFFS=['low','medium','high','xhigh','max'];
@@ -1429,8 +1430,8 @@ function splitStickers(line,roll){const out=[];let rest=line;const re=/\[(?:(sti
     else if(k==='图片'||k==='照片')out.push({type:'pic',content:v});
     else if(k==='语音')out.push({type:'voice',content:v,dur:voiceDur(v)});
     else if(k==='分享歌曲'){const [ti,ar]=splitSong(v);if(ti)out.push({type:'share',kind:'song',title:ti,sub:ar})}
-    else if(k==='网购'){const p=v.split(/[:：]/);out.push({type:'parcel',content:p[0].trim(),amt:Math.max(1,Math.round((parseFloat(String(p[1]||'').replace(/[^\d.]/g,''))||99)*100)/100),state:'go',t0:Date.now(),eta:Date.now()+(30+Math.random()*150)*60e3})}
-    else if(k==='外卖'){const p=v.split(/[:：]/);out.push({type:'order',content:p[0].trim(),amt:Math.max(1,Math.round((parseFloat(String(p[1]||'').replace(/[^\d.]/g,''))||25)*100)/100),state:'go',eta:Date.now()+(25+Math.random()*15)*60e3})}
+    else if(k==='网购'){const p=v.split(/[:：]/);out.push({type:'parcel',content:p[0].trim(),amt:Math.max(1,Math.round((parseFloat(String(p[1]||'').replace(/[^\d.]/g,''))||99)*100)/100),state:'go',t0:Date.now(),eta:parcelEta()})}
+    else if(k==='外卖'){const p=v.split(/[:：]/);out.push({type:'order',content:p[0].trim(),amt:Math.max(1,Math.round((parseFloat(String(p[1]||'').replace(/[^\d.]/g,''))||25)*100)/100),state:'go',eta:foodEta()})}
     else{const p=v.split(/[:：]/),a=Math.round((parseFloat(String(p[0]).replace(/[^\d.]/g,''))||5.2)*100)/100;out.push({type:k==='红包'?'hb':'tf',amt:Math.max(.01,a),content:p.slice(1).join('：').trim()||(k==='红包'?'恭喜发财':''),state:'new'})}
     rest=rest.slice(m.index+m[0].length)}
   if(rest.trim())out.push({type:'text',content:rest.trim()});return out}
@@ -2701,7 +2702,7 @@ const A={
     if(!n){toast(food?'点点什么':'买点什么');return}if(a<=0){toast('填个价钱');return}
     const card=cardsNow().find(k=>k.id===v.pay);if(card&&card.limit&&card.used+a>card.limit){toast('亲属卡这个月的额度不够了');return}if(!card&&a>(+S.wallet||0)){toast('钱包余额不够');return}
     const pay=k=>{if(card){card.used=Math.round((card.used+k)*100)/100;if(k>0){sysMsg(dmFor(card.charId),`你用 ${dn(charById(card.charId))} 的亲属卡付了 ${money(k)}：${n}`);logEvent(card.charId,`${me}用${charById(card.charId)?.name}给的亲属卡${w}：${n}（${money(k)}）`)}}else S.wallet=Math.round(((+S.wallet||0)-k)*100)/100};
-    const eta=Date.now()+(food?(25+Math.random()*15)*60e3:(30+Math.random()*150)*60e3);pay(a);
+    const eta=food?foodEta():parcelEta();pay(a);
     if(to==='me'){S.orders.push({id:uid(),kind:food?'food':'goods',content:n,amt:a,card:card?.id||'',state:'go',t:Date.now(),t0:Date.now(),eta});logEvent(null,`${me}给自己${w}：${n}（${money(a)}）`);save();toast(food?'下单啦，骑手在路上':'付款成功，等快递吧')}
     else{const c=charById(to),t=dmFor(to);if(!pushMine(t,food?{type:'order',content:n,amt:a,state:'go',eta}:{type:'parcel',content:n,amt:a,state:'go',t0:Date.now(),eta})){pay(-a);save();return}
       logEvent(to,`${me}给${c.name}${food?'点了外卖':'网购寄了'}：${n}（${money(a)}）`);save();toast(food?`给${dn(c)}点好了`:`寄给${dn(c)}了`)}
