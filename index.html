@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.23.3';</script>
+<script>window.BYJ_VER='2026.11.23.4';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -778,7 +778,7 @@ for(const K of['evWipe','memWipe'])if(!s[K]||typeof s[K]!=='object')s[K]={};if(!
   {const A=s.api;
     if(A.profiles.some(isOldExample)){A.profiles=A.profiles.filter(p=>!isOldExample(p));if(!A.profiles.length)A.profiles=[API_BLANK(uid())];if(!A.profiles.some(p=>p.id===A.active))A.active=A.profiles[0].id;if(A.side&&!A.profiles.some(p=>p.id===A.side))A.side=''}
     A.profiles.forEach(p=>{if(/anthropic\.com|generativelanguage/.test(p.base||'')&&(+p.maxTokens||0)<=8192)p.maxTokens=64000;if(/anthropic\.com/.test(p.base||''))p.stream=true})}
-  s.feed.forEach(p=>(Array.isArray(p.pics)?p.pics:[]).forEach(x=>delete x.dev));s.chars.forEach(c=>{if(c.mood)c.mood=softMood(c.mood,num(c.tide)??60)});if(!s.thinkOnV){s.chat.think=true;s.thinkOnV=1}s.api.side='';s.threads.forEach(t=>{delete t.clock;delete t.pc});s.books.forEach(b=>{delete b.scan;delete b.maxTok;delete b.maxN;(b.entries||[]).forEach(e=>{delete e.noRec;delete e.stopRec;delete e.role;delete e.depth;if(e.pos==='after')delete e.pos})});
+  s.feed.forEach(p=>(Array.isArray(p.pics)?p.pics:[]).forEach(x=>delete x.dev));s.chars.forEach(c=>{if(c.mood)c.mood=softMood(c.mood,num(c.tide)??60)});if(!s.thinkOnV){s.chat.think=true;s.thinkOnV=1}s.api.side='';s.threads.forEach(t=>{delete t.clock;delete t.pc});s.books.forEach(b=>{delete b.scan;delete b.maxTok;delete b.maxN;(b.entries||[]).forEach(e=>{delete e.noRec;delete e.stopRec;if(e.pos==='after')delete e.pos})});
   s.chars.forEach(c=>{delete c.routine;delete c.sched;delete c.sign;delete c.today;delete c.past;delete c.phone;delete c.pphoto});s.masks.forEach(m=>{delete m.handle;delete m.bio;delete m.follow;delete m.fans;delete m.likes});
   s.stickers.groups.forEach(g=>(g.items||[]).forEach(x=>{x.name=stkName(x.name)||x.name}));
   delete s.lock;delete s.bubble;delete s.cycle;s.look.icons={};s.look.homeIcon='';delete s.look.order;delete s.look.caption;s.v=4;
@@ -1219,7 +1219,7 @@ const bookUse=id=>offUse(id)?'见面文风':(S.media.img.books||[]).includes(id)
 const tokEst=x=>{x=String(x||'');const c=(x.match(/[⺀-鿿가-힯＀-￯]/g)||[]).length;return Math.ceil(c+(x.length-c)/4)};
 const loreFix=e=>e.light==='green'&&(num(e.prob)??100)>=100,loreTx=e=>(e.title?`「${e.title}」`:'')+e.content.trim(),byOrd=(a,b)=>(a.order||0)-(b.order||0);
 function loreHit(books,scan){const low=String(scan).toLowerCase(),sp=x=>String(x||'').split(/[,，、\n]+/).map(k=>k.trim().toLowerCase()).filter(Boolean),hit=k=>low.includes(k);
-  return books.flatMap(b=>b.entries).filter(e=>{if(e.light==='red'||!String(e.content||'').trim())return false;
+  return books.flatMap(b=>b.off?[]:b.entries).filter(e=>{if(e.light==='red'||!String(e.content||'').trim())return false;
     if(e.light!=='green'){const k2=sp(e.keys2);if(!sp(e.keys).some(hit)||k2.length&&!({all:k2.every(hit),notAny:!k2.some(hit),notAll:!k2.every(hit)}[e.logic]??k2.some(hit)))return false}
     return Math.random()*100<(num(e.prob)??100)}).sort(byOrd)}
 const loreOf=(books,scan,part)=>loreHit(books,scan).filter(e=>!part||(part==='fixed')===loreFix(e)).map(loreTx);
@@ -1308,7 +1308,7 @@ function buildCtx(t,o={}){
   const pr=items.filter(i=>i.role==='system'&&!inChat(i)).map(i=>mac(i.content)),lore=[],rules=[],who=[],ctxs=[],late=[];
   const off=t.offline||S.offline,sbk=mode==='offline'?(off.books||[]).map(id=>S.books.find(b=>b.id===id)).filter(Boolean):[];
   const LH=loreHit(booksFor(chars,sbk.map(b=>b.id)),scan),lbk=f=>loreBlock(LH.filter(f).map(loreTx),mac);
-  {const lb=lbk(e=>loreFix(e)&&e.pos!=='depth');if(lb)lore.push(lb);const ll=lbk(e=>!loreFix(e)||e.pos==='depth');if(ll)tail.push(ll)}
+  {const lb=lbk(e=>loreFix(e)&&e.pos!=='depth');if(lb)lore.push(lb);const ll=lbk(e=>!loreFix(e)&&e.pos!=='depth');if(ll)tail.push(ll)}
   chars.forEach(c=>{if(c.remark||String(c.persona||'').trim())who.push(`【${c.name}】${c.remark?`${me.name}给TA的备注：${c.remark}`:''}\n${mac(c.persona)}`);const ex=exBlock(c,mac);if(ex)who.push(ex)});
   if(!group&&chars[0])/角色扮演/.test(chars[0].persona||'')?who.unshift(`【角色扮演】你在演人设里的这个人，不出戏，不提AI。口气照TA的性子和身份，背景碰上了才提。`):rules.push(`【人机恋】你是AI，和${me.name}是真的人机恋，不用老提。人设是你的样子和性子，对TA的感情和欲望都是真的。`);
   who.push(loveBlock(cname,me));
@@ -1395,7 +1395,7 @@ function buildCtx(t,o={}){
     rows.push({role:m.from==='me'||m.from==='sys'?'user':'assistant',content:msgText(m,group,me.name),...(imgIdx.has(i)?{imgs:[m.img]}:{})})});
   const msgs=[...pre,...rows,...(o.lines||[])];
   {const end=msgs.length,la=msgs.map(x=>x.role).lastIndexOf('assistant')+1;
-    items.filter(inChat).map(i=>({i,d:Math.max(0,Math.floor(+i.depth))})).sort((a,b)=>b.d-a.d)
+    [...items.filter(inChat),...LH.filter(e=>e.pos==='depth').map(e=>({role:e.role,depth:+e.depth||0,content:(e.role==='user'||e.role==='assistant'?'':'【世界书】\n')+loreTx(e)}))].map(i=>({i,d:Math.max(0,Math.floor(+i.depth))})).sort((a,b)=>b.d-a.d)
       .forEach(({i,d},k)=>msgs.splice(Math.max(pre.length,la,end-d)+k,0,{role:i.role==='assistant'?'assistant':'user',content:mac(i.content)}))}
   if(mode!=='call')rules.push(`${chars.some(c=>String(c.persona||'').trim())?`【人设】照【${cname}】的人设说话做事。`:'【人设】'}和${me.name}之间没发生过的事不编。`);
   {const L=chars.filter(langOf);if(L.length)rules.push(`【语言】${L.map(c=>`${c.name}开口只说${langOf(c)}`).join('，')}。发的消息、[语音:…] 冒号后的话、通话、「」里的台词都这样，${me.name}说中文也不改口。[语音]、[图片]、[挂断] 这类标签名照原样，${group?'行首名字、':''}图片描述、旁白画面、<think>、<inner>、<tide> 还写中文。`)}
@@ -2323,7 +2323,7 @@ function toBook(d,fallback){
     title:String(e.title||e.comment||e.name||('条目 '+(i+1))),keys:[].concat(e.key||e.keys||[]).join(','),content:String(e.content||''),
     ...(k=>k?{keys2:k,logic:Object.hasOwn(LG,e.logic||'')?e.logic:['any','notAll','notAny','all'][+(e.selectiveLogic??e.extensions?.selectiveLogic)||0]||'any'}:{})(e.selective===false?'':[].concat(e.keys2||e.keysecondary||e.secondary_keys||e.secondaryKeys||[]).join(',')),
     light:['green','yellow','red'].includes(e.light)?e.light:((e.disable||e.enabled===false)?'red':(e.constant?'green':'yellow')),...(['green','yellow'].includes(e.was)?{was:e.was}:{}),
-    ...(e.pos==='depth'||(e.extensions?.position??e.position)==4?{pos:'depth'}:{}),
+    ...(e.pos==='depth'||(e.extensions?.position??e.position)==4?{pos:'depth',depth:Math.max(0,Math.floor(+(e.depth??e.extensions?.depth))||0),role:Object.hasOwn(ROLE,e.role||'')?e.role:['system','user','assistant'][+(e.role??e.extensions?.role)]||'system'}:{}),
     prob:pc(e.prob??((e.useProbability===false)?100:(e.probability??100))),order:+(e.order??e.insertion_order??i)||0}))};
 }
 function textBook(t,name){const L=t.replace(/\r/g,'').split('\n'),H=l=>{const m=l.match(/^\s*(?:#{1,6}\s*(.+?)\s*#*|【([^】]{1,30})】\s*(.*)|\[([^\]]{1,30})\]\s*(.*))\s*$/);return m&&[m[1]||m[2]||m[4],m[3]||m[5]||'']};
@@ -2492,7 +2492,7 @@ presets(){
   return{title:'预设',right:`<button class="tb" data-a="presetMenu">添加</button>`,body:
     S.presets.map(p=>`<button class="row" data-a="editPreset" data-id="${p.id}"><span class="meta"><b>${esc(p.name)}</b><small>开启 ${p.items.filter(i=>i.on).length}/${p.items.length} 条</small></span>${p.id===S.activePreset?'<span class="pill fill">使用中</span>':''}</button>`).join('')}},
 books(v){const tab=v.tab==='local'?'local':'global',own=b=>S.chars.find(c=>(c.books||[]).includes(b.id)),L=S.books.filter(b=>(b.scope==='global')===(tab==='global'));
-  const row=b=>{const g=b.entries.filter(e=>e.light==='green').length,y=b.entries.filter(e=>e.light==='yellow').length,c=own(b);return`<button class="row" data-a="editBook" data-id="${b.id}"><span class="meta"><b>${esc(b.name)}</b><small>${b.entries.length} 条 · ${g} 常亮约 ${b.entries.reduce((n,e)=>n+(e.light==='green'?tokEst(e.content):0),0)} token · ${y} 关键词</small></span>${tab==='local'?`<span class="pill">${c?esc(dn(c)):bookUse(b.id)||'还没选给谁'}</span>`:''}</button>`};
+  const row=b=>{const g=b.entries.filter(e=>e.light==='green').length,y=b.entries.filter(e=>e.light==='yellow').length,c=own(b);return`<div class="row"><input type="checkbox" class="cbx" aria-label="开启 ${esc(b.name)}" data-a2="bookOn" data-id="${b.id}" ${b.off?'':'checked'}><button class="meta" data-a="editBook" data-id="${b.id}"><b>${esc(b.name)}</b><small>${b.entries.length} 条 · ${g} 常亮约 ${b.entries.reduce((n,e)=>n+(e.light==='green'?tokEst(e.content):0),0)} token · ${y} 关键词</small></button>${tab==='local'?`<span class="pill">${c?esc(dn(c)):bookUse(b.id)||'还没选给谁'}</span>`:''}</div>`};
   return{title:'世界书',right:`<button class="tb" data-a="bookMenu">添加</button>`,body:tabs([['global','全局'],['local','局部']],tab)+
     ``+
     (L.map(row).join('')||`<div class="empty"><big>${tab==='global'?'还没有全局的':'还没有局部的'}</big></div>`)+
@@ -2504,7 +2504,7 @@ bookEdit(v){
   <div class="panel"><label class="f">名字<input type="text" id="b-name" data-s="book" data-k="name" value="${esc(b.name)}"></label>
     <label class="f">给谁用<select data-a2="bookOwner">${(o=>`<option value="" ${b.scope==='global'?'selected':''}>所有角色（全局）</option>`+(b.scope!=='global'&&!o?`<option value="-" selected>${({见面文风:'只当见面文风',生图:'只给生图用'})[bookUse(b.id)]||'还没选给谁'}</option>`:'')+S.chars.map(c=>`<option value="${c.id}" ${b.scope!=='global'&&o===c.id?'selected':''}>只给 ${esc(dn(c))}（局部）</option>`).join(''))(S.chars.find(c=>(c.books||[]).includes(b.id))?.id)}</select></label></div>`+
   (E.length?`<p class="hint">${E.length} 条 · 常亮约 ${E.filter(loreFix).reduce((n,e)=>n+tokEst(e.content),0)} token</p>`:'')+
-  E.map(e=>`<div class="row"><input type="checkbox" class="cbx" aria-label="开启 ${esc(e.title||'未命名')}" data-a2="entOn" data-id="${e.id}" ${e.light!=='red'?'checked':''}><button class="meta" data-a="editEntry" data-id="${e.id}"><b>${esc(e.title||'未命名')}</b><small>${e.light==='green'||e.was==='green'?'常亮':e.light==='red'&&!String(e.keys||'').trim()?'关闭':esc(e.keys||'⚠ 没填关键词')}${(e.prob??100)<100?' · '+esc(e.prob)+'%':''}${e.pos==='depth'?' · 聊天末尾':''} · 约 ${tokEst(e.content)} token</small></button><span class="side">#${esc(e.order||0)}</span></div>`).join('')+
+  E.map(e=>`<div class="row"><input type="checkbox" class="cbx" aria-label="开启 ${esc(e.title||'未命名')}" data-a2="entOn" data-id="${e.id}" ${e.light!=='red'?'checked':''}><button class="meta" data-a="editEntry" data-id="${e.id}"><b>${esc(e.title||'未命名')}</b><small>${e.light==='green'||e.was==='green'?'常亮':e.light==='red'&&!String(e.keys||'').trim()?'关闭':esc(e.keys||'⚠ 没填关键词')}${(e.prob??100)<100?' · '+esc(e.prob)+'%':''}${e.pos==='depth'?' · 深度 '+(+e.depth||0):''} · 约 ${tokEst(e.content)} token</small></button><span class="side">#${esc(e.order||0)}</span></div>`).join('')+
   `<div class="btns"><button class="btn o" data-a="exportBook">复制</button><button class="btn o" data-a="dlBook">下载</button><button class="btn o" data-a="bookHist">历史</button><button class="btn red" data-a="delBook">删除</button></div>`};
 },
 entryEdit(v){
@@ -2518,7 +2518,8 @@ entryEdit(v){
     <label class="f">内容<textarea class="tall" id="e-content" data-s="entry" data-k="content">${esc(e.content)}</textarea></label>
     <div class="grid2"><label class="f">触发概率 %<span class="inline"><input type="range" id="e-prob" min="0" max="100" step="5" data-s="entry" data-k="prob" value="${esc(e.prob??100)}"><output>${esc(e.prob??100)}</output></span></label>
     <label class="f">顺序<input type="number" id="e-order" data-s="entry" data-k="order" value="${esc(e.order||0)}"></label></div>
-    <label class="f">位置<select id="e-pos" data-s="entry" data-k="pos">${[['','设定里'],['depth','聊天末尾']].map(([k,l])=>`<option value="${k}" ${(e.pos==='depth'?'depth':'')===k?'selected':''}>${l}</option>`).join('')}</select></label></div>
+    <div class="${e.pos==='depth'?'grid3':'grid2'}"><label class="f">位置<select id="e-pos" data-s="entry" data-k="pos">${[['','人设前'],['depth','插入深度']].map(([k,l])=>`<option value="${k}" ${(e.pos==='depth'?'depth':'')===k?'selected':''}>${l}</option>`).join('')}</select></label>
+    ${e.pos==='depth'?`<label class="f">插入身份<select id="e-role" data-s="entry" data-k="role">${Object.entries(ROLE).map(([k,l])=>`<option value="${k}" ${(e.role||'system')===k?'selected':''}>${l}</option>`).join('')}</select></label><label class="f">深度<input type="number" min="0" step="1" id="e-depth" data-s="entry" data-k="depth" value="${+e.depth||0}"></label>`:''}</div></div>
     <div class="btns"><button class="btn red" data-a="delEntry">删除</button></div>`};
 },
 presetEdit(v){
@@ -2922,7 +2923,7 @@ const A={
   peekGo(el){const t=thread(cur().id);closeSheet();go({v:'peek',id:t.chars[0],how:el.dataset.h})},
   rUnq(){cur().rq=null;render(true)},
   exportChar(){const c=charById(cur().id);const book=S.books.find(b=>(c.books||[]).includes(b.id));
-    dlJSON({spec:'chara_card_v2',spec_version:'2.0',data:{name:c.name,description:c.persona,first_mes:'',personality:'',scenario:'',mes_example:c.ex||'',extensions:{bingyuji:{sign:c.sign,innerStyle:c.innerStyle,lore:c.lore||''}},...(book?{character_book:{name:book.name,entries:book.entries.map(e=>({keys:String(e.keys||'').split(/[,，]/).filter(Boolean),content:e.content,comment:e.title,constant:e.light==='green',enabled:e.light!=='red',insertion_order:e.order||0,...(k=>({...(k.length?{secondary_keys:k,selective:true}:{}),extensions:{selectiveLogic:{notAll:1,notAny:2,all:3}[e.logic]||0,...(e.pos==='depth'?{position:4,depth:0}:{})}}))(String(e.keys2||'').split(/[,，、\n]+/).map(x=>x.trim()).filter(Boolean))}))}}:{})}},c.name+'.json')},
+    dlJSON({spec:'chara_card_v2',spec_version:'2.0',data:{name:c.name,description:c.persona,first_mes:'',personality:'',scenario:'',mes_example:c.ex||'',extensions:{bingyuji:{sign:c.sign,innerStyle:c.innerStyle,lore:c.lore||''}},...(book?{character_book:{name:book.name,entries:book.entries.map(e=>({keys:String(e.keys||'').split(/[,，]/).filter(Boolean),content:e.content,comment:e.title,constant:e.light==='green',enabled:e.light!=='red',insertion_order:e.order||0,...(k=>({...(k.length?{secondary_keys:k,selective:true}:{}),extensions:{selectiveLogic:{notAll:1,notAny:2,all:3}[e.logic]||0,...(e.pos==='depth'?{position:4,depth:+e.depth||0,role:Math.max(0,['system','user','assistant'].indexOf(e.role))}:{})}}))(String(e.keys2||'').split(/[,，、\n]+/).map(x=>x.trim()).filter(Boolean))}))}}:{})}},c.name+'.json')},
   dlPreset(){const p=presetById(cur().id);dlJSON(p,'预设-'+p.name+'.json')},
   dlBook(){const b=S.books.find(x=>x.id===cur().id);dlJSON(b,'世界书-'+b.name+'.json')},
   fontLinkGo(){const u=$('#fUrl').value.trim();if(!/^https?:\/\//.test(u)){toast('链接不对');return}const fam=$('#fFam').value.trim();
@@ -3116,7 +3117,8 @@ document.addEventListener('error',e=>{const el=e.target;if(!el||el.tagName!=='IM
   if(b&&b.nextElementSibling?.classList.contains('pcap')){b.nextElementSibling.remove();b.outerHTML=`<div class="tphoto"><button class="tp-in" data-a="msg" data-i="${esc(b.dataset.i)}">${ICONS.camera}<span>${esc(el.alt)}</span></button></div>`}
   else if(f){f.classList.add('tp');f.innerHTML=ICONS.camera+`<span>${esc(el.alt)}</span>`}},true);
 document.addEventListener('change',async e=>{const el=e.target;bind(e);
-  if(el.id==='c-ai'){render(true);return}
+  if(el.id==='c-ai'||el.id==='e-pos'){render(true);return}
+  if(el.dataset.a2==='bookOn'){const b=S.books.find(x=>x.id===el.dataset.id);if(b){if(el.checked)delete b.off;else b.off=true;save();render(true)}return}
   if(el.dataset.a2==='entOn'){const en=S.books.find(x=>x.id===cur().id)?.entries.find(x=>x.id===el.dataset.id);if(en){entOn(en,el.checked);save();render(true)}return}
   if(el.dataset.a2==='member'){const t=thread(cur().id);const x=charById(el.dataset.id);if(el.checked){if(!t.chars.includes(el.dataset.id)){t.chars.push(el.dataset.id);t.left=(t.left||[]).filter(i=>i!==el.dataset.id);sysMsg(t,`你邀请 ${dn(x)} 加入了群聊`)}}else{if(t.chars.length<=1){el.checked=true;toast('群里至少要有 1 个角色');return}t.chars=t.chars.filter(i=>i!==el.dataset.id);sysMsg(t,`你把 ${dn(x)} 移出了群聊`)}save()}
   if(el.dataset.a2==='bookOwner'){const id=cur().id,b=S.books.find(x=>x.id===id);S.chars.forEach(c=>{c.books=(c.books||[]).filter(x=>x!==id)});const c=charById(el.value);if(c)(c.books||=[]).push(id);if(b)b.scope=c?'local':'global';save();return}
