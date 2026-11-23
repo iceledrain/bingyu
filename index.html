@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.23.4';</script>
+<script>window.BYJ_VER='2026.11.23.5';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -778,7 +778,7 @@ for(const K of['evWipe','memWipe'])if(!s[K]||typeof s[K]!=='object')s[K]={};if(!
   {const A=s.api;
     if(A.profiles.some(isOldExample)){A.profiles=A.profiles.filter(p=>!isOldExample(p));if(!A.profiles.length)A.profiles=[API_BLANK(uid())];if(!A.profiles.some(p=>p.id===A.active))A.active=A.profiles[0].id;if(A.side&&!A.profiles.some(p=>p.id===A.side))A.side=''}
     A.profiles.forEach(p=>{if(/anthropic\.com|generativelanguage/.test(p.base||'')&&(+p.maxTokens||0)<=8192)p.maxTokens=64000;if(/anthropic\.com/.test(p.base||''))p.stream=true})}
-  s.feed.forEach(p=>(Array.isArray(p.pics)?p.pics:[]).forEach(x=>delete x.dev));s.chars.forEach(c=>{if(c.mood)c.mood=softMood(c.mood,num(c.tide)??60)});if(!s.thinkOnV){s.chat.think=true;s.thinkOnV=1}s.api.side='';s.threads.forEach(t=>{delete t.clock;delete t.pc});s.books.forEach(b=>{delete b.scan;delete b.maxTok;delete b.maxN;(b.entries||[]).forEach(e=>{delete e.noRec;delete e.stopRec;if(e.pos==='after')delete e.pos})});
+  s.feed.forEach(p=>(Array.isArray(p.pics)?p.pics:[]).forEach(x=>delete x.dev));s.chars.forEach(c=>{if(c.mood)c.mood=softMood(c.mood,num(c.tide)??60)});if(!s.thinkOnV){s.chat.think=true;s.thinkOnV=1}s.api.side='';s.threads.forEach(t=>{delete t.clock;delete t.pc});s.books.forEach(b=>{delete b.scan;delete b.maxTok;delete b.maxN;(b.entries||[]).forEach(e=>{delete e.noRec;delete e.stopRec;delete e.was;if(e.pos==='after')delete e.pos})});
   s.chars.forEach(c=>{delete c.routine;delete c.sched;delete c.sign;delete c.today;delete c.past;delete c.phone;delete c.pphoto});s.masks.forEach(m=>{delete m.handle;delete m.bio;delete m.follow;delete m.fans;delete m.likes});
   s.stickers.groups.forEach(g=>(g.items||[]).forEach(x=>{x.name=stkName(x.name)||x.name}));
   delete s.lock;delete s.bubble;delete s.cycle;s.look.icons={};s.look.homeIcon='';delete s.look.order;delete s.look.caption;s.v=4;
@@ -2309,7 +2309,6 @@ async function savePic(u){let b=null;const id=picId(u);try{b=id?await DB.blob('i
 async function picGC(all){const ks=await DB.keys(),used=new Set();S.threads.forEach(t=>t.msgs.forEach(m=>{const id=picId(m.img);if(id)used.add(id)}));S.feed.forEach(p=>postPics(p).forEach(x=>{const id=picId(x.img);if(id)used.add(id)}));
   for(const k of ks){if(typeof k!=='string'||!k.startsWith('img:'))continue;const id=k.slice(4);if(used.has(id)||(!all&&(picNew.has(id)||Date.now()-bornAt({id})<600e3)))continue;DB.del(k)}}
 
-const entOn=(e,on)=>{if(on){if(e.light==='red'){e.light=e.was||(String(e.keys||'').trim()?'yellow':'green');delete e.was}}else if(e.light!=='red'){e.was=e.light;e.light='red'}};
 const bkList=async b=>{if(!DB.db)return[];try{const L=JSON.parse(await DB.get('bk:'+b.id)||'[]');return Array.isArray(L)?L:[]}catch(e){return[]}};
 async function bkSnap(b){if(!DB.db)return;const j=JSON.stringify({name:b.name,entries:b.entries}),L=await bkList(b);if(L[0]?.j===j)return;L.unshift({t:Date.now(),n:b.entries.length,j});await DB.set('bk:'+b.id,JSON.stringify(L.slice(0,10)))}
 function toBook(d,fallback){
@@ -2322,7 +2321,7 @@ function toBook(d,fallback){
   return{id:uid(),name:String(src.name||d.name||fallback||'导入的世界书'),scope:d.scope==='local'?'local':'global',entries:raw.map((e,i)=>({id:uid(),
     title:String(e.title||e.comment||e.name||('条目 '+(i+1))),keys:[].concat(e.key||e.keys||[]).join(','),content:String(e.content||''),
     ...(k=>k?{keys2:k,logic:Object.hasOwn(LG,e.logic||'')?e.logic:['any','notAll','notAny','all'][+(e.selectiveLogic??e.extensions?.selectiveLogic)||0]||'any'}:{})(e.selective===false?'':[].concat(e.keys2||e.keysecondary||e.secondary_keys||e.secondaryKeys||[]).join(',')),
-    light:['green','yellow','red'].includes(e.light)?e.light:((e.disable||e.enabled===false)?'red':(e.constant?'green':'yellow')),...(['green','yellow'].includes(e.was)?{was:e.was}:{}),
+    light:['green','yellow','red'].includes(e.light)?e.light:((e.disable||e.enabled===false)?'red':(e.constant?'green':'yellow')),
     ...(e.pos==='depth'||(e.extensions?.position??e.position)==4?{pos:'depth',depth:Math.max(0,Math.floor(+(e.depth??e.extensions?.depth))||0),role:Object.hasOwn(ROLE,e.role||'')?e.role:['system','user','assistant'][+(e.role??e.extensions?.role)]||'system'}:{}),
     prob:pc(e.prob??((e.useProbability===false)?100:(e.probability??100))),order:+(e.order??e.insertion_order??i)||0}))};
 }
@@ -2504,7 +2503,7 @@ bookEdit(v){
   <div class="panel"><label class="f">名字<input type="text" id="b-name" data-s="book" data-k="name" value="${esc(b.name)}"></label>
     <label class="f">给谁用<select data-a2="bookOwner">${(o=>`<option value="" ${b.scope==='global'?'selected':''}>所有角色（全局）</option>`+(b.scope!=='global'&&!o?`<option value="-" selected>${({见面文风:'只当见面文风',生图:'只给生图用'})[bookUse(b.id)]||'还没选给谁'}</option>`:'')+S.chars.map(c=>`<option value="${c.id}" ${b.scope!=='global'&&o===c.id?'selected':''}>只给 ${esc(dn(c))}（局部）</option>`).join(''))(S.chars.find(c=>(c.books||[]).includes(b.id))?.id)}</select></label></div>`+
   (E.length?`<p class="hint">${E.length} 条 · 常亮约 ${E.filter(loreFix).reduce((n,e)=>n+tokEst(e.content),0)} token</p>`:'')+
-  E.map(e=>`<div class="row"><input type="checkbox" class="cbx" aria-label="开启 ${esc(e.title||'未命名')}" data-a2="entOn" data-id="${e.id}" ${e.light!=='red'?'checked':''}><button class="meta" data-a="editEntry" data-id="${e.id}"><b>${esc(e.title||'未命名')}</b><small>${e.light==='green'||e.was==='green'?'常亮':e.light==='red'&&!String(e.keys||'').trim()?'关闭':esc(e.keys||'⚠ 没填关键词')}${(e.prob??100)<100?' · '+esc(e.prob)+'%':''}${e.pos==='depth'?' · 深度 '+(+e.depth||0):''} · 约 ${tokEst(e.content)} token</small></button><span class="side">#${esc(e.order||0)}</span></div>`).join('')+
+  E.map(e=>`<button class="row" data-a="editEntry" data-id="${e.id}"><span class="light ${esc(e.light)}"></span><span class="meta"><b>${esc(e.title||'未命名')}</b><small>${e.light==='green'?'常亮':e.light==='red'?'关闭':esc(e.keys||'⚠ 没填关键词')}${(e.prob??100)<100?' · '+esc(e.prob)+'%':''}${e.pos==='depth'?' · 深度 '+(+e.depth||0):''} · 约 ${tokEst(e.content)} token</small></span><span class="side">#${esc(e.order||0)}</span></button>`).join('')+
   `<div class="btns"><button class="btn o" data-a="exportBook">复制</button><button class="btn o" data-a="dlBook">下载</button><button class="btn o" data-a="bookHist">历史</button><button class="btn red" data-a="delBook">删除</button></div>`};
 },
 entryEdit(v){
@@ -3022,7 +3021,7 @@ const A={
     Object.assign(b,{name:d.name,entries:d.entries});save();closeSheet();render(true);toast('恢复了')})},
   newEntry(){const b=S.books.find(x=>x.id===cur().id);const e={id:uid(),title:'',keys:'',content:'',light:'green',prob:100,order:Math.max(-1,...b.entries.map(x=>+x.order||0))+1};b.entries.push(e);save();go({v:'entryEdit',id:b.id,eid:e.id})},
   editEntry(el){go({v:'entryEdit',id:cur().id,eid:el.dataset.id})},
-  light(el){const v=cur(),e=S.books.find(b=>b.id===v.id).entries.find(e=>e.id===v.eid);e.light=el.dataset.l;delete e.was;save();render(true)},
+  light(el){const v=cur(),e=S.books.find(b=>b.id===v.id).entries.find(e=>e.id===v.eid);e.light=el.dataset.l;save();render(true)},
   delEntry(el){confirmTap(el,()=>{const v=cur(),b=S.books.find(x=>x.id===v.id);b.entries=b.entries.filter(e=>e.id!==v.eid);save();back()})},
   delBook(el){confirmTap(el,()=>{const id=cur().id;S.books=S.books.filter(b=>b.id!==id);S.chars.forEach(c=>c.books=(c.books||[]).filter(x=>x!==id));[S.offline,...S.threads.map(t=>t.offline),S.media.img].forEach(o=>{if(o?.books)o.books=o.books.filter(x=>x!==id)});DB.del('bk:'+id);save();back()})},
   exportBook(){copy(JSON.stringify(S.books.find(x=>x.id===cur().id)),'复制好了')},
@@ -3119,7 +3118,6 @@ document.addEventListener('error',e=>{const el=e.target;if(!el||el.tagName!=='IM
 document.addEventListener('change',async e=>{const el=e.target;bind(e);
   if(el.id==='c-ai'||el.id==='e-pos'){render(true);return}
   if(el.dataset.a2==='bookOn'){const b=S.books.find(x=>x.id===el.dataset.id);if(b){if(el.checked)delete b.off;else b.off=true;save();render(true)}return}
-  if(el.dataset.a2==='entOn'){const en=S.books.find(x=>x.id===cur().id)?.entries.find(x=>x.id===el.dataset.id);if(en){entOn(en,el.checked);save();render(true)}return}
   if(el.dataset.a2==='member'){const t=thread(cur().id);const x=charById(el.dataset.id);if(el.checked){if(!t.chars.includes(el.dataset.id)){t.chars.push(el.dataset.id);t.left=(t.left||[]).filter(i=>i!==el.dataset.id);sysMsg(t,`你邀请 ${dn(x)} 加入了群聊`)}}else{if(t.chars.length<=1){el.checked=true;toast('群里至少要有 1 个角色');return}t.chars=t.chars.filter(i=>i!==el.dataset.id);sysMsg(t,`你把 ${dn(x)} 移出了群聊`)}save()}
   if(el.dataset.a2==='bookOwner'){const id=cur().id,b=S.books.find(x=>x.id===id);S.chars.forEach(c=>{c.books=(c.books||[]).filter(x=>x!==id)});const c=charById(el.value);if(c)(c.books||=[]).push(id);if(b)b.scope=c?'local':'global';save();return}
   if(el.dataset.a2==='maskChar'){const c=charById(el.dataset.id),id=cur().id;if(!c)return;if(el.checked)c.mask=id;else if(c.mask===id)delete c.mask;save();render(true);return}
