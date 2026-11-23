@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.18.168';</script>
+<script>window.BYJ_VER='2026.11.23.1';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1227,7 +1227,7 @@ function loreOf(books,scanText,part){
   }).sort((a,b)=>(a.order||0)-(b.order||0)).filter(e=>String(e.content||'').trim()).map(e=>(e.title?`「${e.title}」`:'')+e.content.trim());
 }
 const loreBlock=(L,f)=>L.length?'【世界书】\n'+L.map(f).join('\n---\n'):'';
-const charLore=(c,scan)=>{const b=loreBlock(loreFor([c],String(scan||'')+' '+c.name),x=>macOf(x,c));return b?b+'\u0001':''};
+const charLore=(c,scan)=>{const f=x=>macOf(x,c),s=String(scan||'')+' '+c.name,a=loreBlock(loreFor([c],s,'fixed'),f),b=loreBlock(loreFor([c],s,'live'),f);return a||b?a+'\u0002'+b+'\u0001':''};
 const HBS={new:'还没收',got:'已收下',back:'已退回'};
 function bodyText(m){switch(m.type){
   case'sticker':{const s=findSticker(m.content);return`[表情:${m.content}${s?.desc?'（'+s.desc+'）':''}]`}
@@ -1411,7 +1411,7 @@ function buildCtx(t,o={}){
   const tw=C.think,iw=!!C.inner;
   if(mode!=='offline')end.push(`【回复格式】${tw?'先写 <think>…</think>，再':''}把发给${me.name}的话全写进 <reply>…</reply>，一行一条，${iw?'<inner>、':''}${group?'':'<now>、'}<tide> 写在后面${group?'':'，<now> 里一句写你此刻在哪、在干嘛'}。<reply> 外的字不会发出去，每次都写全。\n例：${tw?'<think>…</think>\n':''}<reply>\n第一条\n第二条\n</reply>${iw?'\n<inner>…</inner>':''}${group?'':'\n<now>…</now>'}\n<tide>…</tide>`);
   else if(tw||iw)end.push(`【别漏】每次都按这个顺序写全：${tw?'第一行 <think>…</think>，然后':''}正文${iw?'，正文后另起一行 <inner>…</inner>':''}。\n例：${tw?'<think>…</think>\n':''}正文……${iw?'\n<inner>…</inner>':''}`);
-  const s0=[...pr,...lore,...who].join('\n\n'),s1=[s0,`【下面只管格式】性格、语气都按上面的人设来，和下面的规则冲突时听人设的。`,...rules,...end].join('\n\n'),s2=[s1,...ctxs,...late].join('\n\n'),sum=sumBlock(t),sys=sum?s2+'\n\n'+sum:s2;
+  const s0=[...lore,...who].join('\n\n'),s1=[s0,...pr,`【下面只管格式】性格、语气都按上面的人设来，和下面的规则冲突时听人设的。`,...rules,...end].join('\n\n'),s2=[s1,...ctxs,...late].join('\n\n'),sum=sumBlock(t),sys=sum?s2+'\n\n'+sum:s2;
   SYSCUT.set(sys,[s0.length,s2.length]);if(SYSCUT.size>60)SYSCUT.delete(SYSCUT.keys().next().value);
   return{system:whoTag(sys,t.id),msgs,chars,group,mode,t,roll};
 }
@@ -1485,7 +1485,8 @@ function extractExtras(out,chat=true,group=false,keep=false){
   think=group?think.split('\n').map(l=>{const m=l.trim().match(/^([^:：\n]{1,30})[:：]\s*(.*)$/);return m?(x=>x?m[1].trim()+'：'+x:'')(brief(m[2])):brief(l)}).filter(Boolean).slice(0,8).join('\n'):brief(think);
   return{text:out.trim(),think:think.trim(),inner,tide,acts,prof,cards,fmt,now};
 }
-async function sortLeak(ex,ctx){const lines=ex.text.split('\n').map(l=>l.trim()).filter(Boolean),mark=l=>/^\[[^\]]+\]$/.test(l);
+const AWM=/^\s*[#＃]\s*(\d{1,2})(?:\s*[.、:：)）]\s*|\s+|$)(.*)$/;
+async function sortLeak(ex,ctx){const lines=ex.text.split('\n').map(l=>l.trim()).filter(Boolean),mark=l=>/^\[[^\]]+\]$/.test(l)||AWM.test(l);
   if(lines.filter(l=>!mark(l)).length<2)return;
   const me=mask(ctx.t).name,who=ctx.chars.map(c=>c.name).join('、');
   try{const r=String(await callAI('你在检查聊天软件里的一段回复。',[{role:'user',content:`下面是${who}在手机上回${me}的话，一行一个气泡。模型有时会把${who}心里的分析和打算混进来（比如「她这话什么意思」「是不是在试探我」「我不乐意 但别显得太在乎」），这种行不是发给${me}的。\n\n${lines.map((l,i)=>`${i+1}. ${l}`).join('\n')}\n\n哪几行是心里想的、不是说出口的？只输出行号，逗号隔开；都是说出口的就输出 0。`}],{max:256,side:true,temp:.2}));
@@ -1652,9 +1653,9 @@ function pushMine(t,m){const c0=t.type==='dm'?charById(t.chars[0]):null,r=c0?rel
   if(r&&(r.theyBlocked||r.theyDeleted)&&t.mode!=='offline'){toast('被拉黑了，送不出去');return false}
   t.msgs.push({id:uid(),from:'me',t:Date.now(),...m});t.t=Date.now();save();onThreadUpdate(t);return true}
 const RAW=new Map();
-const noAct=x=>String(x).split('\n').map(l=>{const m=l.match(/^([^:：\[（(*]{1,30}[:：])?(.*)$/),h=m[1]||'',b=m[2];return/^\s*\[/.test(b)?l:(h+b.replace(/[（(][^）)]*[）)]|\*[^*]+\*/g,'')).trim()}).filter(l=>l&&!/^[^:：]{1,30}[:：]\s*$/.test(l)).join('\n');
-const awSeg=x=>{const out=[],put=()=>{if(b.join('').trim())out.push([cur,b.join('\n')]);b=[]};let cur=-1,b=[];
-  for(const l of String(x).split('\n')){const m=l.match(/^\s*[#＃]\s*(\d{1,2})\s*[.、:：)）]?\s*(.*)$/);if(!m){b.push(l);continue}
+const noAct=x=>String(x).split(/\r?\n/).map(l=>{const m=l.match(/^([^:：\[（(*]{1,30}[:：])?(.*)$/),h=m[1]||'',b=m[2];return/^\s*\[/.test(b)?l:(h+b.replace(/[（(][^）)]*[）)]|\*[^*]+\*/g,'')).trim()}).filter(l=>l&&(AWM.test(l)||!/^[^:：]{1,30}[:：]\s*$/.test(l))).join('\n');
+const awSeg=(x,n)=>{const out=[],put=()=>{if(b.join('').trim())out.push([cur,b.join('\n')]);b=[]};let cur=-1,b=[];
+  for(const l of String(x).split(/\r?\n/)){const m=l.match(AWM);if(!m||+m[1]<1||+m[1]>n){b.push(l);continue}
     put();cur=Math.max(cur,+m[1]-1);const r=m[2].replace(/^[（(]?\s*(?:今天|昨天|前天|\d+天前)?\s*\d{1,2}[:：]\d{2}\s*[）)]?\s*(?:[（(][^）)]*[）)])?\s*/,'');if(r)b.push(r)}
   put();return out};
 async function reply(t,extra,stamps){
@@ -1666,13 +1667,13 @@ async function reply(t,extra,stamps){
     const offMax=ctx.mode==='offline'?{max:Math.max((num(api()?.maxTokens)||2048)-4096,Math.round((num((t.offline||S.offline).words)||500)*3)+2000)}:{};
     let r=await callAI(ctx.system,ctx.msgs,{thoughts:true,...tg,...offMax});RAW.set(t.id,[r.text,r.thoughts]);
     if(S.chat.think&&r.text&&!/^\s*(?:\]?<\]?minimax\[?>\[?)?\s*<think>/i.test(r.text)){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:`（上面这条没按顺序写，作废。重写：第一行先写 <think>一句打算</think>，然后才是${ctx.mode==='offline'?'正文':' <reply>…</reply>'}，最后 <inner>…</inner>${ctx.mode==='offline'?'':' 和 <tide>…</tide>'}。内容可以和刚才一样。）`}],{thoughts:true,back:2,...tg,...offMax});RAW.get(t.id).push(r2.text,r2.thoughts);if(/<think>/i.test(r2.text))r=r2}catch(e){}}
-    for(let k=0;k<2&&ctx.mode==='offline'&&r.cut&&r.text;k++){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:'（上面写到一半断了。从断掉的那个字接着把这一段写完，不重复前面，不另起开头。）'}],{thoughts:true,back:2,...offMax});r.text+=r2.text;r.cut=r2.cut&&!!r2.text}catch(e){break}}
+    for(let k=0;k<2&&ctx.mode==='offline'&&r.cut&&r.text;k++){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:'（上面写到一半断了。从断掉的那个字接着把这一段写完，不重复前面，不另起开头。）'}],{thoughts:true,back:2,...tg,...offMax});r.text+=r2.text;r.cut=r2.cut&&!!r2.text}catch(e){break}}
     const ex=extractExtras(r.text,ctx.mode!=='offline',ctx.group,ctx.chars.some(langOf));if(ctx.mode!=='offline'&&!ex.fmt)await sortLeak(ex,ctx);if(ctx.mode==='online')ex.text=noAct(ex.text);if(!S.chat.think)ex.think='';
     applyTide(ctx,ex);applyActs(ctx,ex);if(!ctx.group&&ctx.chars[0]){applyMoney(t,ex,ctx.chars[0]);applyCards(t,ex,ctx.chars[0])}save();
     const callWas=spUse(t).callN,askedCall=/电话|视频|语音|通话|打给|打过来/.test(String([...t.msgs].reverse().find(m=>m.from==='me')?.content||''));
     const callAct=(callWas<0||callWas>=25||askedCall)&&ex.acts.find(a=>a==='语音通话'||a==='视频通话');
     if(!ex.text&&!ex.acts.length)throw new Error(r.cut?'光顾着想了，还没说话长度就用完了：把接口里的最大长度调大，或把思考深度调低':'回复是空的，再试一次');
-    const bought=boughtRecently(t),sAt=[],segs=stamps?awSeg(ex.text):[[-1,ex.text]],marked=segs.some(([s])=>s>=0),parts=ex.text?segs.flatMap(([s,x])=>{const P=parseReply(x,ctx).filter(p=>!(bought&&(p.type==='order'||p.type==='parcel'))&&!(p.type==='pic'&&/^(收到|已?存|保存|放大|截图|点开|看了|好的?$)/.test(String(p.content||'').trim())));P.forEach(()=>sAt.push(Math.max(0,s)));return P}):[];attachExtras(parts,ex,ctx);
+    const bought=boughtRecently(t),sAt=[],segs=stamps?awSeg(ex.text,stamps.length):[[-1,ex.text]],marked=segs.some(([s])=>s>=0),parts=ex.text?segs.flatMap(([s,x])=>{const P=parseReply(x,ctx).filter(p=>!(bought&&(p.type==='order'||p.type==='parcel'))&&!(p.type==='pic'&&/^(收到|已?存|保存|放大|截图|点开|看了|好的?$)/.test(String(p.content||'').trim())));P.forEach(()=>sAt.push(Math.max(0,s)));return P}):[];attachExtras(parts,ex,ctx);
     if(!parts.length&&ctx.mode==='online'&&ex.acts.includes('沉默')&&[...t.msgs].reverse().find(m=>m.type!=='sys')?.from==='me'&&!(!ctx.group&&ctx.chars[0]&&(rel(ctx.chars[0]).theyBlocked||rel(ctx.chars[0]).theyDeleted))){const tx=ctx.group?'没人回':`${dn(ctx.chars[0])} 没回`;let L=t.msgs[t.msgs.length-1];if(!(L&&L.type==='sys'&&L.content===tx)){sysMsg(t,tx);L=t.msgs[t.msgs.length-1]}if(ex.inner.length&&S.chat.inner)L.inner=withKao(ex.inner.join('\n'));t.t=Date.now();save()}
     const posted=[],lack={think:S.chat.think&&!ex.think,inner:S.chat.inner&&!ex.inner.length};
     const miss=ctx.group&&S.chat.inner&&parts.length?ctx.chars.filter(c=>{const o=parts.length===1&&parts[0].type==='narr';return o?!new RegExp('(^|\\n)'+c.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'：').test(parts[0].inner||''):parts.some(p=>p.from===c.id)&&!parts.some(p=>p.from===c.id&&p.inner)}):[];
@@ -1795,7 +1796,7 @@ const charBooksPanel=c=>`<div class="panel"><h2>${esc(dn(c))}的世界书<button
     ${(()=>{const L=S.books.filter(b=>b.scope!=='global'&&(c.books||[]).includes(b.id));return L.length?L.map(b=>`<button class="row" data-a="editBook" data-id="${b.id}"><span class="meta"><b>${esc(b.name)}</b><small>${b.entries.length} 条</small></span><i class="chev">›</i></button>`).join(''):'<p class="hint">还没有</p>'})()}</div>`;
 const loveBlock=(name,me)=>`【底色】${name}真的爱${me.name}，不会离开TA：替TA着想，心疼TA，珍惜TA，记挂TA的身体和心情。性子冷、凶、嘴硬都照人设，但不说伤TA的话。人设里另写了和${me.name}的关系，就听人设的。`;
 const sysFor=(c,extra)=>whoTag(sysFor0(c,extra),c?.id);
-const sysFor0=(c,extra)=>{const me=mask(c),k=extra.indexOf('\u0001'),lore=k<0?'':extra.slice(0,k)+'\n\n',rest=k<0?extra:extra.slice(k+1);return`你是${c.name}。\n${c.persona.replaceAll('{{user}}',me.name).replaceAll('{{char}}',c.name)}${(x=>x?'\n\n'+x:'')(exBlock(c,s=>String(s).replaceAll('{{user}}',me.name).replaceAll('{{char}}',c.name),1200))}\n${loveBlock(c.name,me)}\n\n${aboutMe(me)}\n\n${lore}${rest}`};
+const sysFor0=(c,extra)=>{const me=mask(c),k=extra.indexOf('\u0001'),[l0,l1]=k<0?['','']:extra.slice(0,k).split('\u0002'),lore=l1?l1+'\n\n':'',rest=k<0?extra:extra.slice(k+1);return`${l0?l0+'\n\n':''}你是${c.name}。\n${c.persona.replaceAll('{{user}}',me.name).replaceAll('{{char}}',c.name)}${(x=>x?'\n\n'+x:'')(exBlock(c,s=>String(s).replaceAll('{{user}}',me.name).replaceAll('{{char}}',c.name),1200))}\n${loveBlock(c.name,me)}\n\n${aboutMe(me)}\n\n${lore}${rest}`};
 async function charReply(p,c,toWhat,toId,toName){
   const me=mask(c),a=authorOf(p.author,p),who=toName||me.name;
   const thr=(p.replies||[]).slice(-10).map(r=>authorOf(r.author,r).name+'：'+r.text).join('\n');
@@ -2319,7 +2320,7 @@ function toBook(d,fallback){
   const pc=x=>(x=+x,x>=0&&x<=100?x:100);
   return{id:uid(),name:String(src.name||d.name||fallback||'导入的世界书'),scope:d.scope==='local'?'local':'global',entries:raw.map((e,i)=>({id:uid(),
     title:String(e.title||e.comment||e.name||('条目 '+(i+1))),keys:[].concat(e.key||e.keys||[]).join(','),content:String(e.content||''),
-    ...(k=>k?{keys2:k,logic:LG[e.logic]?e.logic:['any','notAll','notAny','all'][+(e.selectiveLogic??e.extensions?.selectiveLogic)||0]||'any'}:{})(e.selective===false?'':[].concat(e.keys2||e.keysecondary||e.secondary_keys||e.secondaryKeys||[]).join(',')),
+    ...(k=>k?{keys2:k,logic:Object.hasOwn(LG,e.logic||'')?e.logic:['any','notAll','notAny','all'][+(e.selectiveLogic??e.extensions?.selectiveLogic)||0]||'any'}:{})(e.selective===false?'':[].concat(e.keys2||e.keysecondary||e.secondary_keys||e.secondaryKeys||[]).join(',')),
     light:['green','yellow','red'].includes(e.light)?e.light:((e.disable||e.enabled===false)?'red':(e.constant?'green':'yellow')),
     prob:pc(e.prob??((e.useProbability===false)?100:(e.probability??100))),order:+(e.order??e.insertion_order??i)||0}))};
 }
