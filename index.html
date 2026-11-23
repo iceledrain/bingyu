@@ -1228,7 +1228,7 @@ function loreHit(books,scan){const out=[],sp=x=>String(x||'').split(/[,，、\n]
     for(let r=0,add=[...on];r<3&&add.length;r++){const tx=add.filter(e=>e.stopRec===false).map(e=>e.content).join('\n').toLowerCase();if(!tx)break;
       add=E.filter(e=>!on.has(e)&&e.light!=='green'&&e.noRec===false&&key(e,tx)&&roll(e));add.forEach(e=>on.add(e))}
     let n=0,tk=0;const mN=num(b.maxN)||Infinity,mT=num(b.maxTok)||Infinity;
-    [...on].sort((x,y)=>loreFix(y)-loreFix(x)||byOrd(x,y)).forEach(e=>{const t=tokEst(e.content);if(n>=mN||tk+t>mT)return;n++;tk+=t;out.push(e)})}
+    const kept=new Set();[...on].sort((x,y)=>loreFix(y)-loreFix(x)||byOrd(x,y)).forEach(e=>{const t=tokEst(e.content);if(n>=mN||tk+t>mT)return;n++;tk+=t;kept.add(e)});out.push(...E.filter(e=>kept.has(e)))}
   return out.sort(byOrd)}
 const loreOf=(books,scan,part)=>loreHit(books,scan).filter(e=>!part||(part==='fixed')===loreFix(e)).map(loreTx);
 const loreBlock=(L,f)=>L.length?'【世界书】\n'+L.map(f).join('\n---\n'):'';
@@ -2318,8 +2318,8 @@ async function picGC(all){const ks=await DB.keys(),used=new Set();S.threads.forE
   for(const k of ks){if(typeof k!=='string'||!k.startsWith('img:'))continue;const id=k.slice(4);if(used.has(id)||(!all&&(picNew.has(id)||Date.now()-bornAt({id})<600e3)))continue;DB.del(k)}}
 
 const entOn=(e,on)=>{if(on){if(e.light==='red'){e.light=e.was||(String(e.keys||'').trim()?'yellow':'green');delete e.was}}else if(e.light!=='red'){e.was=e.light;e.light='red'}};
-const bkList=async b=>{try{const L=JSON.parse(await DB.get('bk:'+b.id)||'[]');return Array.isArray(L)?L:[]}catch(e){return[]}};
-async function bkSnap(b){const j=JSON.stringify({name:b.name,scan:b.scan,maxTok:b.maxTok,maxN:b.maxN,entries:b.entries}),L=await bkList(b);if(L[0]?.j===j)return;L.unshift({t:Date.now(),n:b.entries.length,j});await DB.set('bk:'+b.id,JSON.stringify(L.slice(0,10)))}
+const bkList=async b=>{if(!DB.db)return[];try{const L=JSON.parse(await DB.get('bk:'+b.id)||'[]');return Array.isArray(L)?L:[]}catch(e){return[]}};
+async function bkSnap(b){if(!DB.db)return;const j=JSON.stringify({name:b.name,scan:b.scan,maxTok:b.maxTok,maxN:b.maxN,entries:b.entries}),L=await bkList(b);if(L[0]?.j===j)return;L.unshift({t:Date.now(),n:b.entries.length,j});await DB.set('bk:'+b.id,JSON.stringify(L.slice(0,10)))}
 document.addEventListener('pointerdown',e=>{const g=e.target.closest?.('[data-grip]');if(!g)return;const row=g.closest('.row'),box=row.parentElement,b=S.books.find(x=>x.id===cur()?.id);if(!b)return;e.preventDefault();row.classList.add('drag');
   const rows=()=>[...box.querySelectorAll('.row[data-eid]')],mv=ev=>{const sib=rows().filter(x=>x!==row),nx=sib.find(x=>{const r=x.getBoundingClientRect();return ev.clientY<r.top+r.height/2});box.insertBefore(row,nx||sib[sib.length-1]?.nextSibling||null)},
     up=()=>{removeEventListener('pointermove',mv);removeEventListener('pointerup',up);removeEventListener('pointercancel',up);rows().forEach((x,i)=>{const en=b.entries.find(y=>y.id===x.dataset.eid);if(en)en.order=i});save();render(true)};
@@ -2512,7 +2512,7 @@ books(v){const tab=v.tab==='local'?'local':'global',own=b=>S.chars.find(c=>(c.bo
     `<div class="panel"><label class="f">关键词看最近几条<span class="inline"><input type="range" id="b-scan" min="1" max="30" step="1" data-s="chat" data-k="scan" value="${num(S.chat.scan)||8}"><output>${num(S.chat.scan)||8}</output></span></label></div>`}},
 bookEdit(v){
   const b=S.books.find(x=>x.id===v.id);if(!b)return{title:'不见了',body:''};
-  const E=[...b.entries].sort(byOrd),tk=L=>L.reduce((n,e)=>n+tokEst(e.content),0),sel=v.sel;
+  if(v.sel)v.sel=v.sel.filter(id=>b.entries.some(e=>e.id===id));const E=[...b.entries].sort(byOrd),tk=L=>L.reduce((n,e)=>n+tokEst(e.content),0),sel=v.sel;
   return{title:b.name||'世界书',sub:'世界书',right:`<button class="tb" data-a="newEntry">加条目</button>`,body:`
   <div class="panel"><label class="f">名字<input type="text" id="b-name" data-s="book" data-k="name" value="${esc(b.name)}"></label>
     <label class="f">给谁用<select data-a2="bookOwner">${(o=>`<option value="" ${b.scope==='global'?'selected':''}>所有角色（全局）</option>`+(b.scope!=='global'&&!o?`<option value="-" selected>${({见面文风:'只当见面文风',生图:'只给生图用'})[bookUse(b.id)]||'还没选给谁'}</option>`:'')+S.chars.map(c=>`<option value="${c.id}" ${b.scope!=='global'&&o===c.id?'selected':''}>只给 ${esc(dn(c))}（局部）</option>`).join(''))(S.chars.find(c=>(c.books||[]).includes(b.id))?.id)}</select></label></div>`+
