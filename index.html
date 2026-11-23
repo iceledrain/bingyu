@@ -1395,12 +1395,12 @@ function buildCtx(t,o={}){
     rows.push({role:m.from==='me'||m.from==='sys'?'user':'assistant',content:msgText(m,group,me.name),...(imgIdx.has(i)?{imgs:[m.img]}:{})})});
   const msgs=[...pre,...rows,...(o.lines||[])];
   {const end=msgs.length,la=msgs.map(x=>x.role).lastIndexOf('assistant')+1;
-    [...items.filter(inChat),...LH.filter(e=>e.pos==='depth').map(e=>({role:e.role,depth:+e.depth||0,content:(e.role==='user'||e.role==='assistant'?'':'【世界书】\n')+loreTx(e)}))].map(i=>({i,d:Math.max(0,Math.floor(+i.depth))})).sort((a,b)=>b.d-a.d)
-      .forEach(({i,d},k)=>msgs.splice(Math.max(pre.length,la,end-d)+k,0,{role:i.role==='assistant'?'assistant':'user',content:mac(i.content)}))}
+    [...items.filter(inChat),...LH.filter(e=>e.pos==='depth').map(e=>({dep:1,role:e.role,depth:e.role==='assistant'?1e9:+e.depth||0,content:(e.role==='user'||e.role==='assistant'?'':'【世界书】\n')+loreTx(e)}))].map(i=>({i,d:Math.max(0,Math.floor(+i.depth))})).sort((a,b)=>b.d-a.d)
+      .forEach(({i,d},k)=>msgs.splice(Math.max(pre.length,la,end-d)+k,0,{role:i.role==='assistant'?'assistant':'user',content:mac(i.content),...(i.dep?{dep:1}:{})}))}
   if(mode!=='call')rules.push(`${chars.some(c=>String(c.persona||'').trim())?`【人设】照【${cname}】的人设说话做事。`:'【人设】'}和${me.name}之间没发生过的事不编。`);
   {const L=chars.filter(langOf);if(L.length)rules.push(`【语言】${L.map(c=>`${c.name}开口只说${langOf(c)}`).join('，')}。发的消息、[语音:…] 冒号后的话、通话、「」里的台词都这样，${me.name}说中文也不改口。[语音]、[图片]、[挂断] 这类标签名照原样，${group?'行首名字、':''}图片描述、旁白画面、<think>、<inner>、<tide> 还写中文。`)}
   if(mode==='online'&&(C.think||C.inner))tail.push(`【这次回复】照【回复格式】写全：${C.think?'<think>…</think>、':''}<reply>…</reply>${C.inner?'、<inner>…</inner>':''}${group?'':'、<now>…</now>'}、<tide>…</tide>，一样都不能少。`);
-  if(tail.length){let k=msgs.length;while(k>0&&msgs[k-1].role==='user'&&k>pre.length)k--;const last=k<msgs.length;
+  if(tail.length){let k=msgs.length;while(k>0&&msgs[k-1].role==='user'&&k>pre.length)k--;const last=msgs.slice(k).some(x=>!x.dep);
     msgs.splice(k,0,{role:'user',content:`（此刻的情况，系统告诉你的，不是${me.name}发的消息）\n`+tail.join('\n\n')+(last?`\n\n（下面是${me.name}${mode==='online'?group?'刚发的；前面的已经接过了，群里接着往下聊':'刚发的，主要回这几条；前面的已经回过了，不用再回':'发的'}）`:'')})}
   if(mode==='offline'){const w=num(off.words)||500,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字；不替${me.name}写话和心理；不写成手机消息${(off.upov||'second')==='second'?`；叙述里称呼${me.name}只用「你」`:''}${(l=>l.length?`；${l.join('和')}别漏`:'')([C.think&&'开头的 <think>',C.inner&&(group?'结尾的 <inner>（每人一行）':'结尾的 <inner>')].filter(Boolean))}）`,last=msgs[msgs.length-1];
     if(last&&last.role==='user')last.content+='\n\n'+note;else msgs.push({role:'user',content:note})}
@@ -2492,7 +2492,7 @@ presets(){
   return{title:'预设',right:`<button class="tb" data-a="presetMenu">添加</button>`,body:
     S.presets.map(p=>`<button class="row" data-a="editPreset" data-id="${p.id}"><span class="meta"><b>${esc(p.name)}</b><small>开启 ${p.items.filter(i=>i.on).length}/${p.items.length} 条</small></span>${p.id===S.activePreset?'<span class="pill fill">使用中</span>':''}</button>`).join('')}},
 books(v){const tab=v.tab==='local'?'local':'global',own=b=>S.chars.find(c=>(c.books||[]).includes(b.id)),L=S.books.filter(b=>(b.scope==='global')===(tab==='global'));
-  const row=b=>{const g=b.entries.filter(e=>e.light==='green').length,y=b.entries.filter(e=>e.light==='yellow').length,c=own(b);return`<div class="row"><input type="checkbox" class="cbx" aria-label="开启 ${esc(b.name)}" data-a2="bookOn" data-id="${b.id}" ${b.off?'':'checked'}><button class="meta" data-a="editBook" data-id="${b.id}"><b>${esc(b.name)}</b><small>${b.entries.length} 条 · ${g} 常亮约 ${b.entries.reduce((n,e)=>n+(e.light==='green'?tokEst(e.content):0),0)} token · ${y} 关键词</small></button>${tab==='local'?`<span class="pill">${c?esc(dn(c)):bookUse(b.id)||'还没选给谁'}</span>`:''}</div>`};
+  const row=b=>{const g=b.entries.filter(e=>e.light==='green').length,y=b.entries.filter(e=>e.light==='yellow').length,c=own(b);return`<div class="row"><input type="checkbox" class="cbx" aria-label="开启 ${esc(b.name)}" data-a2="bookOn" data-id="${b.id}" ${b.off?'':'checked'}><button class="meta" data-a="editBook" data-id="${b.id}"><b>${esc(b.name)}</b><small>${b.entries.length} 条 · ${g} 常亮约 ${b.entries.reduce((n,e)=>n+(e.light==='green'?tokEst(e.content):0),0)} token · ${y} 关键词</small></button>${tab==='local'?`<span class="pill" data-a="editBook" data-id="${b.id}">${c?esc(dn(c)):bookUse(b.id)||'还没选给谁'}</span>`:''}</div>`};
   return{title:'世界书',right:`<button class="tb" data-a="bookMenu">添加</button>`,body:tabs([['global','全局'],['local','局部']],tab)+
     ``+
     (L.map(row).join('')||`<div class="empty"><big>${tab==='global'?'还没有全局的':'还没有局部的'}</big></div>`)+
