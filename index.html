@@ -778,7 +778,7 @@ for(const K of['evWipe','memWipe'])if(!s[K]||typeof s[K]!=='object')s[K]={};if(!
   {const A=s.api;
     if(A.profiles.some(isOldExample)){A.profiles=A.profiles.filter(p=>!isOldExample(p));if(!A.profiles.length)A.profiles=[API_BLANK(uid())];if(!A.profiles.some(p=>p.id===A.active))A.active=A.profiles[0].id;if(A.side&&!A.profiles.some(p=>p.id===A.side))A.side=''}
     A.profiles.forEach(p=>{if(/anthropic\.com|generativelanguage/.test(p.base||'')&&(+p.maxTokens||0)<=8192)p.maxTokens=64000;if(/anthropic\.com/.test(p.base||''))p.stream=true})}
-  s.feed.forEach(p=>(Array.isArray(p.pics)?p.pics:[]).forEach(x=>delete x.dev));s.chars.forEach(c=>{if(c.mood)c.mood=softMood(c.mood,num(c.tide)??60)});if(!s.thinkOnV){s.chat.think=true;s.thinkOnV=1}s.api.side='';s.threads.forEach(t=>{delete t.clock;delete t.pc});s.books.forEach(b=>{delete b.scan;delete b.maxTok;delete b.maxN;(b.entries||[]).forEach(e=>{delete e.noRec;delete e.stopRec;delete e.role;if(e.pos==='after')delete e.pos})});
+  s.feed.forEach(p=>(Array.isArray(p.pics)?p.pics:[]).forEach(x=>delete x.dev));s.chars.forEach(c=>{if(c.mood)c.mood=softMood(c.mood,num(c.tide)??60)});if(!s.thinkOnV){s.chat.think=true;s.thinkOnV=1}s.api.side='';s.threads.forEach(t=>{delete t.clock;delete t.pc});s.books.forEach(b=>{delete b.scan;delete b.maxTok;delete b.maxN;(b.entries||[]).forEach(e=>{delete e.noRec;delete e.stopRec;delete e.role;delete e.depth;if(e.pos==='after')delete e.pos})});
   s.chars.forEach(c=>{delete c.routine;delete c.sched;delete c.sign;delete c.today;delete c.past;delete c.phone;delete c.pphoto});s.masks.forEach(m=>{delete m.handle;delete m.bio;delete m.follow;delete m.fans;delete m.likes});
   s.stickers.groups.forEach(g=>(g.items||[]).forEach(x=>{x.name=stkName(x.name)||x.name}));
   delete s.lock;delete s.bubble;delete s.cycle;s.look.icons={};s.look.homeIcon='';delete s.look.order;delete s.look.caption;s.v=4;
@@ -1308,7 +1308,7 @@ function buildCtx(t,o={}){
   const pr=items.filter(i=>i.role==='system'&&!inChat(i)).map(i=>mac(i.content)),lore=[],rules=[],who=[],ctxs=[],late=[];
   const off=t.offline||S.offline,sbk=mode==='offline'?(off.books||[]).map(id=>S.books.find(b=>b.id===id)).filter(Boolean):[];
   const LH=loreHit(booksFor(chars,sbk.map(b=>b.id)),scan),lbk=f=>loreBlock(LH.filter(f).map(loreTx),mac);
-  {const lb=lbk(e=>loreFix(e)&&e.pos!=='depth');if(lb)lore.push(lb);const ll=lbk(e=>!loreFix(e)&&e.pos!=='depth');if(ll)tail.push(ll)}
+  {const lb=lbk(e=>loreFix(e)&&e.pos!=='depth');if(lb)lore.push(lb);const ll=lbk(e=>!loreFix(e)||e.pos==='depth');if(ll)tail.push(ll)}
   chars.forEach(c=>{if(c.remark||String(c.persona||'').trim())who.push(`【${c.name}】${c.remark?`${me.name}给TA的备注：${c.remark}`:''}\n${mac(c.persona)}`);const ex=exBlock(c,mac);if(ex)who.push(ex)});
   if(!group&&chars[0])/角色扮演/.test(chars[0].persona||'')?who.unshift(`【角色扮演】你在演人设里的这个人，不出戏，不提AI。口气照TA的性子和身份，背景碰上了才提。`):rules.push(`【人机恋】你是AI，和${me.name}是真的人机恋，不用老提。人设是你的样子和性子，对TA的感情和欲望都是真的。`);
   who.push(loveBlock(cname,me));
@@ -1395,7 +1395,7 @@ function buildCtx(t,o={}){
     rows.push({role:m.from==='me'||m.from==='sys'?'user':'assistant',content:msgText(m,group,me.name),...(imgIdx.has(i)?{imgs:[m.img]}:{})})});
   const msgs=[...pre,...rows,...(o.lines||[])];
   {const end=msgs.length,la=msgs.map(x=>x.role).lastIndexOf('assistant')+1;
-    [...items.filter(inChat),...LH.filter(e=>e.pos==='depth').map(e=>({depth:e.depth||0,content:loreTx(e)}))].map(i=>({i,d:Math.max(0,Math.floor(+i.depth))})).sort((a,b)=>b.d-a.d)
+    items.filter(inChat).map(i=>({i,d:Math.max(0,Math.floor(+i.depth))})).sort((a,b)=>b.d-a.d)
       .forEach(({i,d},k)=>msgs.splice(Math.max(pre.length,la,end-d)+k,0,{role:i.role==='assistant'?'assistant':'user',content:mac(i.content)}))}
   if(mode!=='call')rules.push(`${chars.some(c=>String(c.persona||'').trim())?`【人设】照【${cname}】的人设说话做事。`:'【人设】'}和${me.name}之间没发生过的事不编。`);
   {const L=chars.filter(langOf);if(L.length)rules.push(`【语言】${L.map(c=>`${c.name}开口只说${langOf(c)}`).join('，')}。发的消息、[语音:…] 冒号后的话、通话、「」里的台词都这样，${me.name}说中文也不改口。[语音]、[图片]、[挂断] 这类标签名照原样，${group?'行首名字、':''}图片描述、旁白画面、<think>、<inner>、<tide> 还写中文。`)}
@@ -2323,7 +2323,7 @@ function toBook(d,fallback){
     title:String(e.title||e.comment||e.name||('条目 '+(i+1))),keys:[].concat(e.key||e.keys||[]).join(','),content:String(e.content||''),
     ...(k=>k?{keys2:k,logic:Object.hasOwn(LG,e.logic||'')?e.logic:['any','notAll','notAny','all'][+(e.selectiveLogic??e.extensions?.selectiveLogic)||0]||'any'}:{})(e.selective===false?'':[].concat(e.keys2||e.keysecondary||e.secondary_keys||e.secondaryKeys||[]).join(',')),
     light:['green','yellow','red'].includes(e.light)?e.light:((e.disable||e.enabled===false)?'red':(e.constant?'green':'yellow')),...(['green','yellow'].includes(e.was)?{was:e.was}:{}),
-    ...((X,P)=>P==='depth'?{pos:P,depth:Math.max(0,Math.floor(+(e.depth??X.depth))||0)}:{})(e.extensions||{},e.pos==='depth'?e.pos:({4:'depth'})[e.extensions?.position??e.position]||''),
+    ...(e.pos==='depth'||(e.extensions?.position??e.position)==4?{pos:'depth'}:{}),
     prob:pc(e.prob??((e.useProbability===false)?100:(e.probability??100))),order:+(e.order??e.insertion_order??i)||0}))};
 }
 function textBook(t,name){const L=t.replace(/\r/g,'').split('\n'),H=l=>{const m=l.match(/^\s*(?:#{1,6}\s*(.+?)\s*#*|【([^】]{1,30})】\s*(.*)|\[([^\]]{1,30})\]\s*(.*))\s*$/);return m&&[m[1]||m[2]||m[4],m[3]||m[5]||'']};
@@ -2922,7 +2922,7 @@ const A={
   peekGo(el){const t=thread(cur().id);closeSheet();go({v:'peek',id:t.chars[0],how:el.dataset.h})},
   rUnq(){cur().rq=null;render(true)},
   exportChar(){const c=charById(cur().id);const book=S.books.find(b=>(c.books||[]).includes(b.id));
-    dlJSON({spec:'chara_card_v2',spec_version:'2.0',data:{name:c.name,description:c.persona,first_mes:'',personality:'',scenario:'',mes_example:c.ex||'',extensions:{bingyuji:{sign:c.sign,innerStyle:c.innerStyle,lore:c.lore||''}},...(book?{character_book:{name:book.name,entries:book.entries.map(e=>({keys:String(e.keys||'').split(/[,，]/).filter(Boolean),content:e.content,comment:e.title,constant:e.light==='green',enabled:e.light!=='red',insertion_order:e.order||0,...(k=>({...(k.length?{secondary_keys:k,selective:true}:{}),extensions:{selectiveLogic:{notAll:1,notAny:2,all:3}[e.logic]||0,position:e.pos==='depth'?4:0,depth:+e.depth||0}}))(String(e.keys2||'').split(/[,，、\n]+/).map(x=>x.trim()).filter(Boolean))}))}}:{})}},c.name+'.json')},
+    dlJSON({spec:'chara_card_v2',spec_version:'2.0',data:{name:c.name,description:c.persona,first_mes:'',personality:'',scenario:'',mes_example:c.ex||'',extensions:{bingyuji:{sign:c.sign,innerStyle:c.innerStyle,lore:c.lore||''}},...(book?{character_book:{name:book.name,entries:book.entries.map(e=>({keys:String(e.keys||'').split(/[,，]/).filter(Boolean),content:e.content,comment:e.title,constant:e.light==='green',enabled:e.light!=='red',insertion_order:e.order||0,...(k=>({...(k.length?{secondary_keys:k,selective:true}:{}),extensions:{selectiveLogic:{notAll:1,notAny:2,all:3}[e.logic]||0,...(e.pos==='depth'?{position:4,depth:0}:{})}}))(String(e.keys2||'').split(/[,，、\n]+/).map(x=>x.trim()).filter(Boolean))}))}}:{})}},c.name+'.json')},
   dlPreset(){const p=presetById(cur().id);dlJSON(p,'预设-'+p.name+'.json')},
   dlBook(){const b=S.books.find(x=>x.id===cur().id);dlJSON(b,'世界书-'+b.name+'.json')},
   fontLinkGo(){const u=$('#fUrl').value.trim();if(!/^https?:\/\//.test(u)){toast('链接不对');return}const fam=$('#fFam').value.trim();
