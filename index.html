@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.24.22';</script>
+<script>window.BYJ_VER='2026.11.24.23';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1929,8 +1929,9 @@ const audio=new Audio();audio.preload='metadata';
 const mState={playing:false,loaded:null,res:[],q:'',busy:false};
 const MAPI='https://music-api.gdstudio.xyz/api.php';
 async function mApi(q){let r;try{r=await fetch(MAPI+'?'+new URLSearchParams(q))}catch(e){throw new Error('音乐接口连不上，检查一下网络')}const d=await r.json().catch(()=>null);if(!r.ok||!d)throw new Error('音乐接口出错了 '+r.status);return d}
-async function mSearch(q){const d=await mApi({types:'search',source:'netease',name:q,count:20,pages:1});
-  return(Array.isArray(d)?d:[]).map(x=>({title:x.name,artist:[].concat(x.artist||[]).join(' / '),album:x.album||'',online:{src:'netease',id:String(x.url_id||x.id),pic:x.pic_id||''}}))}
+async function mSearch(q,src='netease'){const d=await mApi({types:'search',source:src,name:q,count:20,pages:1});
+  return(Array.isArray(d)?d:[]).map(x=>({title:x.name,artist:[].concat(x.artist||[]).join(' / '),album:x.album||'',online:{src,id:String(x.url_id||x.id),pic:x.pic_id||''}}))}
+async function mAlt(s,e){const k=x=>String(x||'').toLowerCase().replace(/[\s（(].*$/,'');try{const r=(await mSearch((s.title+' '+(s.artist||'')).trim(),'kuwo')).find(x=>k(x.title)===k(s.title));if(r)return await mOnline({online:r.online,cover:1})}catch(x){}throw e}
 async function mOnline(s){const d=await mApi({types:'url',source:s.online.src,id:s.online.id,br:320});if(!d.url)throw new Error('这首拿不到音频，可能是版权原因');
   if(!s.cover&&s.online.pic)mApi({types:'pic',source:s.online.src,id:s.online.pic,size:800}).then(p=>{if(p.url){s.cover=p.url.replace(/^http:/,'https:');save();if(cur()?.v==='music')render(true)}}).catch(()=>{});
   return d.url.replace(/^http:/,'https:')}
@@ -1963,7 +1964,7 @@ async function mLoad(id,auto=true){
   let src='';
   try{if(s.src)src=s.src;
     else{if(s.online&&s.online.src!=='netease')delete s.online;if(!s.online){const r=(await mSearch((s.title+' '+(s.artist||'')).trim()))[0];if(!r)throw new Error('在线没搜到《'+s.title+'》');s.online=r.online;if(!s.artist)s.artist=r.artist;save()}
-      src=await mOnline(s)}}
+      src=await mOnline(s).catch(e=>mAlt(s,e))}}
   catch(e){audio.removeAttribute('src');audio.load();mState.playing=false;mState.loaded=null;toast(e.message,4200);if(cur()?.v==='music')render(true);return}
   if(S.music.cur!==id)return;
   audio.src=src;if(auto)audio.play().catch(()=>{mState.playing=false;mUI()});if(mState.lyr)mLyric(s);
