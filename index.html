@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.24.13';</script>
+<script>window.BYJ_VER='2026.11.24.14';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -693,7 +693,7 @@ const txList=async k=>{if(!DB.db)return[];try{const L=JSON.parse(await DB.get('t
 const txOn=new Set(),txT={};let txQ=Promise.resolve();
 const txSnap=(k,s,e)=>txQ=txQ.then(async()=>{s=String(s||'');if(!DB.db||!s.trim())return;const L=await txList(k),o=L[0];if(o?.s===s)return;let p=0;if(o)while(p<o.s.length&&o.s[p]===s[p])p++;
   if(e&&o?.e&&Date.now()-o.t<6e5&&p*2>=o.s.length)L[0]={t:Date.now(),s,e:1};else L.unshift({t:Date.now(),s,...(e?{e:1}:{})});
-  const E=L.filter(x=>x.e).slice(0,8),B=L.filter(x=>!x.e).slice(0,8);await DB.set('tx:'+k,JSON.stringify(L.filter(x=>E.includes(x)||B.includes(x))))});
+  const E=L.filter(x=>x.e).slice(0,2),B=L.filter(x=>!x.e).slice(0,2);await DB.set('tx:'+k,JSON.stringify(L.filter(x=>E.includes(x)||B.includes(x))))});
 function save(){clearTimeout(saveT);if(ready)saveT=setTimeout(flush,1200)}
 try{navigator.storage?.persisted?.().then(p=>{if(!p)navigator.storage.persist?.().catch(()=>{})}).catch(()=>{})}catch(e){}
 addEventListener('pagehide',flush);addEventListener('pageshow',e=>{if(e.persisted)fresh()});addEventListener('focus',()=>fresh());
