@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.24.21';</script>
+<script>window.BYJ_VER='2026.11.24.22';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1334,8 +1334,9 @@ function offEvent(t,off,me){const p=num(off.evRate)??10;t.evGap=(t.evGap||0)+1;
 const boughtRecently=t=>{const L=t.msgs.filter(m=>m.from!=='me'&&(m.type==='order'||m.type==='parcel')&&Date.now()-m.t<24*3600e3);return L.length>=5||L.some(m=>Date.now()-m.t<2*3600e3)};
 const saidGone=(c,t)=>(c.said||[]).filter(x=>Date.now()-x.t<36*3600e3&&!(t&&t.msgs.some(m=>m.from===c.id&&String(m.content||'').slice(0,60)===x.s)));
 const langOf=c=>String(c?.voice?.lang||'').trim();
+const ordSort=(A,ord,key)=>{const r=x=>{const i=(ord||[]).indexOf(key(x));return i<0?1e9:i};return A.map((x,i)=>[x,i]).sort((a,b)=>r(a[0])-r(b[0])||a[1]-b[1]).map(a=>a[0])};
 const banHit=x=>[...new Set(String(S.chat.ban||'').split(/[\s,，、]+/).filter(Boolean))].filter(w=>String(x||'').includes(w));
-function ruleDefs(){const c=S.chars.slice(0,2).map(c=>c.id),D=new Map(),run=(type,mode,lab,o={})=>{try{const d=buildCtx({id:'',type,chars:type==='dm'?c.slice(0,1):c,msgs:[],mode,title:''},{tpl:1,mode,...o}).defs;for(const k in d){if(!D.has(k))D.set(k,{k,x:d[k],labs:new Set()});D.get(k).labs.add(lab)}}catch(e){}};
+function ruleDefs(){const c=S.chars.slice(0,2).map(c=>c.id),D=new Map(),run=(type,mode,lab,o={})=>{try{const c0=buildCtx({id:'',type,chars:type==='dm'?c.slice(0,1):c,msgs:[],mode,title:''},{tpl:1,mode,...o}),d=c0.defs;for(const k in d){if(!D.has(k))D.set(k,{k,x:d[k],labs:new Set(),w:c0.wk.includes(k)});D.get(k).labs.add(lab)}}catch(e){}};
   run('dm','online','聊天');run('dm','offline','见面');run('dm','call','通话');run('dm','call','通话',{kind:'video'});run('group','online','群聊');run('group','offline','群聊');return[...D.values()].map(d=>({...d,lab:d.labs.size>=4?'都用':[...d.labs].join('、')}))}
 function buildCtx(t,o={}){
   const chars=t.chars.map(charById).filter(Boolean),me=o.tpl?{...mask(t),name:'{{user}}'}:mask(t),P=preset(),mode=o.mode||t.mode||'online',group=t.type==='group',C=o.tpl?{...S.chat,think:true,inner:true}:S.chat,im=mode==='call'?'online':mode;
@@ -1458,14 +1459,14 @@ function buildCtx(t,o={}){
   const tw=C.think,iw=!!C.inner;
   if(mode!=='offline')end.push(`【回复格式】${tw?'先写 <think>…</think>，再':''}把发给${me.name}的话全写进 <reply>…</reply>，一行一条，${iw?'<inner>、':''}${group?'':'<now>、'}<tide> 写在后面${group?'':'，<now> 里一句写你此刻在哪、在干嘛'}。<reply> 外的字不会发出去，每次都写全。\n例：${tw?'<think>…</think>\n':''}<reply>\n第一条\n第二条\n</reply>${iw?'\n<inner>…</inner>':''}${group?'':'\n<now>…</now>'}\n<tide>…</tide>`);
   else if(tw||iw)end.push(`【别漏】每次都按这个顺序写全：${tw?'第一行 <think>…</think>，然后':''}正文${iw?'，正文后另起一行 <inner>…</inner>':''}。\n例：${tw?'<think>…</think>\n':''}正文……${iw?'\n<inner>…</inner>':''}`);
-  const defs={},tagOf=x=>(String(x).match(/^【([^】]+)】/)||[])[1],ovOne=x=>{const k=tagOf(x),v=(P.ov||{})[k];if(!k)return{x};defs[k]=x;return v==null?{k,x}:{k,ov:1,x:String(v).trim()?mac(v):''}},tx=a=>a.map(o=>o.x).filter(Boolean);
-  const W=who.map(x=>['底色','角色扮演'].includes(tagOf(x))?ovOne(x):{x}),R=rules.map(ovOne),E=end.map(ovOne),FIX=`【下面只管格式】性格、语气都按上面的人设来，和下面的规则冲突时听人设的。`;
+  const defs={},tagOf=x=>(String(x).match(/^【([^】]+)】/)||[])[1],ovOne=x=>{const k=tagOf(x),v=(P.ov||{})[k];if(!k)return{x};defs[k]=x;if((P.gone||[]).includes(k))return{k,gone:1,x:''};return v==null?{k,x}:{k,ov:1,x:String(v).trim()?mac(v):''}},tx=a=>a.map(o=>o.x).filter(Boolean);
+  const W=who.map(x=>['底色','角色扮演'].includes(tagOf(x))?ovOne(x):{x}),RE=ordSort([...rules,...end].map(ovOne),P.ord,o=>o.k),FIX=`【下面只管格式】性格、语气都按上面的人设来，和下面的规则冲突时听人设的。`;
   const head=[];let cut=0;{const sysI=items.filter(i=>i.role==='system'&&!inChat(i)),add=i=>{if(i.mk==='lore')head.push(...lore.map(x=>({s:'世界书',x})));else if(i.mk==='who')head.push(...W.map(o=>({s:o.k?'规则':'人设',...o})));else head.push({s:'预设',x:mac(i.content),iid:i.id});if(i.mk)cut=tx(head).join('\n\n').length};
     for(const k of['lore','who'])if(!sysI.some(i=>i.mk===k))add({mk:k});sysI.forEach(add)}
-  const s1=[...tx(head),FIX,...tx(R),...tx(E)].join('\n\n'),s2=[s1,...ctxs,...late].join('\n\n'),sum=sumBlock(t),sys=sum?s2+'\n\n'+sum:s2;
-  const parts=[...head,{s:'规则',x:FIX},...[...R,...E].map(o=>({s:'规则',...o})),...[...ctxs,...late].map(x=>({s:'自动',x})),...(sum?[{s:'总结',x:sum}]:[])];
+  const s1=[...tx(head),FIX,...tx(RE)].join('\n\n'),s2=[s1,...ctxs,...late].join('\n\n'),sum=sumBlock(t),sys=sum?s2+'\n\n'+sum:s2;
+  const parts=[...head,{s:'规则',x:FIX},...RE.map(o=>({s:'规则',...o})),...[...ctxs,...late].map(x=>({s:'自动',x})),...(sum?[{s:'总结',x:sum}]:[])];
   SYSCUT.set(sys,[cut,s2.length]);if(SYSCUT.size>60)SYSCUT.delete(SYSCUT.keys().next().value);
-  return{system:whoTag(sys,t.id),msgs,chars,group,mode,t,roll,parts,defs};
+  return{system:whoTag(sys,t.id),msgs,chars,group,mode,t,roll,parts:parts.filter(p=>!p.gone),defs,wk:W.map(o=>o.k).filter(Boolean)};
 }
 const STKP=new Map();
 function describeSticker(s){if(!s||s.desc!=null||!/^data:image\/(png|jpe?g|webp)/.test(s.src||''))return;s.desc='';
@@ -1633,7 +1634,7 @@ const busy=new Set();
 function dmFor(cid){let t=S.threads.find(x=>x.type==='dm'&&x.chars[0]===cid);if(!t){t={id:uid(),type:'dm',chars:[cid],title:'',mode:'online',msgs:[],unread:0,t:Date.now()};S.threads.push(t);
   save()}return t}
 function threadTitle(t){return t.type==='dm'?dn(charById(t.chars[0])):(t.title||t.chars.map(id=>dn(charById(id))).join('、'))}
-function lastPreview(t){const m=t.msgs[t.msgs.length-1];if(!m)return'还没有消息';if(m.type==='sys')return m.content;const who=t.type==='group'&&m.from!=='me'?dn(charById(m.from))+'：':m.from==='me'?'我：':'';return who+pv(m)}
+function lastPreview(t){const m=t.msgs[t.msgs.length-1];if(!m)return'';if(m.type==='sys')return m.content;const who=t.type==='group'&&m.from!=='me'?dn(charById(m.from))+'：':m.from==='me'?'我：':'';return who+pv(m)}
 const mindSt={};
 const fOpen=(m,k,d)=>{const id=m.id+':'+k;return`data-fid="${esc(id)}"${(id in mindSt?mindSt[id]:d)?' open':''}`};
 function thinkFold(m){return m.think?`<details class="fold think" ${fOpen(m,'t',false)}><summary>${ICONS.brain}${esc(S.chat.thinkName||'思维链')}</summary><div>${esc(m.think)}</div></details>`:''}
@@ -2385,7 +2386,7 @@ function textBook(t,name){const L=t.replace(/\r/g,'').split('\n'),H=l=>{const m=
   if(!entries.length)throw new Error('这个文件里没找到内容');return{id:uid(),name:name||'导入的世界书',scope:'global',entries}}
 function toPreset(d,fallback){
   const dep=x=>Math.max(0,Math.floor(+x)||0);
-  if(Array.isArray(d.items))return{id:uid(),name:d.name||fallback||'导入的预设',...(d.core===1?{core:1}:{}),...(d.ov&&typeof d.ov==='object'?{ov:{...d.ov}}:{}),items:d.items.map(x=>({...(x.mk in MK?{mk:x.mk}:{}),id:uid(),name:String(x.name||'提示词'),role:['system','user','assistant'].includes(x.role)?x.role:'system',mode:['both','online','offline'].includes(x.mode)?x.mode:'both',on:x.on!==false,content:String(x.content||''),...(inChat(x)?{depth:dep(x.depth)}:{})}))};
+  if(Array.isArray(d.items))return{id:uid(),name:d.name||fallback||'导入的预设',...(d.core===1?{core:1}:{}),...(d.ov&&typeof d.ov==='object'?{ov:{...d.ov}}:{}),...(Array.isArray(d.ord)?{ord:d.ord.map(String)}:{}),...(Array.isArray(d.gone)?{gone:d.gone.map(String)}:{}),items:d.items.map(x=>({...(x.mk in MK?{mk:x.mk}:{}),id:uid(),name:String(x.name||'提示词'),role:['system','user','assistant'].includes(x.role)?x.role:'system',mode:['both','online','offline'].includes(x.mode)?x.mode:'both',on:x.on!==false,content:String(x.content||''),...(inChat(x)?{depth:dep(x.depth)}:{})}))};
   const prompts=d.prompts||[];if(!prompts.length)throw new Error('这个预设里没找到提示词');
   const ord=(d.prompt_order||[]).map(o=>o.order).filter(o=>o&&o.length).pop();
   const list=ord?ord.map(o=>{const p=prompts.find(x=>x.identifier===o.identifier);return p&&{...p,enabled:o.enabled}}).filter(Boolean):prompts;
@@ -2429,7 +2430,7 @@ threads(v){dropBlank();
   if(tab==='me')return{title:'我',cls:'wx',...nav,body:`<div class="wxg">${go_('walletOpen','wallet','钱包','',money(S.wallet))}</div>
     <div class="wxg">${go_('open','smile','表情包','data-v="stickers"')}${go_('chatSet','settings','聊天设置')}${go_('open','weather','天气','data-v="weather"',S.loc?esc(S.loc.name):'没设城市')}</div>`}
   if(tab==='people')return{title:'通讯录',cls:'wx',...nav,right:`<button class="tb" data-a="charMenu" aria-label="添加">${ICONS.plus}</button>`,
-    body:`<div class="wxg">`+(S.chars.filter(c=>!rel(c).youDeleted).map(c=>`<button class="row" data-a="editChar" data-hold="charHold" data-id="${c.id}">${av(c,40)}<span class="meta"><b>${esc(dn(c))}</b>${c.remark?`<small>${esc(c.name)}</small>`:''}</span>${rel(c).youBlocked?`<span class="pill">${rel(c).blockBy&&charById(rel(c).blockBy)?esc(dn(charById(rel(c).blockBy)))+'拉黑的':'已拉黑'}</span>`:rel(c).theyBlocked?'<span class="pill">拉黑了你</span>':''}</button>`).join('')||`<p class="hint" style="padding:14px 16px">还没有好友</p>`)+`</div>`+
+    body:(S.chars.some(c=>!rel(c).youDeleted)?`<div class="wxg">`:'<div>')+(S.chars.filter(c=>!rel(c).youDeleted).map(c=>`<button class="row" data-a="editChar" data-hold="charHold" data-id="${c.id}">${av(c,40)}<span class="meta"><b>${esc(dn(c))}</b>${c.remark?`<small>${esc(c.name)}</small>`:''}</span>${rel(c).youBlocked?`<span class="pill">${rel(c).blockBy&&charById(rel(c).blockBy)?esc(dn(charById(rel(c).blockBy)))+'拉黑的':'已拉黑'}</span>`:rel(c).theyBlocked?'<span class="pill">拉黑了你</span>':''}</button>`).join(''))+`</div>`+
     (S.chars.some(c=>rel(c).youDeleted)?`<div class="sec">已删除的好友</div><div class="wxg">`+S.chars.filter(c=>rel(c).youDeleted).map(c=>`<div class="row">${av(c,40)}<span class="meta"><b>${esc(dn(c))}</b><small>${rel(c).blockBy&&charById(rel(c).blockBy)?esc(dn(charById(rel(c).blockBy)))+' 用你手机删的 · ':''}聊天记录还留着</small></span><span class="side h"><button class="tb" data-a="reAdd" data-id="${c.id}">重新添加</button><button class="tb red" data-a="delChar" data-id="${c.id}">删除好友</button></span></div>`).join('')+`</div>`:'')+
     `<div class="sec" style="display:flex;justify-content:space-between;align-items:center">我的面具<button class="tb" data-a="newMask">新面具</button></div><div class="wxg">`+
     S.masks.map(m=>`<div class="row">${av(m,40)}<button class="meta" data-a="editMask" data-id="${m.id}"><b>${esc(m.name)}</b><small>${(()=>{const b=S.chars.filter(c=>c.mask===m.id).map(dn);return b.length?esc('绑定：'+b.join('、'))+' · ':''})()}${esc(m.persona?m.persona.replace(/\n/g,' '):'还没写人设')}</small></button><span class="side">${m.id===S.activeMask?'<span class="pill fill">戴着</span>':`<button class="tb" data-a="useMask" data-id="${m.id}">戴上</button>`}</span></div>`).join('')+`</div>`};
@@ -2437,7 +2438,7 @@ threads(v){dropBlank();
   const rows=list.map(t=>{const cs=t.chars.map(charById).filter(Boolean);const lm=t.msgs[t.msgs.length-1];
     return`<button class="row" data-a="openThread" data-id="${t.id}"><span class="wxa">${t.type==='dm'?av(cs[0]||{name:'?'},48):(t.avatar?av(t,48):`<span class="grpav">${cs.slice(0,4).map(c=>av(c,22)).join('')}</span>`)}${t.unread?`<i class="wxn">${t.unread>99?'99+':t.unread}</i>`:''}</span><span class="meta"><span class="xn"><b>${esc(threadTitle(t))}</b><i>${lm?ago(lm.t):''}</i></span><small>${t.mode==='offline'?'[线下] ':''}${esc(lastPreview(t))}</small></span></button>`}).join('');
   return{title:un?`聊天(${un})`:'聊天',cls:'wx',right:`<button class="tb" data-a="newThread" aria-label="新建">${ICONS.plus}</button>`,...nav,
-    body:rows?`<div class="wxg">${rows}</div>`:`<div class="empty"><big>很安静 T_T</big></div>`};
+    body:rows?`<div class="wxg">${rows}</div>`:''};
 },
 chat(v){
   const t=thread(v.id);if(!t)return{title:'不见了',body:''};if(t.unread){t.unread=0;save()}
@@ -2582,7 +2583,7 @@ presetEdit(v){
   return{title:p.name,sub:'预设',right:`<button class="tb" data-a="newItem">加提示词</button>`,body:`
   <div class="panel"><label class="f">名字<input type="text" id="p-name" data-s="preset" data-k="name" value="${esc(p.name)}"></label></div>`+
   p.items.map((it,i)=>(mv=>it.mk?`<div class="row"><input type="checkbox" class="cbx" checked disabled aria-label="${MK[it.mk]}"><span class="meta"><b>${MK[it.mk]}</b><small>${it.mk==='lore'?'常亮的世界书放这儿':'角色和你的人设放这儿'}</small></span>${mv}</div>`:null)(`<span class="side h"><button class="tb" data-a="moveItem" data-id="${it.id}" data-d="-1" ${i?'':'disabled'} aria-label="上移">↑</button><button class="tb" data-a="moveItem" data-id="${it.id}" data-d="1" ${i<p.items.length-1?'':'disabled'} aria-label="下移">↓</button></span>`)||`<div class="row"><input type="checkbox" class="cbx" aria-label="开启 ${esc(it.name)}" data-a2="itemOn" data-id="${it.id}" ${it.on?'checked':''}><button class="meta" data-a="editItem" data-id="${it.id}"><b>${esc(it.name)}</b><small>${esc(ROLE[it.role]||it.role)} · ${esc(MODE[it.mode]||it.mode)}${inChat(it)?' · 记录里 深度'+it.depth:''} · ${esc((it.content||'').replace(/\n/g,' '))}</small></button><span class="side h"><button class="tb" data-a="moveItem" data-id="${it.id}" data-d="-1" ${i?'':'disabled'} aria-label="上移">↑</button><button class="tb" data-a="moveItem" data-id="${it.id}" data-d="1" ${i<p.items.length-1?'':'disabled'} aria-label="下移">↓</button></span></div>`).join('')+
-  (D=>`<button class="more" data-a="ovFold">内置的 ${D.length} 条 ${v.bi?'︿':'﹀'}</button>`+(v.bi?D.map(d=>{const o=(p.ov||{})[d.k];return`<div class="row"><input type="checkbox" class="cbx" aria-label="开启 ${esc(d.k)}" data-a2="ovOn" data-k="${esc(d.k)}" ${(d.k==='思考'?S.chat.think:d.k===(S.chat.innerName||'心声')?S.chat.inner:o!=='')?'checked':''}><button class="meta" data-a="ovEdit" data-k="${esc(d.k)}"><b>${esc(d.k)}</b><small>${d.lab}${o?' · 改过':''} · ${esc((o||d.x).replace(/^【[^】]+】/,'').replace(/\n/g,' ').slice(0,60))}</small></button></div>`}).join(''):''))(ruleDefs())+
+  (D=>`<button class="more" data-a="ovFold">内置的 ${D.length} 条 ${v.bi?'︿':'﹀'}</button>`+(v.bi?D.map((d,i)=>{const o=(p.ov||{})[d.k];return`<div class="row"><input type="checkbox" class="cbx" aria-label="开启 ${esc(d.k)}" data-a2="ovOn" data-k="${esc(d.k)}" ${(d.k==='思考'?S.chat.think:d.k===(S.chat.innerName||'心声')?S.chat.inner:o!=='')?'checked':''}><button class="meta" data-a="ovEdit" data-k="${esc(d.k)}"><b>${esc(d.k)}</b><small>${d.lab}${o?' · 改过':''} · ${esc((o||d.x).replace(/^【[^】]+】/,'').replace(/\n/g,' ').slice(0,60))}</small></button>${d.w?'':`<span class="side h"><button class="tb" data-a="ovMove" data-k="${esc(d.k)}" data-d="-1" aria-label="上移">↑</button><button class="tb" data-a="ovMove" data-k="${esc(d.k)}" data-d="1" aria-label="下移">↓</button></span>`}</div>`}).join('')+((p.gone||[]).length?`<button class="more" data-a="ovBack">找回删掉的 ${p.gone.length} 条</button>`:''):''))(ordSort(ruleDefs().filter(d=>!(p.gone||[]).includes(d.k)),p.ord,d=>d.k))+
   `<div class="btns">${p.id===S.activePreset?'<span class="pill fill">使用中</span>':'<button class="btn" data-a="usePreset">使用</button>'}<button class="btn o" data-a="exportPreset">复制</button><button class="btn o" data-a="dlPreset">下载</button>${S.presets.length>1?'<button class="btn red" data-a="delPreset">删除</button>':''}</div>`};
 },
 itemEdit(v){
@@ -2618,14 +2619,14 @@ peek(v){const c=charById(v.id);if(!c)return{title:'不见了',body:''};
 sent(v){const t=thread(v.id);if(!t)return{title:'不见了',body:''};const x=buildCtx(t),blk=(l,b,tx)=>`<div class="sb"><small>${l}</small>${b}<p>${tx}</p></div>`;
   return{title:'发给他的',body:`<div class="panel sentp">`+x.parts.map(p=>blk(p.s+(p.ov?' · 改过':''),p.k?`<button class="tb" data-a="ovEdit" data-k="${esc(p.k)}">改</button>`:p.iid?`<button class="tb" data-a="sentItem" data-id="${p.iid}">改</button>`:'',esc(p.x)||'（关掉了）')).join('')+
     x.msgs.map(m=>blk(m.role==='assistant'?'他':'我这边','',esc(typeof m.content==='string'?m.content:''))).join('')+`</div>`}},
-ovEdit(v){const t=v.id&&thread(v.id),p=presetById(v.pid),d=(t?buildCtx(t,{tpl:1}).defs[v.k]:null)??ruleDefs().find(x=>x.k===v.k)?.x;if(!p)return{title:'不见了',body:''};const C=S.chat;
+ovEdit(v){const t=v.id&&thread(v.id),p=presetById(v.pid),d=(t?buildCtx(t,{tpl:1}).defs[v.k]:null)??ruleDefs().find(x=>x.k===v.k)?.x;if(!p||(p.gone||[]).includes(v.k))return{title:'不见了',body:''};const C=S.chat,DEL=`<button class="btn red" data-a="ovDel">删除</button>`;
   if(v.k==='思考')return{title:'思维链',sub:p.name,body:`<div class="panel"><label class="f">叫什么<input type="text" id="ch-tname" data-s="chat" data-k="thinkName" value="${esc(C.thinkName)}"></label>
-      <label class="f">想什么<textarea id="ch-tstyle" data-s="chat" data-k="thinkStyle">${esc(C.thinkStyle||THINK_DEF)}</textarea></label><button class="tb" data-a="setChat" data-k="thinkStyle" data-v="" style="align-self:flex-start">恢复默认</button></div>`};
+      <label class="f">想什么<textarea id="ch-tstyle" data-s="chat" data-k="thinkStyle">${esc(C.thinkStyle||THINK_DEF)}</textarea></label><button class="tb" data-a="setChat" data-k="thinkStyle" data-v="" style="align-self:flex-start">恢复默认</button></div><div class="btns">${DEL}</div>`};
   if(v.k===(C.innerName||'心声')||v.inner)return{title:'心声',sub:p.name,body:`<div class="panel">
       <label class="f">叫什么<input type="text" id="ch-iname" data-s="chat" data-k="innerName" value="${esc(C.innerName)}" placeholder="心声 / 内心OS"></label>
-      <label class="f">写什么<textarea id="ch-istyle" data-s="chat" data-k="innerStyle">${esc(C.innerStyle)}</textarea></label><button class="tb" data-a="setChat" data-k="innerStyle" data-v="${esc(CHAT_DEF().innerStyle)}" style="align-self:flex-start">恢复默认</button></div>`};
+      <label class="f">写什么<textarea id="ch-istyle" data-s="chat" data-k="innerStyle">${esc(C.innerStyle)}</textarea></label><button class="tb" data-a="setChat" data-k="innerStyle" data-v="${esc(CHAT_DEF().innerStyle)}" style="align-self:flex-start">恢复默认</button></div><div class="btns">${DEL}</div>`};
   if(d==null)return{title:'不见了',body:''};
-  return{title:v.k,sub:p.name,body:`<div class="panel"><label class="f">内容<textarea class="tall" data-s="ov" data-k="${esc(v.k)}">${esc(p.ov&&v.k in p.ov?p.ov[v.k]:d)}</textarea></label></div><div class="btns"><button class="btn o" data-a="ovReset">恢复默认</button></div>`}},
+  return{title:v.k,sub:p.name,body:`<div class="panel"><label class="f">内容<textarea class="tall" data-s="ov" data-k="${esc(v.k)}">${esc(p.ov&&v.k in p.ov?p.ov[v.k]:d)}</textarea></label></div><div class="btns"><button class="btn o" data-a="ovReset">恢复默认</button>${DEL}</div>`}},
 ctxPeek(v){const t=thread(v.id);if(!t)return{title:'不见了',body:''};const x=buildCtx(t),cs=t.chars.map(charById).filter(Boolean);
   const ev=[...new Map(cs.flatMap(c=>eventsFor(c)).map(e=>[e.id,e])).values()].sort((a,b)=>b.t-a.t);
   const old=cs.filter(c=>c.longMem);
@@ -2885,6 +2886,9 @@ const A={
   sentOpen(){const t=thread(cur().id);closeSheet();go({v:'sent',id:t.id})},
   ovEdit(el){const v=cur(),k=el.dataset.k,inner=k===(S.chat.innerName||'心声')?1:0;go(v.v==='sent'?{v:'ovEdit',id:v.id,pid:preset().id,k,inner}:{v:'ovEdit',pid:v.id,k,inner})},
   sentItem(el){go({v:'itemEdit',id:preset().id,iid:el.dataset.id})},
+  ovMove(el){const p=presetById(cur().id),L=ordSort(ruleDefs().filter(d=>!(p.gone||[]).includes(d.k)&&!d.w),p.ord,d=>d.k).map(d=>d.k),i=L.indexOf(el.dataset.k),j=i+(+el.dataset.d);if(i<0||j<0||j>=L.length)return;[L[i],L[j]]=[L[j],L[i]];p.ord=L;save();render(true)},
+  ovDel(el){confirmTap(el,()=>{const v=cur(),p=presetById(v.pid);if(!p)return;(p.gone||=[]).includes(v.k)||p.gone.push(v.k);if(v.k==='思考')S.chat.think=false;else if(v.inner)S.chat.inner=false;save();back()})},
+  ovBack(){const p=presetById(cur().id);if((p.gone||[]).includes('思考'))S.chat.think=true;if((p.gone||[]).includes(S.chat.innerName||'心声'))S.chat.inner=true;p.gone=[];save();render(true)},
   ovFold(){const v=cur();v.bi=!v.bi;render(true)},
   ovReset(){const p=presetById(cur().pid);if(p?.ov)delete p.ov[cur().k];save();back()},
   ctxCopy(){const t=thread(cur().id);copy([buildCtx(t).system,...(RAW.get(t.id)||[])].filter(Boolean).join('\n———\n'),'复制了')},
@@ -3111,7 +3115,7 @@ const A={
   impRxGo(){try{const L=toRx(JSON.parse($('#impRxTa').value));if(!L.length)throw 0;S.regex.push(...L);save();closeSheet();render(true);toast('导入了 '+L.length+' 条')}catch(e){toast('不是有效的 JSON')}},
   presetMenu(){sheet(`<h3>预设</h3><button class="opt" data-a="newPreset">新建</button><button class="opt" data-a="defPreset">默认预设</button><button class="opt" data-a="importPresetSheet">导入</button>${CANCEL}`)},
   defPreset(){const p={id:uid(),name:'默认',core:1,items:DEFAULT_ITEMS()};S.presets.push(p);save();closeSheet();go({v:'presetEdit',id:p.id})},
-  newPreset(){const src=preset();const p={id:uid(),name:src.name+' 副本',core:1,items:src.items.map(i=>({...i,id:uid()})),ov:{...(src.ov||{})}};S.presets.push(p);save();closeSheet();go({v:'presetEdit',id:p.id})},
+  newPreset(){const src=preset();const p={id:uid(),name:src.name+' 副本',core:1,items:src.items.map(i=>({...i,id:uid()})),ov:{...(src.ov||{})},ord:[...(src.ord||[])],gone:[...(src.gone||[])]};S.presets.push(p);save();closeSheet();go({v:'presetEdit',id:p.id})},
   importPresetSheet(){fileSheet('导入预设','.json,application/json','impPreset','')},
   impPresetGo(){try{const p=toPreset(JSON.parse($('#impPresetTa').value),$('#impPresetTa').dataset.name),n=p.items.length;withMk(withCore(p));S.presets.push(p);save();closeSheet();go({v:'presetEdit',id:p.id});toast('导入了 '+n+' 条提示词')}catch(e){toast(e.message||'不是有效的 JSON')}},
   editPreset(el){go({v:'presetEdit',id:el.dataset.id})},
