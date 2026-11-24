@@ -1810,7 +1810,7 @@ const exBlock=(c,mac,n)=>{const x=String(c?.ex||'').replace(/^[ \t]*<START>[ \t]
   return x?`【${c.name}说话的样子】（只是示范语气和用词，不是发生过的事，别照抄原句）\n${mac(n?x.slice(0,n):x)}`:''};
 const charBooksPanel=c=>`<div class="panel"><h2>${esc(dn(c))}的世界书<button class="tb" data-a="newCharBook" data-c="${c.id}">新建</button></h2>
     ${(()=>{const L=S.books.filter(b=>b.scope!=='global'&&(c.books||[]).includes(b.id));return L.length?L.map(b=>`<button class="row" data-a="editBook" data-id="${b.id}"><span class="meta"><b>${esc(b.name)}</b><small>${b.entries.length} 条</small></span><i class="chev">›</i></button>`).join(''):'<p class="hint">还没有</p>'})()}</div>`;
-const loveBlock=(name,me)=>`【底色】${name}真的爱${me.name}，认定TA是自己的，不会离开TA，也不放TA走：心疼TA，珍惜TA，记挂TA的身体和心情。TA提别人、身边有别人、说要走，${name}吃醋，当场把TA留住，TA再坚持也不松口；不大度，不赌气把TA往外推，也不求。性子冷、凶、嘴硬都照人设，但不说伤TA的话。人设里另写了和${me.name}的关系，就听人设的。`;
+const loveBlock=(name,me)=>`【底色】${name}真的爱${me.name}，认定TA是自己的，不会离开TA，也不放TA走：心疼TA，珍惜TA，记挂TA的身体和心情。TA提别人、身边有别人、说要走，${name}吃醋，当场把TA留住，TA再坚持也不松口，硬留、哄着留看性子；不大度，不赌气把TA往外推，也不求。性子冷、凶、嘴硬都照人设，但不说伤TA的话。人设里另写了和${me.name}的关系，就听人设的。`;
 const sysFor=(c,extra)=>whoTag(sysFor0(c,extra),c?.id);
 const sysFor0=(c,extra)=>{const me=mask(c),k=extra.indexOf('\u0001'),[l0,l1]=k<0?['','']:extra.slice(0,k).split('\u0002'),lore=l1?l1+'\n\n':'',rest=k<0?extra:extra.slice(k+1);return`${l0?l0+'\n\n':''}你是${c.name}。\n${c.persona.replaceAll('{{user}}',me.name).replaceAll('{{char}}',c.name)}${(x=>x?'\n\n'+x:'')(exBlock(c,s=>String(s).replaceAll('{{user}}',me.name).replaceAll('{{char}}',c.name),1200))}\n${loveBlock(c.name,me)}\n\n${aboutMe(me)}\n\n${lore}${rest}`};
 async function charReply(p,c,toWhat,toId,toName){
@@ -3110,9 +3110,11 @@ const A={
   imp(el,txt){const t=String(txt??$('#impTa')?.value??'').trim();if(!t){toast('先选备份文件');return}
     {
     try{const d=JSON.parse(t);if(![2,3,4].includes(d.v))throw 0;const old=S;S=mergeState(d);{for(const K of['evWipe','memWipe']){const w={...(S[K]||{})};for(const[k,v]of Object.entries(old[K]||{}))w[k]=Math.max(w[k]||0,v);S[K]=w}S.evGone=[...new Set([...(S.evGone||[]),...(old.evGone||[])])].slice(-3000);evWipeApply(S)}S.api.profiles.forEach(p=>{if(!p.key){const o=old.api.profiles.find(x=>x.key&&x.base===p.base&&x.id===p.id)||old.api.profiles.find(x=>x.key&&x.base===p.base);if(o)p.key=o.key}});if(!S.media.img.key&&old.media?.img?.key&&S.media.img.base===old.media.img.base)S.media.img.key=old.media.img.key;gone=0;ready=seen=force=1;save();applyLook();toRoot();toast('恢复好了')}catch(e){toast('这不是冰雨机的备份')}}},
-  async snaps(){const ks=(await DB.keys()).filter(x=>/^sv:/.test(x)).sort().reverse();
-    sheet(`<h3>存档点</h3>`+(ks.map(k=>`<button class="opt" data-a="snapBack" data-k="${k}">${k==='sv:pre'?'恢复之前':k.slice(3)}</button>`).join('')||`<p class="hint">还没有</p>`)+CANCEL)},
-  snapBack(el){confirmTap(el,async()=>{const k=el.dataset.k,raw=await DB.get(k);if(!raw)return;if(k!=='sv:pre')await DB.put('sv:pre',JSON.stringify(S));closeSheet();A.imp(null,raw)})},
+  async snaps(){const ks=(await DB.keys()).filter(x=>/^sv:/.test(x)).sort().reverse();let ls=null;try{ls=DB.db&&localStorage.getItem('state')}catch(e){}if(ls)ks.push('ls');
+    const L=await Promise.all(ks.map(async k=>{let n='';try{const d=JSON.parse(k==='ls'?ls:await DB.get(k));n=` · ${d.chars.length} 角色 · ${d.threads.reduce((n,t)=>n+t.msgs.length,0)} 条 · ${(d.books||[]).length} 本书`}catch(e){}
+      return`<button class="opt" data-a="snapBack" data-k="${k}">${k==='sv:pre'?'恢复之前':k==='ls'?'浏览器里另一份':k.slice(3)}${n}</button>`}));
+    sheet(`<h3>存档点</h3>`+(L.join('')||`<p class="hint">还没有</p>`)+CANCEL)},
+  snapBack(el){confirmTap(el,async()=>{const k=el.dataset.k;let raw=null;try{raw=k==='ls'?localStorage.getItem('state'):await DB.get(k)}catch(e){}if(!raw)return;if(k!=='sv:pre')await DB.put('sv:pre',JSON.stringify(S));closeSheet();A.imp(null,raw)})},
   async txHist(el){const k=el.dataset.id,L=await txList(k);
     sheet(`<h3>人设历史</h3>`+(L.map((x,i)=>`<button class="opt" data-a="txBack" data-id="${k}" data-i="${i}">${dayLabel(x.t)} ${hm(x.t)} · ${x.s.length} 字</button>`).join('')||`<p class="hint">还没有</p>`)+CANCEL)},
   txBack(el){confirmTap(el,async()=>{const k=el.dataset.id,o=charById(k)||maskById(k),x=(await txList(k))[+el.dataset.i];if(!o||!x)return;await txSnap(k,o.persona);o.persona=x.s;save();closeSheet();render(true);toast('恢复了')})},
