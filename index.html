@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.24.11';</script>
+<script>window.BYJ_VER='2026.11.24.12';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1952,11 +1952,12 @@ function mToggle(){const s=songById(S.music.cur);
   audio.paused?audio.play().catch(()=>toast('放不出来')):audio.pause()}
 const mQueue=()=>{const F=favSongs(),c=songById(S.music.cur);return S.music.list==='fav'&&F.length&&(!c||c.fav)?F:S.music.songs};
 const favSongs=()=>S.music.songs.filter(x=>x.fav).sort((a,b)=>(b.favAt||0)-(a.favAt||0));
-function mNext(auto){const L=mQueue();if(!L.length)return;const i=L.findIndex(s=>s.id===S.music.cur);
+const mSong=x=>{let s=S.music.songs.find(y=>y.online&&y.online.id===x.online.id&&y.online.src===x.online.src);if(!s){s={id:uid(),title:x.title,artist:x.artist,online:x.online,by:'me',t:Date.now()};S.music.songs.push(s);save()}return s};
+function mStep(d,auto){const R=S.music.list==='res'&&mState.queue?.length?mState.queue:null,L=R||mQueue();if(!L.length)return;const c=songById(S.music.cur),i=R?R.findIndex(x=>c?.online&&x.online.id===c.online.id&&x.online.src===c.online.src):L.findIndex(s=>s.id===S.music.cur);
   if(auto===true&&S.music.mode==='one'){audio.currentTime=0;audio.play().catch(()=>{});return}
-  let j=(i+1)%L.length;if(S.music.mode==='shuffle'&&L.length>1){do j=Math.floor(Math.random()*L.length);while(j===i)}
-  mLoad(L[j].id)}
-function mPrev(){const L=mQueue();if(!L.length)return;const i=L.findIndex(s=>s.id===S.music.cur);mLoad(L[(i-1+L.length)%L.length].id)}
+  let j=(i+d+L.length)%L.length;if(d>0&&S.music.mode==='shuffle'&&L.length>1){do j=Math.floor(Math.random()*L.length);while(j===i)}
+  mLoad((R?mSong(L[j]):L[j]).id)}
+const mNext=auto=>mStep(1,auto),mPrev=()=>mStep(-1);
 function mSeek(k){if(audio.duration)audio.currentTime=k*audio.duration;mTick()}
 function playShared(title,artist,by){let s=S.music.songs.find(x=>x.title.toLowerCase()===String(title).toLowerCase()&&(!artist||!x.artist||x.artist===artist));
   if(!s){s={id:uid(),title,artist:artist||'',by:by||'me',t:Date.now()};S.music.songs.push(s);save()}
@@ -2778,8 +2779,7 @@ const A={
   async mFind(){const q=($('#mQ')?.value||mState.q||'').trim();if(!q){toast('输入歌名');return}if(mState.busy)return;mState.q=q;mState.busy=true;render(true);
     try{mState.res=await mSearch(q);if(!mState.res.length)toast('没搜到')}catch(e){toast(e.message,4200)}finally{mState.busy=false;if(cur()?.v==='music')render(true)}},
   mClear(){mState.res=[];render(true)},
-  mPick(el){const x=mState.res[+el.dataset.i];if(!x)return;let s=S.music.songs.find(y=>y.online&&y.online.id===x.online.id&&y.online.src===x.online.src);
-    if(!s){s={id:uid(),title:x.title,artist:x.artist,online:x.online,by:'me',t:Date.now()};S.music.songs.push(s);save()}mLoad(s.id)},
+  mPick(el){const x=mState.res[+el.dataset.i];if(!x)return;mState.queue=mState.res.slice();S.music.list='res';mLoad(mSong(x).id)},
   mMode(){const o=['all','one','shuffle'];S.music.mode=o[(o.indexOf(S.music.mode)+1)%3];save();render(true);toast({all:'列表循环',one:'单曲循环',shuffle:'随机播放'}[S.music.mode],1400)},
   shareSong(el){const s=songById(el.dataset.id);if(s){closeSheet();shareSheet({type:'share',kind:'song',title:s.title,sub:s.artist||'',ref:{song:s.id}})}},
   mSongMenu(el){const s=songById(el.dataset.id);if(!s)return;
