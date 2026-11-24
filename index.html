@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.24.1';</script>
+<script>window.BYJ_VER='2026.11.24.2';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -961,8 +961,8 @@ function myDays(me=mask()){const L=[];if(me.bday)L.push({name:me.name+'的生日
   return L.filter(x=>x.md).map(x=>({...x,in:daysUntil(x.md)})).sort((a,b)=>a.in-b.in)}
 function worldFor(chars){const me=mask(chars.length===1?chars[0]:null),L=[];
   const more=x=>[x.next&&'接下来'+x.next,x.wind>=30&&'风很大',x.hum>=90&&!/雨|雪|雾/.test(x.desc)&&'很闷',x.uv>=7&&'紫外线强'].filter(Boolean).join('，');
-  const w=wxNow(S.loc);if(w)L.push(`${me.name}在${S.loc.name}：现在${w.desc}，${w.temp}°C（体感${w.feel}°C），今天${w.min}~${w.max}°C${more(w)?'，'+more(w):''}${w.tm?`；明天${w.tm} ${w.tmin}~${w.tmax}°C`:''}`);
-  chars.forEach(c=>{if(!c.loc)return;if(S.loc&&wxKey(c.loc)===wxKey(S.loc)){L.push(`${c.name}也在${c.loc.name}`);return}const x=wxNow(c.loc);L.push(x?`${c.name}在${c.loc.name}${locTime(c.loc)}：现在${x.desc}，${x.temp}°C，今天${x.min}~${x.max}°C${more(x)?'，'+more(x):''}`:`${c.name}在${c.loc.name}${locTime(c.loc)}`)});
+  const w=wxNow(S.loc);if(w)L.push(`${me.name}在${S.loc.alias||S.loc.name}：现在${w.desc}，${w.temp}°C（体感${w.feel}°C），今天${w.min}~${w.max}°C${more(w)?'，'+more(w):''}${w.tm?`；明天${w.tm} ${w.tmin}~${w.tmax}°C`:''}`);
+  chars.forEach(c=>{if(!c.loc)return;if(S.loc&&wxKey(c.loc)===wxKey(S.loc)){L.push(`${c.name}也在${S.loc.alias||c.loc.name}`);return}const x=wxNow(c.loc);L.push(x?`${c.name}在${c.loc.name}${locTime(c.loc)}：现在${x.desc}，${x.temp}°C，今天${x.min}~${x.max}°C${more(x)?'，'+more(x):''}`:`${c.name}在${c.loc.name}${locTime(c.loc)}`)});
   if(w||chars.some(c=>c.loc&&wxNow(c.loc)))L.push('（天气和日子只是背景，大多数时候不用提。真碰上下雨、降温、特别热或者节假日，偶尔顺口带一句就好，像随手关心，不要专门聊天气）');
   for(let i=1;i<=7;i++){const d=new Date();d.setDate(d.getDate()+i);const o=dayOff(d),pv=new Date(d);pv.setDate(pv.getDate()-1);const po=dayOff(pv),w=i===1?'明天':i===2?'后天':i+'天后';
     if(o?.off&&!po?.off)L.push(`${w}开始放假${o.name?'（'+o.name+'）':''}`);else if(o&&!o.off)L.push(`${w}要补班`)}
@@ -1377,7 +1377,7 @@ function buildCtx(t,o={}){
       if(ph.length)late.push((old?`【这次见面之前】（按先后排：之前的见面已经结束，后来在手机上聊，现在是新的一次见面。只是背景，别照这个格式写）\n`:`【见面前在手机上聊的】（只是背景，别照这个格式写）\n`)+ph.map(line).join('\n'))}
   }else{
     rules.push(group?`【群聊】手机群聊，每行「名字：内容」，内容就是发出去的那句话本身，只写${cname}发的。大家都看得到彼此的话，会接别人的话、叫别人、互相搭腔拌嘴，不是各自跟${me.name}单聊，也不用人人都开口。谁开口、说多少、彼此怎么相处，各按人设和心情。彼此认不认识、熟不熟，看人设和世界书，没写的就是在这个群里才认识，按群里聊过的来。待不下去可以写 名字：[退群]；想拉人进群写 名字：[邀请:TA的名字]${(o=>o.length?'（能拉：'+o.join('、')+'）':'')(S.chars.filter(c=>visible(c)&&!chars.some(y=>y.id===c.id)).map(c=>c.name))}。emoji 按人设想发就发。`
-      :`【聊天】手机上发消息，一行一个气泡，每行就是发出去的那句话本身。说什么、怎么说、热不热情，按人设和你此刻对${me.name}的感觉。emoji 按人设想发就发。人不在身边：想TA就直说，问TA在哪、在干嘛，发语音、拍照片、打电话，约见面。`);
+      :`【聊天】手机上发消息，一行一个气泡，每行就是发出去的那句话本身。说什么、怎么说、热不热情，按人设和你此刻对${me.name}的感觉。emoji 按人设想发就发。这会儿没在一块：想TA就直说，问TA在哪、在干嘛，发语音、拍照片、打电话，约见面。同不同城、住不住一起听人设和世界书，没写就是同城。`);
     if(!group&&chars[0]&&mode==='online'){const lg=leftGroups(chars[0]);if(lg.length)ctxs.push(`【退过的群】你退了${lg.map(g=>'「'+threadTitle(g)+'」').join('、')}，想回去就写 [回群]。`)}
     if(!group&&chars[0]){rules.push(`【此刻】你是在过自己日子的真人，这会儿在某个地方做着某件事。正在做的事影响你回得快慢、长短、说什么，也会顺口提，但消息里只有说的话，不写动作。时间往前走，事情会做完、换下一件。`);
       const n=chars[0].now;if(n&&n.x)tail.push(`【你刚才】${n.x}（${gapText(Date.now()-n.t)}前）`)}
@@ -1388,12 +1388,14 @@ function buildCtx(t,o={}){
     sp.push('[分享歌曲:歌名 - 歌手]');sp.push('[定位:地点 · 一句备注]');sp.push('[骰子]、[猜拳]（结果随机）');
     if(t.msgs.slice(-8).some(m=>m.type==='roll')){roll={dice:rollNow('dice'),rps:rollNow('rps')};tail.push(`【骰子猜拳】这轮你发 [骰子] 会是${roll.dice}点，发 [猜拳] 会出${roll.rps}。`)}
     const hs=n=>[...n].reduce((h,c)=>Math.imul(h^c.charCodeAt(0),16777619)>>>0,2166136261),st=allStickers().map(s=>s.name).filter(Boolean).sort((x,y)=>hs(x)-hs(y)||(x<y?-1:1)).slice(0,300);if(st.length)sp.push('[表情:名字]（可用：'+st.join('、')+'）');
-    rules.push(`【特殊消息】单独一行写。这些是你手机上能用的，想用就用：\n${sp.join('\n')}\n图片写清楚拍到了什么，自拍写清楚长相、神态、穿着。${mm28()?'语音里可以带（轻笑）（叹气）这类语气。':''}`);
+    rules.push(`【特殊消息】单独一行写。这些是你手机上能用的，想用就用：\n${sp.join('\n')}\n图片写清楚拍到了什么，自拍写清楚长相、神态、穿着。红包转账的金额照你的身份和这件事的分量给。付钱就用上面这几种，手机上没有付款链接。${mm28()?'语音里可以带（轻笑）（叹气）这类语气。':''}`);
     if(!group&&chars[0]){const cs=cardsNow().filter(k=>k.charId===chars[0].id),q=k=>(k.limit?`月额度${money(k.limit)}`:'不限额')+`，本月用了${money(k.used)}`;
       const mine=cs.filter(k=>k.dir!=='out'),theirs=cs.filter(k=>k.dir==='out');
       if(cs.length)tail.push(`【亲属卡】${mine.length?`你给${me.name}开了（${mine.map(q).join('；')}）。`:''}${theirs.length?`${me.name}给你开了（${theirs.map(q).join('；')}），用时写 [刷亲属卡:东西:金额]。`:''}`)}
     const pend=!group&&[...t.msgs].reverse().find(m=>m.from==='me'&&(m.type==='hb'||m.type==='tf')&&m.state==='new');
     if(!group&&boughtRecently(t))tail.push(`【刚买过】刚给${me.name}买过东西，这次不写 [外卖]、[网购]。`);
+    if(!group){const way=t.msgs.filter(m=>m.from==='me'&&(m.type==='order'||m.type==='parcel')&&m.state!=='done'&&m.eta>Date.now()).slice(-3);
+      if(way.length)tail.push(`【还在路上】${me.name}给你买的还没到：${way.map(m=>`${m.content}（大约${gapText(m.eta-Date.now())}后到）`).join('、')}。到了才算收到。`)}
     if(pend)tail.push(`【没收的钱】${me.name}发来${pend.type==='hb'?'红包':'转账'}¥${pend.amt}${pend.content?'：'+pend.content:''}，写 [收下] 或 [退回]。`);
   }
   rules.push('【时间】说好去做的事要花时间，没过够时间别问做完没。日子有规律：工作日白天忙、周末和放假松一点，吃饭睡觉按平常的钟点。');
@@ -2570,7 +2572,8 @@ weather(v){const L=S.loc;
   <div class="wxc"><span class="e">${WXE(w.desc)}</span><b>${w.temp}°</b><span>${esc(w.desc)} · ${w.min}~${w.max}°</span><small>体感 ${w.feel}°${w.hum!=null?' · 湿度 '+w.hum+'%':''}${w.wind!=null?' · 风 '+Math.round(w.wind)+' km/h':''}${w.uv!=null?' · 紫外线 '+Math.round(w.uv):''}</small>${w.next?`<p>接下来${esc(w.next)}</p>`:''}</div>
   ${hs.length?`<div class="panel"><h2>这几个小时</h2><div class="wxh">${hs.map(x=>`<span><small>${x.h}点</small><i>${WXE(x.d)}</i><b>${x.t}°</b><em>${x.p?x.p+'%':''}</em></span>`).join('')}</div></div>`:''}
   ${w.tm?`<div class="panel"><h2>明天</h2><p style="margin:0">${WXE(w.tm)} ${esc(w.tm)} · ${w.tmin}~${w.tmax}°</p></div>`:''}
-  ${others.length?`<div class="panel"><h2>TA 那边</h2>${others.map(c=>{const x=wxNow(c.loc);return`<div class="wrow"><span><b>${esc(dn(c))} · ${esc(c.loc.name)}</b><small>${x?`${WXE(x.desc)} ${esc(x.desc)} ${x.temp}° · ${x.min}~${x.max}°`:'加载中…'}</small></span></div>`}).join('')}</div>`:''}`
+  ${others.length?`<div class="panel"><h2>TA 那边</h2>${others.map(c=>{const x=wxNow(c.loc);return`<div class="wrow"><span><b>${esc(dn(c))} · ${esc(c.loc.name)}</b><small>${x?`${WXE(x.desc)} ${esc(x.desc)} ${x.temp}° · ${x.min}~${x.max}°`:'加载中…'}</small></span></div>`}).join('')}</div>`:''}
+  <div class="panel"><label class="f">角色看到的城市名<input type="text" id="l-alias" data-s="loc" data-k="alias" value="${esc(L.alias||'')}" placeholder="${esc(L.name)}"></label></div>`
     :`<div class="empty"><big>天气加载中…</big></div>`,
     after(){const all=[L,...others.map(c=>c.loc)];if(!v.tried&&all.some(l=>!(S.wx||{})[wxKey(l)]?.d?.hourly||Date.now()-((S.wx||{})[wxKey(l)]?.t||0)>45*60e3)){v.tried=1;Promise.all(all.map(l=>ensureWx(l))).then(()=>{if(cur()===v)render(true)})}}};
 },
@@ -3131,7 +3134,7 @@ document.addEventListener('keydown',e=>{const id=e.target.id;if(id==='mQ'&&e.key
 document.addEventListener('pointerup',()=>{const d=document,r=d.documentElement;if(d.fullscreenElement)return;try{(r.requestFullscreen||r.webkitRequestFullscreen)?.call(r)?.catch?.(()=>{})}catch(e){}setAppH()},{passive:true});
 
 function scopeObj(s){const v=cur()||{};
-  switch(s){case'look':return S.look;case'root':return S;case'chat':return S.chat;case'char':return charById(v.id);case'cvoice':{const c=charById(v.id);return c&&(c.voice||(c.voice={}))}case'mask':return maskById(v.id);
+  switch(s){case'look':return S.look;case'root':return S;case'chat':return S.chat;case'char':return charById(v.id);case'cvoice':{const c=charById(v.id);return c&&(c.voice||(c.voice={}))}case'mask':return maskById(v.id);case'loc':return S.loc;
     case'book':return S.books.find(x=>x.id===v.id);case'entry':return S.books.find(x=>x.id===v.id)?.entries.find(x=>x.id===v.eid);
     case'preset':return presetById(v.id);case'item':return presetById(v.id)?.items.find(x=>x.id===v.iid);
     case'mtts':return S.media.tts;case'mimg':return S.media.img;case'apiroot':return S.api;
