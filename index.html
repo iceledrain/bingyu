@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.24.7';</script>
+<script>window.BYJ_VER='2026.11.24.8';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -352,7 +352,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .more{align-self:center;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px 14px;font-size:12px;color:var(--deep)}
 #np{position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--sat) + 64px);z-index:45;display:flex;align-items:center;gap:7px;max-width:62vw;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:rgba(var(--panel-rgb),.8);color:var(--ink);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);font-size:12.5px;line-height:1.2}
 #np b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
-#np svg{width:13px;height:13px;flex:none}
+#np svg{width:13px;height:13px;flex:none;display:block}#np .npx{flex:none;margin:-6px -10px -6px -3px;padding:8px 10px}
 #toast{pointer-events:none;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(90px + var(--sab));z-index:50;max-width:min(88vw,440px);background:rgba(var(--panel-rgb),.96);color:var(--ink);border:1px solid var(--line);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);padding:10px 16px;border-radius:16px;font-size:14px;line-height:1.45;box-shadow:0 10px 30px rgba(143,143,143,.25);word-break:break-word}
 .apih{display:flex;justify-content:space-between;align-items:center;margin:6px 2px 0}.apih b{font:400 16px var(--display);color:var(--deep)}
 .grp .apic{border:0;box-shadow:none;background:none;border-radius:12px;padding:9px 8px}.grp .apic+.apic{border-top:1px solid var(--line);border-radius:0}
@@ -453,7 +453,7 @@ html.eco .bar,html.eco .call .ln{-webkit-backdrop-filter:none;backdrop-filter:no
 .duo{display:flex;margin-top:8px}.duo>*+*{margin-left:-7px}
 .duo .av{box-shadow:0 0 0 2px var(--panel)}
 .duo button{background:none;border:0;padding:0;display:flex}
-.duo .addw{width:26px;height:26px;border-radius:50%;border:1px dashed var(--accent);background:var(--panel);color:var(--deep);font-size:15px;display:grid;place-items:center}
+.duo .addw{width:26px;height:26px;border-radius:50%;background:#c9c9c9;color:#fff;font-size:15px;display:grid;place-items:center;box-shadow:0 0 0 2px var(--panel)}
 .player .prog input::-webkit-slider-runnable-track{height:4px}.player .prog input::-webkit-slider-thumb{width:12px;height:12px;margin-top:-4px;box-shadow:none}
 .player .prog input::-moz-range-track,.player .prog input::-moz-range-progress{height:4px}.player .prog input::-moz-range-thumb{width:12px;height:12px}
 
@@ -629,7 +629,7 @@ html.dark .mo-pic.tp{background:linear-gradient(150deg,#303030,#212121 60%,#2929
 <section id="app" class="app" aria-live="polite"></section>
 <div id="sheet" class="sheet" hidden><div class="sheet-in" id="sheetIn"></div></div>
 <div id="toast" role="status" hidden></div>
-<button id="np" hidden aria-label="暂停音乐"></button>
+<button id="np" hidden aria-label="音乐"></button>
 
 <script>
 const $=s=>document.querySelector(s);
@@ -1928,8 +1928,8 @@ function mUI(){npUI();const v=cur();if(isOpen()&&v?.v==='music'&&v.tab==='fav'){
 function mTick(){lrcTick();const r=$('#mRange');if(!r)return;const p=audio.currentTime||0,d=audio.duration||0;
   if(document.activeElement!==r)r.value=d?Math.round(p/d*1000):0;$('#mCur').textContent=fmt(p);$('#mDur').textContent=fmt(d)}
 audio.addEventListener('timeupdate',mTick);
-function npUI(){const el=$('#np');if(!el)return;const s=songById(S.music.cur);el.hidden=!(mState.playing&&s);if(!el.hidden)el.innerHTML=`<span>♪</span><b>${esc(s.title)}</b>${ICONS.pause||'‖'}`}
-{const el=$('#np');if(el)el.onclick=()=>audio.pause()}
+function npUI(){const el=$('#np');if(!el)return;const s=songById(S.music.cur);el.hidden=!(mState.playing&&s);if(!el.hidden)el.innerHTML=`<span>♪</span><b>${esc(s.title)}</b><span class="npx">${ICONS.pause||'‖'}</span>`}
+{const el=$('#np');if(el)el.onclick=e=>{if(e.target.closest('.npx'))audio.pause();else if(cur()?.v!=='music')go({v:'music'})}}
 audio.addEventListener('play',()=>{mState.playing=true;mUI();npUI()});
 audio.addEventListener('pause',()=>{mState.playing=false;mUI();npUI()});
 audio.addEventListener('ended',()=>mNext(true));
