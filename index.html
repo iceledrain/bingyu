@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.24.8';</script>
+<script>window.BYJ_VER='2026.11.24.9';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -209,6 +209,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
   padding:18px max(16px,env(safe-area-inset-right,0px)) calc(16px + var(--sab)) max(16px,env(safe-area-inset-left,0px))}
 .sheet-in h3{margin:0 0 4px;font:400 20px var(--display);text-align:center}
 .opt{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:13px;text-align:center;font-size:15px;display:flex;align-items:center;justify-content:center;gap:10px}
+.sheet-in>.btn{align-self:stretch;padding:14px;font-size:15.5px;border-radius:16px}.sheet-in>.opt[data-a=closeSheet]{align-self:center;background:none;border:0;padding:7px 22px;font-size:13.5px;color:var(--muted)}
 .opt.l{justify-content:flex-start}
 .opt.l>span:not(.av){flex:1;text-align:left;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.opt i{font-style:normal;color:var(--muted)}
 .grp{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:6px;display:flex;flex-direction:column;gap:6px}
@@ -2944,7 +2945,7 @@ const A={
       ${it('pLoc','pin','位置')}${it('pRoll','dice','骰子','data-k="dice"')}${it('pRoll','hand','猜拳','data-k="rps"')}${it('meetGo','contacts','见面')}${dm?it('pMoney','gift','红包','data-k="hb"')+it('pMoney','yen','转账','data-k="tf"')+it('pPay','yen','代付')+it('cardAdd','wallet','亲属卡',`data-to="${t.chars[0]}"`)+it('pCall','phone','语音通话','data-k="voice"')+it('pCall','video','视频通话','data-k="video"')+it('pShop','bowl','点外卖','data-k="food"')+it('pShop','shop','网购','data-k="goods"'):''}${it('open','music','音乐','data-v="music"')}
     </div><button class="opt" data-a="closeSheet">关闭</button>`)},
   pLoc(){sheet(`<h3>发送位置</h3><input type="text" id="locIn" placeholder="在哪" aria-label="地点"><input type="text" id="locSub" placeholder="备注" aria-label="备注">
-    <div class="btns"><button class="btn o" data-a="pLocHere">定位当前位置</button>${S.loc?`<button class="btn o" data-a="pLocCity">${esc(S.loc.name)}</button>`:''}<button class="btn" data-a="pLocGo">发送</button></div>${CANCEL}`)},
+    <div class="btns"><button class="btn o" data-a="pLocHere">定位当前位置</button>${S.loc?`<button class="btn o" data-a="pLocCity">${esc(S.loc.name)}</button>`:''}</div><button class="btn" data-a="pLocGo">发送</button>${CANCEL}`)},
   pLocCity(){const i=$('#locIn');if(i&&S.loc)i.value=S.loc.name},
   pLocHere(el){if(!navigator.geolocation){toast('这个浏览器不能定位');return}el.disabled=true;el.textContent='定位中…';
     navigator.geolocation.getCurrentPosition(async p=>{const {latitude:la,longitude:lo}=p.coords;let nm='';
