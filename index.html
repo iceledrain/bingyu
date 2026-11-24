@@ -667,10 +667,12 @@ const DB={db:null,rev:0,q:Promise.resolve(),
     try{const q=indexedDB.open('ledphone',1);q.onupgradeneeded=()=>q.result.createObjectStore('kv');q.onsuccess=()=>{if(d){q.result.close();return}this.db=q.result;this.db.onclose=()=>this.open(2);end()};q.onerror=end;setTimeout(end,5000)}catch(e){end()}})},
   save(v,force){return this.q=this.q.then(()=>this.w(v,force))},
   w(v,force,re){return new Promise(r=>{if(!this.db){try{localStorage.setItem('state',v)}catch(e){toast('存储满了，换小一点的图片试试')}return r()}
-    try{const t=this.db.transaction('kv','readwrite'),o=t.objectStore('kv');let n=0,old=0;
-      o.get('rev').onsuccess=e=>{const c=+e.target.result||0;if(c!==this.rev&&!force){old=1;t.abort();return}n=Math.max(c,this.rev)+1;o.put(v,'st');o.put(n,'rev')};
-      t.oncomplete=()=>{this.rev=n;if(!this.ok){this.ok=1;try{localStorage.setItem('byj_idb','1')}catch(e){}}snap(v);r(1)};
-      t.onabort=()=>{if(old)stale();else{toast('保存失败');if(t.error?.name==='QuotaExceededError')snapCut()}r()}}
+    try{const t=this.db.transaction('kv','readwrite'),o=t.objectStore('kv'),fast=!force&&this.sure&&!document.hidden;let n=this.rev+1,old=0;
+      const put=()=>{o.put(v,'st');o.put(n,'rev');if(this.leg)o.delete('state')},g=o.get('rev');if(fast)put();
+      g.onsuccess=()=>{const c=+g.result||0;if(c>this.rev&&!force){old=1;t.abort();return}if(fast)return;n=Math.max(c,this.rev)+1;
+        if(force===1)o.get('st').onsuccess=e=>{if(e.target.result)o.put(e.target.result,'sv:pre');put()};else put()};
+      t.oncomplete=()=>{this.rev=n;this.leg=0;this.sure=1;if(!this.ok){this.ok=1;try{localStorage.setItem('byj_idb','1')}catch(e){}}snap(v);r(1)};
+      t.onabort=()=>{this.sure=0;if(old)stale();else{toast('保存失败');if(t.error?.name==='QuotaExceededError')snapCut()}r()}}
     catch(e){if(re){toast('保存失败');r()}else this.open(2).then(()=>this.w(v,force,1)).then(r)}})},
   get(k){return new Promise(r=>{if(!this.db){try{r(localStorage.getItem(k))}catch(e){r(null)}return}try{const q=this.db.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>r(q.result??null);q.onerror=()=>{this.bad=1;r(null)}}catch(e){this.bad=1;r(null)}})},
   set(k,v){return new Promise(r=>{if(!this.db){try{localStorage.setItem(k,v)}catch(e){toast('存储满了，换小一点的图片试试')}return r()}try{const t=this.db.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=()=>r();t.onabort=()=>{toast('保存失败');r()}}catch(e){toast('保存失败');r()}})},
@@ -678,21 +680,23 @@ const DB={db:null,rev:0,q:Promise.resolve(),
   put(k,v){return new Promise(r=>{if(!this.db)return r(false);try{const t=this.db.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=()=>r(true);t.onerror=t.onabort=()=>r(false)}catch(e){r(false)}})},
   blob(k){return new Promise(r=>{if(!this.db)return r();try{const q=this.db.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>r(q.result??null);q.onerror=()=>r()}catch(e){r()}})},
   keys(){return new Promise(r=>{if(!this.db)return r([]);try{const q=this.db.transaction('kv').objectStore('kv').getAllKeys();q.onsuccess=()=>r(q.result||[]);q.onerror=()=>r([])}catch(e){r([])}})}};
-let saveT,ready=0,seen=0,force=0,gone=0,snapDay='';
+let saveT,ready=0,seen=0,force=0,gone=0,lostDb=0,snapDay='';
 const flush=()=>{clearTimeout(saveT);if(!ready||!seen)return 0;const f=force;force=0;return DB.save(JSON.stringify(S),f)};
-const stale=()=>{gone=1;ready=0;clearTimeout(saveT);if(!document.hidden)toast('这页旧了，刷新一下',6e5)};
+const stale=()=>{gone=1;ready=0;clearTimeout(saveT);if(document.hidden||$('#old'))return;const b=document.createElement('button');b.id='old';b.textContent='这页旧了，点一下刷新';
+  b.style.cssText='position:fixed;inset:0;z-index:999;border:0;background:rgba(var(--panel-rgb),.97);color:var(--ink);font:inherit;font-size:16px';b.onclick=()=>location.reload();document.body.appendChild(b)};
 const fresh=async()=>{if(gone){location.reload();return 0}if(!DB.db||!ready)return 1;await DB.q;const r=await DB.get('rev');await DB.q;if(r==null||+r<=DB.rev)return 1;gone=1;ready=0;location.reload();return 0};
 async function snap(v){const d=new Date(),k='sv:'+d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());if(!DB.db||snapDay===k)return;snapDay=k;
   const ks=(await DB.keys()).filter(x=>/^sv:\d/.test(x)).sort();if(!ks.includes(k)&&await DB.put(k,v))ks.push(k);ks.slice(0,-5).forEach(x=>DB.del(x))}
-const snapCut=async()=>{const ks=(await DB.keys()).filter(x=>/^sv:\d/.test(x)).sort();[...ks.slice(0,-1),'sv:pre'].forEach(x=>DB.del(x))};
+const snapCut=async()=>{const ks=(await DB.keys()).filter(x=>/^sv:\d/.test(x)).sort();[...ks.slice(0,-1),'sv:pre','sv:old','sv:upd'].forEach(x=>DB.del(x))};
 const txList=async k=>{if(!DB.db)return[];try{const L=JSON.parse(await DB.get('tx:'+k)||'[]');return Array.isArray(L)?L:[]}catch(e){return[]}};
 const txOn=new Set(),txT={};let txQ=Promise.resolve();
-const txSnap=(k,s,e)=>txQ=txQ.then(async()=>{s=String(s||'');if(!DB.db||!s.trim())return;const L=await txList(k);if(L[0]?.s===s)return;
-  if(e&&L[0]?.e&&Date.now()-L[0].t<6e5)L[0]={t:Date.now(),s,e:1};else L.unshift({t:Date.now(),s,...(e?{e:1}:{})});await DB.set('tx:'+k,JSON.stringify(L.slice(0,12)))});
+const txSnap=(k,s,e)=>txQ=txQ.then(async()=>{s=String(s||'');if(!DB.db||!s.trim())return;const L=await txList(k),o=L[0];if(o?.s===s)return;let p=0;if(o)while(p<o.s.length&&o.s[p]===s[p])p++;
+  if(e&&o?.e&&Date.now()-o.t<6e5&&p*2>=o.s.length)L[0]={t:Date.now(),s,e:1};else L.unshift({t:Date.now(),s,...(e?{e:1}:{})});
+  const E=L.filter(x=>x.e).slice(0,8),B=L.filter(x=>!x.e).slice(0,8);await DB.set('tx:'+k,JSON.stringify(L.filter(x=>E.includes(x)||B.includes(x))))});
 function save(){clearTimeout(saveT);if(ready)saveT=setTimeout(flush,1200)}
 try{navigator.storage?.persisted?.().then(p=>{if(!p)navigator.storage.persist?.().catch(()=>{})}).catch(()=>{})}catch(e){}
 addEventListener('pagehide',flush);addEventListener('pageshow',e=>{if(e.persisted)fresh()});addEventListener('focus',()=>fresh());
-['pointerdown','keydown'].forEach(k=>addEventListener(k,()=>seen=1,{once:true,capture:true,passive:true}));
+['pointerdown','keydown'].forEach(k=>addEventListener(k,()=>{seen=1},{capture:true,passive:true}));
 
 const ONLINE_OLD='这是手机聊天。像真人发消息：口语、简短、有情绪，一次发1到4条，每条单独一行。不用括号写动作。',ONLINE_DEF='这是手机聊天。像真人发消息：口语、简短、有情绪，一次发1到6条，每条单独一行，遇到逗号就分行，句尾通常没有标点符号。不用括号写动作。';
 const LANG_OLD='用{{user}}使用的语言回复。',LANG_OLD2='说{{char}}设定里写的语言；设定没写，才用{{user}}用的语言。{{user}}用中文聊，不代表你也要用中文。',LANG_DEF='说{{char}}设定里的语言；设定没写，才跟{{user}}用同一种。';
@@ -3107,18 +3111,18 @@ const A={
   async reloadNew(el){el.disabled=true;el.textContent='刷新中…';await flush();
     try{await fetch(location.href.split('#')[0],{cache:'reload'})}catch(e){}location.reload()},
   persist(){(navigator.storage?.persist?navigator.storage.persist():Promise.resolve(false)).then(ok=>{toast(ok?'好了，浏览器不会随便清掉冰雨机的数据':'浏览器没答应，记得常备份');render(true)})},
-  imp(el,txt){const t=String(txt??$('#impTa')?.value??'').trim();if(!t){toast('先选备份文件');return}
+  imp(el,txt,pure){const t=String(txt??$('#impTa')?.value??'').trim();if(!t){toast('先选备份文件');return}if(lostDb){toast('存档库没连上，刷新再试');return}
     {
-    try{const d=JSON.parse(t);if(![2,3,4].includes(d.v))throw 0;const old=S;S=mergeState(d);{for(const K of['evWipe','memWipe']){const w={...(S[K]||{})};for(const[k,v]of Object.entries(old[K]||{}))w[k]=Math.max(w[k]||0,v);S[K]=w}S.evGone=[...new Set([...(S.evGone||[]),...(old.evGone||[])])].slice(-3000);evWipeApply(S)}S.api.profiles.forEach(p=>{if(!p.key){const o=old.api.profiles.find(x=>x.key&&x.base===p.base&&x.id===p.id)||old.api.profiles.find(x=>x.key&&x.base===p.base);if(o)p.key=o.key}});if(!S.media.img.key&&old.media?.img?.key&&S.media.img.base===old.media.img.base)S.media.img.key=old.media.img.key;gone=0;ready=seen=force=1;save();applyLook();toRoot();toast('恢复好了')}catch(e){toast('这不是冰雨机的备份')}}},
+    try{const d=JSON.parse(t);if(![2,3,4].includes(d.v))throw 0;const old=S;S=mergeState(d);if(!pure){for(const K of['evWipe','memWipe']){const w={...(S[K]||{})};for(const[k,v]of Object.entries(old[K]||{}))w[k]=Math.max(w[k]||0,v);S[K]=w}S.evGone=[...new Set([...(S.evGone||[]),...(old.evGone||[])])].slice(-3000);evWipeApply(S)}S.api.profiles.forEach(p=>{if(!p.key){const o=old.api.profiles.find(x=>x.key&&x.base===p.base&&x.id===p.id)||old.api.profiles.find(x=>x.key&&x.base===p.base);if(o)p.key=o.key}});if(!S.media.img.key&&old.media?.img?.key&&S.media.img.base===old.media.img.base)S.media.img.key=old.media.img.key;gone=0;ready=seen=force=1;save();applyLook();toRoot();toast('恢复好了')}catch(e){toast('这不是冰雨机的备份')}}},
   async snaps(){const ks=(await DB.keys()).filter(x=>/^sv:/.test(x)).sort().reverse();let ls=null;try{ls=DB.db&&localStorage.getItem('state')}catch(e){}if(ls)ks.push('ls');
     const L=await Promise.all(ks.map(async k=>{let n='';try{const d=JSON.parse(k==='ls'?ls:await DB.get(k));n=` · ${d.chars.length} 角色 · ${d.threads.reduce((n,t)=>n+t.msgs.length,0)} 条 · ${(d.books||[]).length} 本书`}catch(e){}
-      return`<button class="opt" data-a="snapBack" data-k="${k}">${k==='sv:pre'?'恢复之前':k==='ls'?'浏览器里另一份':k.slice(3)}${n}</button>`}));
+      return`<button class="opt" data-a="snapBack" data-k="${k}">${{'sv:pre':'恢复之前','sv:old':'旧版页面存的','sv:upd':'更新之前',ls:'浏览器里另一份'}[k]||k.slice(3)}${n}</button>`}));
     sheet(`<h3>存档点</h3>`+(L.join('')||`<p class="hint">还没有</p>`)+CANCEL)},
-  snapBack(el){confirmTap(el,async()=>{const k=el.dataset.k;let raw=null;try{raw=k==='ls'?localStorage.getItem('state'):await DB.get(k)}catch(e){}if(!raw)return;if(k!=='sv:pre')await DB.put('sv:pre',JSON.stringify(S));closeSheet();A.imp(null,raw)})},
-  async txHist(el){const k=el.dataset.id,L=await txList(k);
-    sheet(`<h3>人设历史</h3>`+(L.map((x,i)=>`<button class="opt" data-a="txBack" data-id="${k}" data-i="${i}">${dayLabel(x.t)} ${hm(x.t)} · ${x.s.length} 字</button>`).join('')||`<p class="hint">还没有</p>`)+CANCEL)},
-  txBack(el){confirmTap(el,async()=>{const k=el.dataset.id,o=charById(k)||maskById(k),x=(await txList(k))[+el.dataset.i];if(!o||!x)return;await txSnap(k,o.persona);o.persona=x.s;save();closeSheet();render(true);toast('恢复了')})},
-  resetAll(el){confirmTap(el,()=>{S=def();gone=0;ready=seen=force=1;save();picGC(1);applyLook();toRoot();toast('清空了')})}
+  snapBack(el){confirmTap(el,async()=>{const k=el.dataset.k;let raw=null;try{raw=k==='ls'?localStorage.getItem('state'):await DB.get(k)}catch(e){}if(!raw)return;closeSheet();A.imp(null,raw,1)})},
+  async txHist(el){const k=el.dataset.id,o=charById(k)||maskById(k);if(o&&txT[k]){clearTimeout(txT[k]);txT[k]=0;await txSnap(k,o.persona,1)}const L=await txList(k);
+    sheet(`<h3>人设历史</h3>`+(L.map(x=>`<button class="opt" data-a="txBack" data-id="${k}" data-t="${x.t}">${dayLabel(x.t)} ${hm(x.t)} · ${x.s.length} 字</button>`).join('')||`<p class="hint">还没有</p>`)+CANCEL)},
+  txBack(el){confirmTap(el,async()=>{const k=el.dataset.id,o=charById(k)||maskById(k),x=(await txList(k)).find(x=>x.t==el.dataset.t);if(!o||!x)return;clearTimeout(txT[k]);txT[k]=0;await txSnap(k,o.persona);o.persona=x.s;save();closeSheet();render(true);toast('恢复了')})},
+  resetAll(el){if(lostDb){toast('存档库没连上，刷新再试');return}confirmTap(el,()=>{S=def();gone=0;ready=seen=1;force=2;save();DB.keys().then(ks=>ks.filter(k=>/^(sv|tx|bk):/.test(k)).forEach(k=>DB.del(k)));picGC(1);applyLook();toRoot();toast('清空了')})}
 };
 document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el||el.disabled)return;const f=A[el.dataset.a];if(f){e.preventDefault();f(el)}});
 document.addEventListener('keydown',e=>{const id=e.target.id;if(id==='mQ'&&e.key==='Enter'&&!e.isComposing){e.preventDefault();A.mFind();return}if(id==='callIn'&&e.key==='Enter'&&!e.isComposing){e.preventDefault();A.callSend();return}
@@ -3134,7 +3138,7 @@ function scopeObj(s){const v=cur()||{};
     case'api':return apiById(v.id);case'thread':return thread(v.id);case'off':{const t=thread(v.id);return t&&(t.offline||(t.offline={...S.offline}))}}}
 function bind(e){const el=e.target;if(!el.dataset||!el.dataset.k)return;const o=scopeObj(el.dataset.s);if(!o)return;
   const val=el.type==='checkbox'?el.checked:(el.type==='range'||el.type==='number')?(el.value===''&&el.dataset.null?null:+el.value):el.value;
-  if(el.dataset.k==='persona'&&o.id){const k=o.id;if(!txOn.has(k)){txOn.add(k);txSnap(k,o.persona)}clearTimeout(txT[k]);txT[k]=setTimeout(()=>txSnap(k,o.persona,1),e.type==='change'?0:5000)}
+  if(el.dataset.k==='persona'&&o.id){const k=o.id;if(!txOn.has(k)){txOn.add(k);txSnap(k,o.persona)}clearTimeout(txT[k]);txT[k]=setTimeout(()=>{txT[k]=0;txSnap(k,o.persona,1)},e.type==='change'?0:5000)}
   o[el.dataset.k]=val;if(el.dataset.s==='api'&&el.dataset.k==='effort'&&o.fix){delete o.fix.noEff;delete o.fix.eff}save();const out=el.parentElement.querySelector('output');if(out)out.textContent=val;
   if(el.dataset.s==='look'){applyLook();if(el.dataset.k==='sfx')sfx(val)}}
 document.addEventListener('input',e=>{if(e.target.id==='mRange'){mSeek(+e.target.value/1000);return}
@@ -3191,12 +3195,12 @@ function setTouchIcon(){try{let l=document.getElementById('touchIcon');if(!l){l=
   await DB.open();
   let lost=0;try{lost=!DB.db&&!!localStorage.getItem('byj_idb')}catch(e){}
   if(DB.db)DB.rev=+(await DB.get('rev'))||0;
-  let raw=lost?null:await DB.get('st');const leg=!raw&&!lost;if(leg)raw=await DB.get('state');
+  let raw=lost?null:await DB.get('st');const leg=!raw&&!lost;if(leg)raw=await DB.get('state');else if(DB.db){const o=await DB.get('state');if(o&&await DB.put('sv:old',o))DB.del('state')}
   if(!raw&&!lost){try{const old=JSON.parse(localStorage.getItem('xphone_v1')||'null');if(old&&old.chars){const s=def();s.chars=old.chars.map(c=>({id:c.id,name:c.name,remark:'',handle:(c.name||'').toLowerCase(),avatar:c.avatar||'',innerStyle:'',persona:c.persona||'',books:[]}));
     s.threads=Object.entries(old.chats||{}).filter(([id])=>s.chars.some(c=>c.id===id)).map(([id,ms])=>({id:uid(),type:'dm',chars:[id],title:'',mode:'online',unread:0,t:Date.now(),msgs:ms.map(m=>({id:uid(),from:m.role==='user'?'me':id,type:'text',content:m.content,t:m.t||Date.now()}))}));
     raw=JSON.stringify(s)}}catch(e){}}
   let loaded=false,bad=DB.bad||lost;try{const d=raw?JSON.parse(raw):null;S=mergeState(d);if(raw&&![2,3,4].includes(d?.v))bad=1;loaded=!!raw&&!bad}catch(e){S=def();if(raw)bad=1}
-  ready=!bad;seen=!document.hidden;if(bad)toast('读档没成功，原来的存档没动。先别清数据，刷新再试',6e5);if(loaded){snap(raw);if(!leg)DB.del('state')}flush();
+  ready=!bad;lostDb=lost;seen=seen||!document.hidden;if(bad)toast('读档没成功，原来的存档没动。先别清数据，刷新再试',6e5);DB.leg=leg&&loaded;if(loaded){snap(raw);try{const lv=localStorage.getItem('byj_v');if(lv&&lv!==window.BYJ_VER)DB.put('sv:upd',raw)}catch(e){}}try{localStorage.setItem('byj_v',window.BYJ_VER)}catch(e){}flush();
   applyLook();renderHome();loadFont();ensureHolidays();if(loaded)setTimeout(picGC,4000);
   setTouchIcon();
   try{localStorage.removeItem('byj_try');localStorage.removeItem('byj_ver');DB.del('appHtml')}catch(e){}
@@ -3205,7 +3209,7 @@ function setTouchIcon(){try{let l=document.getElementById('touchIcon');if(!l){l=
     if(!document.hidden){const gone=seen?now-seen:0;S.seenAt=now;if(gone>=90*60e3)awayCatch(now-gone,now)}
     if(m>0){softTick();lifeTick(m)}keepWarm();if(now-tickSaved>60e3){tickSaved=now;idle(save)}};
   tick();setInterval(tick,20e3);
-  document.addEventListener('visibilitychange',()=>{if(document.hidden)flush();else{seen=1;setAppH();fresh().then(ok=>{if(ok){flush();tick()}})}});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){flush();DB.sure=0}else{seen=1;setAppH();fresh().then(ok=>{if(ok){flush();tick()}})}});
 })();
 </script>
 </body>
