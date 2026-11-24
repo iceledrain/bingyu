@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.24.15';</script>
+<script>window.BYJ_VER='2026.11.24.16';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1495,7 +1495,6 @@ function stripPlan(out,thinkOn){const me=mask().name,lines=out.split('\n'),cut=[
     if(/你|您|[\[<？?｜|]/.test(l))break;
     if(!(who.test(l)&&PLAN_CUE.test(l))&&mulls(l)<(thinkOn?2:3))break;cut.push(l);lines.shift()}
   const rest=lines.join('\n').trim();return rest?{out:rest,plan:cut.join('\n')}:{out,plan:''}}
-function brief(x){const K=[];x=String(x||'').trim().replace(/[（(][^（()）\n]{1,12}[)）]/g,m=>'\u0001'+(K.push(m)-1)+'\u0002');if(!x)return'';const ss=(x.match(/[^。！？!?…~～\n]+[。！？!?…~～]*/g)||[]).map(z=>z.trim()).filter(Boolean);let o=ss[0]||'';for(let i=1;i<ss.length&&[...o].length<6;i++)o+=ss[i];if([...o].length>40){const h=[...o].slice(0,40).join(''),k=Math.max(...[...'，,、；;：:'].map(c=>h.lastIndexOf(c)));o=k>12?h.slice(0,k):h}return o.replace(/\u0001(\d+)\u0002?/g,(_,i)=>K[i]||'')}
 function extractExtras(out,chat=true,group=false,keep=false){
   let think='',inner=[],now='';
   out=out.replace(/<now>([\s\S]*?)<\/now>/gi,(_,x)=>{now=x.trim();return''});
@@ -1524,8 +1523,7 @@ function extractExtras(out,chat=true,group=false,keep=false){
   const cards=[];out=out.replace(/\[送亲属卡[:：]\s*([\d.]*)[^\]]*\]/g,(_,a)=>{cards.push({give:1,amt:Math.max(0,+a||0)});return''}).replace(/\[刷亲属卡[:：]([^:：\]]+)[:：]\s*([\d.]+)[^\]]*\]/g,(_,w,a)=>{cards.push({what:w.trim(),amt:+a||0});return''});
   out=out.replace(/\[(拉黑|解除拉黑|删除好友|沉默|收下|退回|代付|不付|语音通话|视频通话|拒接|挂断|查手机|回群)\]/g,(_,x)=>{acts.push(x);return''});
   think=think.replace(/<\/?[a-z]{1,8}>/gi,' ').trim();
-  const bl=l=>{const m=l.trim().match(/^([^:：\n]{1,30})[:：]\s*(.*)$/);return m?(x=>x?m[1].trim()+'：'+x:'')(brief(m[2])):brief(l)};
-  think=group?think.split('\n').map(bl).filter(Boolean).slice(0,8).join('\n'):brief(think);inner=inner.map(x=>group?x.split('\n').map(bl).filter(Boolean).join('\n'):brief(x)).filter(Boolean);
+  think=think.split('\n').map(l=>l.trim()).filter(Boolean).join('\n');
   return{text:out.trim(),think:think.trim(),inner,tide,acts,prof,cards,fmt,now};
 }
 const AWM=/^\s*[#＃]\s*(\d{1,2})(?:\s*[.、:：)）]\s*|\s+|$)(.*)$/;
@@ -1542,7 +1540,7 @@ const demd=x=>String(x)
   .replace(/__([^_\n]+)__/g,'$1')
   .replace(/^\s{0,3}#{1,6}\s+/gm,'');
 function casual(line){if(/[\[（(]/.test(line))return[line];
-  return line.split(/(?<!。)。(?!。)/).map(x=>x.replace(/\s*[，,](?!\d)\s*/g,' ').replace(/[\s，,。]+$/,'').trim()).filter(Boolean)}
+  return line.split(/(?<!。)。(?!。)|\s*，\s*|\s*,\s*(?=[\u3400-\u9fff])|(?<=[\u3400-\u9fff！？!?~～…])\s+(?=[\u3400-\u9fff])/).map(x=>(x||'').replace(/[\s，,。]+$/,'').trim()).filter(Boolean)}
 function offFix(out){return String(out||'').replace(/“([^”\n]*)”/g,'「$1」').replace(/"([^"\n]*)"/g,'「$1」')}
 function parseReply(out,ctx){
   out=rx(demd(out),'ai','in');
@@ -1562,7 +1560,7 @@ function parseReply(out,ctx){
   return ctx.mode==='online'?capBubbles(res):res;
 }
 const recentStk=(t,id)=>new Set((t?.msgs||[]).slice(-30).filter(m=>m.type==='sticker'&&(!id||m.from===id)).slice(-4).map(m=>m.content));
-const BUBBLE_MAX=8,CALL_MAX=3;
+const BUBBLE_MAX=20,CALL_MAX=3;
 const bubbleCap=()=>Math.min(8,Math.max(num(S.chat.onMax)||3,6));
 function capBubbles(res){const cap=BUBBLE_MAX,n={};return res.filter(p=>(n[p.from]=(n[p.from]||0)+1)<=cap)}
 function byName(txt,ctx){const out=[];let curr=null;
@@ -1759,7 +1757,7 @@ async function backfill(t,ctx,posted,lack){const C=S.chat,last=posted[posted.len
     const one=ask.length===1?txt.trim().split('\n').filter(Boolean)[0]?.replace(/^(思考|心声)[:：]\s*/,'').trim()||'':'';
     const pick=k=>{const x=(txt.match(new RegExp(k+'[:：]\\s*([^\\n]+)'))||[])[1]?.trim()||one;return said.split('\n').some(l=>l.trim()===x)?'':x};
     const u=x=>String(x||'');
-    if(lack.think){const x=u(brief(pick('思考')));if(x)(posted.find(p=>p.from===c.id)||posted[0]).think=x}
+    if(lack.think){const x=u(pick('思考'));if(x)(posted.find(p=>p.from===c.id)||posted[0]).think=x}
     if(lack.inner){const x=withKao(cuteKao(u(pick('心声'))),tideOf(c));if(x){const m=[...posted].reverse().find(p=>p.from===c.id)||last;m.inner=x}}
     save();onThreadUpdate(t);if(cur()?.v==='chat'&&cur().id===t.id)render(true)}catch(e){}}
 
