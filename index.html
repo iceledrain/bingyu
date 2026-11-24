@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.24.6';</script>
+<script>window.BYJ_VER='2026.11.24.7';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -148,7 +148,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .msg{display:flex;gap:8px;align-items:flex-start}
 .msg.me{justify-content:flex-end}
 .msg .who{font-size:11.5px;color:var(--muted);margin:0 0 2px 4px}
-.msg .col{display:flex;flex-direction:column;gap:4px;max-width:76%;min-width:0}
+.msg .col{display:flex;flex-direction:column;gap:4px;max-width:76%;min-width:0}.msg .col:has(.rxw){max-width:100%;flex:1}.rxw{align-self:stretch;display:flex;flex-direction:column;align-items:flex-end;min-width:0}.rxw rx-h{align-self:stretch}.rxm{background:none;border:0;color:var(--ink);opacity:.45;font:inherit;padding:0 6px;cursor:pointer}
 .msg.me .col{align-items:flex-end}
 .msg .col>.bub{align-self:flex-start}
 .msg.me .col>.bub{align-self:flex-end}
@@ -686,7 +686,7 @@ const stale=()=>{gone=1;ready=0;clearTimeout(saveT);if(document.hidden||$('#old'
   b.style.cssText='position:fixed;inset:0;z-index:999;border:0;background:rgba(var(--panel-rgb),.97);color:var(--ink);font:inherit;font-size:16px';b.onclick=()=>location.reload();document.body.appendChild(b)};
 const fresh=async()=>{if(gone){location.reload();return 0}if(!DB.db||!ready)return 1;await DB.q;const r=await DB.get('rev');await DB.q;if(r==null||+r<=DB.rev)return 1;gone=1;ready=0;location.reload();return 0};
 async function snap(v){const d=new Date(),k='sv:'+d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());if(!DB.db||snapDay===k)return;snapDay=k;
-  const ks=(await DB.keys()).filter(x=>/^sv:\d/.test(x)).sort();if(!ks.includes(k)&&await DB.put(k,v))ks.push(k);ks.slice(0,-1).forEach(x=>DB.del(x))}
+  const ks=(await DB.keys()).filter(x=>/^sv:\d/.test(x)).sort();if(!ks.includes(k)&&await DB.put(k,v))ks.push(k);ks.slice(0,-2).forEach(x=>DB.del(x))}
 const snapCut=async()=>{const ks=(await DB.keys()).filter(x=>/^sv:\d/.test(x)).sort();[...ks.slice(0,-1),'sv:pre','sv:old','sv:upd'].forEach(x=>DB.del(x))};
 const txList=async k=>{if(!DB.db)return[];try{const L=JSON.parse(await DB.get('tx:'+k)||'[]');return Array.isArray(L)?L:[]}catch(e){return[]}};
 const txOn=new Set(),txT={};let txQ=Promise.resolve();
@@ -1252,6 +1252,18 @@ const HBS={new:'还没收',got:'已收下',back:'已退回'};
 const RXW={ai:'他说的',me:'我说的',both:'都'},RXAT={in:'直接改掉',show:'只改显示',send:'只改发给模型的'},rxC=new Map();
 const rxRe=f=>{if(!rxC.has(f)){let re=null;try{const m=String(f||'').match(/^\/([\s\S]+)\/([a-z]*)$/);re=f?m?new RegExp(m[1],m[2]):new RegExp(f,'g'):null}catch(e){}rxC.set(f,re)}return rxC.get(f)};
 const rx=(s,who,at)=>{s=String(s??'');for(const r of S.regex||[]){if(!r.on||r.at!==at||(r.who!=='both'&&r.who!==who))continue;const re=rxRe(r.find);if(re)s=s.replace(re,String(r.rep||'').replace(/\{\{match\}\}/gi,'$$&'))}return s};
+const rxFill=(rep,m,f=x=>x)=>String(rep||'').replace(/\$(\$|&|\d\d?|<\w+>)|\{\{match\}\}/gi,(a,k)=>k==='$'?'$':!k||k==='&'?f(m[0]):k[0]==='<'?f(m.groups?.[k.slice(1,-1)]??''):+k&&+k<m.length?f(m[+k]??''):a);
+function rxShow(s,who){let L=[{t:String(s??'')}],any=0;
+  for(const r of S.regex||[]){if(!r.on||r.at!=='show'||(r.who!=='both'&&r.who!==who))continue;const re=rxRe(r.find);if(!re)continue;const H=/<[a-z!\/]/i.test(r.rep||''),N=[];
+    for(const x of L){if(x.h!=null){N.push(x);continue}let i=0,t='';
+      for(const m of re.global?x.t.matchAll(re):[x.t.match(re)].filter(Boolean)){t+=x.t.slice(i,m.index);if(H){if(t)N.push({t});t='';N.push({h:rxFill(r.rep,m,esc)});any=1}else t+=rxFill(r.rep,m);i=m.index+m[0].length}
+      t+=x.t.slice(i);if(t)N.push({t})}
+    L=N}
+  return any?{h:L.map(x=>x.h??esc(x.t).replace(/\n/g,'<br>')).join('')}:L.map(x=>x.t).join('')}
+function rxClean(h){const t=document.createElement('template');t.innerHTML=h;t.content.querySelectorAll('script,iframe,object,embed,link,meta,base,form').forEach(e=>e.remove());
+  t.content.querySelectorAll('*').forEach(e=>[...e.attributes].forEach(a=>{if(/^on/i.test(a.name)||/^\s*javascript:/i.test(a.value))e.removeAttribute(a.name)}));return t.innerHTML}
+customElements.define('rx-h',class extends HTMLElement{connectedCallback(){if(!this.shadowRoot)this.attachShadow({mode:'open'}).innerHTML='<style>:host{display:block;max-width:100%;overflow:auto;text-align:left}img{max-width:100%}</style>'+rxClean(this.dataset.h||'')}});
+const rxBody=(m,i,mine,plain)=>{const d=rxShow(m.content,mine?'me':'ai');return typeof d==='string'?plain(esc(d)):`<div class="rxw"><rx-h data-h="${esc(d.h)}"></rx-h><button class="rxm" data-a="msg" data-i="${i}" aria-label="操作">⋯</button></div>`};
 const toRx=d=>(Array.isArray(d)?d:[d]).filter(x=>x&&typeof x==='object').map(x=>{const st='findRegex'in x,p=x.placement||[];return{id:uid(),name:String(x.scriptName||x.name||'正则'),find:String((st?x.findRegex:x.find)||''),rep:String((st?x.replaceString:x.rep)||''),who:st?(p.includes(1)&&p.includes(2)?'both':p.includes(1)?'me':'ai'):(x.who in RXW?x.who:'ai'),at:st?(x.markdownOnly?'show':x.promptOnly?'send':'in'):(x.at in RXAT?x.at:'in'),on:st?!x.disabled:x.on!==false}});
 function bodyText(m){switch(m.type){
   case'sticker':{const s=findSticker(m.content);return`[表情:${m.content}${s?.desc?'（'+s.desc+'）':''}]`}
@@ -1611,7 +1623,7 @@ function bubble(t,m,i){
   if(m.recalled)return`<div class="stamp" data-mi="${i}" data-a="msg" data-i="${i}">${m.from==='me'?'你':esc(dn(charById(m.from))||'TA')}撤回了一条消息</div>`;
   if(m.type==='sys')return`<div class="stamp" data-mi="${i}">${esc(m.content)}</div>${m.letter?`<div class="letter">${esc(m.letter)}</div>`:''}${m.inner&&S.chat.inner?`<div class="msg ai"><div class="col" style="max-width:100%">${folds(m)}</div></div>`:''}`;
   const mine=m.from==='me',c=mine?null:charById(m.from),grp=t.type==='group';
-  if(m.type==='narr')return`${!mine&&m.think?`<div class="msg ai"><div class="col" style="max-width:100%">${thinkFold(m)}</div></div>`:''}<button class="narr${mine?' me':''}" data-mi="${i}" data-a="msg" data-i="${i}">${esc(rx(m.content,mine?'me':'ai','show'))}</button>${folds(m)?`<div class="msg ai"><div class="col" style="max-width:100%">${folds(m)}</div></div>`:''}`;
+  if(m.type==='narr')return`${!mine&&m.think?`<div class="msg ai"><div class="col" style="max-width:100%">${thinkFold(m)}</div></div>`:''}${rxBody(m,i,mine,x=>`<button class="narr${mine?' me':''}" data-mi="${i}" data-a="msg" data-i="${i}">${x}</button>`)}${folds(m)?`<div class="msg ai"><div class="col" style="max-width:100%">${folds(m)}</div></div>`:''}`;
   const inner=m.type==='sticker'?(()=>{const s=findSticker(m.content);return`<button class="stk" data-a="msg" data-i="${i}">${s?`<img src="${esc(s.src)}" alt="${esc(m.content)}">`:`<span class="bub">[${esc(m.content)}]</span>`}</button>`})()
     :m.type==='roll'?`<button class="stk roll${Date.now()-m.t<1500?' new':''}" data-a="msg" data-i="${i}">${rollFace(m)}</button>`
     :richBody(t,m,i,mine,c);
@@ -1633,7 +1645,7 @@ function richBody(t,m,i,mine,c){const tap=`data-a="msg" data-i="${i}"`;
     case'call':return`<details class="callcard"><summary>${m.kind==='video'?ICONS.video:ICONS.phone}<span>${m.kind==='video'?'视频':'语音'}通话 ${fmt(m.dur||0)}</span></summary><div>${esc(m.content||'（没说什么）')}</div></details>`;
     case'share':{const K={song:['music','首歌'],post:['plaza','条动态']}[m.kind]||['music','个东西'];
       return`<button class="scard" data-a="shareOpen" data-i="${i}"><small>${ICONS[K[0]]}分享了一${K[1]}</small><b>${esc(m.title)}</b>${m.sub?`<span class="ss">${esc(m.sub)}</span>`:''}${m.text?`<p>${esc(m.text)}</p>`:''}</button>`}
-    default:return`<button class="bub" ${tap}>${esc(rx(m.content,mine?'me':'ai','show'))}</button>${m.q?`<span class="qt">↪ ${esc(m.q.who)}：${esc(m.q.text)}</span>`:''}`}}
+    default:return`${rxBody(m,i,mine,x=>`<button class="bub" ${tap}>${x}</button>`)}${m.q?`<span class="qt">↪ ${esc(m.q.who)}：${esc(m.q.text)}</span>`:''}`}}
 function msgsHTML(t){
   let h='',last=0,run=0;const lim=(cur()?.id===t.id&&cur().more)||120,st=Math.max(0,t.msgs.length-lim),off=t.mode==='offline';
   const flush=()=>{if(run)h+=`<button class="stamp" data-a="meetGo">见面 · ${run} 段</button>`;run=0};
