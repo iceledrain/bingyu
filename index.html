@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.24.18';</script>
+<script>window.BYJ_VER='2026.11.24.19';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -703,7 +703,7 @@ addEventListener('pagehide',flush);addEventListener('pageshow',e=>{if(e.persiste
 const ONLINE_OLD='这是手机聊天。像真人发消息：口语、简短、有情绪，一次发1到4条，每条单独一行。不用括号写动作。',ONLINE_DEF='这是手机聊天。像真人发消息：口语、简短、有情绪，一次发1到6条，每条单独一行，遇到逗号就分行，句尾通常没有标点符号。不用括号写动作。';
 const LANG_OLD='用{{user}}使用的语言回复。',LANG_OLD2='说{{char}}设定里写的语言；设定没写，才用{{user}}用的语言。{{user}}用中文聊，不代表你也要用中文。',LANG_DEF='说{{char}}设定里的语言；设定没写，才跟{{user}}用同一种。';
 const OLD_MAIN='你是{{char}}。完全保持{{char}}的性格、说话方式、经历，以及和{{user}}的关系。不替{{user}}说话、行动或决定感受。';
-const REP_OLD2='每轮换开头和句式，同一个词别反复用。不写「不是…而是…」，直接说是什么。',REP_OLD3='每轮换开头和句式。不写套话和「不是…而是…」，写具体的。',REP_OLD4='每轮换开头和句式。不写套话和「不是…而是…」，写具体的。像真人发微信那样说大白话，「撩」「接住」这种词真人不说，想的和说的里都不用。',REP_OLD5='说话像真人平时说话：口语，大白话，句子短，说具体的事和东西，是什么就直接说。每轮的开头和句式都换。',REP_OLD6='说话像真人平时说话：口语，大白话，句子短，说具体的事和东西，是什么就直接说。每轮的开头和句式都换。不说「撩」「试试」「欠收拾」这种词。',REP_OLD7='说话像真人平时说话：口语，大白话，句子短，说具体的事和东西，是什么就直接说。每轮的开头和句式都换。不说「撩」「试试」「欠收拾」「小没良心的」「小白眼狼」这种霸总小说腔，别的同类套话也不说。',REP_DEF='说话像真人平时说话：口语，大白话，句子短，说具体的事和东西，是什么就直接说。每轮的开头和句式都换。不说「撩」「试试」「欠收拾」「小没良心的」「小白眼狼」「皮痒了」这种霸总小说腔，别的同类套话也不说。';
+const REP_OLD2='每轮换开头和句式，同一个词别反复用。不写「不是…而是…」，直接说是什么。',REP_OLD3='每轮换开头和句式。不写套话和「不是…而是…」，写具体的。',REP_OLD4='每轮换开头和句式。不写套话和「不是…而是…」，写具体的。像真人发微信那样说大白话，「撩」「接住」这种词真人不说，想的和说的里都不用。',REP_OLD5='说话像真人平时说话：口语，大白话，句子短，说具体的事和东西，是什么就直接说。每轮的开头和句式都换。',REP_OLD6='说话像真人平时说话：口语，大白话，句子短，说具体的事和东西，是什么就直接说。每轮的开头和句式都换。不说「撩」「试试」「欠收拾」这种词。',REP_OLD7='说话像真人平时说话：口语，大白话，句子短，说具体的事和东西，是什么就直接说。每轮的开头和句式都换。不说「撩」「试试」「欠收拾」「小没良心的」「小白眼狼」这种霸总小说腔，别的同类套话也不说。',REP_OLD8='说话像真人平时说话：口语，大白话，句子短，说具体的事和东西，是什么就直接说。每轮的开头和句式都换。不说「撩」「试试」「欠收拾」「小没良心的」「小白眼狼」「皮痒了」这种霸总小说腔，别的同类套话也不说。',REP_DEF='说话像真人平时说话：口语，大白话，句子短，说具体的事和东西，是什么就直接说。每轮的开头和句式都换。',BAN_DEF='撩 试试 欠收拾 小没良心的 小白眼狼 皮痒了';
 const CLICHE_OLD2='不写套话（嘴角勾起、眼底闪过一丝、不易察觉、宠溺、低笑、喉结滚动），写具体的动作和东西。',CLICHE_DEF='不写套话，写具体的动作和东西。';
 const SYS_ITEM=(name,content)=>({id:uid(),name,role:'system',mode:'both',on:true,content});
 const BASE_ITEMS=()=>[SYS_ITEM('不重复',REP_DEF)];
@@ -726,7 +726,7 @@ const INNER_OLD8='一个软萌的颜文字加半句没说出口的真心话，�
 const INNER_OLD9='{{char}}此刻没说出口的真心话。',INNER_OLD10='一句没说出口的真心话，带点小情绪，可以和嘴上相反，15字内，不用颜文字。',INNER_OLD11='一句没说出口的真心话，带点小情绪，可以和嘴上相反，15字内，纯文字。',INNER_DEF='就一句短的：没说出口的真心话，带点小情绪，可以和嘴上相反，15字内，纯文字。';
 const OFF_STYLE_OLD='细腻，有画面感',OFF_STYLE_DEF='清爽干净';
 const THINK_OLD13='一句话，{{char}}脑子里是怎么想的：{{user}}这句是什么意思、想要什么，{{char}}决定怎么回。用{{char}}自己的口气，口语，25字内。',THINK_OLD14='只写关键：{{user}}要什么，{{char}}怎么回。{{char}}自己的口气，能几个字说完就几个字，最多一句，15字内。不铺垫，不复述，不解释。',THINK_OLD15='一句话，{{char}}自己的口气：{{user}}这句要什么，{{char}}打算怎么回。30字内，不复述，不解释。',THINK_OLD16='用{{char}}自己的口气，写此刻心里真实的想法和打算。',THINK_OLD17='用{{char}}的口气写一句：{{user}}要什么，{{char}}怎么回，30字内。',THINK_OLD18='用「我」写一句心里想的：TA要什么，我怎么回，30字内，不叫名字。',THINK_OLD19='用「我」写看到消息那一下心里真实冒出来的念头，像人脑子里自言自语，30字内，不叫名字。',THINK_DEF='用「我」写一句短的：看到消息那一下心里冒出来的念头，15字内，不叫名字。';
-const CHAT_DEF=()=>({lean:true,onMax:3,onLen:10,casual:true,ctx:40,sumEvery:30,inner:true,innerOpen:false,innerName:'心声',innerStyle:INNER_DEF,think:true,thinkName:'思维链',thinkStyle:THINK_DEF,effort:'',scan:8});
+const CHAT_DEF=()=>({ban:BAN_DEF,lean:true,onMax:3,onLen:10,casual:true,ctx:40,sumEvery:30,inner:true,innerOpen:false,innerName:'心声',innerStyle:INNER_DEF,think:true,thinkName:'思维链',thinkStyle:THINK_DEF,effort:'',scan:8});
 const PERSONA_TPL='姓名：\n年龄：\n性别：\n身份/职业：\n外貌：\n性格：\n说话方式：\n喜欢：\n讨厌：\n背景经历：\n和{{user}}的关系：';
 const API_BLANK=id=>({id,name:'接口',key:'',base:'',model:'',temp:1,topP:null,topK:null,maxTokens:32000,stream:true});
 const isOldExample=p=>p&&p.name==='Claude'&&!String(p.key||'').trim()&&/anthropic\.com/.test(p.base||'')&&/^claude-/.test(p.model||'');
@@ -794,7 +794,7 @@ for(const K of['evWipe','memWipe'])if(!s[K]||typeof s[K]!=='object')s[K]={};if(!
     if(Array.isArray(s.look.order))s.look.order=[...new Set(s.look.order.flatMap(x=>x==='ai'?AI:x==='brain'?['preset']:x==='shop'?['food','goods']:[ren[x]||x]))]}
   for(const k of ['mailAuto','autoReply','autoSum','real','life','busy','tide','proactive','world','time','tts','strangers'])delete s.chat[k];
   for(const k of ['full','eco','glassy','fx','fxs'])delete s.look[k];s.threads.forEach(t=>delete t.heat);
-  {const up={[PLAY_OLD4]:PLAY_DEF,[PLAY_OLD5]:PLAY_DEF,[PLAY_OLD6]:PLAY_DEF,[LANG_OLD]:LANG_DEF,[LANG_OLD2]:LANG_DEF,[REP_OLD2]:REP_DEF,[CLICHE_OLD2]:CLICHE_DEF,[CALL_OLD2]:CALL_DEF,[CALL_OLD3]:CALL_DEF,[CALL_OLD4]:CALL_DEF,[CALL_OLD5]:CALL_DEF,[INTIM_OLD]:INTIM_DEF,[INTIM_OLD2]:INTIM_DEF,[INTIM_OLD3]:INTIM_DEF,[INTIM_OLD4]:INTIM_DEF,[INTIM_OLD5]:INTIM_DEF,[INTIM_OLD6]:INTIM_DEF,[INTIM_OLD7]:INTIM_DEF,[INTIM_OLD8]:INTIM_DEF,[INTIM_OLD9]:INTIM_DEF,[INTIM_OLD10]:INTIM_DEF,[INTIM_OLD11]:INTIM_DEF,[REP_OLD3]:REP_DEF,[REP_OLD4]:REP_DEF,[REP_OLD5]:REP_DEF,[REP_OLD6]:REP_DEF,[REP_OLD7]:REP_DEF,[CALL_OLD7]:CALL_DEF,[COMP_OLD2]:COMP_DEF,[PLAY_OLD13]:PLAY_DEF,[PLAY_OLD7]:PLAY_DEF,[PLAY_OLD8]:PLAY_DEF,[PLAY_OLD9]:PLAY_DEF,[PLAY_OLD10]:PLAY_DEF,[PLAY_OLD11]:PLAY_DEF,[PLAY_OLD12]:PLAY_DEF,[CALL_OLD6]:CALL_DEF,[CATCH_OLD3]:CATCH_DEF,[COMP_OLD]:COMP_DEF};s.presets.forEach(p=>{(p.items||[]).forEach(i=>{if(i.content===COMP_OLD)i.name='陪着';if(up[i.content])i.content=up[i.content];if(i.content===PLAY_DEF)i.name='你'});if((p.items||[]).some(i=>i.content===REP_DEF))p.items=p.items.filter(i=>i.content!==CLICHE_DEF);p.items=(p.items||[]).filter(i=>i.content!==LANG_DEF)})}
+  {const up={[PLAY_OLD4]:PLAY_DEF,[PLAY_OLD5]:PLAY_DEF,[PLAY_OLD6]:PLAY_DEF,[LANG_OLD]:LANG_DEF,[LANG_OLD2]:LANG_DEF,[REP_OLD2]:REP_DEF,[CLICHE_OLD2]:CLICHE_DEF,[CALL_OLD2]:CALL_DEF,[CALL_OLD3]:CALL_DEF,[CALL_OLD4]:CALL_DEF,[CALL_OLD5]:CALL_DEF,[INTIM_OLD]:INTIM_DEF,[INTIM_OLD2]:INTIM_DEF,[INTIM_OLD3]:INTIM_DEF,[INTIM_OLD4]:INTIM_DEF,[INTIM_OLD5]:INTIM_DEF,[INTIM_OLD6]:INTIM_DEF,[INTIM_OLD7]:INTIM_DEF,[INTIM_OLD8]:INTIM_DEF,[INTIM_OLD9]:INTIM_DEF,[INTIM_OLD10]:INTIM_DEF,[INTIM_OLD11]:INTIM_DEF,[REP_OLD3]:REP_DEF,[REP_OLD4]:REP_DEF,[REP_OLD6]:REP_DEF,[REP_OLD7]:REP_DEF,[REP_OLD8]:REP_DEF,[CALL_OLD7]:CALL_DEF,[COMP_OLD2]:COMP_DEF,[PLAY_OLD13]:PLAY_DEF,[PLAY_OLD7]:PLAY_DEF,[PLAY_OLD8]:PLAY_DEF,[PLAY_OLD9]:PLAY_DEF,[PLAY_OLD10]:PLAY_DEF,[PLAY_OLD11]:PLAY_DEF,[PLAY_OLD12]:PLAY_DEF,[CALL_OLD6]:CALL_DEF,[CATCH_OLD3]:CATCH_DEF,[COMP_OLD]:COMP_DEF};s.presets.forEach(p=>{(p.items||[]).forEach(i=>{if(i.content===COMP_OLD)i.name='陪着';if(up[i.content])i.content=up[i.content];if(i.content===PLAY_DEF)i.name='你'});if((p.items||[]).some(i=>i.content===REP_DEF))p.items=p.items.filter(i=>i.content!==CLICHE_DEF);p.items=(p.items||[]).filter(i=>i.content!==LANG_DEF)})}
   s.presets.forEach(withCore);
   if(!d.loreV)s.books.forEach(b=>(b.entries||[]).forEach(e=>{if(e.light==='yellow'&&!String(e.keys||'').trim())e.light='green'}));s.loreV=1;
   {const L=s.look;delete L.appWalls;delete L.alpha;delete L.dark;delete L.font;delete L.customFont;
@@ -1333,6 +1333,7 @@ function offEvent(t,off,me){const p=num(off.evRate)??10;t.evGap=(t.evGap||0)+1;
 const boughtRecently=t=>{const L=t.msgs.filter(m=>m.from!=='me'&&(m.type==='order'||m.type==='parcel')&&Date.now()-m.t<24*3600e3);return L.length>=5||L.some(m=>Date.now()-m.t<2*3600e3)};
 const saidGone=(c,t)=>(c.said||[]).filter(x=>Date.now()-x.t<36*3600e3&&!(t&&t.msgs.some(m=>m.from===c.id&&String(m.content||'').slice(0,60)===x.s)));
 const langOf=c=>String(c?.voice?.lang||'').trim();
+const banHit=x=>[...new Set(String(S.chat.ban||'').split(/[\s,，、]+/).filter(Boolean))].filter(w=>String(x||'').includes(w));
 function ruleDefs(){const c=S.chars.slice(0,2).map(c=>c.id),D=new Map(),run=(type,mode,lab,o={})=>{try{const d=buildCtx({id:'',type,chars:type==='dm'?c.slice(0,1):c,msgs:[],mode,title:''},{tpl:1,mode,...o}).defs;for(const k in d){if(!D.has(k))D.set(k,{k,x:d[k],labs:new Set()});D.get(k).labs.add(lab)}}catch(e){}};
   run('dm','online','聊天');run('dm','offline','见面');run('dm','call','通话');run('dm','call','通话',{kind:'video'});run('group','online','群聊');run('group','offline','群聊');return[...D.values()].map(d=>({...d,lab:d.labs.size>=4?'都用':[...d.labs].join('、')}))}
 function buildCtx(t,o={}){
@@ -1404,7 +1405,7 @@ function buildCtx(t,o={}){
       const n=chars[0].now;if(n&&n.x)tail.push(`【你刚才】${n.x}（${gapText(Date.now()-n.t)}前）`)}
     {const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal?.type==='narr')tail.push(`【刚分开】刚见过面，现在回到手机上。带着那时的情绪，只发消息，不写长段。`)}
     rules.push(`【条数】一条一句话，${num(C.onLen)||10}字左右，平时${G('每人','')}发1到${num(C.onMax)||3}条，情绪上来最多${bubbleCap()}条。${C.casual!==false?'停顿就换行，句尾留空。':''}`);
-    const sp=['[图片:画面]','[语音:内容]'];
+    const sp=['[图片:画面]','[语音:说出口的原话]'];
     if(!group)sp.push('[红包:金额:祝福]','[转账:金额:备注]','[外卖:吃的:金额]','[网购:东西:金额]','[查手机]','[语音通话]','[视频通话]','[送亲属卡:月额度]','[找你代付:东西:金额]（让TA替你付）');
     sp.push('[分享歌曲:歌名 - 歌手]');sp.push('[定位:地点 · 一句备注]');sp.push('[骰子]、[猜拳]（结果随机）');
     if(t.msgs.slice(-8).some(m=>m.type==='roll')){roll={dice:rollNow('dice'),rps:rollNow('rps')};tail.push(`【骰子猜拳】这轮你发 [骰子] 会是${roll.dice}点，发 [猜拳] 会出${roll.rps}。`)}
@@ -1424,6 +1425,7 @@ function buildCtx(t,o={}){
   if(!group)rules.push(`【亲热】慢慢磨，跟着${me.name}的反应走，长短看TA的状态；到了以后自己还想要就接着来。那会儿说话会喘，断断续续的。`);
   if(C.inner){const styles=chars.map(c=>c.innerStyle?`${c.name}：${mac(c.innerStyle)}`:'').filter(Boolean).join('；');
     rules.push(`【${C.innerName||'心声'}】正文后另起一行写 <inner>…</inner>${G('，每人一行，「名字：」开头','')}：${mac(C.innerStyle||INNER_DEF)}${styles?'（'+styles+'）':''}`)}
+  {const W=banHit(String(S.chat.ban||''));if(W.length)tail.push(`【不说的词】${W.join('、')}，同类的套话也不说，换成平时的大白话。`)}
   tail.push('【心情】\n'+chars.map(c=>`${c.name}：${c.mood?c.mood+'，':''}${tideOf(c)}/100`).join('\n'));
   rules.push(`【心情】${cname}的心情像真人一样跟着眼前的事走，常常不止一种，会慢慢消，也会因为一句话突然变，不用每句都带情绪。不高兴可以别扭、嘴硬。最后一行写 <tide>${G('名字：','')}数字|心情</tide>（-50到100，大概就行；心情从这些里挑一个：${MOODS.join('、')}），如 <tide>${G(nm+'：','')}68|吃醋</tide>。`);
   if(!group&&mode==='online'&&chars[0]){const r=rel(chars[0]);
@@ -1472,7 +1474,8 @@ const DICE_P=[[4],[0,8],[0,4,8],[0,2,6,8],[0,2,4,6,8],[0,2,3,5,6,8]],RPS={石头
 const rollNow=k=>k==='rps'?Object.keys(RPS)[Math.random()*3|0]:String(1+(Math.random()*6|0));
 const rollFace=m=>m.k==='rps'?`<span class="rps">${RPS[m.content]||'✊'}</span>`:`<svg class="dice" viewBox="0 0 36 36" role="img" aria-label="${+m.content||1}点"><rect x="2" y="2" width="32" height="32" rx="8"/>${DICE_P[Math.min(6,Math.max(1,+m.content||1))-1].map(p=>`<circle cx="${9+p%3*9}" cy="${9+(p/3|0)*9}" r="3.1"/>`).join('')}</svg>`;
 function splitStickers(line,roll){const out=[];let rest=line;const re=/\[(?:(sticker|表情|定位|位置|图片|照片|语音|红包|转账|找你代付|代付|外卖|网购|分享歌曲)[:：]\s*([^\]]+)|(骰子|猜拳)(?:[:：][^\]]*)?)\]/i;let m;
-  while((m=rest.match(re))){const before=rest.slice(0,m.index).trim();if(before)out.push({type:'text',content:before});
+  const cl=x=>{x=x.replace(/^[，,。、；;：:\s]+|[，,、；;：:\s]+$/g,'');return/^[。.]*$/.test(x)?'':x};let hit=0;
+  while((m=rest.match(re))){hit=1;const before=cl(rest.slice(0,m.index));if(before)out.push({type:'text',content:before});
     const k=(m[1]||'').toLowerCase(),v=(m[2]||'').trim(),rk=m[3]==='猜拳'?'rps':'dice';
     if(m[3]){out.push({type:'roll',k:rk,content:roll?.[rk]||rollNow(rk)});if(roll)roll[rk]=''}
     else if(k==='sticker'||k==='表情'){const s=findSticker(v);if(s)out.push({type:'sticker',content:s.name})}
@@ -1485,7 +1488,7 @@ function splitStickers(line,roll){const out=[];let rest=line;const re=/\[(?:(sti
     else if(k==='外卖'){const p=v.split(/[:：]/);out.push({type:'order',content:p[0].trim(),amt:Math.max(1,Math.round((parseFloat(String(p[1]||'').replace(/[^\d.]/g,''))||25)*100)/100),state:'go',eta:foodEta()})}
     else{const p=v.split(/[:：]/),a=Math.round((parseFloat(String(p[0]).replace(/[^\d.]/g,''))||5.2)*100)/100;out.push({type:k==='红包'?'hb':'tf',amt:Math.max(.01,a),content:p.slice(1).join('：').trim()||(k==='红包'?'恭喜发财':''),state:'new'})}
     rest=rest.slice(m.index+m[0].length)}
-  if(rest.trim())out.push({type:'text',content:rest.trim()});return out}
+  rest=hit?cl(rest):rest.trim();if(rest)out.push({type:'text',content:rest});return out}
 const THINK_TAG='think|thinking|thought|thoughts|reasoning|analysis|思考|思维链|盘算';
 const PLAN_CUE=/(告诉|回|跟|哄|逗|安慰|应付)(她|他|TA)|别(显得|让(她|他|TA)|表现)|(她|他|TA)(突然|又|居然|竟然|怎么)?(问我|在问)|装作|打算|先回|就行|语气|自然点|随口带过/;
 const MULL_CUE=/什么意思|啥意思|试探|在不在乎|在乎|太明显|很明显|不乐意|不高兴|报备|故意|是不是想|想看我|显得|装作|装得|抓着|不放|别让|不能让|吃醋|先别|怎么回|该怎么|不动声色|表现得|冷淡点|淡定点|随口|带过|算了|先晾|晾着|反应|打算|语气/g;
@@ -1552,6 +1555,7 @@ function parseReply(out,ctx){
   out=rx(demd(out),'ai','in');
   if(ctx.mode==='offline'){out=offFix(out.replace(/^\s*\[线下\]\s*/,''),ctx);return out?[{from:ctx.chars[0]?.id,type:'narr',content:out}]:[]}
   const lines=out.split(/\n+/).map(s=>s.trim()).filter(Boolean),res=[];
+  for(let i=0;i<lines.length-1;i++){const m=lines[i].match(/^\[语音[:：]\s*([^\]]{1,14})\]$/);if(m&&/声音|嗓音|语气|低沉|沙哑|低低|轻声|闷闷|带笑|含笑|带着|哑着/.test(m[1])&&!/[\[\]]/.test(lines[i+1])){lines[i]=`[语音:${lines[i+1]}]`;lines.splice(i+1,1)}}
   let last=ctx.chars[0]?.id;
   for(const ln of lines){
     let from=last,text=ln;
@@ -1563,6 +1567,11 @@ function parseReply(out,ctx){
     for(const tx of ctx.mode==='online'&&S.chat.casual!==false?casual(text):[text])for(const p of splitStickers(tx,ctx.roll))res.push({from,...p});res.push(...ga);
   }
   {const seen={};const r2=res.filter(p=>{if(p.type!=='sticker')return true;const u=seen[p.from]||=recentStk(ctx.t,p.from);if(u.has(p.content))return false;u.add(p.content);return true});res.length=0;res.push(...r2)}
+  for(let i=0;i<res.length;i++){const v=res[i];if(v.type!=='voice')continue;const nk=x=>String(x||'').replace(/[\s\p{P}]/gu,'');
+    if(!mm28())v.content=v.content.replace(/[（(][^）)]*[）)]/g,'').trim()||v.content;
+    for(let n;(n=res[i+1])&&n.from===v.from&&n.type==='text';){const a=nk(v.content),b=nk(n.content);
+      if(a&&b&&(a.includes(b)||b.includes(a))){if(b.length>a.length)v.content=n.content}else break;res.splice(i+1,1)}
+    v.dur=voiceDur(v.content)}
   return ctx.mode==='online'?capBubbles(res):res;
 }
 const recentStk=(t,id)=>new Set((t?.msgs||[]).slice(-30).filter(m=>m.type==='sticker'&&(!id||m.from===id)).slice(-4).map(m=>m.content));
@@ -1719,6 +1728,7 @@ async function reply(t,extra,stamps){
     const offMax=ctx.mode==='offline'?{max:Math.max((num(api()?.maxTokens)||2048)-4096,Math.round((num((t.offline||S.offline).words)||500)*3)+2000)}:{};
     let r=await callAI(ctx.system,ctx.msgs,{thoughts:true,...tg,...offMax});RAW.set(t.id,[r.text,r.thoughts]);
     if(S.chat.think&&r.text&&!/^\s*(?:\]?<\]?minimax\[?>\[?)?\s*<think>/i.test(r.text)){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:`（上面这条没按顺序写，作废。重写：第一行先写 <think>一句打算</think>，然后才是${ctx.mode==='offline'?'正文':' <reply>…</reply>'}，最后 <inner>…</inner>${ctx.mode==='offline'?'':' 和 <tide>…</tide>'}。内容可以和刚才一样。）`}],{thoughts:true,back:2,...tg,...offMax});RAW.get(t.id).push(r2.text,r2.thoughts);if(/<think>/i.test(r2.text))r=r2}catch(e){}}
+    {const W=banHit(r.text);if(W.length){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:`（上面这条里说了${W.map(w=>'「'+w+'」').join('')}，作废。照原来的格式重写一遍，意思不变，这些词和同类的套话都不出现，换成平时的大白话。）`}],{thoughts:true,back:2,...tg,...offMax});RAW.get(t.id).push(r2.text,r2.thoughts);if(r2.text&&banHit(r2.text).length<W.length)r=r2}catch(e){}}}
     for(let k=0;k<2&&ctx.mode==='offline'&&r.cut&&r.text;k++){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:'（上面写到一半断了。从断掉的那个字接着把这一段写完，不重复前面，不另起开头。）'}],{thoughts:true,back:2,...tg,...offMax});r.text+=r2.text;r.cut=r2.cut&&!!r2.text}catch(e){break}}
     const ex=extractExtras(r.text,ctx.mode!=='offline',ctx.group,ctx.chars.some(langOf));if(ctx.mode!=='offline'&&!ex.fmt)await sortLeak(ex,ctx);if(ctx.mode==='online')ex.text=noAct(ex.text);if(!S.chat.think)ex.think='';
     applyTide(ctx,ex);applyActs(ctx,ex);if(!ctx.group&&ctx.chars[0]){applyMoney(t,ex,ctx.chars[0]);applyCards(t,ex,ctx.chars[0])}save();
@@ -2697,6 +2707,7 @@ chatPrefs(v){const C=S.chat,T=v?.tid&&thread(v.tid),cs=T?T.chars.map(charById).f
   return{title:'聊天设置',sub:T?threadTitle(T):'',body:`${cs.map(charBooksPanel).join('')}<div class="panel"><h2>回复</h2>
       <label class="f">条数<span class="inline"><input type="range" id="on-max" min="1" max="8" step="1" data-s="chat" data-k="onMax" value="${num(C.onMax)||3}"><output>${num(C.onMax)||3}</output></span></label>
       <label class="f">每条字数<span class="inline"><input type="range" id="on-len" min="1" max="60" step="1" data-s="chat" data-k="onLen" value="${num(C.onLen)||10}"><output>${num(C.onLen)||10}</output></span></label>
+      <label class="f">不让他说的词<textarea data-s="chat" data-k="ban">${esc(C.ban||'')}</textarea></label>
 </div>
     <div class="panel"><h2>记忆</h2>
       <label class="f">读最近几条<span class="inline"><input type="range" id="ch-ctx" min="6" max="200" step="2" data-s="chat" data-k="ctx" value="${C.ctx}"><output>${C.ctx}</output></span></label>
