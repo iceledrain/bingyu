@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.24.20';</script>
+<script>window.BYJ_VER='2026.11.24.21';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2582,7 +2582,7 @@ presetEdit(v){
   return{title:p.name,sub:'预设',right:`<button class="tb" data-a="newItem">加提示词</button>`,body:`
   <div class="panel"><label class="f">名字<input type="text" id="p-name" data-s="preset" data-k="name" value="${esc(p.name)}"></label></div>`+
   p.items.map((it,i)=>(mv=>it.mk?`<div class="row"><input type="checkbox" class="cbx" checked disabled aria-label="${MK[it.mk]}"><span class="meta"><b>${MK[it.mk]}</b><small>${it.mk==='lore'?'常亮的世界书放这儿':'角色和你的人设放这儿'}</small></span>${mv}</div>`:null)(`<span class="side h"><button class="tb" data-a="moveItem" data-id="${it.id}" data-d="-1" ${i?'':'disabled'} aria-label="上移">↑</button><button class="tb" data-a="moveItem" data-id="${it.id}" data-d="1" ${i<p.items.length-1?'':'disabled'} aria-label="下移">↓</button></span>`)||`<div class="row"><input type="checkbox" class="cbx" aria-label="开启 ${esc(it.name)}" data-a2="itemOn" data-id="${it.id}" ${it.on?'checked':''}><button class="meta" data-a="editItem" data-id="${it.id}"><b>${esc(it.name)}</b><small>${esc(ROLE[it.role]||it.role)} · ${esc(MODE[it.mode]||it.mode)}${inChat(it)?' · 记录里 深度'+it.depth:''} · ${esc((it.content||'').replace(/\n/g,' '))}</small></button><span class="side h"><button class="tb" data-a="moveItem" data-id="${it.id}" data-d="-1" ${i?'':'disabled'} aria-label="上移">↑</button><button class="tb" data-a="moveItem" data-id="${it.id}" data-d="1" ${i<p.items.length-1?'':'disabled'} aria-label="下移">↓</button></span></div>`).join('')+
-  `<p class="hint">内置的</p>`+ruleDefs().map(d=>{const o=(p.ov||{})[d.k];return`<div class="row"><input type="checkbox" class="cbx" aria-label="开启 ${esc(d.k)}" data-a2="ovOn" data-k="${esc(d.k)}" ${(d.k==='思考'?S.chat.think:d.k===(S.chat.innerName||'心声')?S.chat.inner:o!=='')?'checked':''}><button class="meta" data-a="ovEdit" data-k="${esc(d.k)}"><b>${esc(d.k)}</b><small>${d.lab}${o?' · 改过':''} · ${esc((o||d.x).replace(/^【[^】]+】/,'').replace(/\n/g,' ').slice(0,60))}</small></button></div>`}).join('')+
+  (D=>`<button class="more" data-a="ovFold">内置的 ${D.length} 条 ${v.bi?'︿':'﹀'}</button>`+(v.bi?D.map(d=>{const o=(p.ov||{})[d.k];return`<div class="row"><input type="checkbox" class="cbx" aria-label="开启 ${esc(d.k)}" data-a2="ovOn" data-k="${esc(d.k)}" ${(d.k==='思考'?S.chat.think:d.k===(S.chat.innerName||'心声')?S.chat.inner:o!=='')?'checked':''}><button class="meta" data-a="ovEdit" data-k="${esc(d.k)}"><b>${esc(d.k)}</b><small>${d.lab}${o?' · 改过':''} · ${esc((o||d.x).replace(/^【[^】]+】/,'').replace(/\n/g,' ').slice(0,60))}</small></button></div>`}).join(''):''))(ruleDefs())+
   `<div class="btns">${p.id===S.activePreset?'<span class="pill fill">使用中</span>':'<button class="btn" data-a="usePreset">使用</button>'}<button class="btn o" data-a="exportPreset">复制</button><button class="btn o" data-a="dlPreset">下载</button>${S.presets.length>1?'<button class="btn red" data-a="delPreset">删除</button>':''}</div>`};
 },
 itemEdit(v){
@@ -2885,6 +2885,7 @@ const A={
   sentOpen(){const t=thread(cur().id);closeSheet();go({v:'sent',id:t.id})},
   ovEdit(el){const v=cur(),k=el.dataset.k,inner=k===(S.chat.innerName||'心声')?1:0;go(v.v==='sent'?{v:'ovEdit',id:v.id,pid:preset().id,k,inner}:{v:'ovEdit',pid:v.id,k,inner})},
   sentItem(el){go({v:'itemEdit',id:preset().id,iid:el.dataset.id})},
+  ovFold(){const v=cur();v.bi=!v.bi;render(true)},
   ovReset(){const p=presetById(cur().pid);if(p?.ov)delete p.ov[cur().k];save();back()},
   ctxCopy(){const t=thread(cur().id);copy([buildCtx(t).system,...(RAW.get(t.id)||[])].filter(Boolean).join('\n———\n'),'复制了')},
   openOffline(){closeSheet();go({v:'offline',id:cur().id})},
