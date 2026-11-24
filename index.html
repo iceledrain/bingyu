@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.24.5';</script>
+<script>window.BYJ_VER='2026.11.24.6';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -728,7 +728,7 @@ const CHAT_DEF=()=>({lean:true,onMax:3,onLen:10,casual:true,ctx:40,sumEvery:30,i
 const PERSONA_TPL='姓名：\n年龄：\n性别：\n身份/职业：\n外貌：\n性格：\n说话方式：\n喜欢：\n讨厌：\n背景经历：\n和{{user}}的关系：';
 const API_BLANK=id=>({id,name:'接口',key:'',base:'',model:'',temp:1,topP:null,topK:null,maxTokens:32000,stream:true});
 const isOldExample=p=>p&&p.name==='Claude'&&!String(p.key||'').trim()&&/anthropic\.com/.test(p.base||'')&&/^claude-/.test(p.model||'');
-const def=()=>({v:4,loc:null,wx:{},
+const def=()=>({v:4,regex:[],loc:null,wx:{},
   media:{tts:{base:'',key:'',model:'',voice:''},img:{base:'',key:'',model:'',size:'',q:'',cx:'',style:'',auto:true,books:[]}},
   api:{active:'a1',side:'',profiles:[API_BLANK('a1')]},
   look:{font:'system',customFont:null,fs:15,alpha:.92,clear:30,wallpaper:'',photo:'',caption:'',icons:{},appWalls:{}},
@@ -754,7 +754,7 @@ function mergeState(d){
   s.chat=Object.assign(CHAT_DEF(),d.chat||{});if(!s.ctxV){if(+s.chat.ctx===40)s.chat.ctx=80;s.ctxV=1}if(!s.sumV){if(+s.chat.sumEvery===30)s.chat.sumEvery=60;s.sumV=1}if(!s.ctxV2){if(+s.chat.ctx===80)s.chat.ctx=40;if(+s.chat.sumEvery===60)s.chat.sumEvery=30;s.ctxV2=1}
   s.api=d.api&&Array.isArray(d.api.profiles)&&d.api.profiles.length?d.api:def().api;
   s.offline=Object.assign(def().offline,d.offline||{});
-  for(const k of ['chars','books','presets','masks','threads','feed','events','orders','days'])if(!Array.isArray(s[k]))s[k]=def()[k];
+  for(const k of ['regex','chars','books','presets','masks','threads','feed','events','orders','days'])if(!Array.isArray(s[k]))s[k]=def()[k];
   if(!s.look.v5){s.look.v5=1;s.look.order=[]}
   delete s.soc;
   s.shop=s.shop&&typeof s.shop==='object'?s.shop:{};for(const k of ['food','goods'])if(!Array.isArray(s.shop[k]))s.shop[k]=[];
@@ -908,9 +908,10 @@ const ICONS={
   xlogo:SV('<path d="M5 4.5l14 15M19 4.5l-14 15" stroke-width="2"/>'),
   weather:SV('<path d="M7.5 19h9.2a3.6 3.6 0 0 0 .3-7.2 5 5 0 0 0-9.7-1A4.1 4.1 0 0 0 7.5 19z"/><path d="M4.6 4.8l1 1M9.2 2.8v1.4M2.4 9.2h1.4"/>'),
   preset:SV('<path d="M5 6h14M5 12h14M5 18h14"/><circle cx="9" cy="6" r="1.8" fill="currentColor"/><circle cx="15" cy="12" r="1.8" fill="currentColor"/><circle cx="8" cy="18" r="1.8" fill="currentColor"/>'),
+  regex:SV('<path d="M14.5 4v8M11 6l7 4M18 6l-7 4"/><circle cx="6.5" cy="18" r="1.7" fill="currentColor"/>'),
 };
 const APPS=[
-  {id:'messages',name:'聊天',v:'threads'},{id:'library',name:'世界书',v:'books'},{id:'preset',name:'预设',v:'presets'},{id:'think',name:'思维链',v:'think',ic:'brain'},{id:'settings',name:'设置',v:'settings'}];
+  {id:'messages',name:'聊天',v:'threads'},{id:'library',name:'世界书',v:'books'},{id:'preset',name:'预设',v:'presets'},{id:'regex',name:'正则',v:'regex'},{id:'think',name:'思维链',v:'think',ic:'brain'},{id:'settings',name:'设置',v:'settings'}];
 const appHidden=()=>false;
 const appsOrdered=()=>APPS.filter(a=>!appHidden(a.id));
 function appIcon(a){const img=0;const n=a.id==='messages'?S.threads.reduce((s,t)=>s+(t.unread||0),0):0;
@@ -1248,6 +1249,10 @@ const loreOf=(books,scan,part)=>loreHit(books,scan).filter(e=>!part||(part==='fi
 const loreBlock=(L,f)=>L.length?'【世界书】\n'+L.map(f).join('\n---\n'):'';
 const charLore=(c,scan)=>{const f=x=>macOf(x,c),L=loreHit(booksFor([c]),String(scan||'')+' '+c.name),top=e=>loreFix(e)&&e.pos!=='depth',a=loreBlock(L.filter(top).map(loreTx),f),b=loreBlock(L.filter(e=>!top(e)).map(loreTx),f);return a||b?a+'\u0002'+b+'\u0001':''};
 const HBS={new:'还没收',got:'已收下',back:'已退回'};
+const RXW={ai:'他说的',me:'我说的',both:'都'},RXAT={in:'直接改掉',show:'只改显示',send:'只改发给模型的'},rxC=new Map();
+const rxRe=f=>{if(!rxC.has(f)){let re=null;try{const m=String(f||'').match(/^\/([\s\S]+)\/([a-z]*)$/);re=f?m?new RegExp(m[1],m[2]):new RegExp(f,'g'):null}catch(e){}rxC.set(f,re)}return rxC.get(f)};
+const rx=(s,who,at)=>{s=String(s??'');for(const r of S.regex||[]){if(!r.on||r.at!==at||(r.who!=='both'&&r.who!==who))continue;const re=rxRe(r.find);if(re)s=s.replace(re,String(r.rep||'').replace(/\{\{match\}\}/gi,'$$&'))}return s};
+const toRx=d=>(Array.isArray(d)?d:[d]).filter(x=>x&&typeof x==='object').map(x=>{const st='findRegex'in x,p=x.placement||[];return{id:uid(),name:String(x.scriptName||x.name||'正则'),find:String((st?x.findRegex:x.find)||''),rep:String((st?x.replaceString:x.rep)||''),who:st?(p.includes(1)&&p.includes(2)?'both':p.includes(1)?'me':'ai'):(x.who in RXW?x.who:'ai'),at:st?(x.markdownOnly?'show':x.promptOnly?'send':'in'):(x.at in RXAT?x.at:'in'),on:st?!x.disabled:x.on!==false}});
 function bodyText(m){switch(m.type){
   case'sticker':{const s=findSticker(m.content);return`[表情:${m.content}${s?.desc?'（'+s.desc+'）':''}]`}
   case'loc':return`[定位:${m.content}${m.sub?' · '+m.sub:''}]`;
@@ -1417,7 +1422,7 @@ function buildCtx(t,o={}){
     if(mode==='offline'){if(m.type==='narr'&&histStart+i>curAt)rows.push({role:m.from==='me'?'user':'assistant',content:m.content});return}
     if(m.type==='narr'){if(!run){run={role:'user',content:'（下面是你们见面时的经过，已经结束了，只是记忆）'};rows.push(run)}run.content+='\n'+nameOf(m)+'：'+(lastMeet.includes(m)?wholeText(m.content,4000):wholeText(m.content,800));return}
     if(!isMark(m))run=null;
-    rows.push({role:m.from==='me'||m.from==='sys'?'user':'assistant',content:msgText(m,group,me.name),...(imgIdx.has(i)?{imgs:[m.img]}:{})})});
+    rows.push({role:m.from==='me'||m.from==='sys'?'user':'assistant',content:(x=>m.type==='sys'?x:rx(x,m.from==='me'?'me':'ai','send'))(msgText(m,group,me.name)),...(imgIdx.has(i)?{imgs:[m.img]}:{})})});
   const msgs=[...pre,...rows,...(o.lines||[])];
   {const end=msgs.length,la=msgs.map(x=>x.role).lastIndexOf('assistant')+1;
     [...items.filter(inChat),...LH.filter(e=>e.pos==='depth').map(e=>({dep:1,role:e.role,depth:e.role==='assistant'?1e9:+e.depth||0,content:(e.role==='user'||e.role==='assistant'?'':'【世界书】\n')+loreTx(e)}))].map(i=>({i,d:Math.max(0,Math.floor(+i.depth))})).sort((a,b)=>b.d-a.d)
@@ -1526,7 +1531,7 @@ function casual(line){if(/[\[（(]/.test(line))return[line];
   return line.split(/(?<!。)。(?!。)/).map(x=>x.replace(/\s*[，,](?!\d)\s*/g,' ').replace(/[\s，,。]+$/,'').trim()).filter(Boolean)}
 function offFix(out){return String(out||'').replace(/“([^”\n]*)”/g,'「$1」').replace(/"([^"\n]*)"/g,'「$1」')}
 function parseReply(out,ctx){
-  out=demd(out);
+  out=rx(demd(out),'ai','in');
   if(ctx.mode==='offline'){out=offFix(out.replace(/^\s*\[线下\]\s*/,''),ctx);return out?[{from:ctx.chars[0]?.id,type:'narr',content:out}]:[]}
   const lines=out.split(/\n+/).map(s=>s.trim()).filter(Boolean),res=[];
   let last=ctx.chars[0]?.id;
@@ -1606,7 +1611,7 @@ function bubble(t,m,i){
   if(m.recalled)return`<div class="stamp" data-mi="${i}" data-a="msg" data-i="${i}">${m.from==='me'?'你':esc(dn(charById(m.from))||'TA')}撤回了一条消息</div>`;
   if(m.type==='sys')return`<div class="stamp" data-mi="${i}">${esc(m.content)}</div>${m.letter?`<div class="letter">${esc(m.letter)}</div>`:''}${m.inner&&S.chat.inner?`<div class="msg ai"><div class="col" style="max-width:100%">${folds(m)}</div></div>`:''}`;
   const mine=m.from==='me',c=mine?null:charById(m.from),grp=t.type==='group';
-  if(m.type==='narr')return`${!mine&&m.think?`<div class="msg ai"><div class="col" style="max-width:100%">${thinkFold(m)}</div></div>`:''}<button class="narr${mine?' me':''}" data-mi="${i}" data-a="msg" data-i="${i}">${esc(m.content)}</button>${folds(m)?`<div class="msg ai"><div class="col" style="max-width:100%">${folds(m)}</div></div>`:''}`;
+  if(m.type==='narr')return`${!mine&&m.think?`<div class="msg ai"><div class="col" style="max-width:100%">${thinkFold(m)}</div></div>`:''}<button class="narr${mine?' me':''}" data-mi="${i}" data-a="msg" data-i="${i}">${esc(rx(m.content,mine?'me':'ai','show'))}</button>${folds(m)?`<div class="msg ai"><div class="col" style="max-width:100%">${folds(m)}</div></div>`:''}`;
   const inner=m.type==='sticker'?(()=>{const s=findSticker(m.content);return`<button class="stk" data-a="msg" data-i="${i}">${s?`<img src="${esc(s.src)}" alt="${esc(m.content)}">`:`<span class="bub">[${esc(m.content)}]</span>`}</button>`})()
     :m.type==='roll'?`<button class="stk roll${Date.now()-m.t<1500?' new':''}" data-a="msg" data-i="${i}">${rollFace(m)}</button>`
     :richBody(t,m,i,mine,c);
@@ -1628,7 +1633,7 @@ function richBody(t,m,i,mine,c){const tap=`data-a="msg" data-i="${i}"`;
     case'call':return`<details class="callcard"><summary>${m.kind==='video'?ICONS.video:ICONS.phone}<span>${m.kind==='video'?'视频':'语音'}通话 ${fmt(m.dur||0)}</span></summary><div>${esc(m.content||'（没说什么）')}</div></details>`;
     case'share':{const K={song:['music','首歌'],post:['plaza','条动态']}[m.kind]||['music','个东西'];
       return`<button class="scard" data-a="shareOpen" data-i="${i}"><small>${ICONS[K[0]]}分享了一${K[1]}</small><b>${esc(m.title)}</b>${m.sub?`<span class="ss">${esc(m.sub)}</span>`:''}${m.text?`<p>${esc(m.text)}</p>`:''}</button>`}
-    default:return`<button class="bub" ${tap}>${esc(m.content)}</button>${m.q?`<span class="qt">↪ ${esc(m.q.who)}：${esc(m.q.text)}</span>`:''}`}}
+    default:return`<button class="bub" ${tap}>${esc(rx(m.content,mine?'me':'ai','show'))}</button>${m.q?`<span class="qt">↪ ${esc(m.q.who)}：${esc(m.q.text)}</span>`:''}`}}
 function msgsHTML(t){
   let h='',last=0,run=0;const lim=(cur()?.id===t.id&&cur().more)||120,st=Math.max(0,t.msgs.length-lim),off=t.mode==='offline';
   const flush=()=>{if(run)h+=`<button class="stamp" data-a="meetGo">见面 · ${run} 段</button>`;run=0};
@@ -1660,7 +1665,7 @@ function onThreadUpdate(t){const v=cur();if(!v||!isOpen())return;
 async function sendMsg(t,ta){
   if(!t||!ta)return;
   if(busy.has(t.id)){toast('TA 还在回');return}
-  const txt=ta.value.trim();const c0=t.type==='dm'?charById(t.chars[0]):null,r=c0?rel(c0):null;
+  const txt=rx(ta.value.trim(),'me','in').trim();const c0=t.type==='dm'?charById(t.chars[0]):null,r=c0?rel(c0):null;
   if(r?.youBlocked){toast('你拉黑了TA，先解除拉黑');return}
   const online=t.mode!=='offline';
   if(txt){const m={id:uid(),from:'me',type:online?'text':'narr',content:txt,t:Date.now()},v=cur();if(v?.id===t.id&&v.quote){m.q=v.quote;v.quote=null;if(cur()?.v==='chat')setTimeout(()=>render(true))}
@@ -2517,6 +2522,18 @@ maskEdit(v){
 presets(){
   return{title:'预设',right:`<button class="tb" data-a="presetMenu">添加</button>`,body:
     S.presets.map(p=>`<button class="row" data-a="editPreset" data-id="${p.id}"><span class="meta"><b>${esc(p.name)}</b><small>开启 ${p.items.filter(i=>i.on).length}/${p.items.length} 条</small></span>${p.id===S.activePreset?'<span class="pill fill">使用中</span>':''}</button>`).join('')}},
+regex(){
+  return{title:'正则',right:`<button class="tb" data-a="rxMenu">添加</button>`,body:
+    S.regex.map(r=>`<div class="row"><input type="checkbox" class="cbx" aria-label="开启 ${esc(r.name)}" data-a2="rxOn" data-id="${r.id}" ${r.on?'checked':''}><button class="meta" data-a="editRx" data-id="${r.id}"><b>${esc(r.name||'未命名')}</b><small>${r.find&&!rxRe(r.find)?'⚠ 写错了 · ':''}${RXW[r.who]} · ${RXAT[r.at]}</small></button></div>`).join('')||`<div class="empty"><big>还没有</big></div>`}},
+regexEdit(v){const r=S.regex.find(x=>x.id===v.id);if(!r)return{title:'不见了',body:''};
+  const sel=(k,O)=>`<select data-s="rx" data-k="${k}">${Object.entries(O).map(([a,l])=>`<option value="${a}" ${r[k]===a?'selected':''}>${l}</option>`).join('')}</select>`;
+  return{title:r.name||'正则',sub:'正则',body:`<div class="panel">
+    <label class="f">名字<input type="text" data-s="rx" data-k="name" value="${esc(r.name)}"></label>
+    <label class="f">查找<textarea data-s="rx" data-k="find">${esc(r.find)}</textarea></label>
+    <label class="f">替换成<textarea data-s="rx" data-k="rep">${esc(r.rep)}</textarea></label>
+    <div class="grid2"><label class="f">用在${sel('who',RXW)}</label><label class="f">怎么改${sel('at',RXAT)}</label></div>
+    <label class="ck"><input type="checkbox" data-s="rx" data-k="on" ${r.on?'checked':''}>开启</label></div>
+    <div class="btns"><button class="btn o" data-a="exportRx">复制</button><button class="btn red" data-a="delRx">删除</button></div>`}},
 books(v){const tab=v.tab==='local'?'local':'global',own=b=>S.chars.find(c=>(c.books||[]).includes(b.id)),L=S.books.filter(b=>(b.scope==='global')===(tab==='global'));
   const row=b=>{const g=b.entries.filter(e=>e.light==='green').length,y=b.entries.filter(e=>e.light==='yellow').length,c=own(b);return`<div class="row"><input type="checkbox" class="cbx" aria-label="开启 ${esc(b.name)}" data-a2="bookOn" data-id="${b.id}" ${b.off?'':'checked'}><button class="meta" data-a="editBook" data-id="${b.id}"><b>${esc(b.name)}</b><small>${b.entries.length} 条 · ${g} 常亮约 ${b.entries.reduce((n,e)=>n+(e.light==='green'?tokEst(e.content):0),0)} token · ${y} 关键词</small></button>${tab==='local'?`<span class="pill" data-a="editBook" data-id="${b.id}">${c?esc(dn(c)):bookUse(b.id)||'还没选给谁'}</span>`:''}</div>`};
   return{title:'世界书',right:`<button class="tb" data-a="bookMenu">添加</button>`,body:tabs([['global','全局'],['local','局部']],tab)+
@@ -3059,6 +3076,13 @@ const A={
   delEntry(el){confirmTap(el,()=>{const v=cur(),b=S.books.find(x=>x.id===v.id);b.entries=b.entries.filter(e=>e.id!==v.eid);save();back()})},
   delBook(el){confirmTap(el,()=>{const id=cur().id;S.books=S.books.filter(b=>b.id!==id);S.chars.forEach(c=>c.books=(c.books||[]).filter(x=>x!==id));[S.offline,...S.threads.map(t=>t.offline),S.media.img].forEach(o=>{if(o?.books)o.books=o.books.filter(x=>x!==id)});DB.del('bk:'+id);save();back()})},
   exportBook(){copy(JSON.stringify(S.books.find(x=>x.id===cur().id)),'复制好了')},
+  rxMenu(){sheet(`<h3>正则</h3><button class="opt" data-a="newRx">新建</button><button class="opt" data-a="importRxSheet">导入</button>${CANCEL}`)},
+  newRx(){const r={id:uid(),name:'新正则',find:'',rep:'',who:'ai',at:'show',on:true};S.regex.push(r);save();closeSheet();go({v:'regexEdit',id:r.id})},
+  editRx(el){go({v:'regexEdit',id:el.dataset.id})},
+  delRx(el){confirmTap(el,()=>{const id=cur().id;S.regex=S.regex.filter(r=>r.id!==id);save();back()})},
+  exportRx(){copy(JSON.stringify(S.regex.find(x=>x.id===cur().id)),'复制好了')},
+  importRxSheet(){fileSheet('导入正则','.json,application/json','impRx','')},
+  impRxGo(){try{const L=toRx(JSON.parse($('#impRxTa').value));if(!L.length)throw 0;S.regex.push(...L);save();closeSheet();render(true);toast('导入了 '+L.length+' 条')}catch(e){toast('不是有效的 JSON')}},
   presetMenu(){sheet(`<h3>预设</h3><button class="opt" data-a="newPreset">新建</button><button class="opt" data-a="defPreset">默认预设</button><button class="opt" data-a="importPresetSheet">导入</button>${CANCEL}`)},
   defPreset(){const p={id:uid(),name:'默认',core:1,items:DEFAULT_ITEMS()};S.presets.push(p);save();closeSheet();go({v:'presetEdit',id:p.id})},
   newPreset(){const src=preset();const p={id:uid(),name:src.name+' 副本',core:1,items:src.items.map(i=>({...i,id:uid()}))};S.presets.push(p);save();closeSheet();go({v:'presetEdit',id:p.id})},
@@ -3145,7 +3169,7 @@ document.addEventListener('pointerup',()=>{const d=document,r=d.documentElement;
 function scopeObj(s){const v=cur()||{};
   switch(s){case'look':return S.look;case'root':return S;case'chat':return S.chat;case'char':return charById(v.id);case'cvoice':{const c=charById(v.id);return c&&(c.voice||(c.voice={}))}case'mask':return maskById(v.id);case'loc':return S.loc;
     case'book':return S.books.find(x=>x.id===v.id);case'entry':return S.books.find(x=>x.id===v.id)?.entries.find(x=>x.id===v.eid);
-    case'preset':return presetById(v.id);case'item':return presetById(v.id)?.items.find(x=>x.id===v.iid);
+    case'rx':return S.regex.find(x=>x.id===v.id);case'preset':return presetById(v.id);case'item':return presetById(v.id)?.items.find(x=>x.id===v.iid);
     case'mtts':return S.media.tts;case'mimg':return S.media.img;case'apiroot':return S.api;
     case'api':return apiById(v.id);case'thread':return thread(v.id);case'off':{const t=thread(v.id);return t&&(t.offline||(t.offline={...S.offline}))}}}
 function bind(e){const el=e.target;if(!el.dataset||!el.dataset.k)return;const o=scopeObj(el.dataset.s);if(!o)return;
@@ -3166,6 +3190,7 @@ document.addEventListener('change',async e=>{const el=e.target;bind(e);
   if(el.dataset.a2==='maskChar'){const c=charById(el.dataset.id),id=cur().id;if(!c)return;if(el.checked)c.mask=id;else if(c.mask===id)delete c.mask;save();render(true);return}
   if(el.dataset.a2==='charBook'){const c=charById(el.dataset.c),id=el.dataset.id;if(!c)return;c.books=(c.books||[]).filter(x=>x!==id);if(el.checked)c.books.push(id);save()}
   if(el.dataset.a2==='bookChar'){const c=charById(el.dataset.id),id=cur().id;if(!c)return;c.books=(c.books||[]).filter(x=>x!==id);if(el.checked)c.books.push(id);save()}
+  if(el.dataset.a2==='rxOn'){const r=S.regex.find(x=>x.id===el.dataset.id);if(r){r.on=el.checked;save()}return}
   if(el.dataset.a2==='itemOn'){presetById(cur().id).items.find(x=>x.id===el.dataset.id).on=el.checked;save()}
   if(el.dataset.img==='post'){const fs=[...(el.files||[])].slice(0,Math.max(0,9-postDraft.pics.length));let left=fs.length;el.value='';const done=()=>{if(--left<=0)render(true)};
     fs.forEach(f=>readImg(f,960,url=>{if(postDraft.pics.length<9)postDraft.pics.push(url);done()},'image/jpeg',done));return}
@@ -3189,7 +3214,7 @@ document.addEventListener('change',async e=>{const el=e.target;bind(e);
     try{const d=pngCard(await f.arrayBuffer());if(!d)throw new Error('这张图里没有角色卡数据。从「文件」里选原图，相册里的图可能被压过');
       const c=toChar(d);await new Promise(r=>readImg(f,480,u=>{c.avatar=u;r()},'image/jpeg',r));
       S.chars.push(c);save();closeSheet();go({v:'charEdit',id:c.id});toast('导入了 '+c.name)}catch(e){el.value='';toast(e.message||'这张卡读不了',5600)}return}
-  if(['impFile','impChar','impBook','impPreset'].includes(el.id)){const f=el.files?.[0];if(!f)return;const txt=await(el.id==='impBook'?readDoc(f):readText(f));if(el.id==='impFile'){el.value='';A.imp(null,txt);return}const ta=$('#'+(el.id==='impFile'?'impTa':el.id+'Ta'));ta.value=txt;ta.dataset.name=base_(f.name);if(el.id==='impFile'){el.value='';A.imp();return}toast('读好了，点「导入」')}
+  if(['impFile','impChar','impBook','impPreset','impRx'].includes(el.id)){const f=el.files?.[0];if(!f)return;const txt=await(el.id==='impBook'?readDoc(f):readText(f));if(el.id==='impFile'){el.value='';A.imp(null,txt);return}const ta=$('#'+(el.id==='impFile'?'impTa':el.id+'Ta'));ta.value=txt;ta.dataset.name=base_(f.name);if(el.id==='impFile'){el.value='';A.imp();return}toast('读好了，点「导入」')}
 });
 
 let snowIcon='';
