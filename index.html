@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.24.4';</script>
+<script>window.BYJ_VER='2026.11.24.5';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -686,7 +686,7 @@ const stale=()=>{gone=1;ready=0;clearTimeout(saveT);if(document.hidden||$('#old'
   b.style.cssText='position:fixed;inset:0;z-index:999;border:0;background:rgba(var(--panel-rgb),.97);color:var(--ink);font:inherit;font-size:16px';b.onclick=()=>location.reload();document.body.appendChild(b)};
 const fresh=async()=>{if(gone){location.reload();return 0}if(!DB.db||!ready)return 1;await DB.q;const r=await DB.get('rev');await DB.q;if(r==null||+r<=DB.rev)return 1;gone=1;ready=0;location.reload();return 0};
 async function snap(v){const d=new Date(),k='sv:'+d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());if(!DB.db||snapDay===k)return;snapDay=k;
-  const ks=(await DB.keys()).filter(x=>/^sv:\d/.test(x)).sort();if(!ks.includes(k)&&await DB.put(k,v))ks.push(k);ks.slice(0,-5).forEach(x=>DB.del(x))}
+  const ks=(await DB.keys()).filter(x=>/^sv:\d/.test(x)).sort();if(!ks.includes(k)&&await DB.put(k,v))ks.push(k);ks.slice(0,-1).forEach(x=>DB.del(x))}
 const snapCut=async()=>{const ks=(await DB.keys()).filter(x=>/^sv:\d/.test(x)).sort();[...ks.slice(0,-1),'sv:pre','sv:old','sv:upd'].forEach(x=>DB.del(x))};
 const txList=async k=>{if(!DB.db)return[];try{const L=JSON.parse(await DB.get('tx:'+k)||'[]');return Array.isArray(L)?L:[]}catch(e){return[]}};
 const txOn=new Set(),txT={};let txQ=Promise.resolve();
