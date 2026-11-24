@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.24.2';</script>
+<script>window.BYJ_VER='2026.11.24.3';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1252,7 +1252,7 @@ function bodyText(m){switch(m.type){
   case'sticker':{const s=findSticker(m.content);return`[表情:${m.content}${s?.desc?'（'+s.desc+'）':''}]`}
   case'loc':return`[定位:${m.content}${m.sub?' · '+m.sub:''}]`;
   case'img':return'[照片]'+(m.content?' '+m.content:'');case'pic':return`[图片:${m.content}]`;case'voice':return`[语音:${m.content}]`;
-  case'hb':return`[红包:${m.amt}:${m.content}]（${HBS[m.state]||'还没收'}）`;case'tf':return`[转账:${m.amt}:${m.content}]（${HBS[m.state]||'还没收'}）`;
+  case'hb':return`[红包:${m.amt}:${m.content}]（${HBS[m.state]||'还没收'}）`;case'tf':return`[转账:${m.amt}:${m.content}]（${HBS[m.state]||'还没收'}）`;case'pay':return`[找你代付:${m.content}:${m.amt}]（${{new:'还没付',paid:'已付',no:'没付'}[m.state]||'还没付'}）`;
   case'order':return`[外卖:${m.content}:${m.amt}]`;
   case'parcel':return`[网购:${m.content}:${m.amt}]`;
   case'call':return`[${m.kind==='video'?'视频':'语音'}通话 ${fmt(m.dur||0)}]\n${m.content}`;
@@ -1260,7 +1260,7 @@ function bodyText(m){switch(m.type){
   case'roll':return m.k==='rps'?`[猜拳:${m.content}]`:`[骰子:${m.content}点]`;
   case'narr':return'[线下] '+m.content;
   default:return(m.q?`[引用 ${m.q.who}：${m.q.text}] `:'')+m.content}}
-const pv=m=>m.recalled?'撤回了一条消息':m.type==='share'?'[分享] '+m.title:({loc:'[位置] '+m.content,order:'[外卖] '+m.content,parcel:'[快递] '+m.content,sticker:'[表情]',roll:m.k==='rps'?'[猜拳]':'[骰子]',img:'[照片]',pic:'[图片] '+m.content,voice:'[语音] '+m.content,hb:'[红包]',tf:'[转账] ¥'+m.amt,call:'['+(m.kind==='video'?'视频':'语音')+'通话]',narr:'[线下] '+m.content}[m.type]??m.content);
+const pv=m=>m.recalled?'撤回了一条消息':m.type==='share'?'[分享] '+m.title:({loc:'[位置] '+m.content,order:'[外卖] '+m.content,parcel:'[快递] '+m.content,sticker:'[表情]',roll:m.k==='rps'?'[猜拳]':'[骰子]',img:'[照片]',pic:'[图片] '+m.content,voice:'[语音] '+m.content,hb:'[红包]',tf:'[转账] ¥'+m.amt,pay:'[代付] ¥'+m.amt,call:'['+(m.kind==='video'?'视频':'语音')+'通话]',narr:'[线下] '+m.content}[m.type]??m.content);
 const sysAI=(x,me)=>{const u=!me||me==='user'?'用户':me;let s=String(x||'');for(const c of S.chars)if(c.remark&&c.name&&c.remark!==c.name)s=s.split(c.remark).join(c.name);return s.split(/(「[^」]*」)/).map((p,i)=>i%2?p:p.replace(/你/g,u)).join('')};
 function msgText(m,group,me){
   if(m.recalled)return`（${m.from==='me'?mask().name:charById(m.from)?.name||'TA'}撤回了一条消息，你没看清写的是什么）`;
@@ -1384,7 +1384,7 @@ function buildCtx(t,o={}){
     {const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal?.type==='narr')tail.push(`【刚分开】刚见过面，现在回到手机上。带着那时的情绪，只发消息，不写长段。`)}
     rules.push(`【条数】一条一句话，${num(C.onLen)||10}字左右，平时${G('每人','')}发1到${num(C.onMax)||3}条，情绪上来最多${bubbleCap()}条。${C.casual!==false?'停顿就换行，句尾留空。':''}`);
     const sp=['[图片:画面]','[语音:内容]'];
-    if(!group)sp.push('[红包:金额:祝福]','[转账:金额:备注]','[外卖:吃的:金额]','[网购:东西:金额]','[查手机]','[语音通话]','[视频通话]','[送亲属卡:月额度]');
+    if(!group)sp.push('[红包:金额:祝福]','[转账:金额:备注]','[外卖:吃的:金额]','[网购:东西:金额]','[查手机]','[语音通话]','[视频通话]','[送亲属卡:月额度]','[找你代付:东西:金额]（让TA替你付）');
     sp.push('[分享歌曲:歌名 - 歌手]');sp.push('[定位:地点 · 一句备注]');sp.push('[骰子]、[猜拳]（结果随机）');
     if(t.msgs.slice(-8).some(m=>m.type==='roll')){roll={dice:rollNow('dice'),rps:rollNow('rps')};tail.push(`【骰子猜拳】这轮你发 [骰子] 会是${roll.dice}点，发 [猜拳] 会出${roll.rps}。`)}
     const hs=n=>[...n].reduce((h,c)=>Math.imul(h^c.charCodeAt(0),16777619)>>>0,2166136261),st=allStickers().map(s=>s.name).filter(Boolean).sort((x,y)=>hs(x)-hs(y)||(x<y?-1:1)).slice(0,300);if(st.length)sp.push('[表情:名字]（可用：'+st.join('、')+'）');
@@ -1396,6 +1396,7 @@ function buildCtx(t,o={}){
     if(!group&&boughtRecently(t))tail.push(`【刚买过】刚给${me.name}买过东西，这次不写 [外卖]、[网购]。`);
     if(!group){const way=t.msgs.filter(m=>m.from==='me'&&(m.type==='order'||m.type==='parcel')&&m.state!=='done'&&m.eta>Date.now()).slice(-3);
       if(way.length)tail.push(`【还在路上】${me.name}给你买的还没到：${way.map(m=>`${m.content}（大约${gapText(m.eta-Date.now())}后到）`).join('、')}。到了才算收到。`)}
+    {const q=!group&&[...t.msgs].reverse().find(m=>m.from==='me'&&m.type==='pay'&&m.state==='new');if(q)tail.push(`【代付】${me.name}想让你替TA付 ¥${q.amt}：${q.content}，写 [代付] 或 [不付]。`)}
     if(pend)tail.push(`【没收的钱】${me.name}发来${pend.type==='hb'?'红包':'转账'}¥${pend.amt}${pend.content?'：'+pend.content:''}，写 [收下] 或 [退回]。`);
   }
   rules.push('【时间】说好去做的事要花时间，没过够时间别问做完没。日子有规律：工作日白天忙、周末和放假松一点，吃饭睡觉按平常的钟点。');
@@ -1446,7 +1447,7 @@ const voiceDur=s=>Math.max(1,Math.min(60,Math.round([...String(s)].length/4)));
 const DICE_P=[[4],[0,8],[0,4,8],[0,2,6,8],[0,2,4,6,8],[0,2,3,5,6,8]],RPS={石头:'✊',剪刀:'✌️',布:'🖐️'};
 const rollNow=k=>k==='rps'?Object.keys(RPS)[Math.random()*3|0]:String(1+(Math.random()*6|0));
 const rollFace=m=>m.k==='rps'?`<span class="rps">${RPS[m.content]||'✊'}</span>`:`<svg class="dice" viewBox="0 0 36 36" role="img" aria-label="${+m.content||1}点"><rect x="2" y="2" width="32" height="32" rx="8"/>${DICE_P[Math.min(6,Math.max(1,+m.content||1))-1].map(p=>`<circle cx="${9+p%3*9}" cy="${9+(p/3|0)*9}" r="3.1"/>`).join('')}</svg>`;
-function splitStickers(line,roll){const out=[];let rest=line;const re=/\[(?:(sticker|表情|定位|位置|图片|照片|语音|红包|转账|外卖|网购|分享歌曲)[:：]\s*([^\]]+)|(骰子|猜拳)(?:[:：][^\]]*)?)\]/i;let m;
+function splitStickers(line,roll){const out=[];let rest=line;const re=/\[(?:(sticker|表情|定位|位置|图片|照片|语音|红包|转账|找你代付|代付|外卖|网购|分享歌曲)[:：]\s*([^\]]+)|(骰子|猜拳)(?:[:：][^\]]*)?)\]/i;let m;
   while((m=rest.match(re))){const before=rest.slice(0,m.index).trim();if(before)out.push({type:'text',content:before});
     const k=(m[1]||'').toLowerCase(),v=(m[2]||'').trim(),rk=m[3]==='猜拳'?'rps':'dice';
     if(m[3]){out.push({type:'roll',k:rk,content:roll?.[rk]||rollNow(rk)});if(roll)roll[rk]=''}
@@ -1455,6 +1456,7 @@ function splitStickers(line,roll){const out=[];let rest=line;const re=/\[(?:(sti
     else if(k==='图片'||k==='照片')out.push({type:'pic',content:v});
     else if(k==='语音')out.push({type:'voice',content:v,dur:voiceDur(v)});
     else if(k==='分享歌曲'){const [ti,ar]=splitSong(v);if(ti)out.push({type:'share',kind:'song',title:ti,sub:ar})}
+    else if(/代付/.test(k)){const p=v.split(/[:：]/);out.push({type:'pay',content:p[0].trim(),amt:Math.max(.01,Math.round((parseFloat(String(p[1]||'').replace(/[^\d.]/g,''))||20)*100)/100),state:'new'})}
     else if(k==='网购'){const p=v.split(/[:：]/);out.push({type:'parcel',content:p[0].trim(),amt:Math.max(1,Math.round((parseFloat(String(p[1]||'').replace(/[^\d.]/g,''))||99)*100)/100),state:'go',t0:Date.now(),eta:parcelEta()})}
     else if(k==='外卖'){const p=v.split(/[:：]/);out.push({type:'order',content:p[0].trim(),amt:Math.max(1,Math.round((parseFloat(String(p[1]||'').replace(/[^\d.]/g,''))||25)*100)/100),state:'go',eta:foodEta()})}
     else{const p=v.split(/[:：]/),a=Math.round((parseFloat(String(p[0]).replace(/[^\d.]/g,''))||5.2)*100)/100;out.push({type:k==='红包'?'hb':'tf',amt:Math.max(.01,a),content:p.slice(1).join('：').trim()||(k==='红包'?'恭喜发财':''),state:'new'})}
@@ -1502,7 +1504,7 @@ function extractExtras(out,chat=true,group=false,keep=false){
   out=out.replace(/<tide>([\s\S]*?)<\/tide>/gi,(_,x)=>{tide.push(x.trim());return''});
   out=out.replace(/<profile>([\s\S]*?)<\/profile>/gi,(_,x)=>{prof.push(x.trim());return''});
   const cards=[];out=out.replace(/\[送亲属卡[:：]\s*([\d.]*)[^\]]*\]/g,(_,a)=>{cards.push({give:1,amt:Math.max(0,+a||0)});return''}).replace(/\[刷亲属卡[:：]([^:：\]]+)[:：]\s*([\d.]+)[^\]]*\]/g,(_,w,a)=>{cards.push({what:w.trim(),amt:+a||0});return''});
-  out=out.replace(/\[(拉黑|解除拉黑|删除好友|沉默|收下|退回|语音通话|视频通话|拒接|挂断|查手机|回群)\]/g,(_,x)=>{acts.push(x);return''});
+  out=out.replace(/\[(拉黑|解除拉黑|删除好友|沉默|收下|退回|代付|不付|语音通话|视频通话|拒接|挂断|查手机|回群)\]/g,(_,x)=>{acts.push(x);return''});
   think=think.replace(/<\/?[a-z]{1,8}>/gi,' ').trim();
   think=group?think.split('\n').map(l=>{const m=l.trim().match(/^([^:：\n]{1,30})[:：]\s*(.*)$/);return m?(x=>x?m[1].trim()+'：'+x:'')(brief(m[2])):brief(l)}).filter(Boolean).slice(0,8).join('\n'):brief(think);
   return{text:out.trim(),think:think.trim(),inner,tide,acts,prof,cards,fmt,now};
@@ -1585,7 +1587,7 @@ function giveCard(c,dir,l,name){const out=dir==='out';S.cards.push({id:uid(),cha
   logEvent(c.id,out?`${mask(c).name}给${c.name}开通了亲属卡，${q}`:`${c.name}给${mask(c).name}开通了亲属卡，${q}`);save()}
 function applyCards(t,ex,c){for(const x of ex.cards||[]){if(x.give){giveCard(c,'in',x.amt);continue}
   const k=cardsNow().find(k=>k.dir==='out'&&k.charId===c.id);if(!k)continue;k.used=Math.round((k.used+x.amt)*100)/100;sysMsg(t,`${dn(c)} 用你给的亲属卡付了 ${money(x.amt)}：${x.what}`)}}
-function applyMoney(t,ex,c){for(const a of ex.acts||[]){if(a!=='收下'&&a!=='退回')continue;const m=[...t.msgs].reverse().find(m=>m.from==='me'&&(m.type==='hb'||m.type==='tf')&&m.state==='new');if(!m)continue;
+function applyMoney(t,ex,c){for(const a of ex.acts||[]){if(a==='代付'||a==='不付'){const m=[...t.msgs].reverse().find(m=>m.from==='me'&&m.type==='pay'&&m.state==='new');if(m){m.state=a==='代付'?'paid':'no';sysMsg(t,`${dn(c)} ${a==='代付'?'帮你付了 '+money(m.amt):'没帮你付'}`)}continue}if(a!=='收下'&&a!=='退回')continue;const m=[...t.msgs].reverse().find(m=>m.from==='me'&&(m.type==='hb'||m.type==='tf')&&m.state==='new');if(!m)continue;
   m.state=a==='收下'?'got':'back';if(a==='退回')S.wallet=Math.round(((+S.wallet||0)+m.amt)*100)/100;sysMsg(t,`${dn(c)} ${a==='收下'?'收下了':'退回了'}你的${m.type==='hb'?'红包':'转账'}`)}}
 
 const busy=new Set();
@@ -1620,6 +1622,7 @@ function richBody(t,m,i,mine,c){const tap=`data-a="msg" data-i="${i}"`;
     case'order':{const left=Math.max(1,Math.round((m.eta-Date.now())/60e3));return`<button class="order ${m.state==='done'?'done':''}" ${tap}><small>${ICONS.bowl}外卖 · ${mine?'送给TA':'TA给你点的'}</small><b>${esc(m.content)}</b><span class="os">¥${(+m.amt).toFixed(2)} · ${m.state==='done'?'已送达':'骑手在路上 · 约'+left+'分钟'}</span></button>`}
     case'parcel':return`<button class="order ${m.state==='done'?'done':''}" ${tap}><small>${ICONS.shop}网购 · ${mine?'寄给TA':'TA寄给你的'}</small><b>${esc(m.content)}</b><span class="os">¥${(+m.amt).toFixed(2)} · ${parcelStage(m)}</span></button>`;
     case'voice':return`<button class="bub voice${m.open?' open':''}" data-a="voice" data-i="${i}"><span class="vrow">${ICONS.wave}<b>${m.dur||voiceDur(m.content)}″</b></span><span class="vtx">${esc(m.content)}</span></button>`;
+    case'pay':{const st=m.state||'new';return`<button class="hb tf ${st==='new'?'new':'got'}" data-a="payTap" data-i="${i}"><span class="hbi">${ICONS.yen}</span><span class="hbt"><b>¥${(+m.amt).toFixed(2)}</b><small>${st==='paid'?'已付':st==='no'?'没付':mine?'等TA付':'点开帮付'} · ${esc(m.content)}</small></span><span class="hbf">代付</span></button>`}
     case'hb':case'tf':{const hb=m.type==='hb',st=m.state||'new';
       return`<button class="hb ${hb?'':'tf'} ${st}" data-a="money" data-i="${i}"><span class="hbi">${hb?ICONS.gift:ICONS.yen}</span><span class="hbt"><b>${hb?esc(m.content||'恭喜发财'):'¥'+(+m.amt).toFixed(2)}</b><small>${st==='got'?(mine?'对方已收下':'已收下'):st==='back'?'已退回':mine?'等TA收':(hb?'点开领取':'点开收款')}${!hb&&m.content?' · '+esc(m.content):''}</small></span><span class="hbf">${hb?'红包':'转账'}</span></button>`}
     case'call':return`<details class="callcard"><summary>${m.kind==='video'?ICONS.video:ICONS.phone}<span>${m.kind==='video'?'视频':'语音'}通话 ${fmt(m.dur||0)}</span></summary><div>${esc(m.content||'（没说什么）')}</div></details>`;
@@ -2909,7 +2912,7 @@ const A={
   plus(){const t=thread(cur().id),dm=t.type==='dm';const it=(a,ic,l,ex='')=>`<button class="pi" data-a="${a}" ${ex}><span class="ic">${ICONS[ic]}</span>${l}</button>`;
     sheet(`<div class="pgrid">
       <label class="pi"><span class="ic">${ICONS.image}</span>照片<input type="file" accept="image/*" data-img="chatimg" class="vh" aria-label="发照片"></label>${it('stickerPicker','smile','表情包')}${it('pPic','camera','文字图片')}${it('pVoice','mic','语音')}
-      ${it('pLoc','pin','位置')}${it('pRoll','dice','骰子','data-k="dice"')}${it('pRoll','hand','猜拳','data-k="rps"')}${it('meetGo','contacts','见面')}${dm?it('pMoney','gift','红包','data-k="hb"')+it('pMoney','yen','转账','data-k="tf"')+it('cardAdd','wallet','亲属卡',`data-to="${t.chars[0]}"`)+it('pCall','phone','语音通话','data-k="voice"')+it('pCall','video','视频通话','data-k="video"')+it('pShop','bowl','点外卖','data-k="food"')+it('pShop','shop','网购','data-k="goods"'):''}${it('open','music','音乐','data-v="music"')}
+      ${it('pLoc','pin','位置')}${it('pRoll','dice','骰子','data-k="dice"')}${it('pRoll','hand','猜拳','data-k="rps"')}${it('meetGo','contacts','见面')}${dm?it('pMoney','gift','红包','data-k="hb"')+it('pMoney','yen','转账','data-k="tf"')+it('pPay','yen','代付')+it('cardAdd','wallet','亲属卡',`data-to="${t.chars[0]}"`)+it('pCall','phone','语音通话','data-k="voice"')+it('pCall','video','视频通话','data-k="video"')+it('pShop','bowl','点外卖','data-k="food"')+it('pShop','shop','网购','data-k="goods"'):''}${it('open','music','音乐','data-v="music"')}
     </div><button class="opt" data-a="closeSheet">关闭</button>`)},
   pLoc(){sheet(`<h3>发送位置</h3><input type="text" id="locIn" placeholder="在哪" aria-label="地点"><input type="text" id="locSub" placeholder="备注" aria-label="备注">
     <div class="btns"><button class="btn o" data-a="pLocHere">定位当前位置</button>${S.loc?`<button class="btn o" data-a="pLocCity">${esc(S.loc.name)}</button>`:''}<button class="btn" data-a="pLocGo">发送</button></div>${CANCEL}`)},
@@ -2928,6 +2931,12 @@ const A={
   pMoney(el){const hb=el.dataset.k==='hb';sheet(`<h3>${hb?'发红包':'转账'}</h3><p class="hint" style="text-align:center">钱包 ¥${(+S.wallet||0).toFixed(2)}</p><input type="number" id="mnAmt" min="0.01" step="0.01" placeholder="金额" inputmode="decimal" aria-label="金额"><input type="text" id="mnNote" placeholder="${hb?'祝福':'备注'}" aria-label="备注"><button class="btn" data-a="pMoneyGo" data-k="${el.dataset.k}">${hb?'塞进红包':'转过去'}</button>`)},
   pMoneyGo(el){const k=el.dataset.k,hb=k==='hb';let a=Math.round((+$('#mnAmt').value||0)*100)/100;if(a<=0){toast('填个金额');return}if(a>(+S.wallet||0)){toast('钱包余额不够');return}
     const t=thread(cur().id);closeSheet();S.wallet=Math.round(((+S.wallet||0)-a)*100)/100;if(!pushMine(t,{type:k,amt:a,content:$('#mnNote')?.value.trim()||(hb?'恭喜发财':''),state:'new'}))S.wallet=Math.round((S.wallet+a)*100)/100;save()},
+  pPay(){sheet(`<h3>找TA代付</h3><input type="number" id="pyAmt" min="0.01" step="0.01" placeholder="金额" inputmode="decimal" aria-label="金额"><input type="text" id="pyNote" placeholder="买什么" aria-label="买什么"><button class="btn" data-a="pPayGo">发给TA</button>`)},
+  pPayGo(){const a=Math.round((+$('#pyAmt').value||0)*100)/100;if(a<=0){toast('填个金额');return}const t=thread(cur().id),n=$('#pyNote')?.value.trim()||'东西';closeSheet();pushMine(t,{type:'pay',amt:a,content:n,state:'new'});save()},
+  payTap(el){const t=thread(cur().id),m=t.msgs[+el.dataset.i];if(!m)return;if(m.from==='me'){toast({paid:'TA付了',no:'TA没付'}[m.state]||'等TA付');return}if(m.state!=='new')return;
+    sheet(`<h3>${esc(m.content)} · ${money(m.amt)}</h3><button class="opt" data-a="payYes" data-i="${el.dataset.i}">帮TA付</button><button class="opt" data-a="payNo" data-i="${el.dataset.i}">不付</button>${CANCEL}`)},
+  payYes(el){const t=thread(cur().id),m=t.msgs[+el.dataset.i];if(!m||m.state!=='new')return;if(m.amt>(+S.wallet||0)){toast('钱包余额不够');return}S.wallet=Math.round(((+S.wallet||0)-m.amt)*100)/100;m.state='paid';closeSheet();sysMsg(t,`你帮 ${dn(charById(m.from))} 付了 ${money(m.amt)}`);save();render(true)},
+  payNo(el){const t=thread(cur().id),m=t.msgs[+el.dataset.i];if(!m||m.state!=='new')return;m.state='no';closeSheet();sysMsg(t,`你没帮 ${dn(charById(m.from))} 付`);save();render(true)},
   money(el){const t=thread(cur().id),m=t.msgs[+el.dataset.i];if(!m)return;const hb=m.type==='hb';
     if(m.from==='me'){toast(m.state==='got'?'TA已经收下了':m.state==='back'?'TA退回来了':'等TA收');return}
     if(m.state!=='new'){toast(m.state==='got'?'已经收过了':'已经退回了');return}
