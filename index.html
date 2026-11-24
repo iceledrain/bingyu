@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.24.16';</script>
+<script>window.BYJ_VER='2026.11.24.17';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -211,6 +211,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .opt{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:13px;text-align:center;font-size:15px;display:flex;align-items:center;justify-content:center;gap:10px}
 .sheet-in>.btn{align-self:stretch;padding:14px;font-size:15.5px;border-radius:16px}.sheet-in>.opt[data-a=closeSheet]{align-self:center;background:none;border:0;padding:7px 22px;font-size:13.5px;color:var(--muted)}
 .opt.l{justify-content:flex-start}
+.sent{white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.6;margin:0}.sent+.sent{border-top:1px solid var(--line);padding-top:8px}
 .opt.l>span:not(.av){flex:1;text-align:left;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.opt i{font-style:normal;color:var(--muted)}
 .grp{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:6px;display:flex;flex-direction:column;gap:6px}
 .grp .opt{border:0;border-radius:12px;padding:11px 12px;background:none}.grp .opt+.opt{border-top:1px solid var(--line);border-radius:0}
@@ -729,7 +730,7 @@ const CHAT_DEF=()=>({lean:true,onMax:3,onLen:10,casual:true,ctx:40,sumEvery:30,i
 const PERSONA_TPL='姓名：\n年龄：\n性别：\n身份/职业：\n外貌：\n性格：\n说话方式：\n喜欢：\n讨厌：\n背景经历：\n和{{user}}的关系：';
 const API_BLANK=id=>({id,name:'接口',key:'',base:'',model:'',temp:1,topP:null,topK:null,maxTokens:32000,stream:true});
 const isOldExample=p=>p&&p.name==='Claude'&&!String(p.key||'').trim()&&/anthropic\.com/.test(p.base||'')&&/^claude-/.test(p.model||'');
-const def=()=>({v:4,regex:[],loc:null,wx:{},
+const def=()=>({v:4,regex:[],ov:{},loc:null,wx:{},
   media:{tts:{base:'',key:'',model:'',voice:''},img:{base:'',key:'',model:'',size:'',q:'',cx:'',style:'',auto:true,books:[]}},
   api:{active:'a1',side:'',profiles:[API_BLANK('a1')]},
   look:{font:'system',customFont:null,fs:15,alpha:.92,clear:60,clV:1,wallpaper:'',photo:'',caption:'',icons:{},appWalls:{}},
@@ -755,6 +756,7 @@ function mergeState(d){
   s.chat=Object.assign(CHAT_DEF(),d.chat||{});if(!s.ctxV){if(+s.chat.ctx===40)s.chat.ctx=80;s.ctxV=1}if(!s.sumV){if(+s.chat.sumEvery===30)s.chat.sumEvery=60;s.sumV=1}if(!s.ctxV2){if(+s.chat.ctx===80)s.chat.ctx=40;if(+s.chat.sumEvery===60)s.chat.sumEvery=30;s.ctxV2=1}
   s.api=d.api&&Array.isArray(d.api.profiles)&&d.api.profiles.length?d.api:def().api;
   s.offline=Object.assign(def().offline,d.offline||{});
+  if(!s.ov||typeof s.ov!=='object'||Array.isArray(s.ov))s.ov={};
   for(const k of ['regex','chars','books','presets','masks','threads','feed','events','orders','days'])if(!Array.isArray(s[k]))s[k]=def()[k];
   if(!s.look.v5){s.look.v5=1;s.look.order=[]}
   delete s.soc;
@@ -1452,9 +1454,12 @@ function buildCtx(t,o={}){
   const tw=C.think,iw=!!C.inner;
   if(mode!=='offline')end.push(`【回复格式】${tw?'先写 <think>…</think>，再':''}把发给${me.name}的话全写进 <reply>…</reply>，一行一条，${iw?'<inner>、':''}${group?'':'<now>、'}<tide> 写在后面${group?'':'，<now> 里一句写你此刻在哪、在干嘛'}。<reply> 外的字不会发出去，每次都写全。\n例：${tw?'<think>…</think>\n':''}<reply>\n第一条\n第二条\n</reply>${iw?'\n<inner>…</inner>':''}${group?'':'\n<now>…</now>'}\n<tide>…</tide>`);
   else if(tw||iw)end.push(`【别漏】每次都按这个顺序写全：${tw?'第一行 <think>…</think>，然后':''}正文${iw?'，正文后另起一行 <inner>…</inner>':''}。\n例：${tw?'<think>…</think>\n':''}正文……${iw?'\n<inner>…</inner>':''}`);
-  const s0=[...lore,...who].join('\n\n'),s1=[s0,...pr,`【下面只管格式】性格、语气都按上面的人设来，和下面的规则冲突时听人设的。`,...rules,...end].join('\n\n'),s2=[s1,...ctxs,...late].join('\n\n'),sum=sumBlock(t),sys=sum?s2+'\n\n'+sum:s2;
+  const defs={},tagOf=x=>(String(x).match(/^【([^】]+)】/)||[])[1],ovOne=x=>{const k=tagOf(x),v=S.ov[k];if(!k)return{x};defs[k]=x;return v==null?{k,x}:{k,ov:1,x:String(v).trim()?mac(v):''}},tx=a=>a.map(o=>o.x).filter(Boolean);
+  const W=who.map(x=>['底色','角色扮演'].includes(tagOf(x))?ovOne(x):{x}),R=rules.map(ovOne),E=end.map(ovOne),FIX=`【下面只管格式】性格、语气都按上面的人设来，和下面的规则冲突时听人设的。`;
+  const s0=[...lore,...tx(W)].join('\n\n'),s1=[s0,...pr,FIX,...tx(R),...tx(E)].join('\n\n'),s2=[s1,...ctxs,...late].join('\n\n'),sum=sumBlock(t),sys=sum?s2+'\n\n'+sum:s2;
+  const parts=[...lore.map(x=>({s:'世界书',x})),...W.map(o=>({s:o.k?'规则':'人设',...o})),...pr.map(x=>({s:'预设',x})),{s:'规则',x:FIX},...[...R,...E].map(o=>({s:'规则',...o})),...[...ctxs,...late].map(x=>({s:'自动',x})),...(sum?[{s:'总结',x:sum}]:[])];
   SYSCUT.set(sys,[s0.length,s2.length]);if(SYSCUT.size>60)SYSCUT.delete(SYSCUT.keys().next().value);
-  return{system:whoTag(sys,t.id),msgs,chars,group,mode,t,roll};
+  return{system:whoTag(sys,t.id),msgs,chars,group,mode,t,roll,parts,defs};
 }
 const STKP=new Map();
 function describeSticker(s){if(!s||s.desc!=null||!/^data:image\/(png|jpe?g|webp)/.test(s.src||''))return;s.desc='';
@@ -1560,9 +1565,13 @@ function parseReply(out,ctx){
   return ctx.mode==='online'?capBubbles(res):res;
 }
 const recentStk=(t,id)=>new Set((t?.msgs||[]).slice(-30).filter(m=>m.type==='sticker'&&(!id||m.from===id)).slice(-4).map(m=>m.content));
-const BUBBLE_MAX=20,CALL_MAX=3;
+const BUBBLE_MAX=8,CALL_MAX=3;
 const bubbleCap=()=>Math.min(8,Math.max(num(S.chat.onMax)||3,6));
-function capBubbles(res){const cap=BUBBLE_MAX,n={};return res.filter(p=>(n[p.from]=(n[p.from]||0)+1)<=cap)}
+function capBubbles(res){const cap=BUBBLE_MAX,n={};
+  for(;;){const c={};res.forEach(p=>c[p.from]=(c[p.from]||0)+1);const f=Object.keys(c).find(k=>c[k]>cap);if(!f)break;let b=-1,bl=1e9;
+    for(let i=0;i<res.length-1;i++){const x=res[i],y=res[i+1],l=x.content?.length+y.content?.length;if(x.from===f&&y.from===f&&x.type==='text'&&y.type==='text'&&l<bl){bl=l;b=i}}
+    if(b<0)break;res.splice(b,2,{...res[b],content:res[b].content+'，'+res[b+1].content})}
+  return res.filter(p=>(n[p.from]=(n[p.from]||0)+1)<=cap)}
 function byName(txt,ctx){const out=[];let curr=null;
   for(const l of String(txt||'').split('\n').map(x=>x.trim()).filter(Boolean)){const m=l.match(/^[\s*【\[「]*([^:：*】\]」]{1,30}?)[\s*】\]」]*[:：]\s*(.*)$/)||l.match(/^[【\[]([^】\]]{1,30})[】\]]\s*(.*)$/),k=m&&m[1].trim(),c=m&&ctx.chars.find(c=>c.name===k||(c.remark&&c.remark===k)||dn(c)===k);
     if(c){curr={c,text:m[2].trim()};out.push(curr)}else if(curr)curr.text+=(curr.text?'\n':'')+l;else out.push({c:null,text:l})}
@@ -2599,6 +2608,11 @@ goods(v){return shopView(v)},
 peek(v){const c=charById(v.id);if(!c)return{title:'不见了',body:''};
   return{title:dn(c)+'在看你的手机',sub:v.how==='open'?'你递给TA的':'TA偷偷拿的',body:`<div class="pframe">${(v.shown||[]).map(peekStep).join('')}${v.done?(v.err&&!(v.shown||[]).length?'':''):'<div class="away"><span class="dots"><i></i><i></i><i></i></span>TA在翻…</div>'}${(v.acts||[]).length?`<div class="pstep"><b>TA动了你的手机</b><p>${esc(v.acts.join('；'))}</p></div>`:''}</div>${v.done&&!v.err?`<div class="btns" style="justify-content:center"><button class="btn" data-a="messageChar" data-id="${c.id}">去看看</button></div>`:''}`,
     after(){if(!v.gen){v.gen=1;peekRun(c,v)}const ct=$('#content');ct.scrollTop=ct.scrollHeight}}},
+sent(v){const t=thread(v.id);if(!t)return{title:'不见了',body:''};const x=buildCtx(t);
+  return{title:'发给他的',body:x.parts.map(p=>`<div class="panel"><h2>${p.s}${p.ov?' · 改过':''}${p.k?`<button class="tb" data-a="ovEdit" data-k="${esc(p.k)}">改</button>`:''}</h2><p class="sent">${esc(p.x)||'（删掉了）'}</p></div>`).join('')+
+    `<div class="panel"><h2>消息</h2>${x.msgs.map(m=>`<p class="sent"><small class="sec">${m.role==='assistant'?'他':'我这边'}</small>\n${esc(typeof m.content==='string'?m.content:'')}</p>`).join('')}</div>`}},
+ovEdit(v){const t=thread(v.id),d=t&&buildCtx(t).defs[v.k];if(d==null)return{title:'不见了',body:''};
+  return{title:v.k,sub:'发给他的',body:`<div class="panel"><label class="f">内容<textarea class="tall" data-s="ov" data-k="${esc(v.k)}">${esc(v.k in S.ov?S.ov[v.k]:d)}</textarea></label></div><div class="btns"><button class="btn o" data-a="ovReset">恢复默认</button></div>`}},
 ctxPeek(v){const t=thread(v.id);if(!t)return{title:'不见了',body:''};const x=buildCtx(t),cs=t.chars.map(charById).filter(Boolean);
   const ev=[...new Map(cs.flatMap(c=>eventsFor(c)).map(e=>[e.id,e])).values()].sort((a,b)=>b.t-a.t);
   const old=cs.filter(c=>c.longMem);
@@ -2848,12 +2862,15 @@ const A={
     const o=(a,l,x='')=>`<button class="opt l${x}" data-a="${a}"><span>${l}</span><i>›</i></button>`,dm=t.type==='dm',c=charById(t.chars[0]);
     sheet(`<h3>${esc(threadTitle(t))}</h3>
     <div class="grp">${o('chatSet','聊天设置')}${cur().off?o('openOffline','见面设置'):''}</div>
-    <div class="grp">${o('ctxPeek','记忆')}${o('openSummary','总结')}${dm?o('openCharFromChat','资料'):o('openGroupEdit','成员')}</div>
+    <div class="grp">${o('sentOpen','发给他的')}${o('ctxPeek','记忆')}${o('openSummary','总结')}${dm?o('openCharFromChat','资料'):o('openGroupEdit','成员')}</div>
     <div class="grp">${dm?(rel(c).youBlocked?o('unblock','解除拉黑'):o('block','拉黑',' red'))+`<button class="opt l red" data-a="delChar" data-id="${c.id}"><span>删除</span></button>`:''}
     ${o('delThread',dm?'清空':'删除',' red')}</div>
     <button class="opt" data-a="closeSheet">关闭</button>`)},
   setChat(el){S.chat[el.dataset.k]=el.dataset.v||(el.dataset.k==='thinkStyle'?THINK_DEF:'');save();render(true)},
   ctxPeek(){const t=thread(cur().id);closeSheet();go({v:'ctxPeek',id:t.id})},
+  sentOpen(){const t=thread(cur().id);closeSheet();go({v:'sent',id:t.id})},
+  ovEdit(el){go({v:'ovEdit',id:cur().id,k:el.dataset.k})},
+  ovReset(){delete S.ov[cur().k];save();back()},
   ctxCopy(){const t=thread(cur().id);copy([buildCtx(t).system,...(RAW.get(t.id)||[])].filter(Boolean).join('\n———\n'),'复制了')},
   openOffline(){closeSheet();go({v:'offline',id:cur().id})},
   stickerPicker(){const gs=S.stickers.groups.filter(g=>g.items.length);if(!gs.length){sheet(`<h3>表情包</h3><p class="hint" style="text-align:center">还没有表情包</p><button class="opt" data-a="stkManage">添加表情包</button>${CANCEL}`);return}
@@ -3162,7 +3179,7 @@ document.addEventListener('pointerup',()=>{const d=document,r=d.documentElement;
 function scopeObj(s){const v=cur()||{};
   switch(s){case'look':return S.look;case'root':return S;case'chat':return S.chat;case'char':return charById(v.id);case'cvoice':{const c=charById(v.id);return c&&(c.voice||(c.voice={}))}case'mask':return maskById(v.id);case'loc':return S.loc;
     case'book':return S.books.find(x=>x.id===v.id);case'entry':return S.books.find(x=>x.id===v.id)?.entries.find(x=>x.id===v.eid);
-    case'rx':return S.regex.find(x=>x.id===v.id);case'preset':return presetById(v.id);case'item':return presetById(v.id)?.items.find(x=>x.id===v.iid);
+    case'rx':return S.regex.find(x=>x.id===v.id);case'ov':return S.ov;case'preset':return presetById(v.id);case'item':return presetById(v.id)?.items.find(x=>x.id===v.iid);
     case'mtts':return S.media.tts;case'mimg':return S.media.img;case'apiroot':return S.api;
     case'api':return apiById(v.id);case'thread':return thread(v.id);case'off':{const t=thread(v.id);return t&&(t.offline||(t.offline={...S.offline}))}}}
 function bind(e){const el=e.target;if(!el.dataset||!el.dataset.k)return;const o=scopeObj(el.dataset.s);if(!o)return;
