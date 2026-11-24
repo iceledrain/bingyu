@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.24.14';</script>
+<script>window.BYJ_VER='2026.11.24.15';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -693,7 +693,7 @@ const txList=async k=>{if(!DB.db)return[];try{const L=JSON.parse(await DB.get('t
 const txOn=new Set(),txT={};let txQ=Promise.resolve();
 const txSnap=(k,s,e)=>txQ=txQ.then(async()=>{s=String(s||'');if(!DB.db||!s.trim())return;const L=await txList(k),o=L[0];if(o?.s===s)return;let p=0;if(o)while(p<o.s.length&&o.s[p]===s[p])p++;
   if(e&&o?.e&&Date.now()-o.t<6e5&&p*2>=o.s.length)L[0]={t:Date.now(),s,e:1};else L.unshift({t:Date.now(),s,...(e?{e:1}:{})});
-  const E=L.filter(x=>x.e).slice(0,2),B=L.filter(x=>!x.e).slice(0,2);await DB.set('tx:'+k,JSON.stringify(L.filter(x=>E.includes(x)||B.includes(x))))});
+  const E=L.filter(x=>x.e).slice(0,1),B=L.filter(x=>!x.e).slice(0,1);await DB.set('tx:'+k,JSON.stringify(L.filter(x=>E.includes(x)||B.includes(x))))});
 function save(){clearTimeout(saveT);if(ready)saveT=setTimeout(flush,1200)}
 try{navigator.storage?.persisted?.().then(p=>{if(!p)navigator.storage.persist?.().catch(()=>{})}).catch(()=>{})}catch(e){}
 addEventListener('pagehide',flush);addEventListener('pageshow',e=>{if(e.persisted)fresh()});addEventListener('focus',()=>fresh());
@@ -722,9 +722,9 @@ const OFFLINE_OLD='这是面对面的场景。细腻地描写{{char}}的动作�
 const OFFLINE_DEF='这是面对面的场景。镜头跟着{{char}}：写{{char}}的动作、神态、对话和心里的盘算，环境只在用得上时带一笔。{{user}}只作为{{char}}看着、说话、回应的对象出现。';
 const INNER_OLD7='一个软萌的颜文字（生气也是鼓着脸那种）加一句没说出口的真心话，带着此刻的小情绪（得意、委屈、心虚、嫌弃、偷着乐都行），可以和嘴上相反，20字内。';
 const INNER_OLD8='一个软萌的颜文字加半句没说出口的真心话，带点小情绪，可以和嘴上相反，15字内。';
-const INNER_OLD9='{{char}}此刻没说出口的真心话。',INNER_OLD10='一句没说出口的真心话，带点小情绪，可以和嘴上相反，15字内，不用颜文字。',INNER_DEF='一句没说出口的真心话，带点小情绪，可以和嘴上相反，15字内，纯文字。';
+const INNER_OLD9='{{char}}此刻没说出口的真心话。',INNER_OLD10='一句没说出口的真心话，带点小情绪，可以和嘴上相反，15字内，不用颜文字。',INNER_OLD11='一句没说出口的真心话，带点小情绪，可以和嘴上相反，15字内，纯文字。',INNER_DEF='就一句短的：没说出口的真心话，带点小情绪，可以和嘴上相反，15字内，纯文字。';
 const OFF_STYLE_OLD='细腻，有画面感',OFF_STYLE_DEF='清爽干净';
-const THINK_OLD13='一句话，{{char}}脑子里是怎么想的：{{user}}这句是什么意思、想要什么，{{char}}决定怎么回。用{{char}}自己的口气，口语，25字内。',THINK_OLD14='只写关键：{{user}}要什么，{{char}}怎么回。{{char}}自己的口气，能几个字说完就几个字，最多一句，15字内。不铺垫，不复述，不解释。',THINK_OLD15='一句话，{{char}}自己的口气：{{user}}这句要什么，{{char}}打算怎么回。30字内，不复述，不解释。',THINK_OLD16='用{{char}}自己的口气，写此刻心里真实的想法和打算。',THINK_OLD17='用{{char}}的口气写一句：{{user}}要什么，{{char}}怎么回，30字内。',THINK_OLD18='用「我」写一句心里想的：TA要什么，我怎么回，30字内，不叫名字。',THINK_DEF='用「我」写看到消息那一下心里真实冒出来的念头，像人脑子里自言自语，30字内，不叫名字。';
+const THINK_OLD13='一句话，{{char}}脑子里是怎么想的：{{user}}这句是什么意思、想要什么，{{char}}决定怎么回。用{{char}}自己的口气，口语，25字内。',THINK_OLD14='只写关键：{{user}}要什么，{{char}}怎么回。{{char}}自己的口气，能几个字说完就几个字，最多一句，15字内。不铺垫，不复述，不解释。',THINK_OLD15='一句话，{{char}}自己的口气：{{user}}这句要什么，{{char}}打算怎么回。30字内，不复述，不解释。',THINK_OLD16='用{{char}}自己的口气，写此刻心里真实的想法和打算。',THINK_OLD17='用{{char}}的口气写一句：{{user}}要什么，{{char}}怎么回，30字内。',THINK_OLD18='用「我」写一句心里想的：TA要什么，我怎么回，30字内，不叫名字。',THINK_OLD19='用「我」写看到消息那一下心里真实冒出来的念头，像人脑子里自言自语，30字内，不叫名字。',THINK_DEF='用「我」写一句短的：看到消息那一下心里冒出来的念头，15字内，不叫名字。';
 const CHAT_DEF=()=>({lean:true,onMax:3,onLen:10,casual:true,ctx:40,sumEvery:30,inner:true,innerOpen:false,innerName:'心声',innerStyle:INNER_DEF,think:true,thinkName:'思维链',thinkStyle:THINK_DEF,effort:'',scan:8});
 const PERSONA_TPL='姓名：\n年龄：\n性别：\n身份/职业：\n外貌：\n性格：\n说话方式：\n喜欢：\n讨厌：\n背景经历：\n和{{user}}的关系：';
 const API_BLANK=id=>({id,name:'接口',key:'',base:'',model:'',temp:1,topP:null,topK:null,maxTokens:32000,stream:true});
@@ -770,13 +770,13 @@ function mergeState(d){
   s.presets.forEach(p=>(p.items||[]).forEach(i=>{if(i.content===LANG_OLD)i.content=LANG_DEF}));
   {const seen=new Set();(s.chars||[]).forEach(c=>{c.books=(c.books||[]).filter(id=>{const b=(s.books||[]).find(x=>x.id===id);if(!b||b.scope==='global'||seen.has(id))return false;seen.add(id);return true})})}
   delete s.chat.thinkSrc;delete s.chat.deep;for(const k of['casual','love','chase','away','autoPost'])delete s.chat[k];delete s.chat.web;delete s.look.shell;delete s.look.night;delete s.look.hide;s.chat.effort='';s.chat.think=true;s.chat.inner=true;
-  if([THINK_OLD13,THINK_OLD14,THINK_OLD15,THINK_OLD16,THINK_OLD17,THINK_OLD18].includes(s.chat.thinkStyle))s.chat.thinkStyle=THINK_DEF;
+  if([THINK_OLD13,THINK_OLD14,THINK_OLD15,THINK_OLD16,THINK_OLD17,THINK_OLD18,THINK_OLD19].includes(s.chat.thinkStyle))s.chat.thinkStyle=THINK_DEF;
   if(!s.presetV){const old=new Set([OLD_MAIN,ONLINE_OLD,ONLINE_DEF,OFFLINE_OLD,OFFLINE_DEF]);
     s.presets.forEach(p=>{const n=(p.items||[]).length;p.items=(p.items||[]).filter(i=>!old.has(i.content));if(p.items.length<n)BASE_ITEMS().slice(1).forEach(x=>p.items.push(x))});s.presetV=2}
   if(!s.catchV){s.catchV=1;s.presets.forEach(p=>{if(p.core===1&&!(p.items||[]).some(i=>i.name==='接住'||i.name==='记得')){const k=p.items.findIndex(i=>i.name==='怎么演');p.items.splice(k<0?p.items.length:k,0,SYS_ITEM('记得',CATCH_DEF))}})}
   s.presets.forEach(p=>(p.items||[]).forEach(i=>{if(i.content===CATCH_OLD||i.content===CATCH_OLD2){i.content=CATCH_DEF;i.name='记得'}}));
   s.presets.forEach(p=>{(p.items||[]).forEach(i=>{if(i.content===ONLINE_OLD)i.content=ONLINE_DEF;if(i.content===OFFLINE_OLD)i.content=OFFLINE_DEF});p.items=(p.items||[]).filter(i=>i.content!==MAN_OLD)});
-  if([INNER_OLD7,INNER_OLD8,INNER_OLD9,INNER_OLD10].includes(s.chat.innerStyle))s.chat.innerStyle=INNER_DEF;
+  if([INNER_OLD7,INNER_OLD8,INNER_OLD9,INNER_OLD10,INNER_OLD11].includes(s.chat.innerStyle))s.chat.innerStyle=INNER_DEF;
   s.threads.forEach(t=>{delete t.face});delete s.chat.face;delete s.chat.faceLen;delete s.chat.faceStyle;
   if(!s.evV2){s.evV2=1;for(const o of [s.offline,...s.threads.map(t=>t.offline).filter(Boolean)])if(+o.evRate===30)o.evRate=10}
 for(const K of['evWipe','memWipe'])if(!s[K]||typeof s[K]!=='object')s[K]={};if(!Array.isArray(s.evGone))s.evGone=[];evWipeApply(s);
@@ -1495,7 +1495,7 @@ function stripPlan(out,thinkOn){const me=mask().name,lines=out.split('\n'),cut=[
     if(/你|您|[\[<？?｜|]/.test(l))break;
     if(!(who.test(l)&&PLAN_CUE.test(l))&&mulls(l)<(thinkOn?2:3))break;cut.push(l);lines.shift()}
   const rest=lines.join('\n').trim();return rest?{out:rest,plan:cut.join('\n')}:{out,plan:''}}
-function brief(x){x=String(x||'').trim();if(!x)return'';const ss=(x.match(/[^。！？!?…~～\n]+[。！？!?…~～]*/g)||[]).map(z=>z.trim()).filter(Boolean);let o=ss[0]||'';for(let i=1;i<ss.length&&[...o+ss[i]].length<=60;i++)o+=ss[i];if([...o].length>80){const h=[...o].slice(0,80).join(''),k=Math.max(...[...'，,、；;：:'].map(c=>h.lastIndexOf(c)));o=k>20?h.slice(0,k):h}return o}
+function brief(x){const K=[];x=String(x||'').trim().replace(/[（(][^（()）\n]{1,12}[)）]/g,m=>'\u0001'+(K.push(m)-1)+'\u0002');if(!x)return'';const ss=(x.match(/[^。！？!?…~～\n]+[。！？!?…~～]*/g)||[]).map(z=>z.trim()).filter(Boolean);let o=ss[0]||'';for(let i=1;i<ss.length&&[...o].length<6;i++)o+=ss[i];if([...o].length>40){const h=[...o].slice(0,40).join(''),k=Math.max(...[...'，,、；;：:'].map(c=>h.lastIndexOf(c)));o=k>12?h.slice(0,k):h}return o.replace(/\u0001(\d+)\u0002?/g,(_,i)=>K[i]||'')}
 function extractExtras(out,chat=true,group=false,keep=false){
   let think='',inner=[],now='';
   out=out.replace(/<now>([\s\S]*?)<\/now>/gi,(_,x)=>{now=x.trim();return''});
@@ -1524,7 +1524,8 @@ function extractExtras(out,chat=true,group=false,keep=false){
   const cards=[];out=out.replace(/\[送亲属卡[:：]\s*([\d.]*)[^\]]*\]/g,(_,a)=>{cards.push({give:1,amt:Math.max(0,+a||0)});return''}).replace(/\[刷亲属卡[:：]([^:：\]]+)[:：]\s*([\d.]+)[^\]]*\]/g,(_,w,a)=>{cards.push({what:w.trim(),amt:+a||0});return''});
   out=out.replace(/\[(拉黑|解除拉黑|删除好友|沉默|收下|退回|代付|不付|语音通话|视频通话|拒接|挂断|查手机|回群)\]/g,(_,x)=>{acts.push(x);return''});
   think=think.replace(/<\/?[a-z]{1,8}>/gi,' ').trim();
-  think=group?think.split('\n').map(l=>{const m=l.trim().match(/^([^:：\n]{1,30})[:：]\s*(.*)$/);return m?(x=>x?m[1].trim()+'：'+x:'')(brief(m[2])):brief(l)}).filter(Boolean).slice(0,8).join('\n'):brief(think);
+  const bl=l=>{const m=l.trim().match(/^([^:：\n]{1,30})[:：]\s*(.*)$/);return m?(x=>x?m[1].trim()+'：'+x:'')(brief(m[2])):brief(l)};
+  think=group?think.split('\n').map(bl).filter(Boolean).slice(0,8).join('\n'):brief(think);inner=inner.map(x=>group?x.split('\n').map(bl).filter(Boolean).join('\n'):brief(x)).filter(Boolean);
   return{text:out.trim(),think:think.trim(),inner,tide,acts,prof,cards,fmt,now};
 }
 const AWM=/^\s*[#＃]\s*(\d{1,2})(?:\s*[.、:：)）]\s*|\s+|$)(.*)$/;
@@ -1617,7 +1618,7 @@ const mindSt={};
 const fOpen=(m,k,d)=>{const id=m.id+':'+k;return`data-fid="${esc(id)}"${(id in mindSt?mindSt[id]:d)?' open':''}`};
 function thinkFold(m){return m.think?`<details class="fold think" ${fOpen(m,'t',false)}><summary>${ICONS.brain}${esc(S.chat.thinkName||'思维链')}</summary><div>${esc(m.think)}</div></details>`:''}
 function folds(m){const C=S.chat;let h='';
-  if(m.inner)h+=`<details class="fold inner" ${fOpen(m,'i',!!C.innerOpen)}><summary>${ICONS.bubble}${esc(C.innerName&&C.innerName!=='心声'?C.innerName:'想法')}</summary><div>${esc(noKao(cuteKao(m.inner)))}</div></details>`;
+  if(m.inner)h+=`<details class="fold inner" ${fOpen(m,'i',!!C.innerOpen)}><summary>${ICONS.bubble}${esc(C.innerName||'心声')}</summary><div>${esc(noKao(cuteKao(m.inner)))}</div></details>`;
   return h}
 document.addEventListener('toggle',e=>{const d=e.target;if(d.dataset?.fid)mindSt[d.dataset.fid]=d.open},true);
 function bubble(t,m,i){
@@ -1780,7 +1781,7 @@ async function doCoax(t,c,kind,content){
   save();onThreadUpdate(t);toast(dn(c)+' 好像看到了…',9000);
   try{
     const ctx=buildCtx(t),before=tideOf(c);
-    const out=await callAI(ctx.system,[...ctx.msgs,{role:'user',content:`（${me.name}现在${r.theyDeleted?'被你删掉了':'被你拉黑了'}，联系不到你。但TA${desc}${kind==='letter'||kind==='post'?'：「'+content+'」':''}。你看到了。\n先另起一行写 <tide>数字|两个字的心情</tide>，再写 <inner>你看到之后心里真实的想法，一两句</inner>。\n想原谅就另起一行写 [解除拉黑]，下一行写你要发给TA的第一句话；不想就到此为止，不写别的。原不原谅按人设和你现在的心情。）`}],{max:1536,cache:2});
+    const out=await callAI(ctx.system,[...ctx.msgs,{role:'user',content:`（${me.name}现在${r.theyDeleted?'被你删掉了':'被你拉黑了'}，联系不到你。但TA${desc}${kind==='letter'||kind==='post'?'：「'+content+'」':''}。你看到了。\n先另起一行写 <tide>数字|两个字的心情</tide>，再写 <inner>你看到之后没说出口的真心话，一句</inner>。\n想原谅就另起一行写 [解除拉黑]，下一行写你要发给TA的第一句话；不想就到此为止，不写别的。原不原谅按人设和你现在的心情。）`}],{max:1536,cache:2});
     const ex=extractExtras(out);applyTide(ctx,ex);const after=tideOf(c);
     c.tide=Math.min(100,Math.max(after,before+3));
     if(ex.inner.length)note.inner=ex.inner.join('\n');
