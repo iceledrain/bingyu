@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.24.12';</script>
+<script>window.BYJ_VER='2026.11.24.13';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -702,7 +702,7 @@ addEventListener('pagehide',flush);addEventListener('pageshow',e=>{if(e.persiste
 const ONLINE_OLD='这是手机聊天。像真人发消息：口语、简短、有情绪，一次发1到4条，每条单独一行。不用括号写动作。',ONLINE_DEF='这是手机聊天。像真人发消息：口语、简短、有情绪，一次发1到6条，每条单独一行，遇到逗号就分行，句尾通常没有标点符号。不用括号写动作。';
 const LANG_OLD='用{{user}}使用的语言回复。',LANG_OLD2='说{{char}}设定里写的语言；设定没写，才用{{user}}用的语言。{{user}}用中文聊，不代表你也要用中文。',LANG_DEF='说{{char}}设定里的语言；设定没写，才跟{{user}}用同一种。';
 const OLD_MAIN='你是{{char}}。完全保持{{char}}的性格、说话方式、经历，以及和{{user}}的关系。不替{{user}}说话、行动或决定感受。';
-const REP_OLD2='每轮换开头和句式，同一个词别反复用。不写「不是…而是…」，直接说是什么。',REP_OLD3='每轮换开头和句式。不写套话和「不是…而是…」，写具体的。',REP_OLD4='每轮换开头和句式。不写套话和「不是…而是…」，写具体的。像真人发微信那样说大白话，「撩」「接住」这种词真人不说，想的和说的里都不用。',REP_OLD5='说话像真人平时说话：口语，大白话，句子短，说具体的事和东西，是什么就直接说。每轮的开头和句式都换。',REP_DEF='说话像真人平时说话：口语，大白话，句子短，说具体的事和东西，是什么就直接说。每轮的开头和句式都换。不说「撩」「试试」「欠收拾」这种词。';
+const REP_OLD2='每轮换开头和句式，同一个词别反复用。不写「不是…而是…」，直接说是什么。',REP_OLD3='每轮换开头和句式。不写套话和「不是…而是…」，写具体的。',REP_OLD4='每轮换开头和句式。不写套话和「不是…而是…」，写具体的。像真人发微信那样说大白话，「撩」「接住」这种词真人不说，想的和说的里都不用。',REP_OLD5='说话像真人平时说话：口语，大白话，句子短，说具体的事和东西，是什么就直接说。每轮的开头和句式都换。',REP_OLD6='说话像真人平时说话：口语，大白话，句子短，说具体的事和东西，是什么就直接说。每轮的开头和句式都换。不说「撩」「试试」「欠收拾」这种词。',REP_DEF='说话像真人平时说话：口语，大白话，句子短，说具体的事和东西，是什么就直接说。每轮的开头和句式都换。不说「撩」「试试」「欠收拾」「小没良心的」「小白眼狼」这种霸总小说腔，别的同类套话也不说。';
 const CLICHE_OLD2='不写套话（嘴角勾起、眼底闪过一丝、不易察觉、宠溺、低笑、喉结滚动），写具体的动作和东西。',CLICHE_DEF='不写套话，写具体的动作和东西。';
 const SYS_ITEM=(name,content)=>({id:uid(),name,role:'system',mode:'both',on:true,content});
 const BASE_ITEMS=()=>[SYS_ITEM('不重复',REP_DEF)];
@@ -793,7 +793,7 @@ for(const K of['evWipe','memWipe'])if(!s[K]||typeof s[K]!=='object')s[K]={};if(!
     if(Array.isArray(s.look.order))s.look.order=[...new Set(s.look.order.flatMap(x=>x==='ai'?AI:x==='brain'?['preset']:x==='shop'?['food','goods']:[ren[x]||x]))]}
   for(const k of ['mailAuto','autoReply','autoSum','real','life','busy','tide','proactive','world','time','tts','strangers'])delete s.chat[k];
   for(const k of ['full','eco','glassy','fx','fxs'])delete s.look[k];s.threads.forEach(t=>delete t.heat);
-  {const up={[PLAY_OLD4]:PLAY_DEF,[PLAY_OLD5]:PLAY_DEF,[PLAY_OLD6]:PLAY_DEF,[LANG_OLD]:LANG_DEF,[LANG_OLD2]:LANG_DEF,[REP_OLD2]:REP_DEF,[CLICHE_OLD2]:CLICHE_DEF,[CALL_OLD2]:CALL_DEF,[CALL_OLD3]:CALL_DEF,[CALL_OLD4]:CALL_DEF,[CALL_OLD5]:CALL_DEF,[INTIM_OLD]:INTIM_DEF,[INTIM_OLD2]:INTIM_DEF,[INTIM_OLD3]:INTIM_DEF,[INTIM_OLD4]:INTIM_DEF,[INTIM_OLD5]:INTIM_DEF,[INTIM_OLD6]:INTIM_DEF,[INTIM_OLD7]:INTIM_DEF,[INTIM_OLD8]:INTIM_DEF,[INTIM_OLD9]:INTIM_DEF,[INTIM_OLD10]:INTIM_DEF,[INTIM_OLD11]:INTIM_DEF,[REP_OLD3]:REP_DEF,[REP_OLD4]:REP_DEF,[REP_OLD5]:REP_DEF,[CALL_OLD7]:CALL_DEF,[COMP_OLD2]:COMP_DEF,[PLAY_OLD13]:PLAY_DEF,[PLAY_OLD7]:PLAY_DEF,[PLAY_OLD8]:PLAY_DEF,[PLAY_OLD9]:PLAY_DEF,[PLAY_OLD10]:PLAY_DEF,[PLAY_OLD11]:PLAY_DEF,[PLAY_OLD12]:PLAY_DEF,[CALL_OLD6]:CALL_DEF,[CATCH_OLD3]:CATCH_DEF,[COMP_OLD]:COMP_DEF};s.presets.forEach(p=>{(p.items||[]).forEach(i=>{if(i.content===COMP_OLD)i.name='陪着';if(up[i.content])i.content=up[i.content];if(i.content===PLAY_DEF)i.name='你'});if((p.items||[]).some(i=>i.content===REP_DEF))p.items=p.items.filter(i=>i.content!==CLICHE_DEF);p.items=(p.items||[]).filter(i=>i.content!==LANG_DEF)})}
+  {const up={[PLAY_OLD4]:PLAY_DEF,[PLAY_OLD5]:PLAY_DEF,[PLAY_OLD6]:PLAY_DEF,[LANG_OLD]:LANG_DEF,[LANG_OLD2]:LANG_DEF,[REP_OLD2]:REP_DEF,[CLICHE_OLD2]:CLICHE_DEF,[CALL_OLD2]:CALL_DEF,[CALL_OLD3]:CALL_DEF,[CALL_OLD4]:CALL_DEF,[CALL_OLD5]:CALL_DEF,[INTIM_OLD]:INTIM_DEF,[INTIM_OLD2]:INTIM_DEF,[INTIM_OLD3]:INTIM_DEF,[INTIM_OLD4]:INTIM_DEF,[INTIM_OLD5]:INTIM_DEF,[INTIM_OLD6]:INTIM_DEF,[INTIM_OLD7]:INTIM_DEF,[INTIM_OLD8]:INTIM_DEF,[INTIM_OLD9]:INTIM_DEF,[INTIM_OLD10]:INTIM_DEF,[INTIM_OLD11]:INTIM_DEF,[REP_OLD3]:REP_DEF,[REP_OLD4]:REP_DEF,[REP_OLD5]:REP_DEF,[REP_OLD6]:REP_DEF,[CALL_OLD7]:CALL_DEF,[COMP_OLD2]:COMP_DEF,[PLAY_OLD13]:PLAY_DEF,[PLAY_OLD7]:PLAY_DEF,[PLAY_OLD8]:PLAY_DEF,[PLAY_OLD9]:PLAY_DEF,[PLAY_OLD10]:PLAY_DEF,[PLAY_OLD11]:PLAY_DEF,[PLAY_OLD12]:PLAY_DEF,[CALL_OLD6]:CALL_DEF,[CATCH_OLD3]:CATCH_DEF,[COMP_OLD]:COMP_DEF};s.presets.forEach(p=>{(p.items||[]).forEach(i=>{if(i.content===COMP_OLD)i.name='陪着';if(up[i.content])i.content=up[i.content];if(i.content===PLAY_DEF)i.name='你'});if((p.items||[]).some(i=>i.content===REP_DEF))p.items=p.items.filter(i=>i.content!==CLICHE_DEF);p.items=(p.items||[]).filter(i=>i.content!==LANG_DEF)})}
   s.presets.forEach(withCore);
   if(!d.loreV)s.books.forEach(b=>(b.entries||[]).forEach(e=>{if(e.light==='yellow'&&!String(e.keys||'').trim())e.light='green'}));s.loreV=1;
   {const L=s.look;delete L.appWalls;delete L.alpha;delete L.dark;delete L.font;delete L.customFont;
