@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.24.3';</script>
+<script>window.BYJ_VER='2026.11.24.4';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -3126,11 +3126,11 @@ const A={
   imp(el,txt,pure){const t=String(txt??$('#impTa')?.value??'').trim();if(!t){toast('先选备份文件');return}if(lostDb){toast('存档库没连上，刷新再试');return}
     {
     try{const d=JSON.parse(t);if(![2,3,4].includes(d.v))throw 0;const old=S;S=mergeState(d);if(!pure){for(const K of['evWipe','memWipe']){const w={...(S[K]||{})};for(const[k,v]of Object.entries(old[K]||{}))w[k]=Math.max(w[k]||0,v);S[K]=w}S.evGone=[...new Set([...(S.evGone||[]),...(old.evGone||[])])].slice(-3000);evWipeApply(S)}S.api.profiles.forEach(p=>{if(!p.key){const o=old.api.profiles.find(x=>x.key&&x.base===p.base&&x.id===p.id)||old.api.profiles.find(x=>x.key&&x.base===p.base);if(o)p.key=o.key}});if(!S.media.img.key&&old.media?.img?.key&&S.media.img.base===old.media.img.base)S.media.img.key=old.media.img.key;gone=0;ready=seen=force=1;save();applyLook();toRoot();toast('恢复好了')}catch(e){toast('这不是冰雨机的备份')}}},
-  async snaps(){const ks=(await DB.keys()).filter(x=>/^sv:/.test(x)).sort().reverse();let ls=null;try{ls=DB.db&&localStorage.getItem('state')}catch(e){}if(ls)ks.push('ls');
-    const L=await Promise.all(ks.map(async k=>{let n='';try{const d=JSON.parse(k==='ls'?ls:await DB.get(k));n=` · ${d.chars.length} 角色 · ${d.threads.reduce((n,t)=>n+t.msgs.length,0)} 条 · ${(d.books||[]).length} 本书`}catch(e){}
-      return`<button class="opt" data-a="snapBack" data-k="${k}">${{'sv:pre':'恢复之前','sv:old':'旧版页面存的','sv:upd':'更新之前',ls:'浏览器里另一份'}[k]||k.slice(3)}${n}</button>`}));
+  async snaps(){const ks=(await DB.keys()).filter(x=>/^sv:(\d|pre$)/.test(x)).sort().reverse();if(ks[0]==='sv:pre')ks.push(ks.shift());
+    const L=await Promise.all(ks.map(async k=>{let n='';try{const d=JSON.parse(await DB.get(k));n=` · ${d.chars.length} 角色 · ${d.threads.reduce((n,t)=>n+t.msgs.length,0)} 条 · ${(d.books||[]).length} 本书`}catch(e){}
+      return`<button class="opt" data-a="snapBack" data-k="${k}">${k==='sv:pre'?'撤销恢复':k.slice(3)}${n}</button>`}));
     sheet(`<h3>存档点</h3>`+(L.join('')||`<p class="hint">还没有</p>`)+CANCEL)},
-  snapBack(el){confirmTap(el,async()=>{const k=el.dataset.k;let raw=null;try{raw=k==='ls'?localStorage.getItem('state'):await DB.get(k)}catch(e){}if(!raw)return;closeSheet();A.imp(null,raw,1)})},
+  snapBack(el){confirmTap(el,async()=>{const k=el.dataset.k;let raw=null;try{raw=await DB.get(k)}catch(e){}if(!raw)return;closeSheet();A.imp(null,raw,1)})},
   async txHist(el){const k=el.dataset.id,o=charById(k)||maskById(k);if(o&&txT[k]){clearTimeout(txT[k]);txT[k]=0;await txSnap(k,o.persona,1)}const L=await txList(k);
     sheet(`<h3>人设历史</h3>`+(L.map(x=>`<button class="opt" data-a="txBack" data-id="${k}" data-t="${x.t}">${dayLabel(x.t)} ${hm(x.t)} · ${x.s.length} 字</button>`).join('')||`<p class="hint">还没有</p>`)+CANCEL)},
   txBack(el){confirmTap(el,async()=>{const k=el.dataset.id,o=charById(k)||maskById(k),x=(await txList(k)).find(x=>x.t==el.dataset.t);if(!o||!x)return;clearTimeout(txT[k]);txT[k]=0;await txSnap(k,o.persona);o.persona=x.s;save();closeSheet();render(true);toast('恢复了')})},
@@ -3207,12 +3207,12 @@ function setTouchIcon(){try{let l=document.getElementById('touchIcon');if(!l){l=
   await DB.open();
   let lost=0;try{lost=!DB.db&&!!localStorage.getItem('byj_idb')}catch(e){}
   if(DB.db)DB.rev=+(await DB.get('rev'))||0;
-  let raw=lost?null:await DB.get('st');const leg=!raw&&!lost;if(leg)raw=await DB.get('state');else if(DB.db){const o=await DB.get('state');if(o&&await DB.put('sv:old',o))DB.del('state')}
+  let raw=lost?null:await DB.get('st');const leg=!raw&&!lost;if(leg)raw=await DB.get('state');
   if(!raw&&!lost){try{const old=JSON.parse(localStorage.getItem('xphone_v1')||'null');if(old&&old.chars){const s=def();s.chars=old.chars.map(c=>({id:c.id,name:c.name,remark:'',handle:(c.name||'').toLowerCase(),avatar:c.avatar||'',innerStyle:'',persona:c.persona||'',books:[]}));
     s.threads=Object.entries(old.chats||{}).filter(([id])=>s.chars.some(c=>c.id===id)).map(([id,ms])=>({id:uid(),type:'dm',chars:[id],title:'',mode:'online',unread:0,t:Date.now(),msgs:ms.map(m=>({id:uid(),from:m.role==='user'?'me':id,type:'text',content:m.content,t:m.t||Date.now()}))}));
     raw=JSON.stringify(s)}}catch(e){}}
   let loaded=false,bad=DB.bad||lost;try{const d=raw?JSON.parse(raw):null;S=mergeState(d);if(raw&&![2,3,4].includes(d?.v))bad=1;loaded=!!raw&&!bad}catch(e){S=def();if(raw)bad=1}
-  ready=!bad;lostDb=lost;seen=seen||!document.hidden;if(bad)toast('读档没成功，原来的存档没动。先别清数据，刷新再试',6e5);DB.leg=leg&&loaded;if(loaded){snap(raw);try{const lv=localStorage.getItem('byj_v');if(lv&&lv!==window.BYJ_VER)DB.put('sv:upd',raw)}catch(e){}}try{localStorage.setItem('byj_v',window.BYJ_VER)}catch(e){}flush();
+  ready=!bad;lostDb=lost;seen=seen||!document.hidden;if(bad)toast('读档没成功，原来的存档没动。先别清数据，刷新再试',6e5);DB.leg=leg&&loaded;if(loaded){snap(raw);if(DB.db&&!leg)['state','sv:old','sv:upd'].forEach(x=>DB.del(x))}flush();
   applyLook();renderHome();loadFont();ensureHolidays();if(loaded)setTimeout(picGC,4000);
   setTouchIcon();
   try{localStorage.removeItem('byj_try');localStorage.removeItem('byj_ver');DB.del('appHtml')}catch(e){}
