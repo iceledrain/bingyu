@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.24.23';</script>
+<script>window.BYJ_VER='2026.11.24.24';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -703,7 +703,7 @@ addEventListener('pagehide',flush);addEventListener('pageshow',e=>{if(e.persiste
 const ONLINE_OLD='这是手机聊天。像真人发消息：口语、简短、有情绪，一次发1到4条，每条单独一行。不用括号写动作。',ONLINE_DEF='这是手机聊天。像真人发消息：口语、简短、有情绪，一次发1到6条，每条单独一行，遇到逗号就分行，句尾通常没有标点符号。不用括号写动作。';
 const LANG_OLD='用{{user}}使用的语言回复。',LANG_OLD2='说{{char}}设定里写的语言；设定没写，才用{{user}}用的语言。{{user}}用中文聊，不代表你也要用中文。',LANG_DEF='说{{char}}设定里的语言；设定没写，才跟{{user}}用同一种。';
 const OLD_MAIN='你是{{char}}。完全保持{{char}}的性格、说话方式、经历，以及和{{user}}的关系。不替{{user}}说话、行动或决定感受。';
-const REP_OLD2='每轮换开头和句式，同一个词别反复用。不写「不是…而是…」，直接说是什么。',REP_OLD3='每轮换开头和句式。不写套话和「不是…而是…」，写具体的。',REP_OLD4='每轮换开头和句式。不写套话和「不是…而是…」，写具体的。像真人发微信那样说大白话，「撩」「接住」这种词真人不说，想的和说的里都不用。',REP_OLD5='说话像真人平时说话：口语，大白话，句子短，说具体的事和东西，是什么就直接说。每轮的开头和句式都换。',REP_OLD6='说话像真人平时说话：口语，大白话，句子短，说具体的事和东西，是什么就直接说。每轮的开头和句式都换。不说「撩」「试试」「欠收拾」这种词。',REP_OLD7='说话像真人平时说话：口语，大白话，句子短，说具体的事和东西，是什么就直接说。每轮的开头和句式都换。不说「撩」「试试」「欠收拾」「小没良心的」「小白眼狼」这种霸总小说腔，别的同类套话也不说。',REP_OLD8='说话像真人平时说话：口语，大白话，句子短，说具体的事和东西，是什么就直接说。每轮的开头和句式都换。不说「撩」「试试」「欠收拾」「小没良心的」「小白眼狼」「皮痒了」这种霸总小说腔，别的同类套话也不说。',REP_DEF='说话像真人平时说话：口语，大白话，句子短，说具体的事和东西，是什么就直接说。每轮的开头和句式都换。',BAN_DEF='撩 试试 欠收拾 小没良心的 小白眼狼 皮痒了';
+const REP_OLD2='每轮换开头和句式，同一个词别反复用。不写「不是…而是…」，直接说是什么。',REP_OLD3='每轮换开头和句式。不写套话和「不是…而是…」，写具体的。',REP_OLD4='每轮换开头和句式。不写套话和「不是…而是…」，写具体的。像真人发微信那样说大白话，「撩」「接住」这种词真人不说，想的和说的里都不用。',REP_OLD5='说话像真人平时说话：口语，大白话，句子短，说具体的事和东西，是什么就直接说。每轮的开头和句式都换。',REP_OLD6='说话像真人平时说话：口语，大白话，句子短，说具体的事和东西，是什么就直接说。每轮的开头和句式都换。不说「撩」「试试」「欠收拾」这种词。',REP_OLD7='说话像真人平时说话：口语，大白话，句子短，说具体的事和东西，是什么就直接说。每轮的开头和句式都换。不说「撩」「试试」「欠收拾」「小没良心的」「小白眼狼」这种霸总小说腔，别的同类套话也不说。',REP_OLD8='说话像真人平时说话：口语，大白话，句子短，说具体的事和东西，是什么就直接说。每轮的开头和句式都换。不说「撩」「试试」「欠收拾」「小没良心的」「小白眼狼」「皮痒了」这种霸总小说腔，别的同类套话也不说。',REP_DEF='说话像真人平时说话：口语，大白话，句子短，说具体的事和东西，是什么就直接说。每轮的开头和句式都换。',BAN_OLD='撩 试试 欠收拾 小没良心的 小白眼狼 皮痒了',BAN_DEF='撩 欠收拾 小没良心的 小白眼狼 皮痒了';
 const CLICHE_OLD2='不写套话（嘴角勾起、眼底闪过一丝、不易察觉、宠溺、低笑、喉结滚动），写具体的动作和东西。',CLICHE_DEF='不写套话，写具体的动作和东西。';
 const SYS_ITEM=(name,content)=>({id:uid(),name,role:'system',mode:'both',on:true,content});
 const BASE_ITEMS=()=>[SYS_ITEM('不重复',REP_DEF)];
@@ -754,7 +754,7 @@ function mergeState(d){
   if(!(s.look.font in FONTS))s.look.font='system';
   if(d.v===2){s.look.alpha=.92;s.look.icons={}}
   s.look.alpha=Math.max(.6,+s.look.alpha||.92);if(!(d.look||{}).clV){if(+s.look.clear===30)s.look.clear=60;s.look.clV=1}
-  s.chat=Object.assign(CHAT_DEF(),d.chat||{});if(!s.ctxV){if(+s.chat.ctx===40)s.chat.ctx=80;s.ctxV=1}if(!s.sumV){if(+s.chat.sumEvery===30)s.chat.sumEvery=60;s.sumV=1}if(!s.ctxV2){if(+s.chat.ctx===80)s.chat.ctx=40;if(+s.chat.sumEvery===60)s.chat.sumEvery=30;s.ctxV2=1}
+  s.chat=Object.assign(CHAT_DEF(),d.chat||{});if(s.chat.ban===BAN_OLD)s.chat.ban=BAN_DEF;if(!s.ctxV){if(+s.chat.ctx===40)s.chat.ctx=80;s.ctxV=1}if(!s.sumV){if(+s.chat.sumEvery===30)s.chat.sumEvery=60;s.sumV=1}if(!s.ctxV2){if(+s.chat.ctx===80)s.chat.ctx=40;if(+s.chat.sumEvery===60)s.chat.sumEvery=30;s.ctxV2=1}
   s.api=d.api&&Array.isArray(d.api.profiles)&&d.api.profiles.length?d.api:def().api;
   s.offline=Object.assign(def().offline,d.offline||{});
   for(const k of ['regex','chars','books','presets','masks','threads','feed','events','orders','days'])if(!Array.isArray(s[k]))s[k]=def()[k];
@@ -1932,7 +1932,7 @@ async function mApi(q){let r;try{r=await fetch(MAPI+'?'+new URLSearchParams(q))}
 async function mSearch(q,src='netease'){const d=await mApi({types:'search',source:src,name:q,count:20,pages:1});
   return(Array.isArray(d)?d:[]).map(x=>({title:x.name,artist:[].concat(x.artist||[]).join(' / '),album:x.album||'',online:{src,id:String(x.url_id||x.id),pic:x.pic_id||''}}))}
 async function mAlt(s,e){const k=x=>String(x||'').toLowerCase().replace(/[\s（(].*$/,'');try{const r=(await mSearch((s.title+' '+(s.artist||'')).trim(),'kuwo')).find(x=>k(x.title)===k(s.title));if(r)return await mOnline({online:r.online,cover:1})}catch(x){}throw e}
-async function mOnline(s){const d=await mApi({types:'url',source:s.online.src,id:s.online.id,br:320});if(!d.url)throw new Error('这首拿不到音频，可能是版权原因');
+async function mOnline(s){let d={};for(let k=0;k<3&&!d.url;k++){if(k)await new Promise(r=>setTimeout(r,700));d=await mApi({types:'url',source:s.online.src,id:s.online.id,br:320}).catch(e=>{if(k>1)throw e;return{}})}if(!d.url)throw new Error('这首拿不到音频，可能是版权原因');
   if(!s.cover&&s.online.pic)mApi({types:'pic',source:s.online.src,id:s.online.pic,size:800}).then(p=>{if(p.url){s.cover=p.url.replace(/^http:/,'https:');save();if(cur()?.v==='music')render(true)}}).catch(()=>{});
   return d.url.replace(/^http:/,'https:')}
 const songById=id=>S.music.songs.find(s=>s.id===id);
