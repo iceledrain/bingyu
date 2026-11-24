@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.24.10';</script>
+<script>window.BYJ_VER='2026.11.24.11';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -732,7 +732,7 @@ const isOldExample=p=>p&&p.name==='Claude'&&!String(p.key||'').trim()&&/anthropi
 const def=()=>({v:4,regex:[],loc:null,wx:{},
   media:{tts:{base:'',key:'',model:'',voice:''},img:{base:'',key:'',model:'',size:'',q:'',cx:'',style:'',auto:true,books:[]}},
   api:{active:'a1',side:'',profiles:[API_BLANK('a1')]},
-  look:{font:'system',customFont:null,fs:15,alpha:.92,clear:30,wallpaper:'',photo:'',caption:'',icons:{},appWalls:{}},
+  look:{font:'system',customFont:null,fs:15,alpha:.92,clear:60,clV:1,wallpaper:'',photo:'',caption:'',icons:{},appWalls:{}},
   chat:CHAT_DEF(),
   masks:[{id:'m1',name:'user',avatar:'',bday:'',persona:''}],activeMask:'m1',wallet:520,
   chars:[],books:[],
@@ -751,7 +751,7 @@ function mergeState(d){
   s.look=Object.assign(def().look,d.look||{});s.look.icons=s.look.icons||{};
   if(!(s.look.font in FONTS))s.look.font='system';
   if(d.v===2){s.look.alpha=.92;s.look.icons={}}
-  s.look.alpha=Math.max(.6,+s.look.alpha||.92);
+  s.look.alpha=Math.max(.6,+s.look.alpha||.92);if(!(d.look||{}).clV){if(+s.look.clear===30)s.look.clear=60;s.look.clV=1}
   s.chat=Object.assign(CHAT_DEF(),d.chat||{});if(!s.ctxV){if(+s.chat.ctx===40)s.chat.ctx=80;s.ctxV=1}if(!s.sumV){if(+s.chat.sumEvery===30)s.chat.sumEvery=60;s.sumV=1}if(!s.ctxV2){if(+s.chat.ctx===80)s.chat.ctx=40;if(+s.chat.sumEvery===60)s.chat.sumEvery=30;s.ctxV2=1}
   s.api=d.api&&Array.isArray(d.api.profiles)&&d.api.profiles.length?d.api:def().api;
   s.offline=Object.assign(def().offline,d.offline||{});
@@ -855,7 +855,7 @@ function applyLook(){
   setAppH();r.style.setProperty('--fs',L.fs+'px');
   if(FONTS[L.font])r.style.setProperty('--body',FONTS[L.font]+',-apple-system,"PingFang SC",sans-serif');else r.style.removeProperty('--body');
   const dk=darkOn();r.classList.toggle('dark',dk);
-  {const wp=L.wallpaper||'',W=$('#wall'),cl=Math.min(60,Math.max(0,num(L.clear)??30));r.classList.toggle('wp',!!wp);
+  {const wp=L.wallpaper||'',W=$('#wall'),cl=Math.min(60,Math.max(0,num(L.clear)??60));r.classList.toggle('wp',!!wp);
     if(W&&W._wp!==wp){W._wp=wp;W.style.background=wp?`url("${String(wp).replace(/"/g,'%22')}") center/cover no-repeat`:''}
     if(wp)r.style.setProperty('--alpha',(1-cl/100).toFixed(2));else r.style.removeProperty('--alpha');
     if(r._wp!==wp){r._wp=wp;wp?r.style.setProperty('--wp',`url("${String(wp).replace(/"/g,'%22')}")`):r.style.removeProperty('--wp')}}
@@ -2649,7 +2649,7 @@ settings(v){
       <div class="f">世界书<div class="chips">${S.books.map(b=>`<button class="${(I.books||[]).includes(b.id)?'on':''}" data-a="imgBook" data-id="${b.id}">${esc(b.name||'世界书')}</button>`).join('')}<button data-a="imgBookNew">＋ 新建</button></div></div>
       <label class="ck"><input type="checkbox" id="mi-auto" data-s="mimg" data-k="auto" ${I.auto?'checked':''}>TA发的照片自动画出来</label></div>
     <div class="panel"><div class="inline" style="flex-wrap:nowrap"><input type="text" id="mi-try" placeholder="画什么" aria-label="画什么"><button class="btn" data-a="testImg">画一张</button></div></div>`}}
-  if(tab==='look'){const L=S.look,cl=Math.min(60,Math.max(0,num(L.clear)??30));
+  if(tab==='look'){const L=S.look,cl=Math.min(60,Math.max(0,num(L.clear)??60));
     return{title:'设置',body:head+`
     <div class="panel"><h2>壁纸</h2>${L.wallpaper?`<div class="wpv" style="background-image:url(${L.wallpaper})"></div>`:''}
       <div class="btns">${fileBtn(L.wallpaper?'换一张':'选一张','accept="image/*" data-img="wall"')}${L.wallpaper?'<button class="btn o" data-a="clrWall">去掉</button>':''}</div>
