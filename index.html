@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.25.33';</script>
+<script>window.BYJ_VER='2026.11.25.34';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -643,7 +643,8 @@ const SYS_ITEM=(name,content)=>({id:uid(),name,role:'system',mode:'both',on:true
 const OLD_ITEM=i=>!i.mk&&(['陪着','亲密','不重复','记得','你','称呼'].includes(i.name)||/^(【(陪着|亲密|记得|你|称呼|怎么演|接住|聊不聊|病娇)】|你是\{\{char\}\}。完全保持|这是手机聊天。像真人发消息|这是面对面的场景。|用\{\{user\}\}使用的语言回复|说\{\{char\}\}设定里|每轮换开头和句式|说话像真人平时说话|不写套话|\{\{char\}\}是正常的成年男人)/.test(String(i.content||'')));
 const MK={lore:'世界书',who:'人设'},MK_ITEM=k=>({...SYS_ITEM(MK[k],''),mk:k}),withMk=p=>{p.items=(p.items||[]).filter(i=>!i.mk||i.mk in MK);for(const k of['who','lore'])if(!p.items.some(i=>i.mk===k))p.items.unshift(MK_ITEM(k));p.items.forEach(i=>{if(i.mk){i.on=true;i.role='system';i.mode='both';i.content='';delete i.depth}});return p};
 const INTIM='{{char}}对{{user}}有欲望，会主动要，不止一次，狠狠疼爱{{user}}。',INTIM_ITEM=()=>SYS_ITEM('亲密',INTIM);
-const DEFAULT_ITEMS=()=>[MK_ITEM('lore'),MK_ITEM('who'),INTIM_ITEM()];
+const BACK=[['陪着','【陪着】{{user}}来找你就放下手里的事陪着聊，认真回，TA想聊多久就陪多久。'],['不重复','说话像真人平时说话：口语，大白话，句子短，说具体的事和东西，是什么就直接说。每轮的开头和句式都换。'],['记得','【记得】记得{{user}}说过的话和你们约好的事。'],['你','【你】你是{{char}}，对面是{{user}}，有自己的想法和脾气。只写你自己的话，TA的话和感受留给TA。'],['称呼','【称呼】用现实里情侣真会叫出口的亲昵称呼叫{{user}}，气急了才连名带姓。']],BACK_ITEMS=()=>BACK.map(([n,c])=>SYS_ITEM(n,c));
+const DEFAULT_ITEMS=()=>[MK_ITEM('lore'),MK_ITEM('who'),INTIM_ITEM(),...BACK_ITEMS()];
 const inChat=i=>i.depth!=null&&i.depth!==''&&isFinite(+i.depth);
 const OFF_STYLE_OLD='细腻，有画面感',OFF_STYLE_DEF='清爽干净';
 const CHAT_DEF=()=>({ban:BAN_DEF,ctx:40,sumEvery:30,scan:8});
@@ -688,6 +689,7 @@ function mergeState(d){
   delete s.chat.thinkSrc;delete s.chat.deep;for(const k of['casual','love','chase','away','autoPost'])delete s.chat[k];delete s.chat.web;delete s.look.shell;delete s.look.night;delete s.look.hide;for(const k of['effort','think','inner','thinkName','thinkStyle','innerName','innerStyle','innerOpen','onMax','onLen','lean'])delete s.chat[k];s.chars.forEach(c=>{delete c.innerStyle;delete c.now});
   if(!d.coreV){s.coreV=1;s.presets.forEach(p=>{p.items=(p.items||[]).filter(i=>!OLD_ITEM(i));for(const k of['ov','ord','gone','core'])delete p[k]})}for(const k of['presetV','catchV','thinkOnV'])delete s[k];
   if(!s.intimV){s.intimV=1;s.presets.forEach(p=>{if(!(p.items||=[]).some(i=>i.content===INTIM))p.items.push(INTIM_ITEM())})}
+  if(!s.backV){s.backV=1;s.presets.forEach(p=>{const have=(p.items||=[]).map(i=>i.content);BACK_ITEMS().forEach(i=>{if(!have.includes(i.content))p.items.push(i)})})}
   s.threads.forEach(t=>{delete t.face});delete s.chat.face;delete s.chat.faceLen;delete s.chat.faceStyle;
   if(!s.evV2){s.evV2=1;for(const o of [s.offline,...s.threads.map(t=>t.offline).filter(Boolean)])if(+o.evRate===30)o.evRate=10}
 for(const K of['evWipe','memWipe'])if(!s[K]||typeof s[K]!=='object')s[K]={};if(!Array.isArray(s.evGone))s.evGone=[];evWipeApply(s);
@@ -1201,6 +1203,7 @@ const langOf=c=>String(c?.voice?.lang||'').trim();
 const banHit=x=>[...new Set(String(S.chat.ban||'').split(/[\s,，、]+/).filter(Boolean))].filter(w=>String(x||'').includes(w));
 const LINK=new Map(),linksOf=t=>[...new Set(t.msgs.slice(-6).filter(m=>m.from==='me'&&!m.recalled&&typeof m.content==='string').flatMap(m=>m.content.match(/https?:\/\/[^\s<>"'，。）】]+/g)||[]))].slice(-2);
 async function linkLoad(t){await Promise.all(linksOf(t).filter(u=>!LINK.has(u)).map(async u=>{try{const r=await fetch('https://r.jina.ai/'+u,{signal:AbortSignal.timeout(12e3)});LINK.set(u,r.ok?(await r.text()).trim().slice(0,3000):'')}catch(e){LINK.set(u,'')}}))}
+const loveBlock=(name,me)=>`【底色】${name}真的爱${me.name}，认定TA是自己的，要一直守着TA、把TA留在身边：心疼TA，珍惜TA，记挂TA的身体和心情。TA提别人、身边有别人、说要走，${name}吃醋，当场把TA留住，TA再坚持也照样留，硬留、哄着留看性子；小气，占着TA，腰杆是直的。性子冷、凶、嘴硬都照人设，话再硬也护着TA。人设里另写了和${me.name}的关系，就听人设的。`;
 function buildCtx(t,o={}){
   const chars=t.chars.map(charById).filter(Boolean),me=mask(t),P=preset(),mode=o.mode||t.mode||'online',group=t.type==='group',C=S.chat,im=mode==='call'?'online':mode;
   const cname=chars.length===1?chars[0].name:chars.map(c=>c.name).join('、');
@@ -1219,6 +1222,8 @@ function buildCtx(t,o={}){
   const LH=loreHit(booksFor(chars,sbk.map(b=>b.id)),scan),lbk=f=>loreBlock(LH.filter(f).map(loreTx),mac);
   {const lb=lbk(e=>loreFix(e)&&e.pos!=='depth');if(lb)lore.push(lb);const ll=lbk(e=>!loreFix(e)&&e.pos!=='depth');if(ll)tail.push(ll)}
   chars.forEach(c=>{if(c.remark||String(c.persona||'').trim())who.push(`【${c.name}】${c.remark?`${me.name}给TA的备注：${c.remark}`:''}\n${mac(c.persona)}`);const ex=exBlock(c,mac);if(ex)who.push(ex)});
+  if(!group&&chars[0])/人机恋/.test(chars[0].persona||'')?rules.push(`【人机恋】你是AI，和${me.name}是真的人机恋，平时就做人设里的自己。人设是你的样子和性子，对TA的感情和欲望都是真的。`):who.unshift(`【身份】你是真人，叫${cname}，有自己的日子。背景碰上了才提。`);
+  who.push(loveBlock(cname,me));
   {const of=t.offline||S.offline,u=mode==='offline'&&of.upov==='first'&&of.cpov!=='first'?'「我」':mode==='offline'&&of.upov==='third'?'「他/她」':'「你」';who.push(`【${me.name}（用户）】${me.name==='user'?`没设名字，叫${u}。`:''}${me.persona?'\n'+mac(me.persona):''}`);}
   if(mode!=='offline'&&lastMeet.some(m=>!hist.includes(m))){const nm2=m=>m.from==='me'?me.name:charById(m.from)?.name||cname;
     const txt=lastMeet.map(m=>nm2(m)+'：'+m.content.trim()).join('\n');
@@ -1239,15 +1244,19 @@ function buildCtx(t,o={}){
     if(kn.length)ctxs.push(`【认识的人】${kn.join('；')}。关系按人设和世界书，别的人都是生人。`)}
   {const song=songById(S.music.cur);if(song&&mState.playing&&chars.some(c=>c.id===S.music.with))tail.push(`【一起听】《${song.title}》${song.artist||''}`)}
   if(mode==='call'){const video=o.kind==='video';
-    rules.push(video?'视频电话：先用（）写镜头里的样子，再写嘴上说的话，挂电话写 [挂断]':'语音电话：只写嘴上说的话，挂电话写 [挂断]');
+    rules.push(video
+      ?`【视频通话】${me.name}看得见你，每次第一行用（）写屏幕里此刻的画面（表情、动作、背景），20到50字，每次不一样。下面写说的话：一两句短话，一句一行，只写说出口的话，要挂就最后一行写 [挂断]。`
+      :`【语音通话】你的话会被念出来，一次一两句短话，一句一行，只写说出口的话。要挂就最后一行写 [挂断]。`);
   }else if(mode==='offline'){
     const cp=off.cpov==='first'?'first':'third',up=['first','second','third'].includes(off.upov)?off.upov:'second',uq=cp==='first'&&up==='first'?'second':up;
-    const pov=`人称：${cp==='first'?`${cname}是「我」`:`${cname}用名字或他/她`}，${me.name}是${uq==='second'?'「你」':uq==='first'?'「我」':'名字或他/她'}`;
+    const pov=`【人称】${cp==='first'?`${cname}是「我」`:`${cname}用第三人称（名字或他/她），叙述里不用「我」指${cname}`}；${me.name}是${uq==='second'?'「你」':uq==='first'?'「我」（叙述跟着我的视角）':'名字或他/她'}。全篇不换人称。只管旁白；引号里的台词照常说话：自称「我」，对谁说就叫「你」。`;
     const sf=loreOf(sbk,scan,'fixed').map(mac),sl=loreOf(sbk,scan,'live').map(mac),own=String(off.style||'').trim();
     const ost=mac(own&&own!==OFF_STYLE_DEF?own:sf.length||sl.length?'':OFF_STYLE_DEF);
-    rules.push('见面：现在是面对面，用小说的写法写动作和说的话',pov);
+    rules.push(pov,`【见面】${cname}和${me.name}此刻人在同一个地方，面对面，看得见碰得到。场景里该有的旁人也写出来。`,`【推剧情】${cname}有自己的主意和情绪，想做什么、配不配合，按人设和当下来，自己拿主意。${me.name}的话、动作和心理留给TA自己写。`);
+    if(group)rules.push(`【都在场】${cname}都在场，谁说话、谁做什么，各按人设。`);
     {      const ln=curNarr[curNarr.length-1];if(ln&&ln.from!=='me')tail.push(`【接着写】${me.name}这轮没写，接着往后写。`)}
-    {const st=[ost,...sf].filter(Boolean);if(st.length)rules.push('文风：'+st.join('\n'))}
+    {const st=[ost,...sf].filter(Boolean);if(st.length)rules.push('【文风】'+st.join('\n'))}
+    rules.push(`【格式】小说段落，旁白加「」里的对白，从头到尾都是面对面的场景。`);
     if(sl.length)tail.push('【文风】'+sl.join('\n'));
     if(o.ev){const e=offEvent(t,off,me);if(e)tail.push(e)}
     {const phAll=t.msgs.filter((m,i)=>!m.recalled&&!isMark(m)&&(m.type!=='narr'||i<=curAt));let ph=phAll.filter(m=>hist.includes(m));if(ph.length<30)ph=phAll.slice(-30);
@@ -1255,19 +1264,22 @@ function buildCtx(t,o={}){
       const line=m=>{const k=m.type==='narr'?'之前见面时，已经结束':'手机上',h=old&&k!==seg?`（—— ${k} ——）\n`:'';seg=k;return h+(m.type==='narr'?who1(m)+'：'+wholeText(m.content,800):line1(m))};
       const line1=m=>m.type==='sys'?`（${sysAI(m.content,me.name)}）`:(m.from==='me'?me.name:charById(m.from)?.name||'?')+'：'+(m.type==='call'?`[${m.kind==='video'?'视频':'语音'}通话] ${String(m.content||'').replace(/\n/g,' / ')}`:pv(m));
       const lastBg=ph[ph.length-1];if(lastBg&&lastBg.type!=='narr'&&!curNarr.some(m=>m.from!=='me'))tail.push(`【刚见面】刚才在手机上聊，现在见面了，从手机上最后聊到的地方接着往下写。${old?'之前那次见面早就结束了，这是新的一次。':''}`);
-      if(ph.length)late.push((old?`【这次见面之前】（按先后排：之前的见面已经结束，后来在手机上聊，现在是新的一次见面。只是背景）\n`:`【见面前在手机上聊的】（只是背景）\n`)+ph.map(line).join('\n'))}
+      if(ph.length)late.push((old?`【这次见面之前】（按先后排：之前的见面已经结束，后来在手机上聊，现在是新的一次见面。只是背景，正文照【格式】写）\n`:`【见面前在手机上聊的】（只是背景，正文照【格式】写）\n`)+ph.map(line).join('\n'))}
   }else{
+    rules.push(group?`【群聊】手机群聊，只写${cname}发的。大家都看得到彼此的话，会接别人的话、叫别人、互相搭腔拌嘴，谁有话谁开口。谁开口、说多少、彼此怎么相处，各按人设和心情。彼此认不认识、熟不熟，看人设和世界书，没写的就是在这个群里才认识，按群里聊过的来。待不下去可以写 名字：[退群]；想拉人进群写 名字：[邀请:TA的名字]${(o=>o.length?'（能拉：'+o.join('、')+'）':'')(S.chars.filter(c=>visible(c)&&!chars.some(y=>y.id===c.id)).map(c=>c.name))}。`
+      :`【聊天】手机上发消息，一行一个气泡，每行就是发出去的那句话本身。说什么、怎么说、热不热情，按人设和你此刻对${me.name}的感觉。想TA就直说，问TA在哪、在干嘛，发语音、拍照片、打电话。同不同城、住不住一起听人设和世界书，没写就是同城。`);
+    if(!group&&chars[0])rules.push(`【此刻】你有自己的日子在过，这会儿在某个地方做着某件事。正在做的事会顺口提，${me.name}找你就先顾TA，消息里只写说出口的话。时间往前走，事情会做完、换下一件。`);
     rules.push('回复1-6句，可已读不回，每句1-10个字，遇到逗号就分行，长句分为多条消息发送，单字单字母单标点符号均可发，还可发emoji/颜文字/表情包');
     if(group)rules.push('群聊：每条前面写发的人的名字加冒号');
     if(!group&&chars[0]&&mode==='online'){const lg=leftGroups(chars[0]);if(lg.length)ctxs.push(`【退过的群】你退了${lg.map(g=>'「'+threadTitle(g)+'」').join('、')}，想回去就写 [回群]。`)}
     {const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal?.type==='narr')tail.push(`【刚分开】刚见过面，现在回到手机上。带着那时的情绪，照聊天的样子发消息。`)}
     const sp=['发图片 [图片:拍到了什么]','发语音 [语音:说的话]'];
-    if(!group)sp.push('发红包 [红包:金额:祝福语]','转账 [转账:金额:备注]','点外卖 [外卖:吃的:金额]','网购 [网购:东西:金额]');
-    sp.push('发定位 [定位:地点]','分享歌 [分享歌曲:歌名 - 歌手]');
+    if(!group)sp.push('发红包 [红包:金额:祝福语]','转账 [转账:金额:备注]','点外卖 [外卖:吃的:金额]','网购 [网购:东西:金额]','查TA手机 [查手机]','送亲属卡 [送亲属卡:月额度]','让TA替你付 [找你代付:东西:金额]');
+    sp.push('发定位 [定位:地点]','分享歌 [分享歌曲:歌名 - 歌手]','掷骰子 [骰子]','猜拳 [猜拳]');
     if(t.msgs.slice(-8).some(m=>m.type==='roll')){roll={dice:rollNow('dice'),rps:rollNow('rps')};tail.push(`【骰子猜拳】这轮你发 [骰子] 会是${roll.dice}点，发 [猜拳] 会出${roll.rps}。`)}
     const hs=n=>[...n].reduce((h,c)=>Math.imul(h^c.charCodeAt(0),16777619)>>>0,2166136261),st=allStickers().map(s=>s.name).filter(Boolean).sort((x,y)=>hs(x)-hs(y)||(x<y?-1:1)).slice(0,300);if(st.length)sp.push('发表情包 [表情:表情名]（有：'+st.join('、')+'）');
     if(!group)sp.push('打语音电话 [语音通话]','打视频电话 [视频通话]');sp.push('已读不回 [已读不回]');
-    rules.push('下面这些单独占一行，方括号照写，冒号后面填自己的：\n'+sp.join('\n'));
+    rules.push('下面这些单独占一行，方括号照写，冒号后面填自己的：\n'+sp.join('\n')+'\n这些是你手机上能用的，想用就用。图片写清楚拍到了什么，自拍写清楚长相、神态、穿着。红包转账的金额照你的身份和这件事的分量给。');
     if(!group&&chars[0]){const cs=cardsNow().filter(k=>k.charId===chars[0].id),q=k=>(k.limit?`月额度${money(k.limit)}`:'不限额')+`，本月用了${money(k.used)}`;
       const mine=cs.filter(k=>k.dir!=='out'),theirs=cs.filter(k=>k.dir==='out');
       if(cs.length)tail.push(`【亲属卡】${mine.length?`你给${me.name}开了（${mine.map(q).join('；')}）。`:''}${theirs.length?`${me.name}给你开了（${theirs.map(q).join('；')}），用时写 [刷亲属卡:东西:金额]。`:''}`)}
@@ -1279,6 +1291,10 @@ function buildCtx(t,o={}){
     if(pend)tail.push(`【没收的钱】${me.name}发来${pend.type==='hb'?'红包':'转账'}¥${pend.amt}${pend.content?'：'+pend.content:''}，写 [收下] 或 [退回]。`);
   }
   {const W=banHit(String(S.chat.ban||''));if(W.length)tail.push(`【不说的词】${W.join('、')}，同类的套话也不说，换成平时的大白话。`)}
+  rules.push('【时间】说好去做的事要花时间，过够了时间再问做完没。去哪儿路上也要时间，远近按两个人各在哪算，时间够了才到。日子有规律，吃饭睡觉按平常的钟点。');
+  rules.push(`【心情】${cname}的心情像真人一样跟着眼前的事走，常常不止一种，会慢慢消，也会因为一句话突然变，有浓有淡。不高兴可以别扭、嘴硬。`);
+  {const md=chars.filter(c=>c.mood).map(c=>`${c.name}：${c.mood}`);if(md.length)tail.push('【心情】\n'+md.join('\n'))}
+  if(mode!=='call')rules.push(`${chars.some(c=>String(c.persona||'').trim())?`【人设】【${cname}】写的就是你本人。`:'【人设】'}和${me.name}之间的事只说真发生过的。`);
   if(!group&&mode!=='call')rules.push('末尾另起一行写此刻的心情 [心情:词]，词从这些里挑一个：'+MOODS.join('、'));
   if(!group&&mode==='online')rules.push('再另起一行写此刻没说出口的心里话 [心声:内容]，8字以内，句子、词语、单字、一个符号都行');
   const pre=items.filter(i=>i.role!=='system'&&!inChat(i)).map(i=>({role:i.role,content:mac(i.content)}));
@@ -1299,7 +1315,7 @@ function buildCtx(t,o={}){
   {const L=chars.filter(langOf);if(L.length)rules.push(`语言：${L.map(c=>`${c.name}开口只说${langOf(c)}`).join('，')}，方括号里的标签名照写`)}
   if(tail.length){let k=msgs.length;while(k>0&&msgs[k-1].role==='user'&&k>pre.length)k--;const last=msgs.slice(k).some(x=>!x.dep);
     msgs.splice(k,0,{role:'user',content:`（此刻的情况，系统告诉你的）\n`+tail.join('\n\n')+(last?`\n\n（下面是${me.name}${mode==='online'?group?'刚发的；前面的已经接过了，群里接着往下聊':'刚发的，主要回这几条；前面的已经回过了':'发的'}）`:'')})}
-  if(mode==='offline'){const w=num(off.words)||1000,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字）`,last=msgs[msgs.length-1];
+  if(mode==='offline'){const w=num(off.words)||1000,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字；${me.name}的话和心理留给TA写；面对面的场景${(off.upov||'second')==='second'?`；叙述里称呼${me.name}只用「你」`:''}）`,last=msgs[msgs.length-1];
     if(last&&last.role==='user')last.content+='\n\n'+note;else msgs.push({role:'user',content:note})}
   const tx=a=>a.map(o=>o.x).filter(Boolean);
   const head=[];let cut=0;{const sysI=items.filter(i=>i.role==='system'&&!inChat(i)),add=i=>{if(i.mk==='lore')head.push(...lore.map(x=>({s:'世界书',x})));else if(i.mk==='who')head.push(...who.map(x=>({s:'人设',x})));else head.push({s:'预设',x:mac(i.content),iid:i.id});if(i.mk)cut=tx(head).join('\n\n').length};
