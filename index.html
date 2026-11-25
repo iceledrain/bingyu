@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.25.26';</script>
+<script>window.BYJ_VER='2026.11.25.27';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1280,7 +1280,7 @@ function buildCtx(t,o={}){
   }
   {const W=banHit(String(S.chat.ban||''));if(W.length)tail.push(`【不说的词】${W.join('、')}，同类的套话也不说，换成平时的大白话。`)}
   if(!group&&mode!=='call')rules.push('末尾另起一行写此刻的心情 [心情:词]，词从这些里挑一个：'+MOODS.join('、'));
-  if(!group&&mode==='online')rules.push('再另起一行写此刻没说出口的心里话 [心声:内容]，要短，句子、词语、单字、一个符号都行');
+  if(!group&&mode==='online')rules.push('再另起一行写此刻没说出口的心里话 [心声:内容]，8字以内，句子、词语、单字、一个符号都行');
   const pre=items.filter(i=>i.role!=='system'&&!inChat(i)).map(i=>({role:i.role,content:mac(i.content)}));
   const nameOf=m=>m.from==='me'?me.name:charById(m.from)?.name||cname;
   const imgAll=hist.map((m,i)=>m.type==='img'&&m.img?i:-1).filter(i=>i>=0),imgIdx=new Set(imgAll.slice(Math.max(0,Math.floor(imgAll.length/3)-1)*3));
