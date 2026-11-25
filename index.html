@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.24.27';</script>
+<script>window.BYJ_VER='2026.11.25.1';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1338,6 +1338,8 @@ const ordSort=(A,ord,key)=>{const r=x=>{const i=(ord||[]).indexOf(key(x));return
 const banHit=x=>[...new Set(String(S.chat.ban||'').split(/[\s,，、]+/).filter(Boolean))].filter(w=>String(x||'').includes(w));
 function ruleDefs(){const c=S.chars.slice(0,2).map(c=>c.id),D=new Map(),run=(type,mode,lab,o={})=>{try{const c0=buildCtx({id:'',type,chars:type==='dm'?c.slice(0,1):c,msgs:[],mode,title:''},{tpl:1,mode,...o}),d=c0.defs;for(const k in d){if(!D.has(k))D.set(k,{k,x:d[k],labs:new Set(),w:c0.wk.includes(k)});D.get(k).labs.add(lab)}}catch(e){}};
   run('dm','online','聊天');run('dm','offline','见面');run('dm','call','通话');run('dm','call','通话',{kind:'video'});run('group','online','群聊');run('group','offline','群聊');return[...D.values()].map(d=>({...d,lab:d.labs.size>=4?'都用':[...d.labs].join('、')}))}
+const LINK=new Map(),linksOf=t=>[...new Set(t.msgs.slice(-6).filter(m=>m.from==='me'&&!m.recalled&&typeof m.content==='string').flatMap(m=>m.content.match(/https?:\/\/[^\s<>"'，。）】]+/g)||[]))].slice(-2);
+async function linkLoad(t){await Promise.all(linksOf(t).filter(u=>!LINK.has(u)).map(async u=>{try{const r=await fetch('https://r.jina.ai/'+u,{signal:AbortSignal.timeout(12e3)});LINK.set(u,r.ok?(await r.text()).trim().slice(0,3000):'')}catch(e){LINK.set(u,'')}}))}
 function buildCtx(t,o={}){
   const chars=t.chars.map(charById).filter(Boolean),me=o.tpl?{...mask(t),name:'{{user}}'}:mask(t),P=preset(),mode=o.mode||t.mode||'online',group=t.type==='group',C=o.tpl?{...S.chat,think:true,inner:true}:S.chat,im=mode==='call'?'online':mode;
   const cname=o.tpl?'{{char}}':chars.length===1?chars[0].name:chars.map(c=>c.name).join('、');
@@ -1367,6 +1369,7 @@ function buildCtx(t,o={}){
     let j=ms.length-1;while(j>0&&ms[j].from==='me')j--;const dd=ms[j]?dayDiff(ms[j].t):0;
     tail.push('【现在】'+nowText()+(ms.length>1?(g<60e3?'，上一条是刚刚发的':`，距上一条${gapText(g)}`):'')+(dd>0?(Date.now()-ms[j].t<4*3600e3?`\n刚过零点，日期变成${dayLabel(Date.now())}了。你们一直在聊没断过，接着刚才的话说，不重新打招呼。`:`\n上次聊是${dayWord(dd)}（${dayLabel(ms[j].t)}），已经是新的一天。记录里的「今天」「明天」是按那天说的；现在的今天是${dayLabel(Date.now())}。`):''));
     const wd=worldFor(chars);if(wd)tail.push(wd);
+    if(!o.tpl)linksOf(t).forEach(u=>{const x=LINK.get(u);if(x)tail.push(`【链接】${me.name}发的 ${u} 你点开看了：\n${x}`)});
     const d0=new Date().setHours(0,0,0,0);if(myDays(me).some(x=>x.in===0&&chars.some(c=>c.id===x.who))&&t.msgs.some(m=>m.from==='me'&&m.t>=d0&&/生日快乐|happy birthday/i.test(m.content||'')))tail.push(`【生日】${me.name}今天说过生日快乐了。`);
     if(!group&&chars[0]){const c=chars[0],gone=saidGone(c,t);
       if(gone.length)tail.push(`【已经说过的】这些话${c.name}之前对${me.name}说过了（记录已经不在）。不再说差不多的内容，不换个说法重讲同一件事，讲别的。\n`+gone.slice(-16).map(x=>'· '+x.s).join('\n'))}}
@@ -1385,7 +1388,7 @@ function buildCtx(t,o={}){
     const pov=`【人称】${cp==='first'?`${cname}是「我」`:`${cname}用第三人称（名字或他/她），叙述里不用「我」指${cname}`}；${me.name}是${uq==='second'?'「你」':uq==='first'?'「我」（叙述跟着我的视角）':'名字或他/她'}。全篇不换人称。只管旁白；引号里的台词照常说话：自称「我」，对谁说就叫「你」。`;
     const sf=loreOf(sbk,scan,'fixed').map(mac),sl=loreOf(sbk,scan,'live').map(mac),own=String(off.style||'').trim();
     const ost=mac(own&&own!==OFF_STYLE_DEF?own:sf.length||sl.length?'':OFF_STYLE_DEF),oshort=!!ost&&!sf.length&&ost.length<=12&&!/\n/.test(ost);
-    rules.push(pov);rules.push(`【见面】${oshort?`文风${ost}，`:''}每次${Math.round((num(off.words)||500)*.8)}到${Math.round((num(off.words)||500)*1.2)}字。场景里该有的旁人也写出来。`);
+    rules.push(pov);rules.push(`【见面】${cname}和${me.name}此刻人在同一个地方，面对面，看得见碰得到，不隔着手机，不是分开的。${oshort?`文风${ost}，`:''}每次${Math.round((num(off.words)||500)*.8)}到${Math.round((num(off.words)||500)*1.2)}字。场景里该有的旁人也写出来。`);
     {rules.push(`【推剧情】${cname}有自己的主意和情绪，想做什么、配不配合，按人设和当下来，不用等${me.name}点头。不替${me.name}写话、动作和心理。`);
       const ln=curNarr[curNarr.length-1];if(ln&&ln.from!=='me')tail.push(`【接着写】${me.name}这轮没写，接着往后写。`)}
     if(group)rules.push(`【都在场】${cname}都在场，谁说话、谁做什么，各按人设。`);
@@ -1423,7 +1426,7 @@ function buildCtx(t,o={}){
     {const q=!group&&[...t.msgs].reverse().find(m=>m.from==='me'&&m.type==='pay'&&m.state==='new');if(q)tail.push(`【代付】${me.name}想让你替TA付 ¥${q.amt}：${q.content}，写 [代付] 或 [不付]。`)}
     if(pend)tail.push(`【没收的钱】${me.name}发来${pend.type==='hb'?'红包':'转账'}¥${pend.amt}${pend.content?'：'+pend.content:''}，写 [收下] 或 [退回]。`);
   }
-  rules.push('【时间】说好去做的事要花时间，没过够时间别问做完没。日子有规律：工作日白天忙、周末和放假松一点，吃饭睡觉按平常的钟点。');
+  rules.push('【时间】说好去做的事要花时间，没过够时间别问做完没。去哪儿路上也要时间，远近按两个人各在哪算，没过够就还在路上，不会刚出发就到。日子有规律：工作日白天忙、周末和放假松一点，吃饭睡觉按平常的钟点。');
   if(!group)rules.push(`【亲热】慢慢磨，跟着${me.name}的反应走，长短看TA的状态；到了以后自己还想要就接着来。那会儿说话会喘，断断续续的。`);
   if(C.inner){const styles=chars.map(c=>c.innerStyle?`${c.name}：${mac(c.innerStyle)}`:'').filter(Boolean).join('；');
     rules.push(`【${C.innerName||'心声'}】正文后另起一行写 <inner>…</inner>${G('，每人一行，「名字：」开头','')}：${mac(C.innerStyle||INNER_DEF)}${styles?'（'+styles+'）':''}`)}
@@ -1728,7 +1731,7 @@ async function reply(t,extra,stamps){
   try{
     await Promise.all([...STKP.values(),ensureWx(S.loc),...t.chars.map(id=>ensureWx(charById(id)?.loc))].map(p=>p.catch(()=>{})));
     if(stamps&&[...t.msgs].reverse().find(m=>m.type!=='sys')?.from==='me')return;
-    const ctx=buildCtx(t,{ev:1,pro:!!extra}),at=t.msgs.length,tg=extra?{tag:'auto'}:{};if(extra)ctx.msgs.push({role:'user',content:extra});
+    await linkLoad(t);const ctx=buildCtx(t,{ev:1,pro:!!extra}),at=t.msgs.length,tg=extra?{tag:'auto'}:{};if(extra)ctx.msgs.push({role:'user',content:extra});
     const offMax=ctx.mode==='offline'?{max:Math.max((num(api()?.maxTokens)||2048)-4096,Math.round((num((t.offline||S.offline).words)||500)*3)+2000)}:{};
     let r=await callAI(ctx.system,ctx.msgs,{thoughts:true,...tg,...offMax});RAW.set(t.id,[r.text,r.thoughts]);
     if(S.chat.think&&r.text&&!/^\s*(?:\]?<\]?minimax\[?>\[?)?\s*<think>/i.test(r.text)){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:`（上面这条没按顺序写，作废。重写：第一行先写 <think>一句打算</think>，然后才是${ctx.mode==='offline'?'正文':' <reply>…</reply>'}，最后 <inner>…</inner>${ctx.mode==='offline'?'':' 和 <tide>…</tide>'}。内容可以和刚才一样。）`}],{thoughts:true,back:2,...tg,...offMax});RAW.get(t.id).push(r2.text,r2.thoughts);if(/<think>/i.test(r2.text))r=r2}catch(e){}}
@@ -1802,7 +1805,7 @@ async function doCoax(t,c,kind,content){
   sysMsg(t,label+' · 已送达');const note=t.msgs[t.msgs.length-1];if(kind==='letter'||kind==='post')note.letter=content;
   save();onThreadUpdate(t);toast(dn(c)+' 好像看到了…',9000);
   try{
-    const ctx=buildCtx(t),before=tideOf(c);
+    await linkLoad(t);const ctx=buildCtx(t),before=tideOf(c);
     const out=await callAI(ctx.system,[...ctx.msgs,{role:'user',content:`（${me.name}现在${r.theyDeleted?'被你删掉了':'被你拉黑了'}，联系不到你。但TA${desc}${kind==='letter'||kind==='post'?'：「'+content+'」':''}。你看到了。\n先另起一行写 <tide>数字|两个字的心情</tide>，再写 <inner>你看到之后没说出口的真心话，一句</inner>。\n想原谅就另起一行写 [解除拉黑]，下一行写你要发给TA的第一句话；不想就到此为止，不写别的。原不原谅按人设和你现在的心情。）`}],{max:1536,cache:2});
     const ex=extractExtras(out);applyTide(ctx,ex);const after=tideOf(c);
     c.tide=Math.min(100,Math.max(after,before+3));
@@ -2262,7 +2265,7 @@ async function ttsAudio(text,c){const T=S.media.tts,v=c?.voice||{},key=(T.key||'
   if(typeof x!=='string'||!x||x.length%2||/[^0-9a-f]/i.test(x))throw new Error('没拿到语音：'+(d.base_resp?.status_msg||d.error?.message||JSON.stringify(d).slice(0,120)));
   const u=new Uint8Array(x.length/2);for(let i=0;i<u.length;i++)u[i]=parseInt(x.substr(i*2,2),16);
   return new Blob([u],{type:'audio/mpeg'})}
-async function speak(text,c,key){const s=cleanSpeak(text);if(!s)return;const T=S.media.tts;
+async function speak(text,c,key){const s=cleanSpeak(text);if(!s)return;const T=S.media.tts;if(T.off||c?.voice?.off)return;
   if(!T.key||!mmRoot()||!(c?.voice?.vid||T.voice))return;{if(key)key+='|'+(c?.voice?.vid||T.voice)+'|'+(c?.voice?.rate||1);try{let blob=key?await DB.get('tts:'+key):null;if(!(blob instanceof Blob)){blob=await ttsAudio(s,c);if(key)DB.set('tts:'+key,blob)}
       return await new Promise(res=>{try{vAudio&&vAudio.pause()}catch(e){}vAudio=new Audio(URL.createObjectURL(blob));let done=false;const fin=()=>{if(!done){done=true;res()}};vAudio.onended=vAudio.onerror=fin;vAudio.play().catch(fin)})}
     catch(e){if(!ttsWarned){ttsWarned=true;toast(e.message,5600)}}}}
@@ -2517,10 +2520,11 @@ charEdit(v){
   return{title:dn(c),sub:'角色',body:`
   <div class="panel"><div class="inline">${av(c,76)}<div class="btns">${fileBtn('换头像','accept="image/*" data-img="char"')}${c.avatarOld!==undefined?'<button class="btn o" data-a="charAvBack">换回</button>':''}${c.avatar?'<button class="btn o" data-a="clearCharAv">去掉</button>':''}</div></div>
     <div class="grid2"><label class="f">名字<input type="text" id="c-name" data-s="char" data-k="name" value="${esc(c.name)}"></label><label class="f">备注<input type="text" id="c-remark" data-s="char" data-k="remark" value="${esc(c.remark)}" placeholder="你给TA的备注"></label></div>
-    ${String(c.persona||'').trim()||pOpen===c.id?`<label class="f">人设<textarea class="tall" id="c-persona" data-s="char" data-k="persona" aria-label="人设">${esc(c.persona)}</textarea></label>`:`<button class="tb" data-a="pOpen" data-id="${c.id}" style="align-self:flex-start">写人设</button>`}<button class="tb" data-a="txHist" data-id="${c.id}" style="align-self:flex-start">人设历史</button></div>
+    <label class="f">人设<textarea class="tall" id="c-persona" data-s="char" data-k="persona" aria-label="人设">${esc(c.persona)}</textarea></label><button class="tb" data-a="txHist" data-id="${c.id}" style="align-self:flex-start">人设历史</button></div>
   <div class="panel"><h2>声音</h2><label class="f">音色<input type="text" id="c-vid" data-s="cvoice" data-k="vid" value="${esc(c.voice?.vid||'')}" placeholder="${esc(S.media.tts.voice||'跟设置里的一样')}" autocomplete="off"><button class="tb" data-a="fetchVoices" data-c="${c.id}" style="align-self:flex-start;padding:4px 0">拉取音色</button></label>
     <div class="grid2"><label class="f">语速<input type="number" id="c-vrate" data-s="cvoice" data-k="rate" value="${esc(c.voice?.rate||'')}" placeholder="1" min="0.5" max="2" step="0.1"></label>
     <label class="f">语言<input type="text" id="c-vlang" data-s="cvoice" data-k="lang" value="${esc(c.voice?.lang||'')}" placeholder="照人设" autocomplete="off"></label></div>
+    <label class="ck"><input type="checkbox" data-s="cvoice" data-k="off" ${c.voice?.off?'checked':''}>不放TA的声音</label>
     <button class="btn o" data-a="tryVoice" style="align-self:flex-start">试听</button></div>
   <div class="btns"><button class="btn" data-a="messageChar" data-id="${c.id}">发消息</button><button class="btn o" data-a="exportChar">导出</button>${rel(c).youBlocked?`<button class="btn o" data-a="unblockC" data-id="${c.id}">解除拉黑</button>`:''}<button class="btn red" data-a="delChar">删除好友</button></div>`};
 },
@@ -2699,6 +2703,7 @@ settings(v){
       <label class="f">Key<input type="password" id="mt-key" data-s="mtts" data-k="key" value="${esc(T.key)}" autocomplete="off"></label>
       <div class="grid2"><label class="f">模型<input type="text" id="mt-model" data-s="mtts" data-k="model" value="${esc(T.model)}" autocomplete="off"><button class="tb" data-a="fetchModels" data-t="tts" style="align-self:flex-start;padding:4px 0">拉取模型列表</button></label>
       <label class="f">音色<input type="text" id="mt-voice" data-s="mtts" data-k="voice" value="${esc(T.voice)}" autocomplete="off"><button class="tb" data-a="fetchVoices" style="align-self:flex-start;padding:4px 0">拉取音色</button></label></div>
+      <label class="ck"><input type="checkbox" data-s="mtts" data-k="off" ${T.off?'checked':''}>不放声音</label>
       <button class="btn o" data-a="testTts" style="align-self:flex-start">测试连接</button></div>`}}
   const D=VIEWS.data(v);
   return{title:'设置',body:head+D.body+`
@@ -2759,9 +2764,7 @@ function pickChar(title,act){if(!S.chars.length){toast('先在通讯录添加角
   sheet(`<h3>${title}</h3>`+S.chars.map(c=>`<button class="opt l" data-a="${act}" data-id="${c.id}">${av(c,32)}<span>${esc(dn(c))}</span></button>`).join('')+`${CANCEL}`)}
 function fileSheet(title,accept,id,extra=''){sheet(`<h3>${title}</h3>${extra}<label class="opt filebtn">选择文件<input type="file" accept="${accept}" id="${id}"></label><textarea id="${id}Ta" aria-label="JSON"></textarea><button class="btn" data-a="${id}Go">导入</button>${CANCEL}`)}
 async function copy(t,ok){try{await navigator.clipboard.writeText(t);toast(ok)}catch(e){toast('复制不了，长按文字手动复制')}}
-let pOpen='';
 const A={
-  pOpen(el){pOpen=el.dataset.id;render(true);setTimeout(()=>$('#c-persona')?.focus(),50)},
   back,closeSheet,
   open(el){closeSheet();if(!appEl.classList.contains('open')){stack=[];const r=el.getBoundingClientRect();appEl.style.transformOrigin=`${r.left+r.width/2}px ${r.top+r.height/2}px`}go(el.dataset.t?{v:el.dataset.v,tab:el.dataset.t}:{v:el.dataset.v})},
   coax(){const t=thread(cur().id),c=charById(t.chars[0]);
