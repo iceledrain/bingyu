@@ -1334,14 +1334,14 @@ function stripForeign(out,keep){if(keep)return{out,plan:''};const cjk=x=>(x.matc
   for(;k<lines.length;k++){const l=lines[k];if(!l.trim())continue;if(/^\s*[\[<]/.test(l)||cjk(l)*6>lat(l))break;n+=lat(l)}
   const head=lines.slice(0,k).join('\n').trim(),rest=lines.slice(k).join('\n').trim();
   return n>=120&&rest&&cjk(rest)>lat(rest)?{out:rest,plan:head}:{out,plan:''}}
-const PLAN_CUE=/(告诉|回|跟|哄|逗|安慰|应付)(她|他|TA)|别(显得|让(她|他|TA)|表现)|(她|他|TA)(突然|又|居然|竟然|怎么)?(问我|在问)|装作|打算|先回|就行|语气|自然点|随口带过/;
+const PLAN_CUE=/(告诉|回|跟|哄|逗|安慰|应付)(她|他|TA)|别(显得|让(她|他|TA)|表现)|(她|他|TA)(突然|又|居然|竟然|怎么)?(问我|在问)|装作|先回|就行|语气|自然点|随口带过/;
 const MULL_CUE=/什么意思|啥意思|试探|在不在乎|在乎|太明显|很明显|不乐意|不高兴|报备|故意|是不是想|想看我|显得|装作|装得|抓着|不放|别让|不能让|吃醋|先别|怎么回|该怎么|不动声色|表现得|冷淡点|淡定点|随口|带过|算了|先晾|晾着|反应|打算|语气/g;
 const mulls=l=>new Set(l.match(MULL_CUE)||[]).size;
 function stripPlan(out){const me=mask().name,lines=out.split('\n');
-  const who=new RegExp('她|他|TA'+(me?'|'+me.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'):''));
+  const who=new RegExp('她|TA'+(me&&me!=='user'?'|'+me.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'):''));
   while(lines.length>1){const l=lines[0].trim();if(!l){lines.shift();continue}
     if(/你|您|[\[<？?｜|]/.test(l))break;
-    if(!(who.test(l)&&PLAN_CUE.test(l))&&mulls(l)<3)break;lines.shift()}
+    if(!(who.test(l)&&PLAN_CUE.test(l)&&mulls(l))&&mulls(l)<3)break;lines.shift()}
   return lines.join('\n').trim()||out}
 function extractExtras(out,chat=true,group=false,keep=false){
   out=String(out).replace(/<\/t>/gi,'</think>').replace(new RegExp(`<(${THINK_TAG})>[\\s\\S]*?<\\/\\1>`,'gi'),'').replace(new RegExp(`^[\\s\\S]*?<\\/(?:${THINK_TAG})>`,'i'),'');
