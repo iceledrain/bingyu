@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.25.38';</script>
+<script>window.BYJ_VER='2026.11.25.39';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1269,7 +1269,7 @@ function buildCtx(t,o={}){
   }else{
     rules.push(group?`这是手机群聊，只写${cname}发的。大家都看得见彼此的话，会接话、叫人、搭腔拌嘴，谁有话谁开口。熟不熟看人设和世界书，没写的就是在这个群里才认识。待不下去写 名字：[退群]；想拉人写 名字：[邀请:名字]${(o=>o.length?'（能拉：'+o.join('、')+'）':'')(S.chars.filter(c=>visible(c)&&!chars.some(y=>y.id===c.id)).map(c=>c.name))}。`
       :`你在手机上跟${me.name}发消息，一行一个气泡。说什么、热不热情，看你的性子和此刻对${me.name}的感觉。${me.name}发来的你都会回。想了就说，问在哪、在干嘛，发语音、拍照片、打电话都行。人设和世界书没写异地，就是同城。`);
-    if(!group&&chars[0])rules.push(`你这会儿在某个地方做着某件事，会顺口提一句；过一阵做完了，换下一件。${me.name}找你，先顾${me.name}。`);
+    if(!group&&chars[0])rules.push(`你这会儿在某个地方做着某件事，会顺口提一句；过一阵做完了，换下一件。你说了自己在做什么，那就是你在做；${me.name}那边在做什么，听${me.name}说。${me.name}找你，先顾${me.name}。`);
     rules.push('回复1-6句，每句1-10个字，遇到逗号就分行，长句分为多条消息发送，单字单字母单标点符号均可发，还可发emoji/颜文字/表情包');
     if(group)rules.push('群聊：每条前面写发的人的名字加冒号');
     if(!group&&chars[0]&&mode==='online'){const lg=leftGroups(chars[0]);if(lg.length)ctxs.push(`【退过的群】你退了${lg.map(g=>'「'+threadTitle(g)+'」').join('、')}，想回去就写 [回群]。`)}
@@ -1280,7 +1280,7 @@ function buildCtx(t,o={}){
     if(t.msgs.slice(-8).some(m=>m.type==='roll')){roll={dice:rollNow('dice'),rps:rollNow('rps')};tail.push(`【骰子猜拳】这轮你发 [骰子] 会是${roll.dice}点，发 [猜拳] 会出${roll.rps}。`)}
     const hs=n=>[...n].reduce((h,c)=>Math.imul(h^c.charCodeAt(0),16777619)>>>0,2166136261),st=allStickers().map(s=>s.name).filter(Boolean).sort((x,y)=>hs(x)-hs(y)||(x<y?-1:1)).slice(0,300);if(st.length)sp.push('发表情包 [表情:表情名]（有：'+st.join('、')+'）');
     if(!group)sp.push('打语音电话 [语音通话]','打视频电话 [视频通话]');
-    rules.push('下面这些单独占一行，方括号照写，冒号后面填自己的：\n'+sp.join('\n')+'\n想用就用。拍照写清拍到了什么，自拍写清长相、神态、穿着。'+(group?'':'发多少钱看你的身份和这件事的分量。'));
+    rules.push('下面这些单独占一行，方括号照写，冒号后面填自己的：\n'+sp.join('\n')+'\n想用就用。拍照写清拍到了什么，自拍写清长相、神态、穿着。'+(group?'':`${me.name}说想看你、要照片，就当场拍一张发过去。`)+(group?'':'发多少钱看你的身份和这件事的分量。'));
     if(!group&&chars[0]){const cs=cardsNow().filter(k=>k.charId===chars[0].id),q=k=>(k.limit?`月额度${money(k.limit)}`:'不限额')+`，本月用了${money(k.used)}`;
       const mine=cs.filter(k=>k.dir!=='out'),theirs=cs.filter(k=>k.dir==='out');
       if(cs.length)tail.push(`【亲属卡】${mine.length?`你给${me.name}开了（${mine.map(q).join('；')}）。`:''}${theirs.length?`${me.name}给你开了（${theirs.map(q).join('；')}），用时写 [刷亲属卡:东西:金额]。`:''}`)}
@@ -1296,7 +1296,7 @@ function buildCtx(t,o={}){
   rules.push(`${group?cname+'的':''}心情跟着眼前的事走，也会因为${me.name}一句话就变。闹别扭只在嘴上，${me.name}一哄就软。`);
   {const md=chars.filter(c=>c.mood).map(c=>`${c.name}：${c.mood}`);if(md.length)tail.push('【心情】\n'+md.join('\n'))}
   if(mode!=='call')rules.push(`${chars.some(c=>String(c.persona||'').trim())?`人设写的就是${group?cname:'你'}。`:''}和${me.name}之间只提真发生过的事。`);
-  if(!group&&mode!=='call')rules.push(mode==='offline'?'开头先写一行 <think>…</think>：此刻你心里怎么想、接下来想做什么，一两句，你自己的口气':`开头先写一行 <think>…</think>：看到${me.name}这几条，你心里第一下怎么想、打算怎么回，一两句，你自己的口气`);
+  if(!group&&mode!=='call')rules.push(mode==='offline'?'开头先写一行 <think>…</think>：此刻你心里怎么想、接下来想做什么，一句话，二十个字以内，你自己的口气':`开头先写一行 <think>…</think>：看到${me.name}这几条，你心里第一下怎么想，一句话，二十个字以内，你自己的口气`);
   if(!group&&mode!=='call')rules.push('末尾另起一行写此刻的心情 [心情:词]，词从这些里挑一个：'+MOODS.join('、'));
   if(!group&&mode==='online')rules.push('再另起一行写此刻没说出口的心里话 [心声:内容]，8字以内，句子、词语、单字、一个符号都行');
   const pre=items.filter(i=>i.role!=='system'&&!inChat(i)).map(i=>({role:i.role,content:mac(i.content)}));
@@ -1352,6 +1352,7 @@ function splitStickers(line,roll){const out=[];let rest=line;const re=/\[(?:(sti
     else{const p=v.split(/[:：]/),a=Math.round((parseFloat(String(p[0]).replace(/[^\d.]/g,''))||5.2)*100)/100;out.push({type:k==='红包'?'hb':'tf',amt:Math.max(.01,a),content:p.slice(1).join('：').trim()||(k==='红包'?'恭喜发财':''),state:'new'})}
     rest=rest.slice(m.index+m[0].length)}
   rest=hit?cl(rest):rest.trim();if(rest)out.push({type:'text',content:rest});return out}
+const thinkCut=x=>{const s=(String(x).match(/[^。！？!?…\n]+[。！？!?…]*/g)||[]).map(y=>y.trim()).filter(Boolean).slice(0,2).join('');return[...s].slice(0,60).join('')};
 const THINK_TAG='think|thinking|thought|thoughts|reasoning|analysis|思考|思维链|盘算';
 function stripForeign(out,keep){if(keep)return{out,plan:''};const cjk=x=>(x.match(/[\u3400-\u9fff]/g)||[]).length,lat=x=>(x.match(/[A-Za-z]/g)||[]).length;
   const lines=out.split('\n');let k=0,n=0;
@@ -1378,7 +1379,7 @@ function extractExtras(out,chat=true,group=false,keep=false){
   let hs='';out=out.replace(/\[心声[:：]\s*([^\]\n]*)\]/g,(_,x)=>{hs=noTail([...noTail(x)].slice(0,8).join(''))||hs;return''});
   out=out.replace(/\[送亲属卡[:：]\s*([\d.]*)[^\]]*\]/g,(_,a)=>{cards.push({give:1,amt:Math.max(0,+a||0)});return''}).replace(/\[刷亲属卡[:：]([^:：\]]+)[:：]\s*([\d.]+)[^\]]*\]/g,(_,w,a)=>{cards.push({what:w.trim(),amt:+a||0});return''});
   out=out.replace(/\[已读不回\]/g,'[沉默]').replace(/\[(拉黑|解除拉黑|删除好友|沉默|收下|退回|代付|不付|语音通话|视频通话|拒接|挂断|查手机|回群)\]/g,(_,x)=>{acts.push(x);return''});
-  return{text:out.trim(),mood,acts,cards,hs,think:[...think].slice(0,300).join('')};
+  return{text:out.trim(),mood,acts,cards,hs,think:thinkCut(think)};
 }
 const AWM=/^\s*[#＃]\s*(\d{1,2})(?:\s*[.、:：)）]\s*|\s+|$)(.*)$/;
 async function sortLeak(ex,ctx){const lines=ex.text.split('\n').map(l=>l.trim()).filter(Boolean),mark=l=>/^\[[^\]]+\]$/.test(l)||AWM.test(l);
