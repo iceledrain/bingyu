@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.25.23';</script>
+<script>window.BYJ_VER='2026.11.25.24';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -135,7 +135,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .stack{display:flex}.stack .av{margin-left:-14px;box-shadow:0 0 0 2px var(--bg)}.stack .av:first-child{margin-left:0}
 .empty{text-align:center;color:var(--muted);padding:44px 12px;display:flex;flex-direction:column;align-items:center;gap:10px}
 .empty big{font:400 26px var(--display);color:var(--ink)}
-.chat{gap:15px}
+.chat{gap:10px}
 .msg,.narr,.stamp,[data-hold]{-webkit-touch-callout:none}[data-hold]{-webkit-user-select:none;user-select:none}
 .msg{display:flex;gap:8px;align-items:flex-start}
 .msg.me{justify-content:flex-end}
@@ -460,7 +460,7 @@ html.wp .ic-g::before{background:var(--bub-ai)}
 html.wp:not(.dark) .ic-g{color:var(--deep)}html.wp:not(.dark) .ic-g svg{filter:none}
 html.wp .polaroid,html.wp .ava .av,html.wp .chat .bub,html.wp .chat .stamp{-webkit-backdrop-filter:var(--frost);backdrop-filter:var(--frost)}
 html.wp .chat .stamp{background:var(--bub-ai)}
-html.wp .chat .tphoto{color:var(--ink)}html.wp .chat :is(.order,.callcard,.hb,.tphoto,.qt,.locc){background:var(--bub-ai);-webkit-backdrop-filter:var(--frost);backdrop-filter:var(--frost)}
+html.wp .chat .tphoto{color:var(--ink)}html.wp .chat :is(.order,.callcard,.hb,.locc){--ac:var(--bub-ai)}html.wp .chat :is(.order,.callcard,.hb,.tphoto,.qt,.locc){background:var(--bub-ai);-webkit-backdrop-filter:var(--frost);backdrop-filter:var(--frost)}
 html.wp .content.offv,html.wp .content.mo{background:var(--bub);-webkit-backdrop-filter:blur(26px) saturate(1.4);backdrop-filter:blur(26px) saturate(1.4)}
 html.wp :is(.bar,.foot){background:none;-webkit-backdrop-filter:none;backdrop-filter:none;-webkit-clip-path:inset(0);clip-path:inset(0)}
 html.wp :is(.bar,.foot)::before{content:"";position:fixed;inset:-40px;z-index:-1;background:var(--wp) center/cover no-repeat;filter:blur(18px) saturate(1.5)}
@@ -550,20 +550,16 @@ html.dark .mo-pic.tp{background:linear-gradient(150deg,#303030,#212121 60%,#2929
 .mbar .sq{width:38px;height:38px;flex:none;border-radius:50%;background:var(--accent-soft);border:0;display:grid;place-items:center;color:var(--deep);padding:0}.mbar .sq svg{width:18px;height:18px;display:block}
 .mbar .meta{flex:1;min-width:0;display:flex;flex-direction:column}.mbar .meta b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mbar .meta small{color:var(--muted);font-size:12px}
 .grpav.big{width:96px;height:96px}
-.locc{width:240px;max-width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:6px;background:var(--panel);padding:0;overflow:hidden;display:flex;flex-direction:column;text-align:left;color:var(--ink);font:inherit}
+.locc{width:240px;max-width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:6px;background:var(--panel);padding:0;display:flex;flex-direction:column;text-align:left;color:var(--ink);font:inherit}
 .locc b{font-weight:400;font-size:16px;padding:9px 12px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .locc small{font-size:11.5px;color:var(--muted);padding:1px 12px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lmap{height:84px;margin-top:8px;display:grid;place-items:center;background:linear-gradient(115deg,transparent 45%,rgba(127,127,127,.28) 45% 47.5%,transparent 47.5%),linear-gradient(8deg,transparent 58%,rgba(127,127,127,.2) 58% 60%,transparent 60%),linear-gradient(90deg,transparent 28%,rgba(127,127,127,.16) 28% 29%,transparent 29%),linear-gradient(0deg,transparent 30%,rgba(127,127,127,.14) 30% 31.5%,transparent 31.5%),var(--accent-soft)}
+.lmap{height:84px;margin-top:8px;border-radius:0 0 5px 5px;display:grid;place-items:center;background:linear-gradient(115deg,transparent 45%,rgba(127,127,127,.28) 45% 47.5%,transparent 47.5%),linear-gradient(8deg,transparent 58%,rgba(127,127,127,.2) 58% 60%,transparent 60%),linear-gradient(90deg,transparent 28%,rgba(127,127,127,.16) 28% 29%,transparent 29%),linear-gradient(0deg,transparent 30%,rgba(127,127,127,.14) 30% 31.5%,transparent 31.5%),var(--accent-soft)}
 .lmap svg{width:30px;height:30px;color:#35b56a;fill:currentColor;stroke:#fff;stroke-width:1.4;margin-top:-10px}
 :root{--hrt:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21.4C5.4 16.5 1.8 12.7 1.8 8.6 1.8 5.4 4.3 3 7.3 3c1.9 0 3.6 1 4.7 2.6C13.1 4 14.8 3 16.7 3c3 0 5.5 2.4 5.5 5.6 0 4.1-3.6 7.9-10.2 12.8z'/%3E%3C/svg%3E")}
-.chat .msg.ai .bub{--lc:var(--panel)}.chat .msg.me .bub{--lc:var(--accent)}html.dark .chat .msg.me .bub{--lc:var(--bub-me)}html.wp .chat .msg.ai .bub{--lc:var(--bub-ai)}html.wp .chat .msg.me .bub{--lc:var(--bub-me)}
-:root{--lace:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath fill-rule='evenodd' d='M8 8a4 4 0 0 1 8 0zM11.1 5.7a.9.9 0 1 0 1.8 0a.9.9 0 1 0-1.8 0zM8 16a4 4 0 0 0 8 0zM11.1 18.3a.9.9 0 1 0 1.8 0a.9.9 0 1 0-1.8 0zM8 8a4 4 0 0 0 0 8zM4.8 12a.9.9 0 1 0 1.8 0a.9.9 0 1 0-1.8 0zM16 8a4 4 0 0 1 0 8zM17.4 12a.9.9 0 1 0 1.8 0a.9.9 0 1 0-1.8 0zM8 8H4a4 4 0 0 1 4-4zM16 8V4a4 4 0 0 1 4 4zM8 16v4a4 4 0 0 1-4-4zM16 16h4a4 4 0 0 1-4 4z'/%3E%3C/svg%3E")}
-.chat .msg .col>.bub{border-color:transparent;border-radius:0!important}
-.chat .msg .col>.bub::after{content:"";position:absolute;inset:-8px;pointer-events:none;background:var(--lc);-webkit-mask-box-image:var(--lace) 8 / 7px round;mask-border:var(--lace) 8 / 7px round}
-.chat .msg .col>.bub::before{display:none}
-.lace{flex:none;height:0;position:relative;z-index:3;pointer-events:none}
-.lace::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:radial-gradient(circle at 50% 0,var(--panel) 3.6px,transparent 4.1px) 50% 0/8px 4px repeat-x;-webkit-mask:radial-gradient(circle at 50% 1.9px,transparent .7px,#000 1.1px) 50% 0/8px 4px repeat-x;mask:radial-gradient(circle at 50% 1.9px,transparent .7px,#000 1.1px) 50% 0/8px 4px repeat-x}
-.lace.up::before{top:auto;bottom:0;background:radial-gradient(circle at 50% 100%,var(--panel) 3.6px,transparent 4.1px) 50% 0/8px 4px repeat-x;-webkit-mask-position:50% 2.1px;mask-position:50% 2.1px}
+.chat .msg .col>:is(.order,.hb,.locc,.scard,.callcard){position:relative}.scard{--ac:var(--bub)}.chat .msg.me .callcard{--ac:var(--accent)}html.dark .chat .msg.me .callcard{--ac:var(--bub-me)}
+.chat .msg .col>:is(.order,.hb,.locc,.scard,.callcard)::before{content:"";position:absolute;top:11px;width:0;height:0;border:6px solid transparent}
+.chat .msg.ai .col>:is(.order,.hb,.locc,.scard,.callcard)::before{left:-12px;border-right-color:var(--ac,var(--panel))}
+.chat .msg.me .col>:is(.order,.hb,.locc,.scard,.callcard)::before{right:-12px;border-left-color:var(--ac,var(--panel))}
 </style>
 </head>
 <body>
@@ -960,8 +956,8 @@ function render(keep){$('#mpop')?.remove();
   try{r=VIEWS[v.v](v)}catch(e){console.error(e);toast('这个页面打不开：'+(e.message||e));stack.pop();if(stack.length)render();else{appEl.classList.remove('open');renderHome()}return}const sc=keep?$('#content')?.scrollTop:0;
   const kept={};if(keep)for(const id of ['msgIn','postIn','replyIn','callIn','mi-try']){const x=document.getElementById(id);if(x&&x.value)kept[id]=x.value}
   const wp=S.look.wallpaper||'',wall=appEl.querySelector(':scope>.wall2')||Object.assign(document.createElement('div'),{className:'wall2 wall'});
-  appEl.innerHTML=`<header class="bar">${r.noBack?(r.left||'<span></span>'):`<button class="bk" data-a="back" aria-label="返回">${ICONS.back}<span>返回</span></button>`}<h1>${r.head||esc(r.title)+(r.sub?`<small>${esc(r.sub)}</small>`:'')}</h1><div class="br">${r.right||''}</div></header><i class="lace"></i>
-  <main class="content ${r.cls||''}" id="content">${r.body}</main>${r.foot?`<i class="lace up"></i><footer class="foot ${r.footCls||''}">${r.foot}</footer>`:''}`;
+  appEl.innerHTML=`<header class="bar">${r.noBack?(r.left||'<span></span>'):`<button class="bk" data-a="back" aria-label="返回">${ICONS.back}<span>返回</span></button>`}<h1>${r.head||esc(r.title)+(r.sub?`<small>${esc(r.sub)}</small>`:'')}</h1><div class="br">${r.right||''}</div></header>
+  <main class="content ${r.cls||''}" id="content">${r.body}</main>${r.foot?`<footer class="foot ${r.footCls||''}">${r.foot}</footer>`:''}`;
   if(wall._wp!==wp){wall._wp=wp;wall.style.removeProperty('background');if(wp)wall.style.setProperty('background',`url("${String(wp).replace(/"/g,'%22')}") center/cover no-repeat`,'important')}appEl.prepend(wall);
   for(const id in kept){const x=document.getElementById(id);if(x)x.value=kept[id]}
   if(keep)$('#content').scrollTop=sc;r.after&&r.after();paintCanvas();fillPics();
