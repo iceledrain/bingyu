@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.25.31';</script>
+<script>window.BYJ_VER='2026.11.25.32';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1375,7 +1375,7 @@ const demd=x=>String(x)
   .replace(/^\s{0,3}#{1,6}\s+/gm,'');
 const noTail=y=>String(y||'').trim().replace(/(?<=[\p{L}\p{N}])[。．.，,、；;：:！!～~…—\s]+$/u,'');
 function casual(line){if(/\[/.test(line)||/^[\p{P}\p{S}\s]+$/u.test(line))return[line];
-  return line.split(/(?<!。)。(?!。)|\s*，\s*|\s*,\s*(?=[\u3400-\u9fff])|(?<=[\u3400-\u9fff！？!?~～…])\s+(?=[\u3400-\u9fff])/).map(x=>(x||'').replace(/[\s，,、；;]+$/,'').replace(/(?<!。)。$/,'').trim()).filter(Boolean)}
+  return line.split(/(?<=(?<!。)。)(?!。|$)|\s*，\s*|\s*,\s*(?=[\u3400-\u9fff])|(?<=[\u3400-\u9fff！？!?~～…])\s+(?=[\u3400-\u9fff])/).map(x=>(x||'').replace(/[\s，,、；;]+$/,'').trim()).filter(Boolean)}
 function offFix(out){return String(out||'').replace(/“([^”\n]*)”/g,'「$1」').replace(/"([^"\n]*)"/g,'「$1」')}
 function parseReply(out,ctx){
   out=rx(demd(out),'ai','in');
