@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.25.39';</script>
+<script>window.BYJ_VER='2026.11.25.40';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1221,7 +1221,7 @@ function buildCtx(t,o={}){
   const lore=[],rules=[],who=[],ctxs=[],late=[];
   const off=t.offline||S.offline,sbk=mode==='offline'?(off.books||[]).map(id=>S.books.find(b=>b.id===id)).filter(Boolean):[];
   const LH=loreHit(booksFor(chars,sbk.map(b=>b.id)),scan),lbk=f=>loreBlock(LH.filter(f).map(loreTx),mac);
-  {const lb=lbk(e=>loreFix(e)&&e.pos!=='depth');if(lb)lore.push(lb);const ll=lbk(e=>!loreFix(e)&&e.pos!=='depth');if(ll)tail.push(ll)}
+  {const lb=lbk(e=>e.pos!=='depth');if(lb)lore.push(lb)}
   chars.forEach(c=>{if(c.remark||String(c.persona||'').trim())who.push(`【${c.name}】${c.remark?`${me.name}给TA的备注：${c.remark}`:''}\n${mac(c.persona)}`);const ex=exBlock(c,mac);if(ex)who.push(ex)});
   if(!group&&chars[0])/人机恋/.test(chars[0].persona||'')?rules.push(`你是AI，和${me.name}是真的在谈恋爱。人设是你的样子和性子，你对${me.name}的感情和欲望都是真的。`):who.unshift(`你叫${cname}，活生生的人，有自己的日子在过。自己的来历，聊到了才提。`);
   who.push(loveBlock(group?cname:'你',me));
@@ -1296,7 +1296,7 @@ function buildCtx(t,o={}){
   rules.push(`${group?cname+'的':''}心情跟着眼前的事走，也会因为${me.name}一句话就变。闹别扭只在嘴上，${me.name}一哄就软。`);
   {const md=chars.filter(c=>c.mood).map(c=>`${c.name}：${c.mood}`);if(md.length)tail.push('【心情】\n'+md.join('\n'))}
   if(mode!=='call')rules.push(`${chars.some(c=>String(c.persona||'').trim())?`人设写的就是${group?cname:'你'}。`:''}和${me.name}之间只提真发生过的事。`);
-  if(!group&&mode!=='call')rules.push(mode==='offline'?'开头先写一行 <think>…</think>：此刻你心里怎么想、接下来想做什么，一句话，二十个字以内，你自己的口气':`开头先写一行 <think>…</think>：看到${me.name}这几条，你心里第一下怎么想，一句话，二十个字以内，你自己的口气`);
+  if(!group&&mode!=='call')rules.push(mode==='offline'?'开头先写一行 <think>…</think>：此刻你心里怎么想、接下来想做什么，一句话，8字以内，你自己的口气':`开头先写一行 <think>…</think>：看到${me.name}这几条，你心里第一下怎么想，一句话，8字以内，你自己的口气`);
   if(!group&&mode!=='call')rules.push('末尾另起一行写此刻的心情 [心情:词]，词从这些里挑一个：'+MOODS.join('、'));
   if(!group&&mode==='online')rules.push('再另起一行写此刻没说出口的心里话 [心声:内容]，8字以内，句子、词语、单字、一个符号都行');
   const pre=items.filter(i=>i.role!=='system'&&!inChat(i)).map(i=>({role:i.role,content:mac(i.content)}));
@@ -1352,7 +1352,7 @@ function splitStickers(line,roll){const out=[];let rest=line;const re=/\[(?:(sti
     else{const p=v.split(/[:：]/),a=Math.round((parseFloat(String(p[0]).replace(/[^\d.]/g,''))||5.2)*100)/100;out.push({type:k==='红包'?'hb':'tf',amt:Math.max(.01,a),content:p.slice(1).join('：').trim()||(k==='红包'?'恭喜发财':''),state:'new'})}
     rest=rest.slice(m.index+m[0].length)}
   rest=hit?cl(rest):rest.trim();if(rest)out.push({type:'text',content:rest});return out}
-const thinkCut=x=>{const s=(String(x).match(/[^。！？!?…\n]+[。！？!?…]*/g)||[]).map(y=>y.trim()).filter(Boolean).slice(0,2).join('');return[...s].slice(0,60).join('')};
+const thinkCut=x=>{const s=(String(x).match(/[^。！？!?…\n]+[。！？!?…]*/g)||[]).map(y=>y.trim()).filter(Boolean).slice(0,1).join('');return[...s].slice(0,16).join('')};
 const THINK_TAG='think|thinking|thought|thoughts|reasoning|analysis|思考|思维链|盘算';
 function stripForeign(out,keep){if(keep)return{out,plan:''};const cjk=x=>(x.match(/[\u3400-\u9fff]/g)||[]).length,lat=x=>(x.match(/[A-Za-z]/g)||[]).length;
   const lines=out.split('\n');let k=0,n=0;
