@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.25.14';</script>
+<script>window.BYJ_VER='2026.11.25.15';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -719,7 +719,7 @@ const def=()=>({v:4,regex:[],loc:null,wx:{},
   masks:[{id:'m1',name:'user',avatar:'',bday:'',persona:''}],activeMask:'m1',wallet:520,
   chars:[],books:[],
   presets:[{id:'p1',name:'默认',items:DEFAULT_ITEMS()}],activePreset:'p1',loreV:1,coreV:1,
-  offline:{style:OFF_STYLE_DEF,words:500,cpov:'third',upov:'second',evRate:10,lead:'char',books:[]},
+  offline:{style:OFF_STYLE_DEF,words:1000,cpov:'third',upov:'second',evRate:10,lead:'char',books:[]},
   offStyles:[],cards:[],personaTpls:[{id:'pt1',name:'基础模板',text:PERSONA_TPL}],
   threads:[],feed:[],orders:[],shop:{food:[],goods:[]},days:[],
   music:{songs:[],cur:null,with:null,mode:'all'},
@@ -754,8 +754,8 @@ function mergeState(d){
   s.threads.forEach(t=>{delete t.face});delete s.chat.face;delete s.chat.faceLen;delete s.chat.faceStyle;
   if(!s.evV2){s.evV2=1;for(const o of [s.offline,...s.threads.map(t=>t.offline).filter(Boolean)])if(+o.evRate===30)o.evRate=10}
 for(const K of['evWipe','memWipe'])if(!s[K]||typeof s[K]!=='object')s[K]={};if(!Array.isArray(s.evGone))s.evGone=[];evWipeApply(s);
-  const w5=!s.offW5;s.offW5=1;
-  for(const o of [s.offline,...s.threads.map(t=>t.offline).filter(Boolean)]){if(o.style===OFF_STYLE_OLD)o.style=OFF_STYLE_DEF;if(!(+o.words)||(w5&&+o.words===900))o.words=500;
+  const w6=!s.offW6;s.offW6=1;delete s.offW5;
+  for(const o of [s.offline,...s.threads.map(t=>t.offline).filter(Boolean)]){if(o.style===OFF_STYLE_OLD)o.style=OFF_STYLE_DEF;if(!(+o.words)||(w6&&+o.words===500))o.words=1000;
     if(!o.cpov){const v=o.pov;o.cpov=v==='first'?'first':'third';o.upov='second'}delete o.pov;if(o.cpov==='first'&&o.upov==='first')o.upov='second';o.books=Array.isArray(o.books)?o.books.filter(id=>s.books.some(b=>b.id===id)):[]}
   {const T=s.media.tts;delete T.provider;if(!T.ttsV){if(T.model==='speech-02-hd')T.model='';if(T.voice==='female-shaonv')T.voice='';T.ttsV=1}}
   s.chars.forEach(c=>{delete c.heart;delete c.nowDoing;if(c.rel)delete c.rel.soft;const x=String(c.lore||'').trim();if(x){const b={id:uid(),name:(c.name||'角色')+'的设定',scope:'local',entries:[{id:uid(),title:'设定',keys:'',content:x,light:'green',order:0,prob:100}]};s.books.push(b);(c.books||=[]).push(b.id)}delete c.lore});
@@ -1405,7 +1405,7 @@ function buildCtx(t,o={}){
   {const L=chars.filter(langOf);if(L.length)rules.push(`语言：${L.map(c=>`${c.name}开口只说${langOf(c)}`).join('，')}，方括号里的标签名照写`)}
   if(tail.length){let k=msgs.length;while(k>0&&msgs[k-1].role==='user'&&k>pre.length)k--;const last=msgs.slice(k).some(x=>!x.dep);
     msgs.splice(k,0,{role:'user',content:`（此刻的情况，系统告诉你的）\n`+tail.join('\n\n')+(last?`\n\n（下面是${me.name}${mode==='online'?group?'刚发的；前面的已经接过了，群里接着往下聊':'刚发的，主要回这几条；前面的已经回过了':'发的'}）`:'')})}
-  if(mode==='offline'){const w=num(off.words)||500,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字）`,last=msgs[msgs.length-1];
+  if(mode==='offline'){const w=num(off.words)||1000,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字）`,last=msgs[msgs.length-1];
     if(last&&last.role==='user')last.content+='\n\n'+note;else msgs.push({role:'user',content:note})}
   const tx=a=>a.map(o=>o.x).filter(Boolean);
   const head=[];let cut=0;{const sysI=items.filter(i=>i.role==='system'&&!inChat(i)),add=i=>{if(i.mk==='lore')head.push(...lore.map(x=>({s:'世界书',x})));else if(i.mk==='who')head.push(...who.map(x=>({s:'人设',x})));else head.push({s:'预设',x:mac(i.content),iid:i.id});if(i.mk)cut=tx(head).join('\n\n').length};
@@ -1652,7 +1652,7 @@ async function reply(t,extra,stamps){
     await Promise.all([...STKP.values(),ensureWx(S.loc),...t.chars.map(id=>ensureWx(charById(id)?.loc))].map(p=>p.catch(()=>{})));
     if(stamps&&[...t.msgs].reverse().find(m=>m.type!=='sys')?.from==='me')return;
     await linkLoad(t);const ctx=buildCtx(t,{ev:1,pro:!!extra}),at=t.msgs.length,tg=extra?{tag:'auto'}:{};if(extra)ctx.msgs.push({role:'user',content:extra});
-    const offMax=ctx.mode==='offline'?{max:Math.max((num(api()?.maxTokens)||2048)-4096,Math.round((num((t.offline||S.offline).words)||500)*3)+2000)}:{};
+    const offMax=ctx.mode==='offline'?{max:Math.max((num(api()?.maxTokens)||2048)-4096,Math.round((num((t.offline||S.offline).words)||1000)*3)+2000)}:{};
     let r=await callAI(ctx.system,ctx.msgs,{thoughts:true,...tg,...offMax});RAW.set(t.id,[r.text,r.thoughts]);
     {const W=banHit(r.text);if(W.length){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:`（上面这条里说了${W.map(w=>'「'+w+'」').join('')}，作废。照原来的格式重写一遍，意思不变，这些词和同类的套话都不出现，换成平时的大白话。）`}],{thoughts:true,back:2,...tg,...offMax});RAW.get(t.id).push(r2.text,r2.thoughts);if(r2.text&&banHit(r2.text).length<W.length)r=r2}catch(e){}}}
     for(let k=0;k<2&&ctx.mode==='offline'&&r.cut&&r.text;k++){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:'（上面写到一半断了。从断掉的那个字接着把这一段写完，不重复前面，不另起开头。）'}],{thoughts:true,back:2,...tg,...offMax});r.text+=r2.text;r.cut=r2.cut&&!!r2.text}catch(e){break}}
