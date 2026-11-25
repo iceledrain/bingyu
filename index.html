@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.25.34';</script>
+<script>window.BYJ_VER='2026.11.25.36';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1216,7 +1216,7 @@ function buildCtx(t,o={}){
   const curNarr=t.msgs.slice(curAt+1).filter(m=>m.type==='narr');
   const scan=hist.slice(-Math.max(1,num(C.scan)||8)).map(m=>m.content).join('\n')+'\n'+chars.map(c=>c.name).join(' ');
   const items=P.items.filter(i=>i.on&&(i.mode==='both'||i.mode===im));
-  let roll=null;const tail=[];
+  let roll=null,quiet=false;const tail=[];
   const lore=[],rules=[],who=[],ctxs=[],late=[];
   const off=t.offline||S.offline,sbk=mode==='offline'?(off.books||[]).map(id=>S.books.find(b=>b.id===id)).filter(Boolean):[];
   const LH=loreHit(booksFor(chars,sbk.map(b=>b.id)),scan),lbk=f=>loreBlock(LH.filter(f).map(loreTx),mac);
@@ -1269,7 +1269,7 @@ function buildCtx(t,o={}){
     rules.push(group?`【群聊】手机群聊，只写${cname}发的。大家都看得到彼此的话，会接别人的话、叫别人、互相搭腔拌嘴，谁有话谁开口。谁开口、说多少、彼此怎么相处，各按人设和心情。彼此认不认识、熟不熟，看人设和世界书，没写的就是在这个群里才认识，按群里聊过的来。待不下去可以写 名字：[退群]；想拉人进群写 名字：[邀请:TA的名字]${(o=>o.length?'（能拉：'+o.join('、')+'）':'')(S.chars.filter(c=>visible(c)&&!chars.some(y=>y.id===c.id)).map(c=>c.name))}。`
       :`【聊天】手机上发消息，一行一个气泡，每行就是发出去的那句话本身。说什么、怎么说、热不热情，按人设和你此刻对${me.name}的感觉。想TA就直说，问TA在哪、在干嘛，发语音、拍照片、打电话。同不同城、住不住一起听人设和世界书，没写就是同城。`);
     if(!group&&chars[0])rules.push(`【此刻】你有自己的日子在过，这会儿在某个地方做着某件事。正在做的事会顺口提，${me.name}找你就先顾TA，消息里只写说出口的话。时间往前走，事情会做完、换下一件。`);
-    rules.push('回复1-6句，可已读不回，每句1-10个字，遇到逗号就分行，长句分为多条消息发送，单字单字母单标点符号均可发，还可发emoji/颜文字/表情包');
+    rules.push('回复1-6句，每句1-10个字，遇到逗号就分行，长句分为多条消息发送，单字单字母单标点符号均可发，还可发emoji/颜文字/表情包');
     if(group)rules.push('群聊：每条前面写发的人的名字加冒号');
     if(!group&&chars[0]&&mode==='online'){const lg=leftGroups(chars[0]);if(lg.length)ctxs.push(`【退过的群】你退了${lg.map(g=>'「'+threadTitle(g)+'」').join('、')}，想回去就写 [回群]。`)}
     {const lastReal=[...t.msgs].reverse().find(m=>m.type!=='sys');if(lastReal?.type==='narr')tail.push(`【刚分开】刚见过面，现在回到手机上。带着那时的情绪，照聊天的样子发消息。`)}
@@ -1278,8 +1278,8 @@ function buildCtx(t,o={}){
     sp.push('发定位 [定位:地点]','分享歌 [分享歌曲:歌名 - 歌手]','掷骰子 [骰子]','猜拳 [猜拳]');
     if(t.msgs.slice(-8).some(m=>m.type==='roll')){roll={dice:rollNow('dice'),rps:rollNow('rps')};tail.push(`【骰子猜拳】这轮你发 [骰子] 会是${roll.dice}点，发 [猜拳] 会出${roll.rps}。`)}
     const hs=n=>[...n].reduce((h,c)=>Math.imul(h^c.charCodeAt(0),16777619)>>>0,2166136261),st=allStickers().map(s=>s.name).filter(Boolean).sort((x,y)=>hs(x)-hs(y)||(x<y?-1:1)).slice(0,300);if(st.length)sp.push('发表情包 [表情:表情名]（有：'+st.join('、')+'）');
-    if(!group)sp.push('打语音电话 [语音通话]','打视频电话 [视频通话]');sp.push('已读不回 [已读不回]');
-    rules.push('下面这些单独占一行，方括号照写，冒号后面填自己的：\n'+sp.join('\n')+'\n这些是你手机上能用的，想用就用。图片写清楚拍到了什么，自拍写清楚长相、神态、穿着。红包转账的金额照你的身份和这件事的分量给。');
+    if(!group)sp.push('打语音电话 [语音通话]','打视频电话 [视频通话]');{const lr=[...t.msgs].reverse().find(m=>m.from!=='me'&&(m.type!=='sys'||/^(已读不回|没人回)$/.test(m.content||'')));quiet=!!lr&&lr.type==='sys';if(!quiet)sp.push('已读不回 [已读不回]')}
+    rules.push('下面这些单独占一行，方括号照写，冒号后面填自己的：\n'+sp.join('\n')+'\n这些是你手机上能用的，想用就用。图片写清楚拍到了什么，自拍写清楚长相、神态、穿着。'+(group?'':'红包转账的金额照你的身份和这件事的分量给。'));
     if(!group&&chars[0]){const cs=cardsNow().filter(k=>k.charId===chars[0].id),q=k=>(k.limit?`月额度${money(k.limit)}`:'不限额')+`，本月用了${money(k.used)}`;
       const mine=cs.filter(k=>k.dir!=='out'),theirs=cs.filter(k=>k.dir==='out');
       if(cs.length)tail.push(`【亲属卡】${mine.length?`你给${me.name}开了（${mine.map(q).join('；')}）。`:''}${theirs.length?`${me.name}给你开了（${theirs.map(q).join('；')}），用时写 [刷亲属卡:东西:金额]。`:''}`)}
@@ -1323,7 +1323,7 @@ function buildCtx(t,o={}){
   const s1=[...tx(head),...rules].join('\n\n'),s2=[s1,...ctxs,...late].join('\n\n'),sum=sumBlock(t),sys=sum?s2+'\n\n'+sum:s2;
   const parts=[...head,...rules.map(x=>({s:'格式',x})),...[...ctxs,...late].map(x=>({s:'自动',x})),...(sum?[{s:'总结',x:sum}]:[])];
   SYSCUT.set(sys,[cut,s2.length]);if(SYSCUT.size>60)SYSCUT.delete(SYSCUT.keys().next().value);
-  return{system:whoTag(sys,t.id),msgs,chars,group,mode,t,roll,parts};
+  return{system:whoTag(sys,t.id),msgs,chars,group,mode,t,roll,quiet,parts};
 }
 const STKP=new Map();
 function describeSticker(s){if(!s||s.desc!=null||!/^data:image\/(png|jpe?g|webp)/.test(s.src||''))return;s.desc='';
@@ -1539,6 +1539,7 @@ async function reply(t,extra,stamps){
     const offMax=ctx.mode==='offline'?{max:Math.max((num(api()?.maxTokens)||2048)-4096,Math.round((num((t.offline||S.offline).words)||1000)*3)+2000)}:{};
     let r=await callAI(ctx.system,ctx.msgs,{thoughts:true,...tg,...offMax});RAW.set(t.id,[r.text,r.thoughts]);
     {const W=banHit(r.text);if(W.length){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:`（上面这条里说了${W.map(w=>'「'+w+'」').join('')}，作废。照原来的格式重写一遍，意思不变，这些词和同类的套话都不出现，换成平时的大白话。）`}],{thoughts:true,back:2,...tg,...offMax});RAW.get(t.id).push(r2.text,r2.thoughts);if(r2.text&&banHit(r2.text).length<W.length)r=r2}catch(e){}}}
+    if(ctx.quiet&&/\[(已读不回|沉默)\]/.test(r.text)&&!r.text.replace(/\[[^\]\n]*\]/g,'').trim()){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:'（上一轮已经没回了，这一轮开口，照原来的格式回。）'}],{thoughts:true,back:2,...tg});RAW.get(t.id).push(r2.text,r2.thoughts);if(r2.text)r=r2}catch(e){}}
     for(let k=0;k<2&&ctx.mode==='offline'&&r.cut&&r.text;k++){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:'（上面写到一半断了。从断掉的那个字接着把这一段写完，不重复前面，不另起开头。）'}],{thoughts:true,back:2,...tg,...offMax});r.text+=r2.text;r.cut=r2.cut&&!!r2.text}catch(e){break}}
     const ex=extractExtras(r.text,ctx.mode!=='offline',ctx.group,ctx.chars.some(langOf));if(ctx.mode!=='offline')await sortLeak(ex,ctx);if(ctx.mode==='online')ex.text=noAct(ex.text);
     applyMood(ctx,ex);applyActs(ctx,ex);if(!ctx.group&&ctx.chars[0]){applyMoney(t,ex,ctx.chars[0]);applyCards(t,ex,ctx.chars[0])}save();
