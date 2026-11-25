@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.25.16';</script>
+<script>window.BYJ_VER='2026.11.25.17';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1334,11 +1334,20 @@ function stripForeign(out,keep){if(keep)return{out,plan:''};const cjk=x=>(x.matc
   for(;k<lines.length;k++){const l=lines[k];if(!l.trim())continue;if(/^\s*[\[<]/.test(l)||cjk(l)*6>lat(l))break;n+=lat(l)}
   const head=lines.slice(0,k).join('\n').trim(),rest=lines.slice(k).join('\n').trim();
   return n>=120&&rest&&cjk(rest)>lat(rest)?{out:rest,plan:head}:{out,plan:''}}
+const PLAN_CUE=/(告诉|回|跟|哄|逗|安慰|应付)(她|他|TA)|别(显得|让(她|他|TA)|表现)|(她|他|TA)(突然|又|居然|竟然|怎么)?(问我|在问)|装作|打算|先回|就行|语气|自然点|随口带过/;
+const MULL_CUE=/什么意思|啥意思|试探|在不在乎|在乎|太明显|很明显|不乐意|不高兴|报备|故意|是不是想|想看我|显得|装作|装得|抓着|不放|别让|不能让|吃醋|先别|怎么回|该怎么|不动声色|表现得|冷淡点|淡定点|随口|带过|算了|先晾|晾着|反应|打算|语气/g;
+const mulls=l=>new Set(l.match(MULL_CUE)||[]).size;
+function stripPlan(out){const me=mask().name,lines=out.split('\n');
+  const who=new RegExp('她|他|TA'+(me?'|'+me.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'):''));
+  while(lines.length>1){const l=lines[0].trim();if(!l){lines.shift();continue}
+    if(/你|您|[\[<？?｜|]/.test(l))break;
+    if(!(who.test(l)&&PLAN_CUE.test(l))&&mulls(l)<3)break;lines.shift()}
+  return lines.join('\n').trim()||out}
 function extractExtras(out,chat=true,group=false,keep=false){
   out=String(out).replace(/<\/t>/gi,'</think>').replace(new RegExp(`<(${THINK_TAG})>[\\s\\S]*?<\\/\\1>`,'gi'),'').replace(new RegExp(`^[\\s\\S]*?<\\/(?:${THINK_TAG})>`,'i'),'');
   out=out.replace(new RegExp(`^\\s*<(?:${THINK_TAG})>([\\s\\S]*)$`,'i'),(_,x)=>{const f=stripForeign(x,keep);if(f.plan)return f.out;const j=x.indexOf('\n');return j<0||(chat&&[...x].length>200)?'':x.slice(j+1)});
   out=out.replace(/<(inner|心声|now|todo|待办|profile)>[\s\S]*?<\/\1>/gi,'').replace(/<(inner|心声)>[\s\S]*?(?=<tide>|$)/i,'').replace(/<\/?reply>/gi,'');
-  out=stripForeign(out,keep).out;
+  out=stripForeign(out,keep).out;if(chat)out=stripPlan(out);
   const mood=[],acts=[],cards=[];
   out=out.replace(/<tide>([\s\S]*?)<\/tide>|\[心情[:：]\s*([^\]\n]*)\]/gi,(_,a,b)=>{mood.push((a??b).trim());return''});
   out=out.replace(/\[送亲属卡[:：]\s*([\d.]*)[^\]]*\]/g,(_,a)=>{cards.push({give:1,amt:Math.max(0,+a||0)});return''}).replace(/\[刷亲属卡[:：]([^:：\]]+)[:：]\s*([\d.]+)[^\]]*\]/g,(_,w,a)=>{cards.push({what:w.trim(),amt:+a||0});return''});
@@ -1346,6 +1355,13 @@ function extractExtras(out,chat=true,group=false,keep=false){
   return{text:out.trim(),mood,acts,cards};
 }
 const AWM=/^\s*[#＃]\s*(\d{1,2})(?:\s*[.、:：)）]\s*|\s+|$)(.*)$/;
+async function sortLeak(ex,ctx){const lines=ex.text.split('\n').map(l=>l.trim()).filter(Boolean),mark=l=>/^\[[^\]]+\]$/.test(l)||AWM.test(l);
+  const me=mask(ctx.t).name,who=ctx.chars.map(c=>c.name).join('、'),odd=new RegExp('她|TA'+(me&&me!=='user'?'|'+me.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'):''));
+  if(lines.filter(l=>!mark(l)).length<2||!lines.some(l=>!mark(l)&&!/你|您/.test(l)&&odd.test(l)))return;
+  try{const r=String(await callAI('你在检查聊天软件里的一段回复。',[{role:'user',content:`下面是${who}在手机上回${me}的话，一行一个气泡。模型有时会把${who}心里的分析和打算混进来（比如「她这话什么意思」「是不是在试探我」「我不乐意 但别显得太在乎」），这种行不是发给${me}的。\n\n${lines.map((l,i)=>`${i+1}. ${l}`).join('\n')}\n\n哪几行是心里想的、不是说出口的？只输出行号，逗号隔开；都是说出口的就输出 0。`}],{max:256,side:true,temp:.2}));
+    const bad=new Set((r.replace(/<think[\s\S]*?<\/think>/gi,'').match(/\d+/g)||[]).map(n=>+n-1).filter(i=>i>=0&&i<lines.length&&!mark(lines[i])));
+    if(!bad.size||bad.size>=lines.length)return;
+    ex.text=lines.filter((_,i)=>!bad.has(i)).join('\n')}catch(e){}}
 const demd=x=>String(x)
   .replace(/\*\*\*([^*\n]+)\*\*\*/g,'$1')
   .replace(/\*\*([^*\n]+)\*\*/g,'$1')
@@ -1500,7 +1516,7 @@ async function reply(t,extra,stamps){
     let r=await callAI(ctx.system,ctx.msgs,{thoughts:true,...tg,...offMax});RAW.set(t.id,[r.text,r.thoughts]);
     {const W=banHit(r.text);if(W.length){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:`（上面这条里说了${W.map(w=>'「'+w+'」').join('')}，作废。照原来的格式重写一遍，意思不变，这些词和同类的套话都不出现，换成平时的大白话。）`}],{thoughts:true,back:2,...tg,...offMax});RAW.get(t.id).push(r2.text,r2.thoughts);if(r2.text&&banHit(r2.text).length<W.length)r=r2}catch(e){}}}
     for(let k=0;k<2&&ctx.mode==='offline'&&r.cut&&r.text;k++){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:'（上面写到一半断了。从断掉的那个字接着把这一段写完，不重复前面，不另起开头。）'}],{thoughts:true,back:2,...tg,...offMax});r.text+=r2.text;r.cut=r2.cut&&!!r2.text}catch(e){break}}
-    const ex=extractExtras(r.text,ctx.mode!=='offline',ctx.group,ctx.chars.some(langOf));if(ctx.mode==='online')ex.text=noAct(ex.text);
+    const ex=extractExtras(r.text,ctx.mode!=='offline',ctx.group,ctx.chars.some(langOf));if(ctx.mode!=='offline')await sortLeak(ex,ctx);if(ctx.mode==='online')ex.text=noAct(ex.text);
     applyMood(ctx,ex);applyActs(ctx,ex);if(!ctx.group&&ctx.chars[0]){applyMoney(t,ex,ctx.chars[0]);applyCards(t,ex,ctx.chars[0])}save();
     const callWas=spUse(t).callN,askedCall=/电话|视频|语音|通话|打给|打过来/.test(String([...t.msgs].reverse().find(m=>m.from==='me')?.content||''));
     const callAct=(callWas<0||callWas>=25||askedCall)&&ex.acts.find(a=>a==='语音通话'||a==='视频通话');
