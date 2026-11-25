@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.25.32';</script>
+<script>window.BYJ_VER='2026.11.25.33';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1286,6 +1286,7 @@ function buildCtx(t,o={}){
   const imgAll=hist.map((m,i)=>m.type==='img'&&m.img?i:-1).filter(i=>i>=0),imgIdx=new Set(imgAll.slice(Math.max(0,Math.floor(imgAll.length/3)-1)*3));
   const rows=[];let run=null,dk0='';
   hist.forEach((m,i)=>{
+    if(m.type==='sys'&&(m.content==='已读不回'||m.content==='没人回'))return;
     if(mode!=='offline'&&m.t){const k=dayLabel(m.t);if(k!==dk0){dk0=k;rows.push({role:'user',content:`（—— ${k} ——）`});run=null}}
     if(mode==='offline'){if(m.type==='narr'&&histStart+i>curAt)rows.push({role:m.from==='me'?'user':'assistant',content:m.content});return}
     if(m.type==='narr'){if(!run){run={role:'user',content:'（下面是你们见面时的经过，已经结束了，只是记忆）'};rows.push(run)}run.content+='\n'+nameOf(m)+'：'+(lastMeet.includes(m)?wholeText(m.content,4000):wholeText(m.content,800));return}
