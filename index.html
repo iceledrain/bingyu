@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.25.24';</script>
+<script>window.BYJ_VER='2026.11.25.25';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -322,6 +322,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .wrow{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}.wrow:last-child{border:0}
 .wrow span{flex:1;min-width:0;display:flex;flex-direction:column}.wrow b{font-weight:400;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wrow small{font-size:11.5px;color:var(--muted)}
 .wrow .tb{padding:2px 6px;color:var(--muted);font-size:16px}
+.hs{align-self:flex-start;max-width:100%;background:none;border:0;padding:1px 2px 0;font-size:12px;line-height:1.5;color:var(--muted);text-align:left}.hs span{display:none;margin-left:3px}.hs.open span{display:inline}
 .msg .qt{font-size:12px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px 9px;max-width:100%;box-sizing:border-box;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .msg.me .qt{align-self:flex-end}.msg .qt{align-self:flex-start}
 html.full,html.full body{height:var(--scr-h);overflow:hidden}
@@ -1279,6 +1280,7 @@ function buildCtx(t,o={}){
   }
   {const W=banHit(String(S.chat.ban||''));if(W.length)tail.push(`【不说的词】${W.join('、')}，同类的套话也不说，换成平时的大白话。`)}
   if(!group&&mode!=='call')rules.push('末尾另起一行写此刻的心情 [心情:词]，词从这些里挑一个：'+MOODS.join('、'));
+  if(!group&&mode==='online')rules.push('再另起一行写此刻没说出口的心里话 [心声:一句话]');
   const pre=items.filter(i=>i.role!=='system'&&!inChat(i)).map(i=>({role:i.role,content:mac(i.content)}));
   const nameOf=m=>m.from==='me'?me.name:charById(m.from)?.name||cname;
   const imgAll=hist.map((m,i)=>m.type==='img'&&m.img?i:-1).filter(i=>i>=0),imgIdx=new Set(imgAll.slice(Math.max(0,Math.floor(imgAll.length/3)-1)*3));
@@ -1353,9 +1355,10 @@ function extractExtras(out,chat=true,group=false,keep=false){
   out=stripForeign(out,keep).out;if(chat)out=stripPlan(out);
   const mood=[],acts=[],cards=[];
   out=out.replace(/<tide>([\s\S]*?)<\/tide>|\[心情[:：]\s*([^\]\n]*)\]/gi,(_,a,b)=>{mood.push((a??b).trim());return''});
+  let hs='';out=out.replace(/\[心声[:：]\s*([^\]\n]*)\]/g,(_,x)=>{hs=x.trim()||hs;return''});
   out=out.replace(/\[送亲属卡[:：]\s*([\d.]*)[^\]]*\]/g,(_,a)=>{cards.push({give:1,amt:Math.max(0,+a||0)});return''}).replace(/\[刷亲属卡[:：]([^:：\]]+)[:：]\s*([\d.]+)[^\]]*\]/g,(_,w,a)=>{cards.push({what:w.trim(),amt:+a||0});return''});
   out=out.replace(/\[已读不回\]/g,'[沉默]').replace(/\[(拉黑|解除拉黑|删除好友|沉默|收下|退回|代付|不付|语音通话|视频通话|拒接|挂断|查手机|回群)\]/g,(_,x)=>{acts.push(x);return''});
-  return{text:out.trim(),mood,acts,cards};
+  return{text:out.trim(),mood,acts,cards,hs};
 }
 const AWM=/^\s*[#＃]\s*(\d{1,2})(?:\s*[.、:：)）]\s*|\s+|$)(.*)$/;
 async function sortLeak(ex,ctx){const lines=ex.text.split('\n').map(l=>l.trim()).filter(Boolean),mark=l=>/^\[[^\]]+\]$/.test(l)||AWM.test(l);
@@ -1441,7 +1444,7 @@ function bubble(t,m,i){
   const inner=m.type==='sticker'?(()=>{const s=findSticker(m.content);return`<button class="stk" data-a="msg" data-i="${i}">${s?`<img src="${esc(s.src)}" alt="${esc(m.content)}">`:`<span class="bub">[${esc(m.content)}]</span>`}</button>`})()
     :m.type==='roll'?`<button class="stk roll${Date.now()-m.t<1500?' new':''}" data-a="msg" data-i="${i}">${rollFace(m)}</button>`
     :richBody(t,m,i,mine,c);
-  return`<div class="msg ${mine?'me':'ai'}" data-mi="${i}">${mine?'':av(c||{name:'?'},40)}<div class="col">${grp&&!mine?`<span class="who">${esc(dn(c))}</span>`:''}${inner}${mine?(m.by?`<span class="qt">${esc(dn(charById(m.by)))} 用你的手机发的</span>`:''):''}</div>${mine?av(mask(t),40):''}</div>`;
+  return`<div class="msg ${mine?'me':'ai'}" data-mi="${i}">${mine?'':av(c||{name:'?'},40)}<div class="col">${grp&&!mine?`<span class="who">${esc(dn(c))}</span>`:''}${inner}${!mine&&m.hs?`<button class="hs${m.ho?' open':''}" data-a="hsTap" data-i="${i}" aria-label="心声">♡<span>${esc(m.hs)}</span></button>`:''}${mine?(m.by?`<span class="qt">${esc(dn(charById(m.by)))} 用你的手机发的</span>`:''):''}</div>${mine?av(mask(t),40):''}</div>`;
 }
 function richBody(t,m,i,mine,c){const tap=`data-a="msg" data-i="${i}"`;
   switch(m.type){
@@ -1535,6 +1538,7 @@ async function reply(t,extra,stamps){
       if(!viewing(t)){t.unread=(t.unread||0)+1;}
       if(i===parts.length-1)busy.delete(t.id);save();onThreadUpdate(t);
     }
+    if(ex.hs&&posted.length&&!ctx.group&&ctx.mode==='online'){posted[posted.length-1].hs=ex.hs;save()}
     busy.delete(t.id);onThreadUpdate(t);
     if(t.type==='dm'&&ctx.mode!=='offline'&&ctx.chars[0]){const c=ctx.chars[0];c.said=[...(c.said||[]).filter(x=>Date.now()-x.t<36*3600e3),...posted.filter(m=>(m.type==='text'||m.type==='voice')&&m.content).map(m=>({t:m.t,s:String(m.content).slice(0,60)}))].slice(-30);save()}
     if(t.type==='dm'&&cur()?.id===t.id&&cur().v==='chat')render(true);
@@ -2554,6 +2558,7 @@ const A={
     sheet(`<h3>${esc(dn(charById(m.from)))}${hb?'的红包':'给你转账'}</h3><div class="money-big">¥${(+m.amt).toFixed(2)}</div><p class="hint" style="text-align:center">${esc(m.content||'')}</p><button class="btn" data-a="moneyGet" data-i="${el.dataset.i}">${hb?'领取':'收款'}</button>${hb?'':`<button class="opt" data-a="moneyBack" data-i="${el.dataset.i}">退还</button>`}<button class="opt red" data-a="mDel" data-i="${el.dataset.i}">删除</button>`)},
   moneyGet(el){const t=thread(cur().id),m=t.msgs[+el.dataset.i],c=charById(m.from);m.state='got';S.wallet=Math.round(((+S.wallet||0)+m.amt)*100)/100;sysMsg(t,`你${m.type==='hb'?'领取':'收下'}了${dn(c)}的${m.type==='hb'?'红包':'转账'} ¥${(+m.amt).toFixed(2)}`);save();closeSheet();refreshChat();toast('钱包 +¥'+(+m.amt).toFixed(2))},
   moneyBack(el){const t=thread(cur().id),m=t.msgs[+el.dataset.i],c=charById(m.from);m.state='back';sysMsg(t,`你退还了${dn(c)}的转账`);save();closeSheet();refreshChat()},
+  hsTap(el){const m=thread(cur().id)?.msgs[+el.dataset.i];if(!m)return;m.ho=!m.ho;el.classList.toggle('open',m.ho);save()},
   voice(el){const t=thread(cur().id),m=t.msgs[+el.dataset.i];if(!m)return;m.open=!m.open;el.classList.toggle('open',m.open);save();if(m.open&&m.from!=='me')speak(m.content,charById(m.from),m.id)},
   pCall(el){startCall(thread(cur().id),el.dataset.k)},
   callAccept(){if(!call)return;clearTimeout(call.ring);callOn();callTurn()},
