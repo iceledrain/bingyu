@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.25.4';</script>
+<script>window.BYJ_VER='2026.11.25.5';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1427,7 +1427,7 @@ function buildCtx(t,o={}){
     if(pend)tail.push(`【没收的钱】${me.name}发来${pend.type==='hb'?'红包':'转账'}¥${pend.amt}${pend.content?'：'+pend.content:''}，写 [收下] 或 [退回]。`);
   }
   rules.push('【时间】说好去做的事要花时间，过够了时间再问做完没。去哪儿路上也要时间，远近按两个人各在哪算，时间够了才到。日子有规律，上班、吃饭、睡觉按平常的钟点。');
-  if(!group)rules.push(`【亲热】${cname}带着做：下一步自己定，直接做，做完看${me.name}的反应再接下一步。句子短，一句一个动作。到了以后自己还想要就接着来。那会儿说话会喘，断断续续的。${mode==='offline'?'':'在手机上就当场做：用字、语音、照片。'}`);
+  if(!group)rules.push(`【亲热】${cname}带着做：下一步自己定，直接做，每一步做足了，看${me.name}的反应再接下一步。句子短，一句一个动作，整件事拉得长。到了以后自己还想要就接着来。那会儿说话会喘，断断续续的。${mode==='offline'?'':'在手机上就当场做：用字、语音、照片。'}`);
   if(C.inner){const styles=chars.map(c=>c.innerStyle?`${c.name}：${mac(c.innerStyle)}`:'').filter(Boolean).join('；');
     rules.push(`【${C.innerName||'心声'}】正文后另起一行写 <inner>…</inner>${G('，每人一行，「名字：」开头','')}：${mac(C.innerStyle||INNER_DEF)}${styles?'（'+styles+'）':''}`)}
   {const W=banHit(String(S.chat.ban||''));if(W.length)tail.push(`【不说的词】${W.join('、')}，同类的套话也不说，换成平时的大白话。`)}
