@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.25.19';</script>
+<script>window.BYJ_VER='2026.11.25.20';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -200,7 +200,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .order .os{font-size:12px;color:var(--deep)}
 .order.done .os{color:var(--muted)}
 .tphoto .tp-in{border:0;width:100%;text-align:left;cursor:pointer}
-.pcap{font-size:12px;color:var(--muted);max-width:200px}
+.pcap{font-size:12px;color:var(--muted);max-width:190px}
 .mlist{display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto}
 .mlist .opt{justify-content:flex-start;font-size:13.5px;padding:10px 13px}
 .mi{display:flex;align-items:baseline;gap:10px;font-size:14px}.mi b{font-weight:500;color:var(--deep);min-width:48px;font-variant-numeric:tabular-nums}.mi span{flex:1}.mi small{color:var(--muted);font-size:11px}
@@ -214,9 +214,9 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .qbar button{background:none;border:0;color:var(--deep);font-size:16px;padding:0 6px}
 @keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .pmsg{border:0;padding:0;background:none;border-radius:16px;overflow:hidden;display:block}
-.pmsg img{display:block;max-width:200px;max-height:260px;border-radius:16px}.pmsg img[data-idb]{background:var(--accent-soft)}
-.tphoto{width:190px;border:0;padding:8px 8px 4px;background:#fff;border-radius:6px;box-shadow:0 4px 14px rgba(65,65,65,.15);display:flex;flex-direction:column;gap:4px;text-align:left;color:#484848}
-.tp-in{min-height:92px;border-radius:3px;background:linear-gradient(160deg,#e4e4e4,#f3f3f3 60%,#eaeaea);display:flex;flex-direction:column;justify-content:flex-end;gap:6px;padding:10px;font:13px/1.55 var(--display);color:#565656}
+.pmsg img{display:block;max-width:190px;max-height:240px;border-radius:16px}.pmsg img[data-idb]{background:var(--accent-soft)}
+.tphoto{width:190px;box-sizing:border-box;border:0;padding:6px 6px 3px;background:#fff;border-radius:6px;box-shadow:0 4px 14px rgba(65,65,65,.15);display:flex;flex-direction:column;gap:4px;text-align:left;color:#484848}
+.tp-in{min-height:60px;border-radius:3px;background:linear-gradient(160deg,#e4e4e4,#f3f3f3 60%,#eaeaea);display:flex;flex-direction:column;justify-content:flex-end;gap:6px;padding:10px;font:13px/1.55 var(--display);color:#565656}
 .tp-in svg{width:18px;height:18px;opacity:.6}
 .tphoto small{font-size:10.5px;color:#a4a4a4;text-align:right}
 .tp-f{display:flex;justify-content:space-between;align-items:center}
@@ -1992,7 +1992,7 @@ const PX='data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEA
 const PIC=new Map(),picJobs=new Map();let viewRef='';
 const picId=u=>/^idb:/.test(u||'')?String(u).slice(4):'';
 const picAttr=u=>{const id=picId(u);return!id?`src="${esc(u)}"${/^https?:/.test(u||'')?' referrerpolicy="no-referrer"':''}`:PIC.has(id)?`src="${PIC.get(id)}"`:`src="${PX}" data-idb="${esc(id)}"`};
-const picBox=o=>{const[w,h]=Array.isArray(o.wh)?o.wh:[];if(!(w>0&&h>0))return'';const k=Math.min(200/w,260/h,1);return` style="width:${Math.round(w*k)}px;height:${Math.round(h*k)}px"`};
+const picBox=o=>{const[w,h]=Array.isArray(o.wh)?o.wh:[];if(!(w>0&&h>0))return'';const k=Math.min(190/w,240/h,1);return` style="width:${Math.round(w*k)}px;height:${Math.round(h*k)}px"`};
 function picLoad(id){if(!picJobs.has(id))picJobs.set(id,DB.blob('img:'+id).then(b=>{picJobs.delete(id);if(b instanceof Blob){PIC.set(id,URL.createObjectURL(b));return true}if(b===null)picLost('idb:'+id);return false}));return picJobs.get(id)}
 function fillPics(){document.querySelectorAll('img[data-idb]').forEach(el=>{const id=el.dataset.idb,put=()=>{if(PIC.has(id)&&el.dataset.idb===id){el.src=PIC.get(id);el.removeAttribute('data-idb')}};if(PIC.has(id))put();else picLoad(id).then(put)})}
 function picLost(ref){let n=0;S.threads.forEach(t=>t.msgs.forEach(m=>{if(m.img===ref){delete m.img;delete m.wh;n++}}));S.feed.forEach(p=>postPics(p).forEach(x=>{if(x.img===ref){delete x.img;delete x.wh;n++}}));if(n){save();if(isOpen())render(true)}}
