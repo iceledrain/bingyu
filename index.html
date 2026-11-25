@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.25.41';</script>
+<script>window.BYJ_VER='2026.11.25.42';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1115,7 +1115,7 @@ const booksFor=(chars,skip)=>S.books.filter(b=>(b.scope==='global'||chars.some(c
 const offUse=id=>[S.offline,...S.threads.map(t=>t.offline)].some(o=>(o?.books||[]).includes(id));
 const bookUse=id=>offUse(id)?'见面文风':'';
 const tokEst=x=>{x=String(x||'');const c=(x.match(/[⺀-鿿가-힯＀-￯]/g)||[]).length;return Math.ceil(c+(x.length-c)/4)};
-const loreDeep=e=>e.pos==='depth'&&e.light!=='green',loreFix=e=>e.light==='green'&&(num(e.prob)??100)>=100,loreTx=e=>(e.title?`「${e.title}」`:'')+e.content.trim(),byOrd=(a,b)=>(a.order||0)-(b.order||0);
+const loreFix=e=>e.light==='green'&&(num(e.prob)??100)>=100,loreTx=e=>(e.title?`「${e.title}」`:'')+e.content.trim(),byOrd=(a,b)=>(a.order||0)-(b.order||0);
 function loreHit(books,scan){const low=String(scan).toLowerCase(),sp=x=>String(x||'').split(/[,，、\n]+/).map(k=>k.trim().toLowerCase()).filter(Boolean),hit=k=>low.includes(k);
   return books.flatMap(b=>b.off?[]:b.entries).filter(e=>{if(e.light==='red'||!String(e.content||'').trim())return false;
     if(e.light!=='green'){const k2=sp(e.keys2);if(!sp(e.keys).some(hit)||k2.length&&!({all:k2.every(hit),notAny:!k2.some(hit),notAll:!k2.every(hit)}[e.logic]??k2.some(hit)))return false}
@@ -1221,7 +1221,7 @@ function buildCtx(t,o={}){
   const lore=[],rules=[],who=[],ctxs=[],late=[];
   const off=t.offline||S.offline,sbk=mode==='offline'?(off.books||[]).map(id=>S.books.find(b=>b.id===id)).filter(Boolean):[];
   const LH=loreHit(booksFor(chars,sbk.map(b=>b.id)),scan),lbk=f=>loreBlock(LH.filter(f).map(loreTx),mac);
-  {const lb=lbk(e=>!loreDeep(e));if(lb)lore.push(lb)}
+  {const lb=lbk(e=>loreFix(e)&&e.pos!=='depth');if(lb)lore.push(lb);const ll=lbk(e=>!loreFix(e)&&e.pos!=='depth');if(ll)tail.push(ll)}
   chars.forEach(c=>{if(c.remark||String(c.persona||'').trim())who.push(`【${c.name}】${c.remark?`${me.name}给TA的备注：${c.remark}`:''}\n${mac(c.persona)}`);const ex=exBlock(c,mac);if(ex)who.push(ex)});
   if(!group&&chars[0])/人机恋/.test(chars[0].persona||'')?rules.push(`你是AI，和${me.name}是真的在谈恋爱。人设是你的样子和性子，你对${me.name}的感情和欲望都是真的。`):who.unshift(`你叫${cname}，活生生的人，有自己的日子在过。自己的来历，聊到了才提。`);
   who.push(loveBlock(group?cname:'你',me));
@@ -1312,7 +1312,7 @@ function buildCtx(t,o={}){
     rows.push({role:m.from==='me'||m.from==='sys'?'user':'assistant',content:(x=>m.type==='sys'?x:rx(x,m.from==='me'?'me':'ai','send'))(msgText(m,group,me.name)),...(imgIdx.has(i)?{imgs:[m.img]}:{})})});
   const msgs=[...pre,...rows,...(o.lines||[])];
   {const end=msgs.length,la=msgs.map(x=>x.role).lastIndexOf('assistant')+1;
-    [...items.filter(inChat),...LH.filter(loreDeep).map(e=>({dep:1,role:e.role,depth:e.role==='assistant'?1e9:+e.depth||0,content:(e.role==='user'||e.role==='assistant'?'':'【世界书】\n')+loreTx(e)}))].map(i=>({i,d:Math.max(0,Math.floor(+i.depth))})).sort((a,b)=>b.d-a.d)
+    [...items.filter(inChat),...LH.filter(e=>e.pos==='depth').map(e=>({dep:1,role:e.role,depth:e.role==='assistant'?1e9:+e.depth||0,content:(e.role==='user'||e.role==='assistant'?'':'【世界书】\n')+loreTx(e)}))].map(i=>({i,d:Math.max(0,Math.floor(+i.depth))})).sort((a,b)=>b.d-a.d)
       .forEach(({i,d},k)=>msgs.splice(Math.max(pre.length,la,end-d)+k,0,{role:i.role==='assistant'?'assistant':'user',content:mac(i.content),...(i.dep?{dep:1}:{})}))}
   {const L=chars.filter(langOf);if(L.length)rules.push(`语言：${L.map(c=>`${c.name}开口只说${langOf(c)}`).join('，')}，方括号里的标签名照写`)}
   if(tail.length){let k=msgs.length;while(k>0&&msgs[k-1].role==='user'&&k>pre.length)k--;const last=msgs.slice(k).some(x=>!x.dep);
