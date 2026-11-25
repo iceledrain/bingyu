@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.25.28';</script>
+<script>window.BYJ_VER='2026.11.25.29';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1355,7 +1355,7 @@ function extractExtras(out,chat=true,group=false,keep=false){
   out=stripForeign(out,keep).out;if(chat)out=stripPlan(out);
   const mood=[],acts=[],cards=[];
   out=out.replace(/<tide>([\s\S]*?)<\/tide>|\[心情[:：]\s*([^\]\n]*)\]/gi,(_,a,b)=>{mood.push((a??b).trim());return''});
-  let hs='';out=out.replace(/\[心声[:：]\s*([^\]\n]*)\]/g,(_,x)=>{hs=[...x.trim()].slice(0,8).join('')||hs;return''});
+  let hs='';out=out.replace(/\[心声[:：]\s*([^\]\n]*)\]/g,(_,x)=>{const cl=y=>/[^\p{P}\p{S}\s]/u.test(y)?y.replace(/[。．.，,、；;：:！!～~…—\s]+$/,''):y.trim();hs=cl([...cl(x)].slice(0,8).join(''))||hs;return''});
   out=out.replace(/\[送亲属卡[:：]\s*([\d.]*)[^\]]*\]/g,(_,a)=>{cards.push({give:1,amt:Math.max(0,+a||0)});return''}).replace(/\[刷亲属卡[:：]([^:：\]]+)[:：]\s*([\d.]+)[^\]]*\]/g,(_,w,a)=>{cards.push({what:w.trim(),amt:+a||0});return''});
   out=out.replace(/\[已读不回\]/g,'[沉默]').replace(/\[(拉黑|解除拉黑|删除好友|沉默|收下|退回|代付|不付|语音通话|视频通话|拒接|挂断|查手机|回群)\]/g,(_,x)=>{acts.push(x);return''});
   return{text:out.trim(),mood,acts,cards,hs};
