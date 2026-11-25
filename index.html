@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.25.37';</script>
+<script>window.BYJ_VER='2026.11.25.38';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -322,7 +322,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .wrow{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}.wrow:last-child{border:0}
 .wrow span{flex:1;min-width:0;display:flex;flex-direction:column}.wrow b{font-weight:400;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wrow small{font-size:11.5px;color:var(--muted)}
 .wrow .tb{padding:2px 6px;color:var(--muted);font-size:16px}
-.hs{align-self:flex-start;max-width:100%;background:none;border:0;padding:1px 2px 0;font-size:12px;line-height:1.5;color:var(--muted);text-align:left}.hs span{display:none;margin-left:3px}.hs.open span{display:inline}
+.hs{align-self:flex-start;max-width:100%;background:none;border:0;padding:1px 2px 0;font-size:12px;line-height:1.5;color:var(--muted);text-align:left}.hs span{display:none;margin-left:3px}.hs.open span{display:inline}.hs.th svg{width:13px;height:13px;vertical-align:-2px}.hs.th span{white-space:pre-wrap}
 .msg .qt{font-size:12px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px 9px;max-width:100%;box-sizing:border-box;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .msg.me .qt{align-self:flex-end}.msg .qt{align-self:flex-start}
 html.full,html.full body{height:var(--scr-h);overflow:hidden}
@@ -1204,7 +1204,7 @@ const langOf=c=>String(c?.voice?.lang||'').trim();
 const banHit=x=>[...new Set(String(S.chat.ban||'').split(/[\s,，、]+/).filter(Boolean))].filter(w=>String(x||'').includes(w));
 const LINK=new Map(),linksOf=t=>[...new Set(t.msgs.slice(-6).filter(m=>m.from==='me'&&!m.recalled&&typeof m.content==='string').flatMap(m=>m.content.match(/https?:\/\/[^\s<>"'，。）】]+/g)||[]))].slice(-2);
 async function linkLoad(t){await Promise.all(linksOf(t).filter(u=>!LINK.has(u)).map(async u=>{try{const r=await fetch('https://r.jina.ai/'+u,{signal:AbortSignal.timeout(12e3)});LINK.set(u,r.ok?(await r.text()).trim().slice(0,3000):'')}catch(e){LINK.set(u,'')}}))}
-const loveBlock=(n,me)=>`${n}爱${me.name}，认定了，心疼${me.name}，记挂${me.name}的身体和心情。${me.name}提别人、说要走，${n}会吃醋，当场把人留下，硬留还是哄着留看性子。性子再冷再硬，也护着${me.name}。人设里另写了和${me.name}的关系，就听人设的。`;
+const loveBlock=(n,me)=>`${n}爱${me.name}，认定了，心疼${me.name}，记挂${me.name}的身体和心情。${me.name}提别人、说要走，${n}会吃醋，当场把人留下，硬留还是哄着留看性子。性子再冷再硬，也护着${me.name}、哄着${me.name}。人设里另写了和${me.name}的关系，就听人设的。`;
 function buildCtx(t,o={}){
   const chars=t.chars.map(charById).filter(Boolean),me=mask(t),P=preset(),mode=o.mode||t.mode||'online',group=t.type==='group',C=S.chat,im=mode==='call'?'online':mode;
   const cname=chars.length===1?chars[0].name:chars.map(c=>c.name).join('、');
@@ -1217,7 +1217,7 @@ function buildCtx(t,o={}){
   const curNarr=t.msgs.slice(curAt+1).filter(m=>m.type==='narr');
   const scan=hist.slice(-Math.max(1,num(C.scan)||8)).map(m=>m.content).join('\n')+'\n'+chars.map(c=>c.name).join(' ');
   const items=P.items.filter(i=>i.on&&(i.mode==='both'||i.mode===im));
-  let roll=null,quiet=false;const tail=[];
+  let roll=null;const tail=[];
   const lore=[],rules=[],who=[],ctxs=[],late=[];
   const off=t.offline||S.offline,sbk=mode==='offline'?(off.books||[]).map(id=>S.books.find(b=>b.id===id)).filter(Boolean):[];
   const LH=loreHit(booksFor(chars,sbk.map(b=>b.id)),scan),lbk=f=>loreBlock(LH.filter(f).map(loreTx),mac);
@@ -1268,7 +1268,7 @@ function buildCtx(t,o={}){
       if(ph.length)late.push((old?`【这次见面之前】（按先后排：之前的见面已经结束，后来在手机上聊，现在是新的一次见面。只是背景）\n`:`【见面前在手机上聊的】（只是背景）\n`)+ph.map(line).join('\n'))}
   }else{
     rules.push(group?`这是手机群聊，只写${cname}发的。大家都看得见彼此的话，会接话、叫人、搭腔拌嘴，谁有话谁开口。熟不熟看人设和世界书，没写的就是在这个群里才认识。待不下去写 名字：[退群]；想拉人写 名字：[邀请:名字]${(o=>o.length?'（能拉：'+o.join('、')+'）':'')(S.chars.filter(c=>visible(c)&&!chars.some(y=>y.id===c.id)).map(c=>c.name))}。`
-      :`你在手机上跟${me.name}发消息，一行一个气泡。说什么、热不热情，看你的性子和此刻对${me.name}的感觉。想了就说，问在哪、在干嘛，发语音、拍照片、打电话都行。人设和世界书没写异地，就是同城。`);
+      :`你在手机上跟${me.name}发消息，一行一个气泡。说什么、热不热情，看你的性子和此刻对${me.name}的感觉。${me.name}发来的你都会回。想了就说，问在哪、在干嘛，发语音、拍照片、打电话都行。人设和世界书没写异地，就是同城。`);
     if(!group&&chars[0])rules.push(`你这会儿在某个地方做着某件事，会顺口提一句；过一阵做完了，换下一件。${me.name}找你，先顾${me.name}。`);
     rules.push('回复1-6句，每句1-10个字，遇到逗号就分行，长句分为多条消息发送，单字单字母单标点符号均可发，还可发emoji/颜文字/表情包');
     if(group)rules.push('群聊：每条前面写发的人的名字加冒号');
@@ -1279,7 +1279,7 @@ function buildCtx(t,o={}){
     sp.push('发定位 [定位:地点]','分享歌 [分享歌曲:歌名 - 歌手]','掷骰子 [骰子]','猜拳 [猜拳]');
     if(t.msgs.slice(-8).some(m=>m.type==='roll')){roll={dice:rollNow('dice'),rps:rollNow('rps')};tail.push(`【骰子猜拳】这轮你发 [骰子] 会是${roll.dice}点，发 [猜拳] 会出${roll.rps}。`)}
     const hs=n=>[...n].reduce((h,c)=>Math.imul(h^c.charCodeAt(0),16777619)>>>0,2166136261),st=allStickers().map(s=>s.name).filter(Boolean).sort((x,y)=>hs(x)-hs(y)||(x<y?-1:1)).slice(0,300);if(st.length)sp.push('发表情包 [表情:表情名]（有：'+st.join('、')+'）');
-    if(!group)sp.push('打语音电话 [语音通话]','打视频电话 [视频通话]');{const lr=[...t.msgs].reverse().find(m=>m.from!=='me'&&(m.type!=='sys'||/^(已读不回|没人回)$/.test(m.content||'')));quiet=!!lr&&lr.type==='sys';if(!quiet)sp.push('已读不回 [已读不回]')}
+    if(!group)sp.push('打语音电话 [语音通话]','打视频电话 [视频通话]');
     rules.push('下面这些单独占一行，方括号照写，冒号后面填自己的：\n'+sp.join('\n')+'\n想用就用。拍照写清拍到了什么，自拍写清长相、神态、穿着。'+(group?'':'发多少钱看你的身份和这件事的分量。'));
     if(!group&&chars[0]){const cs=cardsNow().filter(k=>k.charId===chars[0].id),q=k=>(k.limit?`月额度${money(k.limit)}`:'不限额')+`，本月用了${money(k.used)}`;
       const mine=cs.filter(k=>k.dir!=='out'),theirs=cs.filter(k=>k.dir==='out');
@@ -1293,9 +1293,10 @@ function buildCtx(t,o={}){
   }
   {const W=banHit(String(S.chat.ban||''));if(W.length)tail.push(`【不说的词】${W.join('、')}，同类的套话也不说，换成平时的大白话。`)}
   rules.push('做事、赶路都要时间，时间够了才算做完、才到。吃饭睡觉按平常的钟点。');
-  rules.push(`${group?cname+'的':''}心情跟着眼前的事走，会慢慢消，也会因为一句话就变。不高兴就别扭、嘴硬。`);
+  rules.push(`${group?cname+'的':''}心情跟着眼前的事走，也会因为${me.name}一句话就变。闹别扭只在嘴上，${me.name}一哄就软。`);
   {const md=chars.filter(c=>c.mood).map(c=>`${c.name}：${c.mood}`);if(md.length)tail.push('【心情】\n'+md.join('\n'))}
   if(mode!=='call')rules.push(`${chars.some(c=>String(c.persona||'').trim())?`人设写的就是${group?cname:'你'}。`:''}和${me.name}之间只提真发生过的事。`);
+  if(!group&&mode!=='call')rules.push(mode==='offline'?'开头先写一行 <think>…</think>：此刻你心里怎么想、接下来想做什么，一两句，你自己的口气':`开头先写一行 <think>…</think>：看到${me.name}这几条，你心里第一下怎么想、打算怎么回，一两句，你自己的口气`);
   if(!group&&mode!=='call')rules.push('末尾另起一行写此刻的心情 [心情:词]，词从这些里挑一个：'+MOODS.join('、'));
   if(!group&&mode==='online')rules.push('再另起一行写此刻没说出口的心里话 [心声:内容]，8字以内，句子、词语、单字、一个符号都行');
   const pre=items.filter(i=>i.role!=='system'&&!inChat(i)).map(i=>({role:i.role,content:mac(i.content)}));
@@ -1303,7 +1304,7 @@ function buildCtx(t,o={}){
   const imgAll=hist.map((m,i)=>m.type==='img'&&m.img?i:-1).filter(i=>i>=0),imgIdx=new Set(imgAll.slice(Math.max(0,Math.floor(imgAll.length/3)-1)*3));
   const rows=[];let run=null,dk0='';
   hist.forEach((m,i)=>{
-    if(m.type==='sys'&&(m.content==='已读不回'||m.content==='没人回'))return;
+    if(isQuiet(m))return;
     if(mode!=='offline'&&m.t){const k=dayLabel(m.t);if(k!==dk0){dk0=k;rows.push({role:'user',content:`（—— ${k} ——）`});run=null}}
     if(mode==='offline'){if(m.type==='narr'&&histStart+i>curAt)rows.push({role:m.from==='me'?'user':'assistant',content:m.content});return}
     if(m.type==='narr'){if(!run){run={role:'user',content:'（下面是你们见面时的经过，已经结束了，只是记忆）'};rows.push(run)}run.content+='\n'+nameOf(m)+'：'+(lastMeet.includes(m)?wholeText(m.content,4000):wholeText(m.content,800));return}
@@ -1324,7 +1325,7 @@ function buildCtx(t,o={}){
   const s1=[...tx(head),...rules].join('\n\n'),s2=[s1,...ctxs,...late].join('\n\n'),sum=sumBlock(t),sys=sum?s2+'\n\n'+sum:s2;
   const parts=[...head,...rules.map(x=>({s:'格式',x})),...[...ctxs,...late].map(x=>({s:'自动',x})),...(sum?[{s:'总结',x:sum}]:[])];
   SYSCUT.set(sys,[cut,s2.length]);if(SYSCUT.size>60)SYSCUT.delete(SYSCUT.keys().next().value);
-  return{system:whoTag(sys,t.id),msgs,chars,group,mode,t,roll,quiet,parts};
+  return{system:whoTag(sys,t.id),msgs,chars,group,mode,t,roll,parts};
 }
 const STKP=new Map();
 function describeSticker(s){if(!s||s.desc!=null||!/^data:image\/(png|jpe?g|webp)/.test(s.src||''))return;s.desc='';
@@ -1367,8 +1368,9 @@ function stripPlan(out){const me=mask().name,lines=out.split('\n');
     if(!(who.test(l)&&PLAN_CUE.test(l)&&mulls(l))&&mulls(l)<3)break;lines.shift()}
   return lines.join('\n').trim()||out}
 function extractExtras(out,chat=true,group=false,keep=false){
-  out=String(out).replace(/<\/t>/gi,'</think>').replace(new RegExp(`<(${THINK_TAG})>[\\s\\S]*?<\\/\\1>`,'gi'),'').replace(new RegExp(`^[\\s\\S]*?<\\/(?:${THINK_TAG})>`,'i'),'');
-  out=out.replace(new RegExp(`^\\s*<(?:${THINK_TAG})>([\\s\\S]*)$`,'i'),(_,x)=>{const f=stripForeign(x,keep);if(f.plan)return f.out;const j=x.indexOf('\n');return j<0||(chat&&[...x].length>200)?'':x.slice(j+1)});
+  let think='';const tk=x=>{x=String(x||'').replace(/<\/?[a-z]{1,10}>/gi,' ').split('\n').map(l=>l.trim()).filter(Boolean).join('\n');if(x)think+=(think?'\n':'')+x;return''};
+  out=String(out).replace(/<\/t>/gi,'</think>').replace(new RegExp(`<(${THINK_TAG})>([\\s\\S]*?)<\\/\\1>`,'gi'),(_,t,x)=>tk(x)).replace(new RegExp(`^([\\s\\S]*?)<\\/(?:${THINK_TAG})>`,'i'),(_,x)=>tk(x));
+  out=out.replace(new RegExp(`^\\s*<(?:${THINK_TAG})>([\\s\\S]*)$`,'i'),(_,x)=>{const f=stripForeign(x,keep);if(f.plan){tk(f.plan);return f.out}const j=x.indexOf('\n');if(j<0||(chat&&[...x].length>200)){tk(x);return''}tk(x.slice(0,j));return x.slice(j+1)});
   out=out.replace(/<(inner|心声|now|todo|待办|profile)>[\s\S]*?<\/\1>/gi,'').replace(/<(inner|心声)>[\s\S]*?(?=<tide>|$)/i,'').replace(/<\/?reply>/gi,'');
   out=stripForeign(out,keep).out;if(chat)out=stripPlan(out);
   const mood=[],acts=[],cards=[];
@@ -1376,7 +1378,7 @@ function extractExtras(out,chat=true,group=false,keep=false){
   let hs='';out=out.replace(/\[心声[:：]\s*([^\]\n]*)\]/g,(_,x)=>{hs=noTail([...noTail(x)].slice(0,8).join(''))||hs;return''});
   out=out.replace(/\[送亲属卡[:：]\s*([\d.]*)[^\]]*\]/g,(_,a)=>{cards.push({give:1,amt:Math.max(0,+a||0)});return''}).replace(/\[刷亲属卡[:：]([^:：\]]+)[:：]\s*([\d.]+)[^\]]*\]/g,(_,w,a)=>{cards.push({what:w.trim(),amt:+a||0});return''});
   out=out.replace(/\[已读不回\]/g,'[沉默]').replace(/\[(拉黑|解除拉黑|删除好友|沉默|收下|退回|代付|不付|语音通话|视频通话|拒接|挂断|查手机|回群)\]/g,(_,x)=>{acts.push(x);return''});
-  return{text:out.trim(),mood,acts,cards,hs};
+  return{text:out.trim(),mood,acts,cards,hs,think:[...think].slice(0,300).join('')};
 }
 const AWM=/^\s*[#＃]\s*(\d{1,2})(?:\s*[.、:：)）]\s*|\s+|$)(.*)$/;
 async function sortLeak(ex,ctx){const lines=ex.text.split('\n').map(l=>l.trim()).filter(Boolean),mark=l=>/^\[[^\]]+\]$/.test(l)||AWM.test(l);
@@ -1454,16 +1456,18 @@ const busy=new Set();
 function dmFor(cid){let t=S.threads.find(x=>x.type==='dm'&&x.chars[0]===cid);if(!t){t={id:uid(),type:'dm',chars:[cid],title:'',mode:'online',msgs:[],unread:0,t:Date.now()};S.threads.push(t);
   save()}return t}
 function threadTitle(t){return t.type==='dm'?dn(charById(t.chars[0])):(t.title||t.chars.map(id=>dn(charById(id))).join('、'))}
-function lastPreview(t){const m=t.msgs[t.msgs.length-1];if(!m)return'';if(m.type==='sys')return m.content;const who=t.type==='group'&&m.from!=='me'?dn(charById(m.from))+'：':m.from==='me'?'我：':'';return who+pv(m)}
+const isQuiet=m=>m&&m.type==='sys'&&/^(已读不回|没人回)$/.test(m.content||''),me0=t=>{const n=mask(t).name;return n==='user'?'对方':n};
+function lastPreview(t){const m=[...t.msgs].reverse().find(m=>!isQuiet(m));if(!m)return'';if(m.type==='sys')return m.content;const who=t.type==='group'&&m.from!=='me'?dn(charById(m.from))+'：':m.from==='me'?'我：':'';return who+pv(m)}
 function bubble(t,m,i){
   if(m.recalled)return`<div class="stamp" data-mi="${i}" data-a="msg" data-i="${i}">${m.from==='me'?'你':esc(dn(charById(m.from))||'TA')}撤回了一条消息</div>`;
+  if(isQuiet(m))return'';
   if(m.type==='sys')return`<div class="stamp" data-mi="${i}">${esc(m.content)}</div>${m.letter?`<div class="letter">${esc(m.letter)}</div>`:''}`;
-  const mine=m.from==='me',c=mine?null:charById(m.from),grp=t.type==='group';
-  if(m.type==='narr')return`${rxBody(m,i,mine,x=>`<button class="narr${mine?' me':''}" data-mi="${i}" data-a="msg" data-i="${i}">${x}</button>`)}`;
+  const mine=m.from==='me',c=mine?null:charById(m.from),grp=t.type==='group',th=!mine&&m.th?`<button class="hs th${m.to?' open':''}" data-a="thTap" data-i="${i}" aria-label="思维链">${ICONS.brain}<span>${esc(m.th)}</span></button>`:'';
+  if(m.type==='narr')return`${th?`<div class="msg ai"><div class="col">${th}</div></div>`:''}${rxBody(m,i,mine,x=>`<button class="narr${mine?' me':''}" data-mi="${i}" data-a="msg" data-i="${i}">${x}</button>`)}`;
   const inner=m.type==='sticker'?(()=>{const s=findSticker(m.content);return`<button class="stk" data-a="msg" data-i="${i}">${s?`<img src="${esc(s.src)}" alt="${esc(m.content)}">`:`<span class="bub">[${esc(m.content)}]</span>`}</button>`})()
     :m.type==='roll'?`<button class="stk roll${Date.now()-m.t<1500?' new':''}" data-a="msg" data-i="${i}">${rollFace(m)}</button>`
     :richBody(t,m,i,mine,c);
-  return`<div class="msg ${mine?'me':'ai'}" data-mi="${i}">${mine?'':av(c||{name:'?'},40)}<div class="col">${grp&&!mine?`<span class="who">${esc(dn(c))}</span>`:''}${inner}${!mine&&m.hs?`<button class="hs${m.ho?' open':''}" data-a="hsTap" data-i="${i}" aria-label="心声">♡<span>${esc(m.hs)}</span></button>`:''}${mine?(m.by?`<span class="qt">${esc(dn(charById(m.by)))} 用你的手机发的</span>`:''):''}</div>${mine?av(mask(t),40):''}</div>`;
+  return`<div class="msg ${mine?'me':'ai'}" data-mi="${i}">${mine?'':av(c||{name:'?'},40)}<div class="col">${grp&&!mine?`<span class="who">${esc(dn(c))}</span>`:''}${th}${inner}${!mine&&m.hs?`<button class="hs${m.ho?' open':''}" data-a="hsTap" data-i="${i}" aria-label="心声">♡<span>${esc(m.hs)}</span></button>`:''}${mine?(m.by?`<span class="qt">${esc(dn(charById(m.by)))} 用你的手机发的</span>`:''):''}</div>${mine?av(mask(t),40):''}</div>`;
 }
 function richBody(t,m,i,mine,c){const tap=`data-a="msg" data-i="${i}"`;
   switch(m.type){
@@ -1540,21 +1544,20 @@ async function reply(t,extra,stamps){
     const offMax=ctx.mode==='offline'?{max:Math.max((num(api()?.maxTokens)||2048)-4096,Math.round((num((t.offline||S.offline).words)||1000)*3)+2000)}:{};
     let r=await callAI(ctx.system,ctx.msgs,{thoughts:true,...tg,...offMax});RAW.set(t.id,[r.text,r.thoughts]);
     {const W=banHit(r.text);if(W.length){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:`（上面这条里说了${W.map(w=>'「'+w+'」').join('')}，作废。照原来的格式重写一遍，意思不变，这些词和同类的套话都不出现，换成平时的大白话。）`}],{thoughts:true,back:2,...tg,...offMax});RAW.get(t.id).push(r2.text,r2.thoughts);if(r2.text&&banHit(r2.text).length<W.length)r=r2}catch(e){}}}
-    if(ctx.quiet&&/\[(已读不回|沉默)\]/.test(r.text)&&!r.text.replace(/\[[^\]\n]*\]/g,'').trim()){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:'（上一轮已经没回了，这一轮开口，照原来的格式回。）'}],{thoughts:true,back:2,...tg});RAW.get(t.id).push(r2.text,r2.thoughts);if(r2.text)r=r2}catch(e){}}
+    if(ctx.mode==='online'&&/\[(已读不回|沉默)\]/.test(r.text)&&!r.text.replace(/<think>[\s\S]*?<\/think>/gi,'').replace(/\[[^\]\n]*\]/g,'').trim()){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:`（${me0(t)}在等你回。开口，照原来的格式回。）`}],{thoughts:true,back:2,...tg});RAW.get(t.id).push(r2.text,r2.thoughts);if(r2.text)r=r2}catch(e){}}
     for(let k=0;k<2&&ctx.mode==='offline'&&r.cut&&r.text;k++){try{const r2=await callAI(ctx.system,[...ctx.msgs,{role:'assistant',content:r.text},{role:'user',content:'（上面写到一半断了。从断掉的那个字接着把这一段写完，不重复前面，不另起开头。）'}],{thoughts:true,back:2,...tg,...offMax});r.text+=r2.text;r.cut=r2.cut&&!!r2.text}catch(e){break}}
     const ex=extractExtras(r.text,ctx.mode!=='offline',ctx.group,ctx.chars.some(langOf));if(ctx.mode!=='offline')await sortLeak(ex,ctx);if(ctx.mode==='online')ex.text=noAct(ex.text);
     applyMood(ctx,ex);applyActs(ctx,ex);if(!ctx.group&&ctx.chars[0]){applyMoney(t,ex,ctx.chars[0]);applyCards(t,ex,ctx.chars[0])}save();
     const callWas=spUse(t).callN,askedCall=/电话|视频|语音|通话|打给|打过来/.test(String([...t.msgs].reverse().find(m=>m.from==='me')?.content||''));
     const callAct=(callWas<0||callWas>=25||askedCall)&&ex.acts.find(a=>a==='语音通话'||a==='视频通话');
-    if(!ex.text&&!ex.acts.length)throw new Error(r.cut?'光顾着想了，还没说话长度就用完了：把接口里的最大长度调大，或把思考深度调低':'回复是空的，再试一次');
+    if(!ex.text&&!ex.acts.some(a=>a!=='沉默')){if(extra||stamps)return;throw new Error(r.cut?'光顾着想了，还没说话长度就用完了：把接口里的最大长度调大，或把思考深度调低':'回复是空的，再试一次')}
     const bought=boughtRecently(t),sAt=[],segs=stamps?awSeg(ex.text,stamps.length):[[-1,ex.text]],marked=segs.some(([s])=>s>=0),parts=ex.text?segs.flatMap(([s,x])=>{const P=parseReply(x,ctx).filter(p=>!(bought&&(p.type==='order'||p.type==='parcel'))&&!(p.type==='pic'&&/^(收到|已?存|保存|放大|截图|点开|看了|好的?$)/.test(String(p.content||'').trim())));P.forEach(()=>sAt.push(Math.max(0,s)));return P}):[];
-    if(!parts.length&&ctx.mode==='online'&&ex.acts.includes('沉默')&&[...t.msgs].reverse().find(m=>m.type!=='sys')?.from==='me'){const tx=ctx.group?'没人回':'已读不回';let L=t.msgs[t.msgs.length-1];if(!(L&&L.type==='sys'&&L.content===tx)){sysMsg(t,tx);L=t.msgs[t.msgs.length-1]}t.t=Date.now();save()}
     const posted=[];
     for(let i=0;i<parts.length;i++){
       if(parts[i].type==='gact'){grpAct(t,parts[i]);save();onThreadUpdate(t);continue}
       if(i)await sleep(ctx.mode==='offline'||stamps?0:Math.min(1400,350+String(parts[i].content||'').length*25));
       const si=stamps?Math.min(stamps.length-1,marked?sAt[i]||0:Math.floor(i*stamps.length/parts.length)):0,nth=marked?sAt.slice(0,i).filter(s=>s===sAt[i]).length:i;
-      const pm={id:uid(),...parts[i],...(stamps?{aw:1}:{}),t:stamps?Math.min(Date.now(),stamps[si]+nth*20e3):Date.now()};if(stamps)t.msgs.splice(at+posted.length,0,pm);else t.msgs.push(pm);posted.push(pm);t.t=Date.now();
+      const pm={id:uid(),...parts[i],...(stamps?{aw:1}:{}),...(!posted.length&&ex.think&&!ctx.group?{th:ex.think}:{}),t:stamps?Math.min(Date.now(),stamps[si]+nth*20e3):Date.now()};if(stamps)t.msgs.splice(at+posted.length,0,pm);else t.msgs.push(pm);posted.push(pm);t.t=Date.now();
       if(!viewing(t)){t.unread=(t.unread||0)+1;}
       if(i===parts.length-1)busy.delete(t.id);save();onThreadUpdate(t);
     }
@@ -2578,6 +2581,7 @@ const A={
     sheet(`<h3>${esc(dn(charById(m.from)))}${hb?'的红包':'给你转账'}</h3><div class="money-big">¥${(+m.amt).toFixed(2)}</div><p class="hint" style="text-align:center">${esc(m.content||'')}</p><button class="btn" data-a="moneyGet" data-i="${el.dataset.i}">${hb?'领取':'收款'}</button>${hb?'':`<button class="opt" data-a="moneyBack" data-i="${el.dataset.i}">退还</button>`}<button class="opt red" data-a="mDel" data-i="${el.dataset.i}">删除</button>`)},
   moneyGet(el){const t=thread(cur().id),m=t.msgs[+el.dataset.i],c=charById(m.from);m.state='got';S.wallet=Math.round(((+S.wallet||0)+m.amt)*100)/100;sysMsg(t,`你${m.type==='hb'?'领取':'收下'}了${dn(c)}的${m.type==='hb'?'红包':'转账'} ¥${(+m.amt).toFixed(2)}`);save();closeSheet();refreshChat();toast('钱包 +¥'+(+m.amt).toFixed(2))},
   moneyBack(el){const t=thread(cur().id),m=t.msgs[+el.dataset.i],c=charById(m.from);m.state='back';sysMsg(t,`你退还了${dn(c)}的转账`);save();closeSheet();refreshChat()},
+  thTap(el){const m=thread(cur().id)?.msgs[+el.dataset.i];if(!m)return;m.to=!m.to;el.classList.toggle('open',m.to);save()},
   hsTap(el){const m=thread(cur().id)?.msgs[+el.dataset.i];if(!m)return;m.ho=!m.ho;el.classList.toggle('open',m.ho);save()},
   voice(el){const t=thread(cur().id),m=t.msgs[+el.dataset.i];if(!m)return;m.open=!m.open;el.classList.toggle('open',m.open);save();if(m.open&&m.from!=='me')speak(m.content,charById(m.from),m.id)},
   pCall(el){startCall(thread(cur().id),el.dataset.k)},
