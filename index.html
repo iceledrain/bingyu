@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.25.13';</script>
+<script>window.BYJ_VER='2026.11.25.14';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2224,23 +2224,6 @@ function toPreset(d,fallback){
   if(!items.length)throw new Error('这个预设没有提示词内容');
   return{id:uid(),name:d.name||fallback||'导入的预设',items};
 }
-function pngCard(buf){const u=new Uint8Array(buf),dv=new DataView(buf),L1=new TextDecoder('latin1'),got={};
-  if(u.length<16||u[0]!==0x89||u[1]!==0x50||u[2]!==0x4e||u[3]!==0x47)return null;
-  for(let p=8;p+12<=u.length;){const len=dv.getUint32(p),type=String.fromCharCode(u[p+4],u[p+5],u[p+6],u[p+7]);if(p+12+len>u.length)break;
-    if(type==='tEXt'){const d=u.subarray(p+8,p+8+len),z=d.indexOf(0),k=z>0?L1.decode(d.subarray(0,z)).toLowerCase():'';if(k==='chara'||k==='ccv3')got[k]=L1.decode(d.subarray(z+1))}
-    if(type==='IEND')break;p+=12+len}
-  const b64=got.ccv3||got.chara;if(!b64)return null;
-  return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(b64.replace(/\s+/g,'')),c=>c.charCodeAt(0))))}
-function toChar(d){
-  const x0=d.data||d;if(!x0.name)throw new Error('文件里没有角色名');
-  const nm=v=>String(v||'').replace(/<USER>/gi,'{{user}}').replace(/<(?:BOT|CHAR)>/gi,'{{char}}').trim();
-  const x={...x0,description:nm(x0.description),personality:nm(x0.personality),scenario:nm(x0.scenario),mes_example:[nm(x0.mes_example),nm(x0.first_mes)&&'{{char}}: '+nm(x0.first_mes).slice(0,800)].filter(Boolean).join('\n\n')};
-  const persona=[x.description,x.personality&&('性格：'+x.personality),x.scenario&&('场景：'+x.scenario)].filter(Boolean).join('\n\n');
-  const c={id:uid(),name:x.name,remark:'',handle:x.name.replace(/\s+/g,'').toLowerCase(),avatar:'',persona:persona||x.persona||'',ex:String(x.mes_example||'').trim(),books:[]};
-  const cb=x.character_book;if(cb&&cb.entries&&Object.keys(cb.entries).length){const b=toBook({...cb,name:cb.name||x.name+'的世界书'});b.scope='local';S.books.push(b);c.books=[b.id]}
-  const lo=String(x.extensions?.bingyuji?.lore||'').trim();if(lo){const b={id:uid(),name:x.name+'的设定',scope:'local',entries:[{id:uid(),title:'设定',keys:'',content:lo,light:'green',order:0,prob:100}]};S.books.push(b);c.books.push(b.id)}
-  return c;
-}
 const base_=n=>n.replace(/\.[^.]+$/,'');
 
 const stkJson=(d,k='')=>typeof d==='string'?(/^(https?:|data:image)/.test(d)?[{name:k,src:d}]:[]):Array.isArray(d)?d.flatMap(x=>stkJson(x,k)):d&&typeof d==='object'?(d.url||d.src||d.link?[{name:d.name||d.title||k,src:d.url||d.src||d.link}]:Object.entries(d).flatMap(([kk,v])=>stkJson(v,kk))):[];
@@ -2856,10 +2839,8 @@ const A={
   topUp(){sheet(`<h3>充值</h3><div class="chips" style="justify-content:center">${[50,100,200,500,1000,5000].map(n=>`<button data-a="topUpGo" data-v="${n}">${n}</button>`).join('')}</div><input type="number" id="topIn" placeholder="别的数" step="0.01" min="0" aria-label="充值金额"><button class="btn" data-a="topUpGo">充值</button>${CANCEL}`)},
   topUpGo(el){const a=Math.round((+(el?.dataset?.v||$('#topIn')?.value)||0)*100)/100;if(!(a>0)){toast('填个金额');return}S.wallet=Math.round(((+S.wallet||0)+a)*100)/100;save();closeSheet();render(true);toast('充了 '+money(a))},
   saveWallet(){S.wallet=+$('#walletIn').value||0;save();closeSheet();render(true)},
-  charMenu(){sheet(`<h3>添加</h3><button class="opt" data-a="newChar">新角色</button><button class="opt" data-a="importCharSheet">导入角色卡</button><button class="opt" data-a="newMask">新面具</button>${CANCEL}`)},
+  charMenu(){sheet(`<h3>添加</h3><button class="opt" data-a="newChar">新角色</button><button class="opt" data-a="newMask">新面具</button>${CANCEL}`)},
   newChar(){const c={id:uid(),name:'新角色',remark:'',handle:'',avatar:'',persona:'',books:[]};S.chars.push(c);save();closeSheet();go({v:'charEdit',id:c.id})},
-  importCharSheet(){fileSheet('导入角色卡','.png,.json,image/png,application/json','impChar','')},
-  impCharGo(){try{const c=toChar(JSON.parse($('#impCharTa').value));S.chars.push(c);save();closeSheet();go({v:'charEdit',id:c.id});toast('导入了 '+c.name)}catch(e){toast(e.message||'不是有效的 JSON')}},
   editChar(el){closeSheet();go({v:'charEdit',id:el.dataset.id})},
   pShop(el){const t=thread(cur().id);closeSheet();go({v:el.dataset.k==='goods'?'goods':'food',to:t.chars[0]})},
   personaTpl(el){const k=el.dataset.k,L=S.personaTpls;
@@ -3024,11 +3005,7 @@ document.addEventListener('change',async e=>{const el=e.target;bind(e);
     save();render(true);toast('加了 '+n+' 个')}
   if(el.dataset.font){const f=el.files?.[0];if(!f)return;if(!DB.db){toast('这个浏览器存不了字体文件，用链接吧');return}await DB.set('font:custom',f);
     S.look.customFont={local:true,name:base_(f.name),t:Date.now()};S.look.font='custom';fontLoaded='';save();await loadFont();render(true);return}
-  if(el.id==='impChar'&&el.files?.[0]&&(/png$/i.test(el.files[0].type)||/\.png$/i.test(el.files[0].name))){const f=el.files[0];
-    try{const d=pngCard(await f.arrayBuffer());if(!d)throw new Error('这张图里没有角色卡数据。从「文件」里选原图，相册里的图可能被压过');
-      const c=toChar(d);await new Promise(r=>readImg(f,480,u=>{c.avatar=u;r()},'image/jpeg',r));
-      S.chars.push(c);save();closeSheet();go({v:'charEdit',id:c.id});toast('导入了 '+c.name)}catch(e){el.value='';toast(e.message||'这张卡读不了',5600)}return}
-  if(['impFile','impChar','impBook','impPreset','impRx'].includes(el.id)){const f=el.files?.[0];if(!f)return;const txt=await(el.id==='impBook'?readDoc(f):readText(f));if(el.id==='impFile'){el.value='';A.imp(null,txt);return}const ta=$('#'+(el.id==='impFile'?'impTa':el.id+'Ta'));ta.value=txt;ta.dataset.name=base_(f.name);if(el.id==='impFile'){el.value='';A.imp();return}toast('读好了，点「导入」')}
+  if(['impFile','impBook','impPreset','impRx'].includes(el.id)){const f=el.files?.[0];if(!f)return;const txt=await(el.id==='impBook'?readDoc(f):readText(f));if(el.id==='impFile'){el.value='';A.imp(null,txt);return}const ta=$('#'+(el.id==='impFile'?'impTa':el.id+'Ta'));ta.value=txt;ta.dataset.name=base_(f.name);if(el.id==='impFile'){el.value='';A.imp();return}toast('读好了，点「导入」')}
 });
 
 let snowIcon='';
