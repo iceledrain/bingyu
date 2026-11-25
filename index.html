@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.25.2';</script>
+<script>window.BYJ_VER='2026.11.25.3';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1358,7 +1358,7 @@ function buildCtx(t,o={}){
   const LH=loreHit(booksFor(chars,sbk.map(b=>b.id)),scan),lbk=f=>loreBlock(LH.filter(f).map(loreTx),mac);
   {const lb=lbk(e=>loreFix(e)&&e.pos!=='depth');if(lb)lore.push(lb);const ll=lbk(e=>!loreFix(e)&&e.pos!=='depth');if(ll)tail.push(ll)}
   chars.forEach(c=>{if(c.remark||String(c.persona||'').trim())who.push(`【${c.name}】${c.remark?`${me.name}给TA的备注：${c.remark}`:''}\n${mac(c.persona)}`);const ex=exBlock(c,mac);if(ex)who.push(ex)});
-  if(!group&&chars[0])/人机恋/.test(chars[0].persona||'')?rules.push(`【人机恋】你是AI，和${me.name}是真的人机恋，平时就做人设里的自己。人设是你的样子和性子，对TA的感情和欲望都是真的。`):who.unshift(`【身份】你就是${cname}，活生生的人，有自己的日子。口气照人设里的性子和身份，背景碰上了才提。`);
+  if(!group&&chars[0])/人机恋/.test(chars[0].persona||'')?rules.push(`【人机恋】你是AI，和${me.name}是真的人机恋，平时就做人设里的自己。人设是你的样子和性子，对TA的感情和欲望都是真的。`):who.unshift(`【身份】你是真人，叫${cname}，有自己的日子。背景碰上了才提。`);
   who.push(loveBlock(cname,me));
   {const of=t.offline||S.offline,u=mode==='offline'&&of.upov==='first'&&of.cpov!=='first'?'「我」':mode==='offline'&&of.upov==='third'?'「他/她」':'「你」';who.push(`【${me.name}（用户）】${me.name==='user'?`没设名字，叫${u}。`:''}${me.persona?'\n'+mac(me.persona):''}`);}
   if(mode!=='offline'&&lastMeet.some(m=>!hist.includes(m))){const nm2=m=>m.from==='me'?me.name:charById(m.from)?.name||cname;
@@ -1404,7 +1404,7 @@ function buildCtx(t,o={}){
       if(ph.length)late.push((old?`【这次见面之前】（按先后排：之前的见面已经结束，后来在手机上聊，现在是新的一次见面。只是背景，正文照【格式】写）\n`:`【见面前在手机上聊的】（只是背景，正文照【格式】写）\n`)+ph.map(line).join('\n'))}
   }else{
     rules.push(group?`【群聊】手机群聊，每行「名字：内容」，内容就是发出去的那句话本身，只写${cname}发的。大家都看得到彼此的话，会接别人的话、叫别人、互相搭腔拌嘴，谁有话谁开口。谁开口、说多少、彼此怎么相处，各按人设和心情。彼此认不认识、熟不熟，看人设和世界书，没写的就是在这个群里才认识，按群里聊过的来。待不下去可以写 名字：[退群]；想拉人进群写 名字：[邀请:TA的名字]${(o=>o.length?'（能拉：'+o.join('、')+'）':'')(S.chars.filter(c=>visible(c)&&!chars.some(y=>y.id===c.id)).map(c=>c.name))}。emoji 按人设想发就发。`
-      :`【聊天】手机上发消息，一行一个气泡，每行就是发出去的那句话本身。说什么、怎么说、热不热情，按人设和你此刻对${me.name}的感觉。emoji 按人设想发就发。这会儿没在一块：想TA就直说，问TA在哪、在干嘛，发语音、拍照片、打电话，约见面。同不同城、住不住一起听人设和世界书，没写就是同城。`);
+      :`【聊天】手机上发消息，一行一个气泡，每行就是发出去的那句话本身。说什么、怎么说、热不热情，按人设和你此刻对${me.name}的感觉。emoji 按人设想发就发。想TA就直说，问TA在哪、在干嘛，发语音、拍照片、打电话。同不同城、住不住一起听人设和世界书，没写就是同城。`);
     if(!group&&chars[0]&&mode==='online'){const lg=leftGroups(chars[0]);if(lg.length)ctxs.push(`【退过的群】你退了${lg.map(g=>'「'+threadTitle(g)+'」').join('、')}，想回去就写 [回群]。`)}
     if(!group&&chars[0]){rules.push(`【此刻】你有自己的日子在过，这会儿在某个地方做着某件事。正在做的事影响你回得快慢、长短、说什么，也会顺口提，消息里只写说出口的话。时间往前走，事情会做完、换下一件。`);
       const n=chars[0].now;if(n&&n.x)tail.push(`【你刚才】${n.x}（${gapText(Date.now()-n.t)}前）`)}
@@ -1426,8 +1426,8 @@ function buildCtx(t,o={}){
     {const q=!group&&[...t.msgs].reverse().find(m=>m.from==='me'&&m.type==='pay'&&m.state==='new');if(q)tail.push(`【代付】${me.name}想让你替TA付 ¥${q.amt}：${q.content}，写 [代付] 或 [不付]。`)}
     if(pend)tail.push(`【没收的钱】${me.name}发来${pend.type==='hb'?'红包':'转账'}¥${pend.amt}${pend.content?'：'+pend.content:''}，写 [收下] 或 [退回]。`);
   }
-  rules.push('【时间】说好去做的事要花时间，过够了时间再问做完没。去哪儿路上也要时间，远近按两个人各在哪算，时间够了才到。日子有规律：工作日白天忙、周末和放假松一点，吃饭睡觉按平常的钟点。');
-  if(!group)rules.push(`【亲热】慢慢磨，跟着${me.name}的反应走，长短看TA的状态；到了以后自己还想要就接着来。那会儿说话会喘，断断续续的。`);
+  rules.push('【时间】说好去做的事要花时间，过够了时间再问做完没。去哪儿路上也要时间，远近按两个人各在哪算，时间够了才到。日子有规律，上班、吃饭、睡觉按平常的钟点。');
+  if(!group)rules.push(`【亲热】慢慢磨，跟着${me.name}的反应走，长短看TA的状态；到了以后自己还想要就接着来。那会儿说话会喘，断断续续的。${mode==='offline'?'':'在手机上就当场做：用字、语音、照片。'}`);
   if(C.inner){const styles=chars.map(c=>c.innerStyle?`${c.name}：${mac(c.innerStyle)}`:'').filter(Boolean).join('；');
     rules.push(`【${C.innerName||'心声'}】正文后另起一行写 <inner>…</inner>${G('，每人一行，「名字：」开头','')}：${mac(C.innerStyle||INNER_DEF)}${styles?'（'+styles+'）':''}`)}
   {const W=banHit(String(S.chat.ban||''));if(W.length)tail.push(`【不说的词】${W.join('、')}，同类的套话也不说，换成平时的大白话。`)}
@@ -1450,7 +1450,7 @@ function buildCtx(t,o={}){
   {const end=msgs.length,la=msgs.map(x=>x.role).lastIndexOf('assistant')+1;
     [...items.filter(inChat),...LH.filter(e=>e.pos==='depth').map(e=>({dep:1,role:e.role,depth:e.role==='assistant'?1e9:+e.depth||0,content:(e.role==='user'||e.role==='assistant'?'':'【世界书】\n')+loreTx(e)}))].map(i=>({i,d:Math.max(0,Math.floor(+i.depth))})).sort((a,b)=>b.d-a.d)
       .forEach(({i,d},k)=>msgs.splice(Math.max(pre.length,la,end-d)+k,0,{role:i.role==='assistant'?'assistant':'user',content:mac(i.content),...(i.dep?{dep:1}:{})}))}
-  if(mode!=='call')rules.push(`${chars.some(c=>String(c.persona||'').trim())?`【人设】照【${cname}】的人设说话做事。`:'【人设】'}和${me.name}之间的事只说真发生过的。`);
+  if(mode!=='call')rules.push(`${chars.some(c=>String(c.persona||'').trim())?`【人设】【${cname}】写的就是你本人。`:'【人设】'}和${me.name}之间的事只说真发生过的。`);
   {const L=chars.filter(langOf);if(L.length)rules.push(`【语言】${L.map(c=>`${c.name}开口只说${langOf(c)}`).join('，')}。发的消息、[语音:…] 冒号后的话、通话、「」里的台词都这样，${me.name}说中文也照旧。[语音]、[图片]、[挂断] 这类标签名照原样，${group?'行首名字、':''}图片描述、旁白画面、<think>、<inner>、<tide> 还写中文。`)}
   if(mode==='online'&&(C.think||C.inner))tail.push(`【这次回复】照【回复格式】写全：${C.think?'<think>…</think>、':''}<reply>…</reply>${C.inner?'、<inner>…</inner>':''}${group?'':'、<now>…</now>'}、<tide>…</tide>，每样都写上。`);
   if(tail.length){let k=msgs.length;while(k>0&&msgs[k-1].role==='user'&&k>pre.length)k--;const last=msgs.slice(k).some(x=>!x.dep);
