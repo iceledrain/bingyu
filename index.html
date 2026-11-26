@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.26.7';</script>
+<script>window.BYJ_VER='2026.11.26.8';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1664,24 +1664,19 @@ async function charPost(c){
   const me=mask(c),t=S.threads.find(x=>x.type==='dm'&&x.chars[0]===c.id);
   const recent=t?t.msgs.slice(-12).map(m=>(m.from==='me'?me.name:c.name)+'：'+pv(m)).join('\n'):'';
   const before=S.feed.filter(p=>p.author===c.id).slice(-4).map(postDesc);
-  const st=statusOf(c),wd=worldFor([c]),pals=S.chars.filter(x=>x.id!==c.id&&visible(x)&&knows(x,c));
+  const st=statusOf(c),wd=worldFor([c]);
   const txt=await callAI(sysFor(c,charLore(c,recent)+'你在发微信朋友圈。'+extraFor(c)+(st==='sleep'?'':`，${c.name}${STATUS_TXT[st]}`)+(wd?'\n\n'+wd:'')),[{role:'user',content:(recent?`最近和${me.name}的聊天（只是背景）：\n${recent}\n\n`:'')+(before.length?`你最近发过的朋友圈（别重复）：\n${before.join('\n')}\n\n`:'')+
-    `以${c.name}的身份发一条朋友圈。朋友圈是发给所有好友看的，写${c.name}自己的生活：这会儿在做的、看到的、想到的都行，不用和${me.name}有关。发什么、配不配图你自己定。和${me.name}之间的事只说真发生过的。\n格式：正文直接写（没有就不写），每张照片单独一行写 [图片:照片里拍的是什么]。再写 [下次:天数]，按${c.name}的性子，隔多少天再发（1到30）。\n人设和世界书里写了名字的熟人（${[me.name,...pals.map(x=>x.name)].join('、')}以外的）会来点赞、评论，接着写在后面，每行一条：\n赞｜名字\n评｜名字｜评论内容\n回｜名字｜你回这个人的话\n评论是熟人随口说的，25字以内。人设和世界书里没写别人，就没有这几行。只输出这些。`}],{max:1024,side:true,temp:1.05});
-  const pics=[],lines=[],buzz=[];
-  let nx=0;for(const l of String(txt).split('\n')){let rest=l;{const b=l.trim().replace(/^[-*·•\s]+/,'');if(/^[赞评回]\s*[｜|]/.test(b)){buzz.push(b);continue}}{const m=l.match(/\[下次[:：]\s*(\d+(?:\.\d+)?)/);if(m){nx=Math.max(1,Math.min(30,+m[1]));rest=rest.replace(/\[下次[^\]]*\]/,'')}}for(const m of l.matchAll(/\[(?:图片|照片|图)[:：]\s*([^\]]+)\]/g)){pics.push({desc:m[1].trim()});rest=rest.replace(m[0],'')}rest=rest.trim();if(rest)lines.push(rest)}
+    `以${c.name}的身份发一条朋友圈。朋友圈是发给所有好友看的，写${c.name}自己的生活：这会儿在做的、看到的、想到的都行，不用和${me.name}有关。发什么、配不配图你自己定。和${me.name}之间的事只说真发生过的。\n格式：正文直接写（没有就不写），每张照片单独一行写 [图片:照片里拍的是什么]。最后一行写 [下次:天数]，按${c.name}的性子，隔多少天再发（1到30）。只输出这些。`}],{max:1024,side:true,temp:1.05});
+  const pics=[],lines=[];
+  let nx=0;for(const l of String(txt).split('\n')){let rest=l;{const m=l.match(/\[下次[:：]\s*(\d+(?:\.\d+)?)/);if(m){nx=Math.max(1,Math.min(30,+m[1]));rest=rest.replace(/\[下次[^\]]*\]/,'')}}for(const m of l.matchAll(/\[(?:图片|照片|图)[:：]\s*([^\]]+)\]/g)){pics.push({desc:m[1].trim()});rest=rest.replace(m[0],'')}rest=rest.trim();if(rest)lines.push(rest)}
   const text=lines.join('\n').replace(/^["“「]|["”」]$/g,'').trim().slice(0,300);
   if(!text&&!pics.length)throw new Error('TA没想好发什么，再试一次');
   const p={id:uid(),author:c.id,text,pics:pics.slice(0,9),t:Date.now(),likes:[],replies:[]};S.feed.push(p);c.postAt=Date.now();c.postNext=c.postAt+(nx?nx*864e5*(.8+.4*Math.random()):postGap());logEvent(c.id,`${c.name}发了朋友圈：「${postDesc(p)}」`);save();
-  buzzChar(p,c,buzz).catch(()=>{});
+  buzzChar(p,c).catch(()=>{});
   return p}
-async function buzzChar(p,c,buzz=[]){const ref=()=>{if(onFeed()||cur()?.id===p.id)render(true)};
+async function buzzChar(p,c){const ref=()=>{if(onFeed()||cur()?.id===p.id)render(true)};
   const pals=S.chars.filter(x=>x.id!==c.id&&visible(x)&&knows(x,c)).sort(()=>Math.random()-.5);
   pals.forEach(x=>{if(Math.random()<.7)setTimeout(()=>{if(S.feed.includes(p)&&!p.likes.includes(x.id)){p.likes.push(x.id);save();ref()}},(5+Math.random()*60)*1000)});
-  const byName={},base=Date.now();let k=0;
-  for(const l of buzz){const f=l.split(/[｜|]/).map(s=>s.trim().replace(/[「」]/g,''));if(!f[1])continue;const nick=f[1].slice(0,12);
-    if(/^赞/.test(f[0])){const id='x:'+nick;if(!p.likes.includes(id))p.likes.push(id)}
-    else if(/^评/.test(f[0])&&f[2]){const r={id:uid(),author:'x',nick,text:f.slice(2).join('｜').slice(0,80),t:base+(k++)*1000,likes:[]};p.replies.push(r);byName[nick]=r}
-    else if(/^回/.test(f[0])&&f[2]){const to=byName[nick];p.replies.push({id:uid(),author:c.id,text:f.slice(2).join('｜').slice(0,80),t:base+(k++)*1000,likes:[],...(to?{to:to.id}:{})})}}
   save();ref();
   for(const x of pals.slice(0,2)){if(Math.random()<.5)continue;await sleep(3000+Math.random()*8000);if(!S.feed.includes(p))return;await charReply(p,x);ref();
     const r=p.replies[p.replies.length-1];if(r&&r.author===x.id&&Math.random()<.5){await sleep(2000+Math.random()*4000);await charReply(p,c,r.text,r.id,x.name);ref()}}}
