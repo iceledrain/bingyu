@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.26.3';</script>
+<script>window.BYJ_VER='2026.11.26.4';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -250,7 +250,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .pi .ic svg{width:24px;height:24px}
 .money-big{text-align:center;font:600 40px var(--body);color:var(--deep);font-variant-numeric:tabular-nums}
 .content>*{flex-shrink:0}
-.cal{--cp:#f9c6d2;--cp2:#f0a3b6;--cf:#ece5fb;--co:#a58be0}html.dark .cal{--cp:rgba(255,130,165,.38);--cp2:rgba(255,130,165,.7);--cf:rgba(170,140,255,.2);--co:#b9a3f0}
+.cal{--cp:#d4d4d9;--cp2:#b0b0b6;--cf:#f0f0f2;--co:#8e8e93}html.dark .cal{--cp:rgba(255,255,255,.28);--cp2:rgba(255,255,255,.45);--cf:rgba(255,255,255,.09);--co:#a1a1a6}
 .cal-h{display:flex;align-items:center;justify-content:space-between}.cal-h b{font:500 17px var(--display);color:var(--deep)}.cal-h button{background:none;border:0;padding:2px 16px;font-size:22px;line-height:1;color:var(--muted)}
 .cal-g{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px 2px}.cal-g>span{text-align:center;font-size:11px;color:var(--muted)}
 .cd{position:relative;background:none;border:1.5px solid transparent;border-radius:14px;padding:4px 0 3px;min-height:54px;display:flex;flex-direction:column;align-items:center;line-height:1.2;min-width:0}
@@ -901,8 +901,8 @@ function perMap(I=perInfo()){const M={},put=(d,k)=>{(M[d]||={})[k]=1};
   return M}
 function perText(I,M,t){const p=I.P.find(p=>p.s<=t&&t<=p.e);if(p)return`经期第 ${dGap(p.s,t)+1} 天`;if(!I.next.length)return'';
   const n=dGap(t,I.next[0]),x=M[t]||{};return(n>0?`下次大约 ${mdText(I.next[0])}，还有 ${n} 天`:n?`晚了 ${-n} 天`:'大约今天来')+(x.ov?' · 今天排卵日':x.fer?' · 易孕期':'')}
-function perNote(n){const I=perInfo(),t=ds(locNow()),L=I.P[I.P.length-1];if(!L||dGap(L.s,t)>60)return'';const p=I.P.find(p=>p.s<=t&&t<=p.e),nx=I.next[0],g=dGap(t,nx);
-  return'【经期】'+(p?`${n}今天经期第${dGap(p.s,t)+1}天，一般来${I.len}天。这几天${n}容易累、肚子疼、心情低，你心里有数，说话软一点，该哄就哄。`:`${n}上次经期是${mdText(L.s)}来的，${g>0?`下次大约${mdText(nx)}，还有${g}天`:g?`按日子${mdText(nx)}该来，晚了${-g}天`:'按日子大约今天来'}。你一直记着这个日子。`)}
+function perNote(n){const I=perInfo(),t=ds(locNow()),L=I.P[I.P.length-1];if(!L||dGap(L.s,t)>60)return'';const p=I.P.find(p=>p.s<=t&&t<=p.e),nx=I.next[0],g=dGap(t,nx),M=perMap(I),x=M[t]||{},ov=I.next.map(d=>dAdd(d,-14)).find(d=>d>=t);
+  return'【经期】'+(p?`${n}今天经期第${dGap(p.s,t)+1}天，一般来${I.len}天。这几天${n}容易累、肚子疼、心情低，你心里有数，说话软一点，该哄就哄。`:`${n}上次经期是${mdText(L.s)}来的，${g>0?`下次大约${mdText(nx)}，还有${g}天`:g?`按日子${mdText(nx)}该来，晚了${-g}天`:'按日子大约今天来'}。${x.ov?`今天是${n}的排卵日，在易孕期里。`:x.fer?`${n}这几天在易孕期，排卵日大约${mdText([-1,0,1,2,3,4,5].map(i=>dAdd(t,i)).find(d=>M[d]?.ov))}。`:ov?`排卵日大约${mdText(ov)}，前5天后1天是易孕期。`:''}这些日子你一直记着。`)}
 const calTag=d=>{const f=festOf(d)[0];if(f)return f;const x=myDays().find(x=>x.md[0]===d.getMonth()+1&&x.md[1]===d.getDate());if(x)return x.id?x.name.slice(0,4):'生日';const t=lunarText(d),i=t.indexOf('月');return t.slice(i+1)==='初一'?t.slice(0,i+1):t.slice(i+1)};
 
 function moodChar(){const t=[...S.threads].filter(t=>t.type==='dm'&&visible(charById(t.chars[0]))&&t.msgs.length).sort((a,b)=>(b.t||0)-(a.t||0))[0];return t?charById(t.chars[0]):null}
@@ -1325,7 +1325,7 @@ function buildCtx(t,o={}){
   rules.push(`${group?cname+'的':''}心情跟着眼前的事走，也会因为${me.name}一句话就变。闹别扭只在嘴上，${me.name}一哄就软。`);
   {const md=chars.filter(c=>c.mood).map(c=>`${c.name}：${c.mood}`);if(md.length)tail.push('【心情】\n'+md.join('\n'))}
   if(mode!=='call')rules.push(`${chars.some(c=>String(c.persona||'').trim())?`人设写的就是${group?cname:'你'}。`:''}和${me.name}之间只提真发生过的事。`);
-  if(!group&&mode!=='call')rules.push(mode==='offline'?'开头先写一行 <think>…</think>：此刻你心里怎么想、接下来想做什么，一句话，8字以内，你自己的口气':`开头先写一行 <think>…</think>：看到${me.name}这几条，你心里第一下怎么想，一句话，8字以内，你自己的口气`);
+  if(!group&&mode!=='call')rules.push(mode==='offline'?'开头先写一行 <think>…</think>：此刻你心里怎么想、接下来想做什么，一句话，8字以内，你自己的口气':`开头先写一行 <think>…</think>：看到${me.name}这几条，你心里怎么想、接下来想怎么做，一句话，8字以内，你自己的口气`);
   if(!group&&mode!=='call')rules.push('末尾另起一行写此刻的心情 [心情:词]，词从这些里挑一个：'+MOODS.join('、'));
   if(!group&&mode==='online')rules.push('再另起一行写此刻没说出口的心里话 [心声:内容]，8字以内，句子、词语、单字、一个符号都行');
   const pre=items.filter(i=>i.role!=='system'&&!inChat(i)).map(i=>({role:i.role,content:mac(i.content)}));
@@ -1381,7 +1381,7 @@ function splitStickers(line,roll){const out=[];let rest=line;const re=/\[(?:(sti
     else{const p=v.split(/[:：]/),a=Math.round((parseFloat(String(p[0]).replace(/[^\d.]/g,''))||5.2)*100)/100;out.push({type:k==='红包'?'hb':'tf',amt:Math.max(.01,a),content:p.slice(1).join('：').trim()||(k==='红包'?'恭喜发财':''),state:'new'})}
     rest=rest.slice(m.index+m[0].length)}
   rest=hit?cl(rest):rest.trim();if(rest)out.push({type:'text',content:rest});return out}
-const thinkCut=x=>{const s=(String(x).match(/[^。！？!?…\n]+[。！？!?…]*/g)||[]).map(y=>y.trim()).filter(Boolean).slice(0,1).join('');return[...s].slice(0,16).join('')};
+const thinkCut=x=>{const s=(String(x).match(/[^。！？!?…\n]+[。！？!?…]*/g)||[]).map(y=>y.trim()).filter(Boolean).slice(0,1).join('');return[...s].slice(0,40).join('')};
 const THINK_TAG='think|thinking|thought|thoughts|reasoning|analysis|思考|思维链|盘算';
 function stripForeign(out,keep){if(keep)return{out,plan:''};const cjk=x=>(x.match(/[\u3400-\u9fff]/g)||[]).length,lat=x=>(x.match(/[A-Za-z]/g)||[]).length;
   const lines=out.split('\n');let k=0,n=0;
