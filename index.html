@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.26.12';</script>
+<script>window.BYJ_VER='2026.11.26.13';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -101,6 +101,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .inline{display:flex;align-items:center;gap:10px}
 .inline input[type=range]{flex:1;min-width:0}
 .inline output{font-size:13px;min-width:2.5em;flex:none;text-align:right;color:var(--ink);font-variant-numeric:tabular-nums}
+.fi{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}.fi>span{flex:none;width:2.4em}.fi input{flex:1;min-width:0;padding:6px 10px!important}.fi .tb{flex:none;padding:4px 0}.fi input.n{flex:none;width:64px}
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:999px;padding:9px 18px;font-size:14px;font-weight:600;white-space:nowrap}
@@ -2192,11 +2193,10 @@ charEdit(v){
   const c=charById(v.id);if(!c)return{title:'不见了',body:''};
   return{title:c.remark||c.name||'',sub:'角色',body:`
   <div class="panel"><div class="inline">${av(c,76)}<div class="btns">${fileBtn('换头像','accept="image/*" data-img="char"')}${c.avatarOld!==undefined?'<button class="btn o" data-a="charAvBack">换回</button>':''}${c.avatar?'<button class="btn o" data-a="clearCharAv">去掉</button>':''}</div></div>
-    <div class="grid2"><label class="f">名字<input type="text" id="c-name" data-s="char" data-k="name" value="${esc(c.name)}"></label><label class="f">备注<input type="text" id="c-remark" data-s="char" data-k="remark" value="${esc(c.remark)}"></label></div>
+    <label class="fi"><span>名字</span><input type="text" id="c-name" data-s="char" data-k="name" value="${esc(c.name)}"></label><label class="fi"><span>备注</span><input type="text" id="c-remark" data-s="char" data-k="remark" value="${esc(c.remark)}"></label>
     <label class="f">人设<textarea class="tall" id="c-persona" data-s="char" data-k="persona" aria-label="人设">${esc(c.persona)}</textarea></label><button class="tb" data-a="txHist" data-id="${c.id}" style="align-self:flex-start">人设历史</button></div>
-  <div class="panel"><h2>声音</h2><label class="f">音色<input type="text" id="c-vid" data-s="cvoice" data-k="vid" value="${esc(c.voice?.vid||'')}" autocomplete="off"><button class="tb" data-a="fetchVoices" data-c="${c.id}" style="align-self:flex-start;padding:4px 0">拉取音色</button></label>
-    <div class="grid2"><label class="f">语速<input type="number" id="c-vrate" data-s="cvoice" data-k="rate" value="${esc(c.voice?.rate||'')}" min="0.5" max="2" step="0.1"></label>
-    <label class="f">语言<input type="text" id="c-vlang" data-s="cvoice" data-k="lang" value="${esc(c.voice?.lang||'')}" autocomplete="off"></label></div>
+  <div class="panel"><h2>声音</h2><div class="fi"><span>音色</span><input type="text" id="c-vid" data-s="cvoice" data-k="vid" value="${esc(c.voice?.vid||'')}" autocomplete="off" aria-label="音色"><button class="tb" data-a="fetchVoices" data-c="${c.id}">拉取</button></div>
+    <div class="fi"><span>语速</span><input type="number" class="n" id="c-vrate" data-s="cvoice" data-k="rate" value="${esc(c.voice?.rate||'')}" min="0.5" max="2" step="0.1" aria-label="语速"><span>语言</span><input type="text" id="c-vlang" data-s="cvoice" data-k="lang" value="${esc(c.voice?.lang||'')}" autocomplete="off" aria-label="语言"></div>
     <button class="btn o" data-a="tryVoice" style="align-self:flex-start">试听</button></div>
   <div class="btns"><button class="btn" data-a="messageChar" data-id="${c.id}">发消息</button><button class="btn o" data-a="exportChar">导出</button>${rel(c).youBlocked?`<button class="btn o" data-a="unblockC" data-id="${c.id}">解除拉黑</button>`:''}<button class="btn red" data-a="delChar">删除</button></div>`};
 },
