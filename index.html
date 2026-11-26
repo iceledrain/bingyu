@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.26.8';</script>
+<script>window.BYJ_VER='2026.11.26.9';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2190,9 +2190,9 @@ post(v){
 },
 charEdit(v){
   const c=charById(v.id);if(!c)return{title:'不见了',body:''};
-  return{title:dn(c),sub:'角色',body:`
+  return{title:c.remark||c.name||'',sub:'角色',body:`
   <div class="panel"><div class="inline">${av(c,76)}<div class="btns">${fileBtn('换头像','accept="image/*" data-img="char"')}${c.avatarOld!==undefined?'<button class="btn o" data-a="charAvBack">换回</button>':''}${c.avatar?'<button class="btn o" data-a="clearCharAv">去掉</button>':''}</div></div>
-    <div class="grid2"><label class="f">名字<input type="text" id="c-name" data-s="char" data-k="name" value="${esc(c.name)}"></label><label class="f">备注<input type="text" id="c-remark" data-s="char" data-k="remark" value="${esc(c.remark)}" placeholder="你给TA的备注"></label></div>
+    <div class="grid2"><label class="f">名字<input type="text" id="c-name" data-s="char" data-k="name" value="${esc(c.name)}"></label><label class="f">备注<input type="text" id="c-remark" data-s="char" data-k="remark" value="${esc(c.remark)}"></label></div>
     <label class="f">人设<textarea class="tall" id="c-persona" data-s="char" data-k="persona" aria-label="人设">${esc(c.persona)}</textarea></label><button class="tb" data-a="txHist" data-id="${c.id}" style="align-self:flex-start">人设历史</button></div>
   <div class="panel"><h2>声音</h2><label class="f">音色<input type="text" id="c-vid" data-s="cvoice" data-k="vid" value="${esc(c.voice?.vid||'')}" placeholder="${esc(S.media.tts.voice||'跟设置里的一样')}" autocomplete="off"><button class="tb" data-a="fetchVoices" data-c="${c.id}" style="align-self:flex-start;padding:4px 0">拉取音色</button></label>
     <div class="grid2"><label class="f">语速<input type="number" id="c-vrate" data-s="cvoice" data-k="rate" value="${esc(c.voice?.rate||'')}" placeholder="1" min="0.5" max="2" step="0.1"></label>
@@ -2407,7 +2407,7 @@ apiEdit(v){
 }
 };
 
-function dropBlank(){const bad=S.chars.filter(c=>c.name==='新角色'&&!String(c.persona||'').trim()&&!c.avatar&&!c.remark&&!c.handle&&!stack.some(x=>x.id===c.id)&&!S.threads.some(t=>t.chars.includes(c.id)&&(t.type==='group'||t.msgs.length))).map(c=>c.id);
+function dropBlank(){const bad=S.chars.filter(c=>(!c.name||c.name==='新角色')&&!String(c.persona||'').trim()&&!c.avatar&&!c.remark&&!c.handle&&!stack.some(x=>x.id===c.id)&&!S.threads.some(t=>t.chars.includes(c.id)&&(t.type==='group'||t.msgs.length))).map(c=>c.id);
   if(!bad.length)return;S.chars=S.chars.filter(c=>!bad.includes(c.id));S.threads=S.threads.filter(t=>!(t.type==='dm'&&bad.includes(t.chars[0])));save()}
 function purgeChar(id){S.chars=S.chars.filter(c=>c.id!==id);S.threads.forEach(t=>t.chars=t.chars.filter(x=>x!==id));S.threads=S.threads.filter(t=>t.chars.length&&!(t.type==='group'&&t.chars.length<2&&!t.msgs.length));
   S.feed=S.feed.filter(p=>p.author!==id);S.events=S.events.filter(e=>e.who!==id);if(S.music.with===id)S.music.with=null;
@@ -2695,7 +2695,7 @@ const A={
   topUp(){sheet(`<h3>充值</h3><div class="chips" style="justify-content:center">${[50,100,200,500,1000,5000].map(n=>`<button data-a="topUpGo" data-v="${n}">${n}</button>`).join('')}</div><input type="number" id="topIn" placeholder="别的数" step="0.01" min="0" aria-label="充值金额"><button class="btn" data-a="topUpGo">充值</button>${CANCEL}`)},
   topUpGo(el){const a=Math.round((+(el?.dataset?.v||$('#topIn')?.value)||0)*100)/100;if(!(a>0)){toast('填个金额');return}S.wallet=Math.round(((+S.wallet||0)+a)*100)/100;save();closeSheet();render(true);toast('充了 '+money(a))},
   charMenu(){sheet(`<h3>添加</h3><button class="opt" data-a="newChar">新角色</button><button class="opt" data-a="newMask">新面具</button>${CANCEL}`)},
-  newChar(){const c={id:uid(),name:'新角色',remark:'',handle:'',avatar:'',persona:'',books:[]};S.chars.push(c);save();closeSheet();go({v:'charEdit',id:c.id})},
+  newChar(){const c={id:uid(),name:'',remark:'',handle:'',avatar:'',persona:'',books:[]};S.chars.push(c);save();closeSheet();go({v:'charEdit',id:c.id})},
   editChar(el){closeSheet();go({v:'charEdit',id:el.dataset.id})},
   pShop(el){const t=thread(cur().id);closeSheet();go({v:el.dataset.k==='goods'?'goods':'food',to:t.chars[0]})},
   personaTpl(el){const k=el.dataset.k,L=S.personaTpls;
