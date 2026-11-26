@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.26.15';</script>
+<script>window.BYJ_VER='2026.11.26.16';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -101,17 +101,10 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .inline{display:flex;align-items:center;gap:10px}
 .inline input[type=range]{flex:1;min-width:0}
 .inline output{font-size:13px;min-width:2.5em;flex:none;text-align:right;color:var(--ink);font-variant-numeric:tabular-nums}
-.pf{--fill:rgba(var(--accent-rgb),.11);--paper:#fff;--psh:0 0 0 1px rgba(0,0,0,.045),0 8px 20px rgba(110,110,110,.2);--tape:repeating-linear-gradient(45deg,rgba(246,246,246,.92) 0 5px,rgba(208,208,208,.8) 5px 10px)}
-html.dark .pf{--fill:rgba(255,255,255,.07);--paper:#3a3a3c;--psh:0 8px 20px rgba(0,0,0,.4);--tape:repeating-linear-gradient(45deg,rgba(255,255,255,.22) 0 5px,rgba(130,130,130,.42) 5px 10px)}
-.idc{flex-direction:row;align-items:center;gap:18px;padding:18px 16px 16px 18px}.idf{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
-.pol{position:relative;flex:none;display:flex;flex-direction:column;align-items:center;width:min(124px,32vw);box-sizing:border-box;padding:9px 9px 0;border:0;border-radius:4px;transform:rotate(-3deg);background:var(--paper);box-shadow:var(--psh);transition:transform .15s;cursor:pointer}
-.pol:active{transform:rotate(-3deg) scale(.96)}.pol::before{content:"";position:absolute;top:-9px;left:50%;width:48px;height:16px;margin-left:-24px;transform:rotate(4deg);background:var(--tape)}
-.pol .av{width:100%;height:auto;aspect-ratio:1;border-radius:2px}.pol img{pointer-events:none}.pol>i{position:absolute;left:9px;right:9px;top:9px;aspect-ratio:1;display:grid;place-items:center;font:200 28px/1 var(--body);color:var(--muted)}
-.pol b{height:31px;line-height:30px;font-weight:500;font-size:13px;color:var(--deep);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.fx{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--muted)}.fx>span{flex:none}.fx .tb{flex:none;padding:6px 0 6px 2px;font-size:13px;color:var(--muted)}
-.fx input{flex:1;min-width:0;border:0;background:var(--fill);border-radius:12px;padding:7px 12px;outline:0}.fx input.s{flex:none;width:96px}.fx input:focus{box-shadow:0 0 0 1.5px rgba(var(--accent-rgb),.55)}
-textarea.bare{border:0;background:none;padding:0;border-radius:0;outline:0;min-height:104px;font-size:15.5px;line-height:1.8;resize:none;overflow:hidden}.pf h2{font-size:15px}.pf h2 .tb{padding:4px 0 4px 12px;font-size:13px;color:var(--muted)}
-.bind{display:flex;flex-wrap:wrap;gap:8px}.bind label{display:flex;align-items:center;gap:7px;padding:5px 13px 5px 5px;border-radius:999px;background:var(--fill);font-size:14px;color:var(--deep);cursor:pointer}.bind label:has(:checked){background:var(--accent);color:var(--accent-ink)}.bind small{font-size:11px;opacity:.7}
+.pf .panel{gap:11px}.pav{position:relative;align-self:center;display:block;margin:6px 0 4px;padding:0;border:0;background:none;cursor:pointer}.pav .av{border-radius:20%}.pav img{pointer-events:none}.pav>i{position:absolute;inset:0;display:grid;place-items:center;font:200 28px/1 var(--body);color:var(--muted)}
+.fx{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--muted)}.fx>span{flex:none}.fx input,.fx textarea{flex:1;min-width:0}.fx.t{align-items:flex-start}.fx.t>span{padding-top:11px}
+textarea.bare{min-height:104px;font-size:15.5px;line-height:1.75;resize:none;overflow:hidden}.pf h2{font-size:15px}.pf h2 .tb{padding:4px 0 4px 12px;font-size:13px;color:var(--muted)}
+.bind{display:flex;flex-wrap:wrap;gap:8px}.bind label{display:flex;align-items:center;gap:7px;padding:4px 12px 4px 4px;border:1px solid var(--line);border-radius:999px;background:var(--bg2);font-size:13.5px;color:var(--deep);cursor:pointer}.bind label:has(:checked){background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}.bind small{font-size:11px;opacity:.7}
 .quiet{align-self:center;display:flex;gap:4px;border-radius:999px}.quiet .tb{font-size:13px;color:var(--muted);padding:6px 14px}html.wp .quiet{background:var(--panel);-webkit-backdrop-filter:var(--frost);backdrop-filter:var(--frost)}.br .pill{align-self:center;margin-right:8px}
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
@@ -1164,10 +1157,12 @@ const loreOf=(books,scan,part)=>loreHit(books,scan).filter(e=>!part||(part==='fi
 const loreBlock=(L,f)=>L.length?'【世界书】\n'+L.map(f).join('\n---\n'):'';
 const charLore=(c,scan)=>{const f=x=>macOf(x,c),L=loreHit(booksFor([c]),String(scan||'')+' '+c.name),top=e=>loreFix(e)&&e.pos!=='depth',a=loreBlock(L.filter(top).map(loreTx),f),b=loreBlock(L.filter(e=>!top(e)).map(loreTx),f);return a||b?a+'\u0002'+b+'\u0001':''};
 const sentText=x=>[x.system,...x.msgs.map(m=>(m.role==='assistant'?'他：':'我：')+(typeof m.content==='string'?m.content:''))].filter(Boolean).join('\n\n');
-const grow=()=>{const c=$('#content'),t=c.scrollTop;c.querySelectorAll('textarea.bare').forEach(x=>{x.style.height='auto';x.style.height=x.scrollHeight+'px'});c.scrollTop=t};
+const grow=()=>{const c=$('#content'),t=c.scrollTop;c.querySelectorAll('textarea.bare').forEach(x=>{x.style.height='auto';x.style.height=x.scrollHeight+x.offsetHeight-x.clientHeight+'px'});c.scrollTop=t};
 addEventListener('resize',()=>$('.bare')&&grow());
-const capN=o=>S.masks.includes(o)?(o.name==='user'?'':o.name):dn(o);
-const pol=(o,k)=>{const h=`${av(o,106)}${o.avatar?'':'<i>+</i>'}<b id="pf-n">${esc(capN(o))}</b>`;return o.avatar?`<button class="pol" data-a="avMenu" data-k="${k}" aria-label="头像">${h}</button>`:`<label class="pol">${h}<input type="file" accept="image/*" data-img="${k}" class="vh" aria-label="头像"></label>`};
+const card=(o,k,more='')=>{const p=k[0],a=av(o,88);
+  return`<div class="panel">${o.avatar?`<button class="pav" data-a="avMenu" data-k="${k}" aria-label="头像">${a}</button>`:`<label class="pav">${a}<i>+</i><input type="file" accept="image/*" data-img="${k}" class="vh" aria-label="头像"></label>`}
+    <label class="fx"><span>名字</span><input type="text" id="${p}-name" data-s="${k}" data-k="name" value="${esc(k==='mask'&&o.name==='user'?'':o.name)}"></label>${more}
+    <label class="fx t"><span>人设</span><textarea class="bare" id="${p}-persona" data-s="${k}" data-k="persona">${esc(o.persona)}</textarea></label></div>`};
 const HBS={new:'还没收',got:'已收下',back:'已退回'};
 const RXW={ai:'他说的',me:'我说的',both:'都'},RXAT={in:'直接改掉',show:'只改显示',send:'只改发给模型的'},rxC=new Map();
 const rxRe=f=>{if(!rxC.has(f)){let re=null;try{const m=String(f||'').match(/^\/([\s\S]+)\/([a-z]*)$/);re=f?m?new RegExp(m[1],m[2]):new RegExp(f,'g'):null}catch(e){}rxC.set(f,re)}return rxC.get(f)};
@@ -1929,7 +1924,7 @@ function shopView(v){const fix=v.v,tab=v.tab==='list'?'list':fix,to=v.to||'me',c
   const head=tabs([[fix,T],['list','记录']],tab);
   if(tab==='list'){const L=[...S.orders.map(o=>({t:o.t,who:'我自己',from:'me',m:o})),
       ...S.threads.filter(t=>t.type==='dm').flatMap(t=>t.msgs.filter(m=>(m.type==='order'||m.type==='parcel')&&!m.hide).map(m=>({t:m.t,who:dn(charById(t.chars[0])),from:m.from,m})))].sort((a,b)=>b.t-a.t).slice(0,80);
-    return{title:T,body:head+(L.filter(x=>oKind(x.m)===fix).map(x=>`<div class="row"><span class="meta"><b>${esc(x.m.content)}</b><small>${SHOP[oKind(x.m)].T} · ${x.from==='me'?'我 → '+esc(x.who):esc(x.who)+' → 我'} · ${ago(x.t)}</small></span><span class="side"><span>${money(x.m.amt)}</span><span class="pill">${oState(x.m)}</span><button class="tb red" data-a="ordDel" data-id="${x.m.id}">删除</button></span></div>`).join('')+(L.length?`<button class="btn red" data-a="ordClr" style="align-self:flex-start">清空记录</button>`:'')||`<div class="empty"><big>还没有订单</big></div>`)}}
+    return{title:T,body:head+(L.filter(x=>oKind(x.m)===fix).map(x=>`<div class="row"><span class="meta"><b>${esc(x.m.content)}</b><small>${SHOP[oKind(x.m)].T} · ${x.from==='me'?'我 → '+esc(x.who):esc(x.who)+' → 我'} · ${ago(x.t)}</small></span><span class="side"><span>${money(x.m.amt)}</span><span class="pill">${oState(x.m)}</span><button class="tb red" data-a="ordDel" data-id="${x.m.id}">删除</button></span></div>`).join('')+(L.length?`<button class="btn red" data-a="ordClr" style="align-self:flex-start">清空记录</button>`:''))}}
   const K=SHOP[tab],my=S.shop[tab],cards=cardsNow().filter(k=>k.dir!=='out');
   return{title:T,body:head+`
     <div class="panel"><h2>${K.h}<button class="pill" data-a="open" data-v="wallet" style="border:0">钱包 ${money(S.wallet)}</button></h2><div class="chips">${[['me','我自己'],...chars.map(c=>[c.id,dn(c)])].map(([k,l])=>`<button class="${to===k?'on':''}" data-a="shopTo" data-id="${k}">${esc(l)}</button>`).join('')}</div>
@@ -2129,7 +2124,7 @@ threads(v){dropBlank();
     body:(S.chars.some(c=>!rel(c).youDeleted)?`<div class="wxg">`:'<div>')+(S.chars.filter(c=>!rel(c).youDeleted).map(c=>`<button class="row" data-a="editChar" data-hold="charHold" data-id="${c.id}">${av(c,40)}<span class="meta"><b>${esc(dn(c))}</b>${c.remark?`<small>${esc(c.name)}</small>`:''}</span>${rel(c).youBlocked?`<span class="pill">${rel(c).blockBy&&charById(rel(c).blockBy)?esc(dn(charById(rel(c).blockBy)))+'拉黑的':'已拉黑'}</span>`:''}</button>`).join(''))+`</div>`+
     (S.chars.some(c=>rel(c).youDeleted)?`<div class="sec">已删除的好友</div><div class="wxg">`+S.chars.filter(c=>rel(c).youDeleted).map(c=>`<div class="row">${av(c,40)}<span class="meta"><b>${esc(dn(c))}</b><small>${rel(c).blockBy&&charById(rel(c).blockBy)?esc(dn(charById(rel(c).blockBy)))+' 用你手机删的 · ':''}聊天记录还留着</small></span><span class="side h"><button class="tb" data-a="reAdd" data-id="${c.id}">重新添加</button><button class="tb red" data-a="delChar" data-id="${c.id}">删除</button></span></div>`).join('')+`</div>`:'')+
     `<div class="wxg">`+
-    S.masks.map(m=>`<div class="row">${av(m,40)}<button class="meta" data-a="editMask" data-id="${m.id}"><b>${esc(m.name)}</b><small>${(()=>{const b=S.chars.filter(c=>c.mask===m.id).map(dn);return b.length?esc('绑定：'+b.join('、'))+' · ':''})()}${esc(m.persona?m.persona.replace(/\n/g,' '):'还没写人设')}</small></button><span class="side">${m.id===S.activeMask?'<span class="pill fill">戴着</span>':`<button class="tb" data-a="useMask" data-id="${m.id}">戴上</button>`}</span></div>`).join('')+`</div>`};
+    S.masks.map(m=>`<div class="row">${av(m,40)}<button class="meta" data-a="editMask" data-id="${m.id}"><b>${esc(m.name)}</b><small>${(()=>{const b=S.chars.filter(c=>c.mask===m.id).map(dn);return b.length?esc('绑定：'+b.join('、'))+' · ':''})()}${esc((m.persona||'').replace(/\n/g,' '))}</small></button><span class="side">${m.id===S.activeMask?'<span class="pill fill">戴着</span>':`<button class="tb" data-a="useMask" data-id="${m.id}">戴上</button>`}</span></div>`).join('')+`</div>`};
   const list=S.threads.filter(t=>!(t.type==='dm'&&rel(charById(t.chars[0])||{rel:{}}).youDeleted)).sort((a,b)=>(b.t||0)-(a.t||0));
   const rows=list.map(t=>{const cs=t.chars.map(charById).filter(Boolean);const lm=t.msgs[t.msgs.length-1];
     return`<button class="row" data-a="openThread" data-id="${t.id}"><span class="wxa">${t.type==='dm'?av(cs[0]||{name:'?'},48):(t.avatar?av(t,48):`<span class="grpav">${cs.slice(0,4).map(c=>av(c,22)).join('')}</span>`)}${t.unread?`<i class="wxn">${t.unread>99?'99+':t.unread}</i>`:''}</span><span class="meta"><span class="xn"><b>${esc(threadTitle(t))}</b><i>${lm?ago(lm.t):''}</i></span><small>${t.mode==='offline'?'[线下] ':''}${esc(lastPreview(t))}</small></span></button>`}).join('');
@@ -2189,7 +2184,7 @@ plaza(v){
   if(feedNew()){S.feedSeen=Date.now();save()}
   return{title:'朋友圈',cls:'mo',right:`<button class="tb" data-a="open" data-v="moNew" aria-label="发朋友圈">${ICONS.plus}</button>`,
     body:`<label class="mo-cover${me.mocover?' img':''}" style="${me.mocover?`background-image:url(${esc(me.mocover)})`:''}"><b>${esc(me.name)}</b>${av(me,64)}<input type="file" accept="image/*" data-img="mocover" class="vh" aria-label="换朋友圈封面"></label>`+
-    (list.map(p=>postHTML(p)).join('')||'<div class="empty"><big>还没有</big></div>')};
+    list.map(p=>postHTML(p)).join('')};
 },
 moNew(v){const pp=postDraft.pics;
   return{title:'发朋友圈',cls:'mo',right:`<button class="tb" data-a="myPost">发表</button>`,
@@ -2207,21 +2202,19 @@ post(v){
 charEdit(v){
   const c=charById(v.id);if(!c)return{title:'不见了',body:''};
   return{title:'角色',cls:'pf',right:`<button class="tb" data-a="messageChar" data-id="${c.id}">发消息</button>`,body:`
-  <div class="panel idc">${pol(c,'char')}<div class="idf"><label class="fx"><span>名字</span><input type="text" id="c-name" data-s="char" data-k="name" value="${esc(c.name)}"></label><label class="fx"><span>备注</span><input type="text" id="c-remark" data-s="char" data-k="remark" value="${esc(c.remark)}"></label></div></div>
-  <div class="panel"><h2>人设<button class="tb" data-a="txHist" data-id="${c.id}">历史</button></h2><textarea class="bare" id="c-persona" data-s="char" data-k="persona" aria-label="人设">${esc(c.persona)}</textarea></div>
-  <div class="panel"><h2>声音<button class="tb" data-a="tryVoice">试听</button></h2>
-    <div class="fx"><span>音色</span><input type="text" id="c-vid" data-s="cvoice" data-k="vid" value="${esc(c.voice?.vid||'')}" autocomplete="off" aria-label="音色"><button class="tb" data-a="fetchVoices" data-c="${c.id}">拉取</button></div>
-    <label class="fx"><span>语速</span><input class="s" type="number" id="c-vrate" data-s="cvoice" data-k="rate" value="${esc(c.voice?.rate||'')}" min="0.5" max="2" step="0.1"></label>
-    <label class="fx"><span>语言</span><input class="s" type="text" id="c-vlang" data-s="cvoice" data-k="lang" value="${esc(c.voice?.lang||'')}" autocomplete="off"></label></div>
-  <div class="quiet"><button class="tb" data-a="exportChar">导出</button>${rel(c).youBlocked?`<button class="tb" data-a="unblockC" data-id="${c.id}">解除拉黑</button>`:''}<button class="tb" data-a="delChar">删除</button></div>`};
+  ${card(c,'char',`<label class="fx"><span>备注</span><input type="text" id="c-remark" data-s="char" data-k="remark" value="${esc(c.remark)}"></label>`)}
+  <div class="panel"><h2>声音<span><button class="tb" data-a="fetchVoices" data-c="${c.id}">拉取</button><button class="tb" data-a="tryVoice">试听</button></span></h2>
+    <label class="fx"><span>音色</span><input type="text" id="c-vid" data-s="cvoice" data-k="vid" value="${esc(c.voice?.vid||'')}" autocomplete="off"></label>
+    <label class="fx"><span>语速</span><input type="number" id="c-vrate" data-s="cvoice" data-k="rate" value="${esc(c.voice?.rate||'')}" min="0.5" max="2" step="0.1"></label>
+    <label class="fx"><span>语言</span><input type="text" id="c-vlang" data-s="cvoice" data-k="lang" value="${esc(c.voice?.lang||'')}" autocomplete="off"></label></div>
+  <div class="quiet"><button class="tb" data-a="txHist" data-id="${c.id}">历史</button><button class="tb" data-a="exportChar">导出</button>${rel(c).youBlocked?`<button class="tb" data-a="unblockC" data-id="${c.id}">解除拉黑</button>`:''}<button class="tb" data-a="delChar">删除</button></div>`};
 },
 maskEdit(v){
-  const m=maskById(v.id);if(!m)return{title:'不见了',body:''};
-  return{title:'面具',cls:'pf',right:m.id===S.activeMask?'<span class="pill fill">戴着</span>':`<button class="tb" data-a="useMask" data-id="${m.id}">戴上</button>`,body:`
-  <div class="panel idc">${pol(m,'mask')}<div class="idf"><label class="fx"><span>名字</span><input type="text" id="m-name" data-s="mask" data-k="name" value="${esc(capN(m))}"></label><label class="fx"><span>生日</span><input type="text" id="m-bday" data-s="mask" data-k="bday" value="${esc(m.bday||'')}"></label></div></div>
-  <div class="panel"><h2>人设<button class="tb" data-a="txHist" data-id="${m.id}">历史</button></h2><textarea class="bare" id="m-persona" data-s="mask" data-k="persona" aria-label="人设">${esc(m.persona)}</textarea></div>
-  ${S.chars.length?`<div class="panel"><h2>绑定的角色</h2><div class="bind">${S.chars.map(c=>{const o=c.mask&&c.mask!==m.id?maskById(c.mask):null;return`<label>${av(c,26)}<input type="checkbox" class="vh" data-a2="maskChar" data-id="${c.id}" ${c.mask===m.id?'checked':''}>${esc(dn(c))}${o?`<small>${esc(o.name)}</small>`:''}</label>`}).join('')}</div></div>`:''}
-  ${S.masks.length>1?'<div class="quiet"><button class="tb" data-a="delMask">删除</button></div>':''}`};
+  const m=maskById(v.id);if(!m)return{title:'不见了',body:''};const n=S.masks.length>1;
+  return{title:'面具',cls:'pf',right:!n?'':m.id===S.activeMask?'<span class="pill fill">戴着</span>':`<button class="tb" data-a="useMask" data-id="${m.id}">戴上</button>`,body:`
+  ${card(m,'mask','')}
+  ${n&&S.chars.length?`<div class="panel"><h2>绑定的角色</h2><div class="bind">${S.chars.map(c=>{const o=c.mask&&c.mask!==m.id?maskById(c.mask):null;return`<label>${av(c,26)}<input type="checkbox" class="vh" data-a2="maskChar" data-id="${c.id}" ${c.mask===m.id?'checked':''}>${esc(dn(c))}${o?`<small>${esc(o.name)}</small>`:''}</label>`}).join('')}</div></div>`:''}
+  <div class="quiet"><button class="tb" data-a="txHist" data-id="${m.id}">历史</button>${n?'<button class="tb" data-a="delMask">删除</button>':''}</div>`};
 },
 presets(){
   return{title:'预设',right:`<button class="tb" data-a="presetMenu">添加</button>`,body:
@@ -2242,7 +2235,7 @@ cal(v){const td=ds(locNow());v.d||=td;v.m||=v.d.slice(0,7);const I=perInfo(),M=p
     ${pb?`<div class="cal-b">${pb}</div>`:''}</div>`}},
 regex(){
   return{title:'正则',right:`<button class="tb" data-a="rxMenu">添加</button>`,body:
-    S.regex.map(r=>`<div class="row"><input type="checkbox" class="cbx" aria-label="开启 ${esc(r.name)}" data-a2="rxOn" data-id="${r.id}" ${r.on?'checked':''}><button class="meta" data-a="editRx" data-id="${r.id}"><b>${esc(r.name||'')}</b><small>${r.find&&!rxRe(r.find)?'⚠ 写错了 · ':''}${RXW[r.who]} · ${RXAT[r.at]}</small></button></div>`).join('')||`<div class="empty"><big>还没有</big></div>`}},
+    S.regex.map(r=>`<div class="row"><input type="checkbox" class="cbx" aria-label="开启 ${esc(r.name)}" data-a2="rxOn" data-id="${r.id}" ${r.on?'checked':''}><button class="meta" data-a="editRx" data-id="${r.id}"><b>${esc(r.name||'')}</b><small>${r.find&&!rxRe(r.find)?'⚠ 写错了 · ':''}${RXW[r.who]} · ${RXAT[r.at]}</small></button></div>`).join('')}},
 regexEdit(v){const r=S.regex.find(x=>x.id===v.id);if(!r)return{title:'不见了',body:''};
   const sel=(k,O)=>`<select data-s="rx" data-k="${k}">${Object.entries(O).map(([a,l])=>`<option value="${a}" ${r[k]===a?'selected':''}>${l}</option>`).join('')}</select>`;
   return{title:r.name||'',sub:'正则',body:`<div class="panel">
@@ -2256,7 +2249,7 @@ books(v){const tab=v.tab==='local'?'local':'global',own=b=>S.chars.find(c=>(c.bo
   const row=b=>{const g=b.entries.filter(e=>e.light==='green').length,y=b.entries.filter(e=>e.light==='yellow').length,c=own(b);return`<div class="row"><input type="checkbox" class="cbx" aria-label="开启 ${esc(b.name)}" data-a2="bookOn" data-id="${b.id}" ${b.off?'':'checked'}><button class="meta" data-a="editBook" data-id="${b.id}"><b>${esc(b.name)}</b><small>${b.entries.length} 条 · ${g} 常亮约 ${b.entries.reduce((n,e)=>n+(e.light==='green'?tokEst(e.content):0),0)} token · ${y} 关键词</small></button>${tab==='local'?`<span class="pill" data-a="editBook" data-id="${b.id}">${c?esc(dn(c)):bookUse(b.id)||'还没选给谁'}</span>`:''}</div>`};
   return{title:'世界书',right:`<button class="tb" data-a="bookMenu">添加</button>`,body:tabs([['global','全局'],['local','局部']],tab)+
     ``+
-    (L.map(row).join('')||`<div class="empty"><big>${tab==='global'?'还没有全局的':'还没有局部的'}</big></div>`)+
+    L.map(row).join('')+
     `<div class="panel"><label class="f">关键词看最近几条<span class="inline"><input type="range" id="b-scan" min="1" max="30" step="1" data-s="chat" data-k="scan" value="${num(S.chat.scan)||8}"><output>${num(S.chat.scan)||8}</output></span></label></div>`}},
 bookEdit(v){
   const b=S.books.find(x=>x.id===v.id);if(!b)return{title:'不见了',body:''};
@@ -2848,7 +2841,7 @@ function bind(e){const el=e.target;if(!el.dataset||!el.dataset.k)return;const o=
   if(el.dataset.k==='persona'&&o.id){const k=o.id;if(!txOn.has(k)){txOn.add(k);txSnap(k,o.persona)}clearTimeout(txT[k]);txT[k]=setTimeout(()=>{txT[k]=0;txSnap(k,o.persona,1)},e.type==='change'?0:5000)}
   o[el.dataset.k]=el.dataset.s==='mask'&&el.dataset.k==='name'&&!String(val).trim()?'user':val;if(el.dataset.s==='api'&&el.dataset.k==='effort'&&o.fix){delete o.fix.noEff;delete o.fix.eff}save();const out=el.parentElement.querySelector('output');if(out)out.textContent=val}
 document.addEventListener('input',e=>{if(e.target.id==='mRange'){mSeek(+e.target.value/1000);return}if(e.target.classList.contains('bare'))grow();
-  bind(e);const n=$('#pf-n');if(n)n.textContent=capN(scopeObj(cur().v==='maskEdit'?'mask':'char'))});
+  bind(e)});
 document.addEventListener('error',e=>{const el=e.target;if(!el||el.tagName!=='IMG'||!/^https?:/.test(el.getAttribute('src')||''))return;const b=el.closest('.pmsg'),f=el.closest('.mo-pic');
   if(b&&b.nextElementSibling?.classList.contains('pcap')){b.nextElementSibling.remove();b.outerHTML=`<button class="tphoto" data-a="msg" data-i="${esc(b.dataset.i)}">${ICONS.camera}<span>${esc(el.alt)}</span></button>`}
   else if(f){f.classList.add('tp');f.innerHTML=ICONS.camera+`<span>${esc(el.alt)}</span>`}},true);
