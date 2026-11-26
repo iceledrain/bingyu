@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.26.10';</script>
+<script>window.BYJ_VER='2026.11.26.11';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -721,7 +721,7 @@ for(const K of['evWipe','memWipe'])if(!s[K]||typeof s[K]!=='object')s[K]={};if(!
     if(A.profiles.some(isOldExample)){A.profiles=A.profiles.filter(p=>!isOldExample(p));if(!A.profiles.length)A.profiles=[API_BLANK(uid())];if(!A.profiles.some(p=>p.id===A.active))A.active=A.profiles[0].id}
     if(!A.capV){A.capV=1;A.profiles.forEach(p=>{if(/anthropic\.com|generativelanguage/.test(p.base||'')&&(+p.maxTokens||0)<=8192)p.maxTokens=64000;if(/anthropic\.com/.test(p.base||''))p.stream=true})}}
   s.feed.forEach(p=>(Array.isArray(p.pics)?p.pics:[]).forEach(x=>delete x.dev));s.chars.forEach(c=>{if(c.mood)c.mood=softMood(c.mood);delete c.tide;delete c.tideLog;if(c.rel)for(const k of['theyBlocked','theyDeleted','at'])delete c.rel[k]});delete s.api.side;s.threads.forEach(t=>{delete t.clock;delete t.pc});s.books.forEach(b=>{delete b.scan;delete b.maxTok;delete b.maxN;(b.entries||[]).forEach(e=>{delete e.noRec;delete e.stopRec;delete e.was;if(e.pos==='after')delete e.pos})});
-  s.chars.forEach(c=>{delete c.routine;delete c.sched;delete c.sign;delete c.today;delete c.past;delete c.phone;delete c.pphoto});s.masks.forEach(m=>{delete m.handle;delete m.bio;delete m.follow;delete m.fans;delete m.likes});
+  s.chars.forEach(c=>{if(c.voice)delete c.voice.off;delete c.routine;delete c.sched;delete c.sign;delete c.today;delete c.past;delete c.phone;delete c.pphoto});s.masks.forEach(m=>{delete m.handle;delete m.bio;delete m.follow;delete m.fans;delete m.likes});
   s.stickers.groups.forEach(g=>(g.items||[]).forEach(x=>{x.name=stkName(x.name)||x.name}));
   delete s.lock;delete s.bubble;delete s.cycle;s.v=4;
   return s;
@@ -2029,7 +2029,7 @@ async function ttsAudio(text,c){const T=S.media.tts,v=c?.voice||{},key=(T.key||'
   if(typeof x!=='string'||!x||x.length%2||/[^0-9a-f]/i.test(x))throw new Error('没拿到语音：'+(d.base_resp?.status_msg||d.error?.message||JSON.stringify(d).slice(0,120)));
   const u=new Uint8Array(x.length/2);for(let i=0;i<u.length;i++)u[i]=parseInt(x.substr(i*2,2),16);
   return new Blob([u],{type:'audio/mpeg'})}
-async function speak(text,c,key){const s=cleanSpeak(text);if(!s)return;const T=S.media.tts;if(T.off||c?.voice?.off)return;
+async function speak(text,c,key){const s=cleanSpeak(text);if(!s)return;const T=S.media.tts;if(T.off)return;
   if(!T.key||!mmRoot()||!(c?.voice?.vid||T.voice))return;{if(key)key+='|'+(c?.voice?.vid||T.voice)+'|'+(c?.voice?.rate||1);try{let blob=key?await DB.get('tts:'+key):null;if(!(blob instanceof Blob)){blob=await ttsAudio(s,c);if(key)DB.set('tts:'+key,blob)}
       return await new Promise(res=>{try{vAudio&&vAudio.pause()}catch(e){}vAudio=new Audio(URL.createObjectURL(blob));let done=false;const fin=()=>{if(!done){done=true;res()}};vAudio.onended=vAudio.onerror=fin;vAudio.play().catch(fin)})}
     catch(e){if(!ttsWarned){ttsWarned=true;toast(e.message,5600)}}}}
@@ -2197,7 +2197,6 @@ charEdit(v){
   <div class="panel"><h2>声音</h2><label class="f">音色<input type="text" id="c-vid" data-s="cvoice" data-k="vid" value="${esc(c.voice?.vid||'')}" autocomplete="off"><button class="tb" data-a="fetchVoices" data-c="${c.id}" style="align-self:flex-start;padding:4px 0">拉取音色</button></label>
     <div class="grid2"><label class="f">语速<input type="number" id="c-vrate" data-s="cvoice" data-k="rate" value="${esc(c.voice?.rate||'')}" min="0.5" max="2" step="0.1"></label>
     <label class="f">语言<input type="text" id="c-vlang" data-s="cvoice" data-k="lang" value="${esc(c.voice?.lang||'')}" autocomplete="off"></label></div>
-    <label class="ck"><input type="checkbox" data-s="cvoice" data-k="off" ${c.voice?.off?'checked':''}>不放TA的声音</label>
     <button class="btn o" data-a="tryVoice" style="align-self:flex-start">试听</button></div>
   <div class="btns"><button class="btn" data-a="messageChar" data-id="${c.id}">发消息</button><button class="btn o" data-a="exportChar">导出</button>${rel(c).youBlocked?`<button class="btn o" data-a="unblockC" data-id="${c.id}">解除拉黑</button>`:''}<button class="btn red" data-a="delChar">删除</button></div>`};
 },
