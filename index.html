@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.26.4';</script>
+<script>window.BYJ_VER='2026.11.26.5';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -901,8 +901,8 @@ function perMap(I=perInfo()){const M={},put=(d,k)=>{(M[d]||={})[k]=1};
   return M}
 function perText(I,M,t){const p=I.P.find(p=>p.s<=t&&t<=p.e);if(p)return`经期第 ${dGap(p.s,t)+1} 天`;if(!I.next.length)return'';
   const n=dGap(t,I.next[0]),x=M[t]||{};return(n>0?`下次大约 ${mdText(I.next[0])}，还有 ${n} 天`:n?`晚了 ${-n} 天`:'大约今天来')+(x.ov?' · 今天排卵日':x.fer?' · 易孕期':'')}
-function perNote(n){const I=perInfo(),t=ds(locNow()),L=I.P[I.P.length-1];if(!L||dGap(L.s,t)>60)return'';const p=I.P.find(p=>p.s<=t&&t<=p.e),nx=I.next[0],g=dGap(t,nx),M=perMap(I),x=M[t]||{},ov=I.next.map(d=>dAdd(d,-14)).find(d=>d>=t);
-  return'【经期】'+(p?`${n}今天经期第${dGap(p.s,t)+1}天，一般来${I.len}天。这几天${n}容易累、肚子疼、心情低，你心里有数，说话软一点，该哄就哄。`:`${n}上次经期是${mdText(L.s)}来的，${g>0?`下次大约${mdText(nx)}，还有${g}天`:g?`按日子${mdText(nx)}该来，晚了${-g}天`:'按日子大约今天来'}。${x.ov?`今天是${n}的排卵日，在易孕期里。`:x.fer?`${n}这几天在易孕期，排卵日大约${mdText([-1,0,1,2,3,4,5].map(i=>dAdd(t,i)).find(d=>M[d]?.ov))}。`:ov?`排卵日大约${mdText(ov)}，前5天后1天是易孕期。`:''}这些日子你一直记着。`)}
+function perNote(n){const I=perInfo(),t=ds(locNow()),L=I.P[I.P.length-1];if(!L||dGap(L.s,t)>60)return'';const p=I.P.find(p=>p.s<=t&&t<=p.e),g=dGap(t,I.next[0]),x=perMap(I)[t]||{};
+  const s=p?`${n}今天经期第${dGap(p.s,t)+1}天。`:g===0||g===1?`${n}的经期按日子${g?'明天':'今天'}来。`:x.ov?`今天是${n}的排卵日。`:x.fer?`${n}今天在易孕期。`:'';return s&&'【经期】'+s}
 const calTag=d=>{const f=festOf(d)[0];if(f)return f;const x=myDays().find(x=>x.md[0]===d.getMonth()+1&&x.md[1]===d.getDate());if(x)return x.id?x.name.slice(0,4):'生日';const t=lunarText(d),i=t.indexOf('月');return t.slice(i+1)==='初一'?t.slice(0,i+1):t.slice(i+1)};
 
 function moodChar(){const t=[...S.threads].filter(t=>t.type==='dm'&&visible(charById(t.chars[0]))&&t.msgs.length).sort((a,b)=>(b.t||0)-(a.t||0))[0];return t?charById(t.chars[0]):null}
