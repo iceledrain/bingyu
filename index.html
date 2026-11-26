@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.26.17';</script>
+<script>window.BYJ_VER='2026.11.26.18';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -819,7 +819,7 @@ const ICONS={
   regex:SV('<path d="M14.5 4v8M11 6l7 4M18 6l-7 4"/><circle cx="6.5" cy="18" r="1.7" fill="currentColor"/>'),
 };
 const APPS=[
-  {id:'messages',name:'聊天',v:'threads'},{id:'cal',name:'日历',v:'cal'},{id:'library',name:'世界书',v:'books'},{id:'preset',name:'预设',v:'presets'},{id:'regex',name:'正则',v:'regex'},{id:'settings',name:'设置',v:'settings'}];
+  {id:'messages',name:'聊天',v:'threads'},{id:'cal',name:'日历',v:'cal'},{id:'music',name:'音乐',v:'music'},{id:'library',name:'世界书',v:'books'},{id:'preset',name:'预设',v:'presets'},{id:'regex',name:'正则',v:'regex'},{id:'settings',name:'设置',v:'settings'}];
 const appsOrdered=()=>APPS;
 function appIcon(a){const n=a.id==='messages'?S.threads.reduce((s,t)=>s+(t.unread||0),0):0;
   return`<button class="ic-app" data-a="open" data-v="${a.v}"${a.t?` data-t="${a.t}"`:''} aria-label="${a.name}"><span class="ic-g">${ICONS[a.ic||a.id]}${n?`<span class="badge">${n>99?'99+':n}</span>`:''}</span><span class="ic-n">${a.name}</span></button>`}
