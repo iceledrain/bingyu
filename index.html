@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.25.42';</script>
+<script>window.BYJ_VER='2026.11.26.1';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -250,6 +250,18 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .pi .ic svg{width:24px;height:24px}
 .money-big{text-align:center;font:600 40px var(--body);color:var(--deep);font-variant-numeric:tabular-nums}
 .content>*{flex-shrink:0}
+.cal{--cp:#f9c6d2;--cp2:#f0a3b6;--cf:#ece5fb;--co:#a58be0;--cr:#e0707a;--cg:#4caf7d}html.dark .cal{--cp:rgba(255,130,165,.38);--cp2:rgba(255,130,165,.7);--cf:rgba(170,140,255,.2);--co:#b9a3f0;--cr:#f08a92;--cg:#6fcf9c}
+.cal-h{display:flex;align-items:center;justify-content:space-between}.cal-h b{font:500 17px var(--display);color:var(--deep)}.cal-h button{background:none;border:0;padding:2px 16px;font-size:22px;line-height:1;color:var(--muted)}
+.cal-g{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px 2px}.cal-g>span{text-align:center;font-size:11px;color:var(--muted)}
+.cd{position:relative;background:none;border:1.5px solid transparent;border-radius:14px;padding:4px 0 3px;min-height:54px;display:flex;flex-direction:column;align-items:center;line-height:1.2;min-width:0}
+.cd b{font:500 15px/22px var(--body);min-width:22px;border-radius:999px;font-variant-numeric:tabular-nums}.cd small{font-size:9px;color:var(--muted);white-space:nowrap;overflow:hidden;max-width:100%}
+.cd i{font:normal 9px/1.2 var(--body);font-variant-numeric:tabular-nums}.cal .xo{color:var(--cr)}.cal .xg{color:var(--cg)}
+.cd.out{opacity:.35}.cd.fer{background:var(--cf)}.cd.pre{border:1.5px dashed var(--cp2)}.cd.per{background:var(--cp)}.cd.ov::after{content:"✿";position:absolute;top:1px;right:3px;font-size:9px;color:var(--co)}
+.cd.td b{background:var(--deep);color:var(--bg)}.cd.sel{border:1.5px solid var(--deep)}
+.cal-l{display:flex;justify-content:center;gap:12px;font-size:11px;color:var(--muted)}.cal-l span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:-1px;box-sizing:border-box}
+.cal-l .per::before{background:var(--cp)}.cal-l .pre::before{border:1.5px dashed var(--cp2)}.cal-l .fer::before{background:var(--cf)}.cal-l .ov::before{content:"✿";width:auto;height:auto;color:var(--co)}
+.cal-s{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;color:var(--muted)}.cal-s button{background:none;border:0;padding:0;color:var(--muted);font-size:12px}
+.cal-b{display:flex;gap:8px;flex-wrap:wrap}.cal-b .btn{padding:7px 16px}.cal .row{min-height:0;padding:10px 14px;box-shadow:none}.cal .row .side{font-size:14px}
 .call{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;align-items:center;color:#fff;background:#252525;overflow:hidden;
   padding:calc(var(--sat) + 36px) max(18px,env(safe-area-inset-right,0px)) calc(var(--sab) + 22px) max(18px,env(safe-area-inset-left,0px))}
 .call .cbg{position:absolute;inset:-40px;background:#383838 center/cover;filter:blur(26px) brightness(.5);z-index:0}
@@ -662,7 +674,7 @@ const def=()=>({v:4,regex:[],loc:null,wx:{},
   presets:[{id:'p1',name:'默认',items:DEFAULT_ITEMS()}],activePreset:'p1',loreV:1,coreV:1,
   offline:{style:OFF_STYLE_DEF,words:1000,cpov:'third',upov:'second',evRate:10,lead:'char',books:[]},
   offStyles:[],cards:[],personaTpls:[{id:'pt1',name:'基础模板',text:PERSONA_TPL}],
-  threads:[],feed:[],orders:[],shop:{food:[],goods:[]},days:[],
+  threads:[],feed:[],orders:[],shop:{food:[],goods:[]},days:[],cal:{per:[],bills:[]},
   music:{songs:[],cur:null,with:null,mode:'all'},
   stickers:{groups:[{id:'g1',name:'默认',items:[]}]},
   lastTick:0,events:[],evWipe:{},memWipe:{},evGone:[],bkKey:false,lastSeen:0,
@@ -684,6 +696,7 @@ function mergeState(d){
   if(!s.presets.length)s.presets=def().presets;delete s.ov;s.presets.forEach(withMk);if(!s.masks.length)s.masks=def().masks;
   if(!s.stickers||!Array.isArray(s.stickers.groups))s.stickers=def().stickers;
   s.media={tts:Object.assign(def().media.tts,d.media?.tts||{})};delete s.imgV;[...s.chars,...s.masks].forEach(x=>delete x.lookAuto);if(s.tok)delete s.tok.img;delete s.media.tts.group;
+  s.cal=s.cal&&typeof s.cal==='object'?s.cal:{};for(const k of['per','bills'])if(!Array.isArray(s.cal[k]))s.cal[k]=[];
   s.wx=s.wx&&typeof s.wx==='object'?s.wx:{};s.hol=s.hol&&typeof s.hol==='object'?s.hol:{};
   if(!Array.isArray(s.cards))s.cards=[];if(!Array.isArray(s.offStyles))s.offStyles=[];if(!Array.isArray(s.personaTpls))s.personaTpls=def().personaTpls;s.books=s.books.filter(b=>b.id!=='bk-yan'&&b.id!=='bk-live');delete s.liveV;s.chars.forEach(c=>{if(Array.isArray(c.books))c.books=c.books.filter(x=>x!=='bk-yan')});s.personaTpls=s.personaTpls.filter(x=>x.id!=='pt2');delete s.yanV;delete s.tplV;delete s.notes;delete s.caps;delete s.health;
   {const seen=new Set();(s.chars||[]).forEach(c=>{c.books=(c.books||[]).filter(id=>{const b=(s.books||[]).find(x=>x.id===id);if(!b||b.scope==='global'||seen.has(id))return false;seen.add(id);return true})})}
@@ -803,10 +816,11 @@ const ICONS={
   xlogo:SV('<path d="M5 4.5l14 15M19 4.5l-14 15" stroke-width="2"/>'),
   weather:SV('<path d="M7.5 19h9.2a3.6 3.6 0 0 0 .3-7.2 5 5 0 0 0-9.7-1A4.1 4.1 0 0 0 7.5 19z"/><path d="M4.6 4.8l1 1M9.2 2.8v1.4M2.4 9.2h1.4"/>'),
   preset:SV('<path d="M5 6h14M5 12h14M5 18h14"/><circle cx="9" cy="6" r="1.8" fill="currentColor"/><circle cx="15" cy="12" r="1.8" fill="currentColor"/><circle cx="8" cy="18" r="1.8" fill="currentColor"/>'),
+  cal:SV('<rect x="4" y="5.5" width="16" height="14.5" rx="3"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/><path d="M12 17.2s-2.6-1.7-2.6-3.3a1.4 1.4 0 0 1 2.6-.7 1.4 1.4 0 0 1 2.6.7c0 1.6-2.6 3.3-2.6 3.3z" fill="currentColor" stroke="none"/>'),
   regex:SV('<path d="M14.5 4v8M11 6l7 4M18 6l-7 4"/><circle cx="6.5" cy="18" r="1.7" fill="currentColor"/>'),
 };
 const APPS=[
-  {id:'messages',name:'聊天',v:'threads'},{id:'library',name:'世界书',v:'books'},{id:'preset',name:'预设',v:'presets'},{id:'regex',name:'正则',v:'regex'},{id:'settings',name:'设置',v:'settings'}];
+  {id:'messages',name:'聊天',v:'threads'},{id:'cal',name:'日历',v:'cal'},{id:'library',name:'世界书',v:'books'},{id:'preset',name:'预设',v:'presets'},{id:'regex',name:'正则',v:'regex'},{id:'settings',name:'设置',v:'settings'}];
 const appsOrdered=()=>APPS;
 function appIcon(a){const n=a.id==='messages'?S.threads.reduce((s,t)=>s+(t.unread||0),0):0;
   return`<button class="ic-app" data-a="open" data-v="${a.v}"${a.t?` data-t="${a.t}"`:''} aria-label="${a.name}"><span class="ic-g">${ICONS[a.ic||a.id]}${n?`<span class="badge">${n>99?'99+':n}</span>`:''}</span><span class="ic-n">${a.name}</span></button>`}
@@ -876,6 +890,20 @@ function festOf(d){const y=d.getFullYear(),m=d.getMonth()+1,dd=d.getDate(),out=[
   if(l&&!l.leap&&CN_LUNAR[l.m+'-'+l.d])out.push(CN_LUNAR[l.m+'-'+l.d]);if(nx&&nx.m===1&&nx.d===1&&!nx.leap)out.push('除夕');return out}
 
 const ds=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const dOf=s=>{const p=String(s).split('-');return new Date(+p[0],p[1]-1,+p[2]||1)},dAdd=(s,n)=>{const d=dOf(s);d.setDate(d.getDate()+n);return ds(d)},dGap=(a,b)=>Math.round((dOf(b)-dOf(a))/864e5),mdText=s=>{const d=dOf(s);return`${d.getMonth()+1}月${d.getDate()}日`};
+function perInfo(){const C=S.cal,P=[...C.per].sort((a,b)=>a.s<b.s?-1:1),avg=(L,d)=>L.length?Math.round(L.reduce((a,b)=>a+b,0)/L.length):d;
+  const cyc=+C.cyc||avg(P.slice(1).map((p,i)=>dGap(P[i].s,p.s)).filter(g=>g>=15&&g<=60).slice(-6),28),len=+C.len||avg(P.slice(-6).map(p=>dGap(p.s,p.e)+1),5),next=[];
+  if(P.length)for(let i=1;i<=6;i++)next.push(dAdd(P[P.length-1].s,cyc*i));
+  return{P,cyc,len,next}}
+function perMap(I=perInfo()){const M={},put=(d,k)=>{(M[d]||={})[k]=1};
+  I.P.forEach(p=>{for(let i=0,n=Math.min(dGap(p.s,p.e),14);i<=n;i++)put(dAdd(p.s,i),'per')});
+  I.next.forEach(s=>{for(let i=0;i<I.len;i++)put(dAdd(s,i),'pre')});
+  [...I.P.slice(1).map(p=>p.s),...I.next].forEach(s=>{const o=dAdd(s,-14);put(o,'ov');for(let i=-5;i<=1;i++)put(dAdd(o,i),'fer')});
+  return M}
+function perText(I,M,t){const p=I.P.find(p=>p.s<=t&&t<=p.e);if(p)return`经期第 ${dGap(p.s,t)+1} 天`;if(!I.next.length)return'';
+  const n=dGap(t,I.next[0]),x=M[t]||{};return(n>0?`下次大约 ${mdText(I.next[0])}，还有 ${n} 天`:n?`晚了 ${-n} 天`:'大约今天来')+(x.ov?' · 今天排卵日':x.fer?' · 易孕期':'')}
+const amtS=n=>n>=1e4?+(n/1e4).toFixed(1)+'万':n>=100?Math.round(n):+n.toFixed(1);
+const calTag=d=>{const f=festOf(d)[0];if(f)return f;const x=myDays().find(x=>x.md[0]===d.getMonth()+1&&x.md[1]===d.getDate());if(x)return x.id?x.name.slice(0,4):'生日';const t=lunarText(d),i=t.indexOf('月');return t.slice(i+1)==='初一'?t.slice(0,i+1):t.slice(i+1)};
 
 function moodChar(){const t=[...S.threads].filter(t=>t.type==='dm'&&visible(charById(t.chars[0]))&&t.msgs.length).sort((a,b)=>(b.t||0)-(a.t||0))[0];return t?charById(t.chars[0]):null}
 function avaHTML(){const c=moodChar()||S.chars.find(visible),R='<span class="ring"><i></i><i></i><i></i>';
@@ -939,7 +967,7 @@ function renderHome(){
     <label class="polaroid"><span class="pimg" style="${L.photo?`background-image:url(${L.photo})`:''}">${L.photo?'':'＋'}</span><input type="file" accept="image/*" data-img="photo" class="vh" aria-label="换照片"></label>
     ${avaHTML()}
   </div>
-  <nav class="icons" aria-label="应用"${appsOrdered().length<=5?` style="grid-template-columns:repeat(${appsOrdered().length},minmax(0,1fr))"`:''}>${appsOrdered().map(appIcon).join('')}</nav></div>`;
+  <nav class="icons" aria-label="应用"${appsOrdered().length<=6?` style="grid-template-columns:repeat(${appsOrdered().length===6?3:appsOrdered().length},minmax(0,1fr))"`:''}>${appsOrdered().map(appIcon).join('')}</nav></div>`;
   const hmEl=$('#hm');if(hmEl)hmEl.scrollTop=sc;fitHome();paintCanvas();
 }
 function tickHome(){if(document.documentElement.classList.contains('dark')!==darkOn())applyLook();if(isOpen())return;const t=$('.hc-t');if(!t){renderHome();return}const d=locNow(),hm=pad(d.getHours())+':'+pad(d.getMinutes());
@@ -2191,6 +2219,24 @@ maskEdit(v){
 presets(){
   return{title:'预设',right:`<button class="tb" data-a="presetMenu">添加</button>`,body:
     S.presets.map(p=>`<button class="row" data-a="editPreset" data-id="${p.id}"><span class="meta"><b>${esc(p.name)}</b><small>开启 ${p.items.filter(i=>i.on&&!i.mk).length}/${p.items.filter(i=>!i.mk).length} 条</small></span>${p.id===S.activePreset?'<span class="pill fill">使用中</span>':''}</button>`).join('')}},
+cal(v){const td=ds(locNow());v.d||=td;v.m||=v.d.slice(0,7);const I=perInfo(),M=perMap(I),m0=dOf(v.m+'-01'),B={};
+  S.cal.bills.forEach(b=>{const x=B[b.d]||={o:0,g:0};x[b.k==='in'?'g':'o']+=+b.amt||0});
+  const first=dAdd(v.m+'-01',-m0.getDay()),rows=Math.ceil((m0.getDay()+new Date(m0.getFullYear(),m0.getMonth()+1,0).getDate())/7);let cells='',so=0,sg=0;
+  for(const k in B)if(k.startsWith(v.m)){so+=B[k].o;sg+=B[k].g}
+  for(let i=0;i<rows*7;i++){const d=dAdd(first,i),x=M[d]||{},b=B[d];
+    cells+=`<button class="cd${d.startsWith(v.m)?'':' out'}${x.per?' per':x.pre?' pre':''}${x.fer&&!x.per?' fer':''}${x.ov&&!x.per?' ov':''}${d===td?' td':''}${d===v.d?' sel':''}" data-a="calDay" data-d="${d}"><b>${+d.slice(8)}</b><small>${esc(calTag(dOf(d)))}</small>${b?.o?`<i class="xo">-${amtS(b.o)}</i>`:''}${b?.g?`<i class="xg">+${amtS(b.g)}</i>`:''}</button>`}
+  const x=M[v.d]||{},p=I.P.find(p=>p.s<=v.d&&v.d<=p.e),near=!p&&I.P.filter(p=>p.s<v.d&&dGap(p.s,v.d)<=13).pop(),sd=dOf(v.d),L=S.cal.bills.filter(b=>b.d===v.d);
+  const tag=p?`经期第 ${dGap(p.s,v.d)+1} 天`:x.ov?'排卵日':x.fer?'易孕期':x.pre?'大概会来':'';
+  const pb=v.d>td?'':p?`${v.d<p.e?'<button class="btn o" data-a="perEnd">这天走的</button>':''}<button class="btn o" data-a="perDel">没来</button>`:near?'<button class="btn o" data-a="perEnd">这天走的</button>':'<button class="btn o" data-a="perOn">来了</button>';
+  return{title:'日历',cls:'cal',right:v.d===td&&v.m===td.slice(0,7)?'':'<button class="tb" data-a="calNow">今天</button>',body:`<div class="panel">
+    <div class="cal-h"><button data-a="calNav" data-n="-1" aria-label="上个月">‹</button><b>${m0.getFullYear()}年${m0.getMonth()+1}月</b><button data-a="calNav" data-n="1" aria-label="下个月">›</button></div>
+    <div class="cal-g">${[...WK].map(w=>`<span>${w}</span>`).join('')}${cells}</div>
+    <div class="cal-l"><span class="per">经期</span><span class="pre">预测</span><span class="fer">易孕</span><span class="ov">排卵</span></div>
+    <div class="cal-s"><span>${perText(I,M,td)||'点一天，记「来了」'}</span><button data-a="perSet">周期 ${I.cyc} · 经期 ${I.len} 天</button></div>
+    <div class="cal-s"><span>这个月</span><span><span class="xo">花 ${money(so)}</span>　<span class="xg">得 ${money(sg)}</span></span></div></div>
+  <div class="panel"><h2>${sd.getMonth()+1}月${sd.getDate()}日 周${WK[sd.getDay()]}${tag?`<span class="pill">${tag}</span>`:''}</h2>
+    <div class="cal-b">${pb}<button class="btn o" data-a="billAdd" data-k="out">花</button><button class="btn o" data-a="billAdd" data-k="in">得</button></div>
+    ${L.map(b=>`<button class="row" data-a="billAdd" data-id="${b.id}"><span class="meta"><b>${esc(b.note||(b.k==='in'?'得':'花'))}</b></span><span class="side ${b.k==='in'?'xg':'xo'}">${b.k==='in'?'+':'-'}${money(b.amt)}</span></button>`).join('')}</div>`}},
 regex(){
   return{title:'正则',right:`<button class="tb" data-a="rxMenu">添加</button>`,body:
     S.regex.map(r=>`<div class="row"><input type="checkbox" class="cbx" aria-label="开启 ${esc(r.name)}" data-a2="rxOn" data-id="${r.id}" ${r.on?'checked':''}><button class="meta" data-a="editRx" data-id="${r.id}"><b>${esc(r.name||'未命名')}</b><small>${r.find&&!rxRe(r.find)?'⚠ 写错了 · ':''}${RXW[r.who]} · ${RXAT[r.at]}</small></button></div>`).join('')||`<div class="empty"><big>还没有</big></div>`}},
@@ -2693,6 +2739,19 @@ const A={
   delBook(el){confirmTap(el,()=>{const id=cur().id;S.books=S.books.filter(b=>b.id!==id);S.chars.forEach(c=>c.books=(c.books||[]).filter(x=>x!==id));[S.offline,...S.threads.map(t=>t.offline)].forEach(o=>{if(o?.books)o.books=o.books.filter(x=>x!==id)});DB.del('bk:'+id);save();back()})},
   exportBook(){copy(JSON.stringify(S.books.find(x=>x.id===cur().id)),'复制好了')},
   rxMenu(){sheet(`<h3>正则</h3><button class="opt" data-a="newRx">新建</button><button class="opt" data-a="importRxSheet">导入</button>${CANCEL}`)},
+  calDay(el){const v=cur(),d=el.dataset.d;v.d=d;v.m=d.slice(0,7);render(true)},
+  calNav(el){const v=cur(),d=dOf(v.m+'-01');d.setMonth(d.getMonth()+ +el.dataset.n);v.m=ds(d).slice(0,7);render(true)},
+  calNow(){const v=cur();v.d=ds(locNow());v.m=v.d.slice(0,7);render(true)},
+  perOn(){const d=cur().d,I=perInfo(),nx=I.P.find(p=>p.s>d);if(nx&&dGap(d,nx.s)<=13)nx.s=d;else S.cal.per.push({s:d,e:nx&&dGap(d,nx.s)<=I.len?dAdd(nx.s,-1):dAdd(d,I.len-1)});save();render(true)},
+  perEnd(){const d=cur().d,p=perInfo().P.filter(p=>p.s<=d).pop();if(p){p.e=d;save();render(true)}},
+  perDel(el){confirmTap(el,()=>{const d=cur().d;S.cal.per=S.cal.per.filter(p=>!(p.s<=d&&d<=p.e));save();render(true)})},
+  perSet(){const C=S.cal;sheet(`<h3>周期</h3><label class="f">多少天来一次<input type="number" id="pcIn" inputmode="numeric" min="15" max="60" value="${C.cyc||''}" placeholder="按记录算"></label><label class="f">一次几天<input type="number" id="plIn" inputmode="numeric" min="1" max="14" value="${C.len||''}" placeholder="按记录算"></label><button class="btn" data-a="perSetGo">好</button>${CANCEL}`)},
+  perSetGo(){const C=S.cal,c=Math.round(+$('#pcIn').value),l=Math.round(+$('#plIn').value);if(c>=15&&c<=60)C.cyc=c;else delete C.cyc;if(l>=1&&l<=14)C.len=l;else delete C.len;save();closeSheet();render(true)},
+  billAdd(el){const b=S.cal.bills.find(x=>x.id===el.dataset.id),k=b?b.k:el.dataset.k;
+    sheet(`<h3>${k==='in'?'得':'花'}</h3><input type="number" id="blAmt" inputmode="decimal" step="0.01" min="0" placeholder="多少" aria-label="金额" value="${b?b.amt:''}"><input type="text" id="blNote" maxlength="30" placeholder="什么" aria-label="备注" value="${esc(b?.note||'')}"><button class="btn" data-a="billGo" data-k="${k}" data-id="${b?.id||''}">记下</button>${b?`<button class="btn red" data-a="billDel" data-id="${b.id}">删掉</button>`:''}${CANCEL}`);if(!b)$('#blAmt').focus()},
+  billGo(el){const a=Math.round((+$('#blAmt').value||0)*100)/100,note=$('#blNote').value.trim();if(!(a>0)){toast('填个金额');return}
+    const b=S.cal.bills.find(x=>x.id===el.dataset.id);if(b){b.amt=a;b.note=note}else S.cal.bills.push({id:uid(),d:cur().d,k:el.dataset.k,amt:a,note});save();closeSheet();render(true)},
+  billDel(el){S.cal.bills=S.cal.bills.filter(x=>x.id!==el.dataset.id);save();closeSheet();render(true)},
   newRx(){const r={id:uid(),name:'新正则',find:'',rep:'',who:'ai',at:'show',on:true};S.regex.push(r);save();closeSheet();go({v:'regexEdit',id:r.id})},
   editRx(el){go({v:'regexEdit',id:el.dataset.id})},
   delRx(el){confirmTap(el,()=>{const id=cur().id;S.regex=S.regex.filter(r=>r.id!==id);save();back()})},
