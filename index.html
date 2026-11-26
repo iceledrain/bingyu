@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.26.11';</script>
+<script>window.BYJ_VER='2026.11.26.12';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -728,7 +728,7 @@ for(const K of['evWipe','memWipe'])if(!s[K]||typeof s[K]!=='object')s[K]={};if(!
 }
 let S=def();
 const charById=id=>S.chars.find(c=>c.id===id);
-const dn=c=>c?(c.remark||c.name||'未命名'):'（已删除）';
+const dn=c=>c?(c.remark||c.name||''):'（已删除）';
 const boundMask=x=>{if(!x)return null;if(typeof x==='string')x=charById(x);else if(Array.isArray(x.chars)&&Array.isArray(x.msgs))x=x.type==='dm'?charById(x.chars[0]):null;
   return x&&x.mask?S.masks.find(m=>m.id===x.mask)||null:null};
 const mask=x=>boundMask(x)||S.masks.find(m=>m.id===S.activeMask)||S.masks[0];
@@ -1779,7 +1779,7 @@ function musicView(v={}){
   const modeIc={all:['all','列表循环'],one:['one','单曲循环'],shuffle:['shuffle','随机']}[S.music.mode]||['all','列表循环'];
   return{title:'音乐',sub:c?'和 '+dn(c)+' 一起听':'',body:head+`
   <div class="panel">
-    <div class="inline" style="flex-wrap:nowrap"><input type="text" id="mQ" value="${esc(mState.q)}" placeholder="搜歌" enterkeyhint="search" aria-label="搜歌"><button class="btn" data-a="mFind">${mState.busy?'搜索中…':'搜索'}</button></div>
+    <div class="inline" style="flex-wrap:nowrap"><input type="text" id="mQ" value="${esc(mState.q)}" enterkeyhint="search" aria-label="搜歌"><button class="btn" data-a="mFind">${mState.busy?'搜索中…':'搜索'}</button></div>
     ${mState.res.length?`<div class="mlist">${mState.res.map((x,i)=>`<button class="opt l" data-a="mPick" data-i="${i}"><span><b>${esc(x.title)}</b><small class="sec"> ${esc(x.artist)}</small></span><i>▶</i></button>`).join('')}</div><button class="tb" data-a="mClear" style="align-self:flex-start">收起结果</button>`:''}</div>
   <div class="player" style="${cov?`--cv:url(${esc(cov)})`:''}">
     <div class="mtop"><button class="mcov" data-a="mLyr" aria-label="${mState.lyr?'收起歌词':'看歌词'}" style="${cov?`background-image:url(${esc(cov)})`:''}">${cov?'':'♪'}</button>
@@ -1819,7 +1819,7 @@ function renderCall(){let e=$('#call');if(!call){if(e)e.remove();return}
   ${video&&on?`<div class="pip">${me.avatar?`<img src="${esc(me.avatar)}" alt="">`:''}</div>`:''}
   <div class="chead">${video&&on?'':av(c,100)}<div class="cwho">${esc(dn(c))}</div><div class="cst" id="callSt">${callStatus()}</div></div>
   <div class="subs" id="callSubs">${callSubsHTML()}</div>
-  ${on?`<div class="cin"><input type="text" id="callIn" placeholder="说点什么" autocomplete="off" aria-label="说话">${SR?`<button class="cb sm" data-a="callMic" aria-label="语音输入">${ICONS.mic}</button>`:''}<button class="cb sm" data-a="callSend" aria-label="说">${ICONS.send}</button></div>`:''}
+  ${on?`<div class="cin"><input type="text" id="callIn" autocomplete="off" aria-label="说话">${SR?`<button class="cb sm" data-a="callMic" aria-label="语音输入">${ICONS.mic}</button>`:''}<button class="cb sm" data-a="callSend" aria-label="说">${ICONS.send}</button></div>`:''}
   <div class="cbtns">${call.status==='in'?`<button class="cb end" data-a="callEnd" aria-label="拒接">${ICONS.hang}</button><button class="cb ok" data-a="callAccept" aria-label="接听">${video?ICONS.video:ICONS.phone}</button>`
     :`<button class="cb" data-a="callTts" aria-label="${call.tts?'关掉朗读':'打开朗读'}">${call.tts?ICONS.speaker:ICONS.mute}</button><button class="cb end" data-a="callEnd" aria-label="挂断">${ICONS.hang}</button>`}</div>`;
   const s=$('#callSubs');if(s)s.scrollTop=s.scrollHeight}
@@ -1919,7 +1919,7 @@ function shopView(v){const fix=v.v,tab=v.tab==='list'?'list':fix,to=v.to||'me',c
     <div class="panel"><h2>${K.h}<button class="pill" data-a="open" data-v="wallet" style="border:0">钱包 ${money(S.wallet)}</button></h2><div class="chips">${[['me','我自己'],...chars.map(c=>[c.id,dn(c)])].map(([k,l])=>`<button class="${to===k?'on':''}" data-a="shopTo" data-id="${k}">${esc(l)}</button>`).join('')}</div>
       ${cards.length?`<div class="f">付款<div class="chips">${[['','钱包'],...cards.map(k=>[k.id,'亲属卡 · '+dn(charById(k.charId))])].map(([k,l])=>`<button class="${(v.pay||'')===k?'on':''}" data-a="shopPay" data-id="${k}">${esc(l)}</button>`).join('')}</div></div>`:''}</div>
     <div class="panel"><h2>${K.menu}<span class="btns"><button class="tb" data-a="shopAdd">添加</button>${my.length?`<button class="tb" data-a="shopMng">管理</button>`:''}</span></h2>${my.length?`<div class="goods">${my.map(x=>`<button data-a="shopPick" data-n="${esc(x.n)}" data-p="${x.p}">${esc(x.n)}<small>¥${x.p}</small></button>`).join('')}</div>`:`<p class="hint">还没有</p>`}</div>
-    <div class="panel"><h2>${K.go}</h2><input type="text" id="spN" placeholder="${K.ph}" aria-label="买什么"><input type="number" id="spA" min="1" step="0.1" placeholder="多少钱" inputmode="decimal" aria-label="价格">
+    <div class="panel"><h2>${K.go}</h2><input type="text" id="spN" aria-label="买什么"><input type="number" id="spA" min="1" step="0.1" inputmode="decimal" aria-label="价格">
       <button class="btn" data-a="shopGo" style="align-self:flex-start">${K.go}</button></div>`}}
 
 const defSched=c=>{let h=0;for(const ch of String(c?.id||''))h=(h*31+ch.charCodeAt(0))>>>0;const sl=(22+(h%8)*.5)%24;return{sleep:sl,wake:(sl+7+((h>>>3)%5)*.5)%24,work:[],days:[]}};
@@ -2125,10 +2125,10 @@ chat(v){
   if(v.off==null)v.off=t.mode==='offline'?1:0;
   talkMode(t,v.off?'offline':'online');
   if(v.off)return{title:threadTitle(t),sub:'见面中',cls:'chat offv',right:HEART+`<button class="tb" data-a="chatMenu" aria-label="聊天设置">···</button>`,body:msgsHTML(t),
-    foot:`<textarea id="msgIn" rows="1" placeholder="你的动作和话" aria-label="你的动作和话"></textarea><button class="sq go" data-a="send" aria-label="发送">${ICONS.send}</button>`,
+    foot:`<textarea id="msgIn" rows="1" aria-label="你的动作和话"></textarea><button class="sq go" data-a="send" aria-label="发送">${ICONS.send}</button>`,
     after(){const c=$('#content');c.scrollTop=c.scrollHeight;const ta=$('#msgIn');if(ta)ta.addEventListener('input',()=>{ta.style.height='40px';ta.style.height=Math.min(140,ta.scrollHeight)+'px'})}};
   const c0=t.type==='dm'?charById(t.chars[0]):null,r=c0?rel(c0):{};
-  let foot=`<button class="sq" data-a="plus" aria-label="更多">${ICONS.plus}</button><textarea id="msgIn" rows="1" placeholder="发消息" enterkeyhint="send" aria-label="消息"></textarea><button class="sq go" data-a="send" aria-label="发送">${ICONS.send}</button>`;
+  let foot=`<button class="sq" data-a="plus" aria-label="更多">${ICONS.plus}</button><textarea id="msgIn" rows="1" enterkeyhint="send" aria-label="消息"></textarea><button class="sq go" data-a="send" aria-label="发送">${ICONS.send}</button>`;
   let footCls='';
   if(r.youBlocked)foot=`<div class="notice">你已拉黑${esc(dn(c0))}<button class="btn o" data-a="unblock">解除拉黑</button></div>`;
   if(v.quote&&!r.youBlocked){footCls='wrap';foot=`<div class="qbar"><span>↪ ${esc(v.quote.who)}：${esc(v.quote.text)}</span><button data-a="qUnq" aria-label="取消引用">×</button></div>`+foot}
@@ -2144,9 +2144,9 @@ offline(v){
     <label class="f">字数<span class="inline"><input type="range" id="o-words" min="200" max="5000" step="100" data-s="off" data-k="words" value="${o.words}"><output>${o.words}</output></span></label>
     <div class="grid2"><label class="f">角色人称<select id="o-cpov" data-s="off" data-k="cpov">${[['third','第三人称（他/她）'],['first','第一人称（我）']].map(([k,l])=>`<option value="${k}" ${(o.cpov||'third')===k?'selected':''}>${l}</option>`).join('')}</select></label>
     <label class="f">我的人称<select id="o-upov" data-s="off" data-k="upov">${[['second','第二人称（你）'],['first','第一人称（我）'],['third','第三人称（名字）']].filter(([k])=>!(o.cpov==='first'&&k==='first')).map(([k,l])=>`<option value="${k}" ${(o.upov||'second')===k?'selected':''}>${l}</option>`).join('')}</select></label></div>
-    <label class="f">文风<textarea id="o-style" data-s="off" data-k="style" style="min-height:70px" placeholder="默认">${esc(o.style===OFF_STYLE_DEF?'':o.style||'')}</textarea></label>
+    <label class="f">文风<textarea id="o-style" data-s="off" data-k="style" style="min-height:70px">${esc(o.style===OFF_STYLE_DEF?'':o.style||'')}</textarea></label>
     <div class="chips">${S.offStyles.map(x=>`<button class="${x.text===(o.style||'')?'on':''}" data-a="offStylePick" data-id="${x.id}">${esc(x.name)}</button>`).join('')}<button data-a="offStyleSave">＋ 存下来</button>${S.offStyles.some(x=>x.text===(o.style||''))?`<button data-a="offStyleDel">删掉</button>`:''}</div>
-    <div class="f">世界书<div class="chips">${S.books.map(b=>`<button class="${(o.books||[]).includes(b.id)?'on':''}" data-a="offBook" data-id="${b.id}">${esc(b.name||'世界书')}</button>`).join('')}<button data-a="offBookNew">＋ 新建</button></div></div>
+    <div class="f">世界书<div class="chips">${S.books.map(b=>`<button class="${(o.books||[]).includes(b.id)?'on':''}" data-a="offBook" data-id="${b.id}">${esc(b.name||'')}</button>`).join('')}<button data-a="offBookNew">＋ 新建</button></div></div>
     <button class="tb" data-a="offStyleDef" style="align-self:flex-start">恢复默认</button>
     <label class="f">随机事件<span class="inline"><input type="range" id="o-ev" min="0" max="100" step="5" data-s="off" data-k="evRate" value="${o.evRate??10}"><output>${o.evRate??10}</output></span></label>
 </div>
@@ -2177,7 +2177,7 @@ plaza(v){
 },
 moNew(v){const pp=postDraft.pics;
   return{title:'发朋友圈',cls:'mo',right:`<button class="tb" data-a="myPost">发表</button>`,
-    body:`<div class="mo-comp" style="padding-top:14px"><textarea id="postIn" placeholder="这一刻的想法…" aria-label="新朋友圈">${esc(postDraft.text||'')}</textarea>
+    body:`<div class="mo-comp" style="padding-top:14px"><textarea id="postIn" aria-label="新朋友圈">${esc(postDraft.text||'')}</textarea>
       <div class="mo-add">${pp.map((u,i)=>`<button class="mo-pic" data-a="moPicDel" data-i="${i}" aria-label="去掉第${i+1}张"><img src="${esc(u)}" alt=""><i>×</i></button>`).join('')}${pp.length<9?`<label class="mo-pic plus">${ICONS.plus}<input type="file" accept="image/*" multiple data-img="post" class="vh" aria-label="加照片"></label>`:''}</div></div>`,
     after(){const ta=$('#postIn');if(ta){ta.addEventListener('input',()=>{postDraft.text=ta.value});if(!pp.length&&!ta.value)ta.focus()}}};
 },
@@ -2186,7 +2186,7 @@ post(v){
   (p.replies||[]).forEach(r=>{if(!r.id)r.id=uid()});
   return{title:'详情',cls:'mo',body:postHTML(p,true)+(v.wait?`<div class="away"><span class="dots"><i></i><i></i><i></i></span> ${esc(v.wait)} 正在回复</div>`:''),
     footCls:v.rq?'wrap':'',
-    foot:(v.rq?`<div class="qbar"><span>↪ 回复 ${esc(v.rq.name)}</span><button data-a="rUnq" aria-label="取消回复">×</button></div>`:'')+`<textarea id="replyIn" rows="1" placeholder="${v.rq?'回复 '+esc(v.rq.name)+'…':'评论…'}" aria-label="评论"></textarea><button class="sq go" data-a="replyPost" aria-label="发送评论">${ICONS.send}</button>`};
+    foot:(v.rq?`<div class="qbar"><span>↪ 回复 ${esc(v.rq.name)}</span><button data-a="rUnq" aria-label="取消回复">×</button></div>`:'')+`<textarea id="replyIn" rows="1" aria-label="评论"></textarea><button class="sq go" data-a="replyPost" aria-label="发送评论">${ICONS.send}</button>`};
 },
 charEdit(v){
   const c=charById(v.id);if(!c)return{title:'不见了',body:''};
@@ -2202,8 +2202,8 @@ charEdit(v){
 },
 maskEdit(v){
   const m=maskById(v.id);if(!m)return{title:'不见了',body:''};
-  return{title:m.name||'面具',sub:'面具',body:`<div class="panel"><div class="inline">${av(m,76)}${fileBtn('换头像','accept="image/*" data-img="mask"')}</div>
-    <div class="grid2"><label class="f">名字<input type="text" id="m-name" data-s="mask" data-k="name" value="${esc(m.name)}"></label><label class="f">生日<input type="text" id="m-bday" data-s="mask" data-k="bday" value="${esc(m.bday||'')}"></label></div>
+  return{title:m.name==='user'?'':m.name,sub:'面具',body:`<div class="panel"><div class="inline">${av(m,76)}${fileBtn('换头像','accept="image/*" data-img="mask"')}</div>
+    <div class="grid2"><label class="f">名字<input type="text" id="m-name" data-s="mask" data-k="name" value="${esc(m.name==='user'?'':m.name)}"></label><label class="f">生日<input type="text" id="m-bday" data-s="mask" data-k="bday" value="${esc(m.bday||'')}"></label></div>
     <label class="f">人设<textarea class="tall" id="m-persona" data-s="mask" data-k="persona">${esc(m.persona)}</textarea></label><button class="tb" data-a="txHist" data-id="${m.id}" style="align-self:flex-start">人设历史</button></div>
   <div class="panel"><h2>绑定的角色</h2>
     ${S.chars.length?S.chars.map(c=>{const o=c.mask&&c.mask!==m.id?maskById(c.mask):null;return`<label class="ck"><input type="checkbox" data-a2="maskChar" data-id="${c.id}" ${c.mask===m.id?'checked':''}>${esc(dn(c))}${o?`<small class="sec"> 现在绑着「${esc(o.name)}」</small>`:''}</label>`}).join(''):'<p class="hint">还没有角色</p>'}</div>
@@ -2228,10 +2228,10 @@ cal(v){const td=ds(locNow());v.d||=td;v.m||=v.d.slice(0,7);const I=perInfo(),M=p
     ${pb?`<div class="cal-b">${pb}</div>`:''}</div>`}},
 regex(){
   return{title:'正则',right:`<button class="tb" data-a="rxMenu">添加</button>`,body:
-    S.regex.map(r=>`<div class="row"><input type="checkbox" class="cbx" aria-label="开启 ${esc(r.name)}" data-a2="rxOn" data-id="${r.id}" ${r.on?'checked':''}><button class="meta" data-a="editRx" data-id="${r.id}"><b>${esc(r.name||'未命名')}</b><small>${r.find&&!rxRe(r.find)?'⚠ 写错了 · ':''}${RXW[r.who]} · ${RXAT[r.at]}</small></button></div>`).join('')||`<div class="empty"><big>还没有</big></div>`}},
+    S.regex.map(r=>`<div class="row"><input type="checkbox" class="cbx" aria-label="开启 ${esc(r.name)}" data-a2="rxOn" data-id="${r.id}" ${r.on?'checked':''}><button class="meta" data-a="editRx" data-id="${r.id}"><b>${esc(r.name||'')}</b><small>${r.find&&!rxRe(r.find)?'⚠ 写错了 · ':''}${RXW[r.who]} · ${RXAT[r.at]}</small></button></div>`).join('')||`<div class="empty"><big>还没有</big></div>`}},
 regexEdit(v){const r=S.regex.find(x=>x.id===v.id);if(!r)return{title:'不见了',body:''};
   const sel=(k,O)=>`<select data-s="rx" data-k="${k}">${Object.entries(O).map(([a,l])=>`<option value="${a}" ${r[k]===a?'selected':''}>${l}</option>`).join('')}</select>`;
-  return{title:r.name||'正则',sub:'正则',body:`<div class="panel">
+  return{title:r.name||'',sub:'正则',body:`<div class="panel">
     <label class="f">名字<input type="text" data-s="rx" data-k="name" value="${esc(r.name)}"></label>
     <label class="f">查找<textarea data-s="rx" data-k="find">${esc(r.find)}</textarea></label>
     <label class="f">替换成<textarea data-s="rx" data-k="rep">${esc(r.rep)}</textarea></label>
@@ -2247,16 +2247,16 @@ books(v){const tab=v.tab==='local'?'local':'global',own=b=>S.chars.find(c=>(c.bo
 bookEdit(v){
   const b=S.books.find(x=>x.id===v.id);if(!b)return{title:'不见了',body:''};
   const E=[...b.entries].sort(byOrd);
-  return{title:b.name||'世界书',sub:'世界书',right:`<button class="tb" data-a="newEntry">加条目</button>`,body:`
+  return{title:b.name||'',sub:'世界书',right:`<button class="tb" data-a="newEntry">加条目</button>`,body:`
   <div class="panel"><label class="f">名字<input type="text" id="b-name" data-s="book" data-k="name" value="${esc(b.name)}"></label>
     <label class="f">给谁用<select data-a2="bookOwner">${(o=>`<option value="" ${b.scope==='global'?'selected':''}>所有角色（全局）</option>`+(b.scope!=='global'&&!o?`<option value="-" selected>${bookUse(b.id)?'只当见面文风':'还没选给谁'}</option>`:'')+S.chars.map(c=>`<option value="${c.id}" ${b.scope!=='global'&&o===c.id?'selected':''}>只给 ${esc(dn(c))}（局部）</option>`).join(''))(S.chars.find(c=>(c.books||[]).includes(b.id))?.id)}</select></label></div>`+
   (E.length?`<p class="hint">${E.length} 条 · 常亮约 ${E.filter(loreFix).reduce((n,e)=>n+tokEst(e.content),0)} token</p>`:'')+
-  E.map(e=>`<button class="row" data-a="editEntry" data-id="${e.id}"><span class="light ${esc(e.light)}"></span><span class="meta"><b>${esc(e.title||'未命名')}</b><small>${e.light==='green'?'常亮':e.light==='red'?'关闭':esc(e.keys||'⚠ 没填关键词')}${(e.prob??100)<100?' · '+esc(e.prob)+'%':''}${e.pos==='depth'?' · 深度 '+(+e.depth||0):''} · 约 ${tokEst(e.content)} token</small></span><span class="side">#${esc(e.order||0)}</span></button>`).join('')+
+  E.map(e=>`<button class="row" data-a="editEntry" data-id="${e.id}"><span class="light ${esc(e.light)}"></span><span class="meta"><b>${esc(e.title||'')}</b><small>${e.light==='green'?'常亮':e.light==='red'?'关闭':esc(e.keys||'⚠ 没填关键词')}${(e.prob??100)<100?' · '+esc(e.prob)+'%':''}${e.pos==='depth'?' · 深度 '+(+e.depth||0):''} · 约 ${tokEst(e.content)} token</small></span><span class="side">#${esc(e.order||0)}</span></button>`).join('')+
   `<div class="btns"><button class="btn o" data-a="exportBook">复制</button><button class="btn o" data-a="dlBook">下载</button><button class="btn o" data-a="bookHist">历史</button><button class="btn red" data-a="delBook">删除</button></div>`};
 },
 entryEdit(v){
   const b=S.books.find(x=>x.id===v.id),e=b?.entries.find(x=>x.id===v.eid);if(!e)return{title:'不见了',body:''};
-  return{title:e.title||'条目',sub:b.name,body:`<div class="panel">
+  return{title:e.title||'',sub:b.name,body:`<div class="panel">
     <label class="f">标题<input type="text" id="e-title" data-s="entry" data-k="title" value="${esc(e.title)}"></label>
     <div class="lights" role="group" aria-label="状态">${[['green','常亮'],['yellow','关键词'],['red','关闭']].map(([k,l])=>`<button class="${e.light===k?'on':''}" data-a="light" data-l="${k}"><span class="light ${k}"></span>${l}</button>`).join('')}</div>
     
@@ -2278,7 +2278,7 @@ presetEdit(v){
 },
 itemEdit(v){
   const p=presetById(v.id),it=p?.items.find(x=>x.id===v.iid);if(!it)return{title:'不见了',body:''};
-  return{title:it.name||'提示词',sub:p.name,body:`<div class="panel">
+  return{title:it.name||'',sub:p.name,body:`<div class="panel">
     <label class="f">名字<input type="text" id="i-name" data-s="item" data-k="name" value="${esc(it.name)}"></label>
     <div class="grid2"><label class="f">发送身份<select id="i-role" data-s="item" data-k="role">${Object.entries(ROLE).map(([k,l])=>`<option value="${k}" ${it.role===k?'selected':''}>${l}</option>`).join('')}</select></label>
     <label class="f">用在<select id="i-mode" data-s="item" data-k="mode">${Object.entries(MODE).map(([k,l])=>`<option value="${k}" ${it.mode===k?'selected':''}>${l}</option>`).join('')}</select></label></div>
@@ -2297,7 +2297,7 @@ weather(v){const L=S.loc;
   ${hs.length?`<div class="panel"><h2>这几个小时</h2><div class="wxh">${hs.map(x=>`<span><small>${x.h}点</small><i>${WXE(x.d)}</i><b>${x.t}°</b><em>${x.p?x.p+'%':''}</em></span>`).join('')}</div></div>`:''}
   ${w.tm?`<div class="panel"><h2>明天</h2><p style="margin:0">${WXE(w.tm)} ${esc(w.tm)} · ${w.tmin}~${w.tmax}°</p></div>`:''}
   ${others.length?`<div class="panel"><h2>TA 那边</h2>${others.map(c=>{const x=wxNow(c.loc);return`<div class="wrow"><span><b>${esc(dn(c))} · ${esc(c.loc.name)}</b><small>${x?`${WXE(x.desc)} ${esc(x.desc)} ${x.temp}° · ${x.min}~${x.max}°`:'加载中…'}</small></span></div>`}).join('')}</div>`:''}
-  <div class="panel"><label class="f">角色看到的城市名<input type="text" id="l-alias" data-s="loc" data-k="alias" value="${esc(L.alias||'')}" placeholder="${esc(L.name)}"></label></div>`
+  <div class="panel"><label class="f">角色看到的城市名<input type="text" id="l-alias" data-s="loc" data-k="alias" value="${esc(L.alias||'')}"></label></div>`
     :`<div class="empty"><big>天气加载中…</big></div>`,
     after(){const all=[L,...others.map(c=>c.loc)];if(!v.tried&&all.some(l=>!(S.wx||{})[wxKey(l)]?.d?.hourly||Date.now()-((S.wx||{})[wxKey(l)]?.t||0)>45*60e3)){v.tried=1;Promise.all(all.map(l=>ensureWx(l))).then(()=>{if(cur()===v)render(true)})}}};
 },
@@ -2399,8 +2399,8 @@ apiEdit(v){
     </div>`:''}
   <div class="panel"><h2>参数</h2>${/anthropic\.com/.test(p.base||'')&&/claude-(opus|sonnet|haiku|fable|mythos)-(5|4-[78])/.test(p.model||'')?'':`
     <label class="f">温度<span class="inline"><input type="range" id="a-temp" min="0" max="2" step="0.05" data-s="api" data-k="temp" value="${p.temp??1}"><output>${p.temp??1}</output></span></label>
-    <div class="grid2"><label class="f">Top P<input type="number" id="a-topp" min="0" max="1" step="0.01" data-s="api" data-k="topP" data-null="1" value="${p.topP??''}" placeholder="默认"></label>
-    <label class="f">Top K<input type="number" id="a-topk" min="0" max="500" step="1" data-s="api" data-k="topK" data-null="1" value="${p.topK??''}" placeholder="默认"></label></div>`}
+    <div class="grid2"><label class="f">Top P<input type="number" id="a-topp" min="0" max="1" step="0.01" data-s="api" data-k="topP" data-null="1" value="${p.topP??''}"></label>
+    <label class="f">Top K<input type="number" id="a-topk" min="0" max="500" step="1" data-s="api" data-k="topK" data-null="1" value="${p.topK??''}"></label></div>`}
     <label class="f">最大长度<input type="number" id="a-max" min="64" max="128000" data-s="api" data-k="maxTokens" value="${p.maxTokens}"></label></div>`:''}
   <div class="btns">${p.id===S.api.active?'<span class="pill fill">默认</span>':'<button class="btn" data-a="useApi">设为默认</button>'}<button class="btn o" data-a="testApi">测试连接</button><button class="btn o" data-a="dupApi">存为新预设</button><button class="btn o" data-a="sameBaseApi" data-id="${p.id}">同地址加 Key</button><button class="btn red" data-a="delApi">删除</button></div>`};
 }
@@ -2432,7 +2432,7 @@ const A={
   shopTo(el){cur().to=el.dataset.id;render(true)},
   shopPay(el){cur().pay=el.dataset.id;render(true)},
   shopPick(el){$('#spN').value=el.dataset.n;$('#spA').value=el.dataset.p;el.closest('.goods').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===el))},
-  shopAdd(){const k=shopKind();sheet(`<h3>${k==='food'?'加到菜单':'加到购物车'}</h3><input type="text" id="shN" placeholder="${k==='food'?'名字':'名字'}" aria-label="名字"><input type="number" id="shP" placeholder="价格" inputmode="decimal" aria-label="价格"><button class="btn" data-a="shopAddGo">保存</button>${CANCEL}`)},
+  shopAdd(){const k=shopKind();sheet(`<h3>${k==='food'?'加到菜单':'加到购物车'}</h3><input type="text" id="shN" aria-label="名字"><input type="number" id="shP" inputmode="decimal" aria-label="价格"><button class="btn" data-a="shopAddGo">保存</button>${CANCEL}`)},
   shopAddGo(){const n=$('#shN').value.trim(),p=Math.round((+$('#shP').value||0)*100)/100;if(!n||p<=0){toast('名字和价格都要填');return}S.shop[shopKind()].push({n,p});save();closeSheet();render(true)},
   shopMng(){sheet(`<h3>管理</h3>`+S.shop[shopKind()].map((x,i)=>`<div class="opt l"><span>${esc(x.n)} · ¥${x.p}</span><button class="tb red" data-a="shopDel" data-i="${i}">删除</button></div>`).join('')+`<button class="opt red" data-a="shopClr">清空</button><button class="opt" data-a="closeSheet">关闭</button>`)},
   shopDel(el){const L=S.shop[shopKind()];L.splice(+el.dataset.i,1);save();render(true);if(L.length)A.shopMng();else closeSheet()},
@@ -2480,7 +2480,7 @@ const A={
   newDm(){pickChar('和谁聊？','dmGo')},
   dmGo(el){const t=dmFor(el.dataset.id);closeSheet();go({v:'chat',id:t.id})},
   newGroupChat(){if(S.chars.length<2){toast('群聊至少要 2 个角色');return}
-    sheet(`<h3>新群聊</h3><input type="text" id="gName" placeholder="群名" aria-label="群名">`+S.chars.map(c=>`<label class="opt l"><input type="checkbox" class="gm cbx" value="${c.id}">${av(c,30)}${esc(dn(c))}</label>`).join('')+`<button class="btn" data-a="groupGo">建群</button>`)},
+    sheet(`<h3>新群聊</h3><input type="text" id="gName" aria-label="群名">`+S.chars.map(c=>`<label class="opt l"><input type="checkbox" class="gm cbx" value="${c.id}">${av(c,30)}${esc(dn(c))}</label>`).join('')+`<button class="btn" data-a="groupGo">建群</button>`)},
   groupGo(){const ids=[...document.querySelectorAll('.gm:checked')].map(x=>x.value);if(ids.length<2){toast('至少选 2 个');return}
     const t={id:uid(),type:'group',chars:ids,title:$('#gName').value.trim(),mode:'online',msgs:[],unread:0,t:Date.now()};S.threads.push(t);save();closeSheet();go({v:'chat',id:t.id})},
   openThread(el){go({v:'chat',id:el.dataset.id})},
@@ -2534,7 +2534,7 @@ const A={
   offBookNew(){const t=thread(cur().id);if(!t)return;const o=t.offline=t.offline||{...S.offline},b={id:uid(),name:'文风',scope:'local',entries:[]};S.books.push(b);o.books=[...(o.books||[]),b.id];save();go({v:'bookEdit',id:b.id})},
   offStylePick(el){const x=S.offStyles.find(x=>x.id===el.dataset.id),t=thread(cur().id);if(!x||!t)return;(t.offline=t.offline||{...S.offline}).style=x.text;save();render(true);toast('换成「'+x.name+'」了')},
   offStyleSave(){const o=thread(cur().id)?.offline,tx=String(o?.style||'').trim();if(!tx){toast('先写文风');return}
-    sheet(`<h3>存成文风</h3><input type="text" id="osName" placeholder="起个名字，比如 日常" aria-label="名字"><button class="btn" data-a="offStyleSaveGo">存</button>`)},
+    sheet(`<h3>存成文风</h3><input type="text" id="osName" aria-label="名字"><button class="btn" data-a="offStyleSaveGo">存</button>`)},
   offStyleSaveGo(){const o=thread(cur().id)?.offline,tx=String(o?.style||'').trim(),n=$('#osName').value.trim()||tx.slice(0,6);if(!tx)return;
     const old=S.offStyles.find(x=>x.name===n);if(old)old.text=tx;else S.offStyles.push({id:uid(),name:n,text:tx});o.style=tx;closeSheet();save();render(true);toast('存好了')},
   offStyleDel(el){confirmTap(el,()=>{const o=thread(cur().id)?.offline;S.offStyles=S.offStyles.filter(x=>x.text!==(o?.style||''));save();render(true)})},
@@ -2586,7 +2586,7 @@ const A={
       <label class="pi"><span class="ic">${ICONS.image}</span>照片<input type="file" accept="image/*" data-img="chatimg" class="vh" aria-label="发照片"></label>${it('stickerPicker','smile','表情包')}${it('pPic','camera','文字图片')}${it('pVoice','mic','语音')}
       ${it('pLoc','pin','位置')}${it('pRoll','dice','骰子','data-k="dice"')}${it('pRoll','hand','猜拳','data-k="rps"')}${it('meetGo','contacts','见面')}${dm?it('pMoney','gift','红包','data-k="hb"')+it('pMoney','yen','转账','data-k="tf"')+it('pPay','yen','代付')+it('cardAdd','wallet','亲属卡',`data-to="${t.chars[0]}"`)+it('pCall','phone','语音通话','data-k="voice"')+it('pCall','video','视频通话','data-k="video"')+it('pShop','bowl','点外卖','data-k="food"')+it('pShop','shop','网购','data-k="goods"'):''}${it('open','music','音乐','data-v="music"')}
     </div><button class="opt" data-a="closeSheet">关闭</button>`)},
-  pLoc(){sheet(`<h3>发送位置</h3><input type="text" id="locIn" placeholder="在哪" aria-label="地点"><input type="text" id="locSub" placeholder="备注" aria-label="备注">
+  pLoc(){sheet(`<h3>发送位置</h3><input type="text" id="locIn" aria-label="地点"><input type="text" id="locSub" aria-label="备注">
     <div class="btns"><button class="btn o" data-a="pLocHere">定位当前位置</button>${S.loc?`<button class="btn o" data-a="pLocCity">${esc(S.loc.name)}</button>`:''}</div><button class="btn" data-a="pLocGo">发送</button>${CANCEL}`)},
   pLocCity(){const i=$('#locIn');if(i&&S.loc)i.value=S.loc.name},
   pLocHere(el){if(!navigator.geolocation){toast('这个浏览器不能定位');return}el.disabled=true;el.textContent='定位中…';
@@ -2597,13 +2597,13 @@ const A={
   pLocGo(){const v=$('#locIn').value.trim(),sub=$('#locSub').value.trim();if(!v){toast('写一下在哪');return}closeSheet();pushMine(thread(cur().id),{type:'loc',content:v.slice(0,40),sub:sub.slice(0,60)})},
   pPic(){sheet(`<h3>文字图片</h3><textarea id="picTa" aria-label="照片内容"></textarea><button class="btn" data-a="pPicGo">发出去</button>`)},
   pPicGo(el){const v=$('#picTa').value.trim();if(!v){toast('描述一下画面');return}const t=thread(cur().id);closeSheet();pushMine(t,{type:'pic',content:v})},
-  pVoice(){sheet(`<h3>语音</h3><textarea id="vcTa" placeholder="想说的话" aria-label="语音内容"></textarea><div class="btns">${SR?'<button class="btn o" data-a="pVoiceMic">用麦克风说</button>':''}<button class="btn" data-a="pVoiceGo">发语音</button></div>`)},
+  pVoice(){sheet(`<h3>语音</h3><textarea id="vcTa" aria-label="语音内容"></textarea><div class="btns">${SR?'<button class="btn o" data-a="pVoiceMic">用麦克风说</button>':''}<button class="btn" data-a="pVoiceGo">发语音</button></div>`)},
   pVoiceMic(){listen(x=>{const ta=$('#vcTa');if(ta)ta.value=(ta.value?ta.value+' ':'')+x})},
   pVoiceGo(){const v=$('#vcTa').value.trim();if(!v){toast('说点什么');return}closeSheet();pushMine(thread(cur().id),{type:'voice',content:v,dur:voiceDur(v)})},
-  pMoney(el){const hb=el.dataset.k==='hb';sheet(`<h3>${hb?'发红包':'转账'}</h3><p class="hint" style="text-align:center">钱包 ¥${(+S.wallet||0).toFixed(2)}</p><input type="number" id="mnAmt" min="0.01" step="0.01" placeholder="金额" inputmode="decimal" aria-label="金额"><input type="text" id="mnNote" placeholder="${hb?'祝福':'备注'}" aria-label="备注"><button class="btn" data-a="pMoneyGo" data-k="${el.dataset.k}">${hb?'塞进红包':'转过去'}</button>`)},
+  pMoney(el){const hb=el.dataset.k==='hb';sheet(`<h3>${hb?'发红包':'转账'}</h3><p class="hint" style="text-align:center">钱包 ¥${(+S.wallet||0).toFixed(2)}</p><input type="number" id="mnAmt" min="0.01" step="0.01" inputmode="decimal" aria-label="金额"><input type="text" id="mnNote" aria-label="备注"><button class="btn" data-a="pMoneyGo" data-k="${el.dataset.k}">${hb?'塞进红包':'转过去'}</button>`)},
   pMoneyGo(el){const k=el.dataset.k,hb=k==='hb';let a=Math.round((+$('#mnAmt').value||0)*100)/100;if(a<=0){toast('填个金额');return}if(a>(+S.wallet||0)){toast('钱包余额不够');return}
     const t=thread(cur().id);closeSheet();S.wallet=Math.round(((+S.wallet||0)-a)*100)/100;if(!pushMine(t,{type:k,amt:a,content:$('#mnNote')?.value.trim()||(hb?'恭喜发财':''),state:'new'}))S.wallet=Math.round((S.wallet+a)*100)/100;save()},
-  pPay(){sheet(`<h3>找TA代付</h3><input type="number" id="pyAmt" min="0.01" step="0.01" placeholder="金额" inputmode="decimal" aria-label="金额"><input type="text" id="pyNote" placeholder="买什么" aria-label="买什么"><button class="btn" data-a="pPayGo">发给TA</button>`)},
+  pPay(){sheet(`<h3>找TA代付</h3><input type="number" id="pyAmt" min="0.01" step="0.01" inputmode="decimal" aria-label="金额"><input type="text" id="pyNote" aria-label="买什么"><button class="btn" data-a="pPayGo">发给TA</button>`)},
   pPayGo(){const a=Math.round((+$('#pyAmt').value||0)*100)/100;if(a<=0){toast('填个金额');return}const t=thread(cur().id),n=$('#pyNote')?.value.trim()||'东西';closeSheet();pushMine(t,{type:'pay',amt:a,content:n,state:'new'});save()},
   payTap(el){const t=thread(cur().id),m=t.msgs[+el.dataset.i];if(!m)return;if(m.from==='me'){toast({paid:'TA付了',no:'TA没付'}[m.state]||'等TA付');return}if(m.state!=='new')return;
     sheet(`<h3>${esc(m.content)} · ${money(m.amt)}</h3><button class="opt" data-a="payYes" data-i="${el.dataset.i}">帮TA付</button><button class="opt" data-a="payNo" data-i="${el.dataset.i}">不付</button>${CANCEL}`)},
@@ -2660,13 +2660,13 @@ const A={
   async fetchModels(el){const tg=el.dataset.t||'api';const lbl=el.textContent;
     const p=tg==='tts'?{model:S.media.tts.model}:apiById(el.dataset.id||cur().id);el.disabled=true;el.textContent='拉取中…';
     try{const L=tg==='tts'?MM_TTS.slice():await listModels({...p,base:p.base||'https://api.openai.com/v1'});
-      if(!L.length)throw new Error('列表是空的');sheet(`<h3>选一个模型</h3><input type="text" id="mdQ" placeholder="搜索" aria-label="搜索模型"><div class="mlist" id="mdL">${L.map(x=>`<button class="opt" data-a="pickModel" data-t="${tg}"${el.dataset.id?` data-id="${esc(el.dataset.id)}"`:''} data-m="${esc(x)}">${esc(x)}${p.model===x?' ✓':''}</button>`).join('')}</div>`);
+      if(!L.length)throw new Error('列表是空的');sheet(`<h3>选一个模型</h3><input type="text" id="mdQ" aria-label="搜索模型"><div class="mlist" id="mdL">${L.map(x=>`<button class="opt" data-a="pickModel" data-t="${tg}"${el.dataset.id?` data-id="${esc(el.dataset.id)}"`:''} data-m="${esc(x)}">${esc(x)}${p.model===x?' ✓':''}</button>`).join('')}</div>`);
       $('#mdQ').addEventListener('input',e=>{const q=e.target.value.toLowerCase();document.querySelectorAll('#mdL .opt').forEach(b=>b.hidden=!b.dataset.m.toLowerCase().includes(q))})}
     catch(e){toast(e.message,5600)}finally{if(el.isConnected){el.disabled=false;el.textContent=lbl}}},
   pickModel(el){const tg=el.dataset.t||'api';if(tg==='tts')S.media.tts.model=el.dataset.m;else apiById(el.dataset.id||cur().id).model=el.dataset.m;save();closeSheet();render(true);if(el.dataset.id)toast('换成 '+el.dataset.m)},
   async fetchVoices(el){const cc=el.dataset.c?charById(el.dataset.c):null,T=cc?{voice:cc.voice?.vid||''}:S.media.tts,lbl=el.textContent;el.disabled=true;el.textContent='拉取中…';
     try{const L=await listVoices();if(!L.length)throw new Error('没拉到音色，照服务商文档手填');
-      sheet(`<h3>选一个音色</h3><input type="text" id="mdQ" placeholder="搜索" aria-label="搜索音色"><div class="mlist" id="mdL">${L.map(([v,n])=>`<button class="opt" data-a="pickVoice" data-c="${cc?.id||''}" data-m="${esc(v)}">${esc(n&&n!==v?n+' · '+v:v)}${T.voice===v?' ✓':''}</button>`).join('')}</div>`);
+      sheet(`<h3>选一个音色</h3><input type="text" id="mdQ" aria-label="搜索音色"><div class="mlist" id="mdL">${L.map(([v,n])=>`<button class="opt" data-a="pickVoice" data-c="${cc?.id||''}" data-m="${esc(v)}">${esc(n&&n!==v?n+' · '+v:v)}${T.voice===v?' ✓':''}</button>`).join('')}</div>`);
       $('#mdQ').addEventListener('input',e=>{const q=e.target.value.toLowerCase();document.querySelectorAll('#mdL .opt').forEach(b=>b.hidden=!b.textContent.toLowerCase().includes(q))})}
     catch(e){toast(e.message,5600)}finally{if(el.isConnected){el.disabled=false;el.textContent=lbl}}},
   async tryVoice(el){const c=charById(cur().id);el.disabled=true;try{const b=await ttsAudio((TRY_LINE.find(([re])=>re.test(langOf(c)))||[])[1]||'喂，听得到吗，是我',c);try{vAudio&&vAudio.pause()}catch(e){}vAudio=new Audio(URL.createObjectURL(b));vAudio.play()}catch(e){toast(e.message,5600)}finally{if(el.isConnected)el.disabled=false}},
@@ -2679,19 +2679,19 @@ const A={
   clrWall(){S.look.wallpaper='';save();applyLook();render(true)},
   useMask(el){S.activeMask=el.dataset.id;save();closeSheet();render(true);toast('现在戴着：'+mask().name)},
   editMask(el){closeSheet();go({v:'maskEdit',id:el.dataset.id})},
-  newMask(){const m={id:uid(),name:'新面具',avatar:'',bday:'',persona:''};S.masks.push(m);save();closeSheet();go({v:'maskEdit',id:m.id})},
+  newMask(){const m={id:uid(),name:'user',avatar:'',bday:'',persona:''};S.masks.push(m);save();closeSheet();go({v:'maskEdit',id:m.id})},
   delMask(el){confirmTap(el,()=>{const id=cur().id;S.masks=S.masks.filter(m=>m.id!==id);S.chars.forEach(c=>{if(c.mask===id)delete c.mask});if(S.activeMask===id)S.activeMask=S.masks[0].id;save();back()})},
   cardAdd(el){const to=el?.dataset?.to,chars=to?[charById(to)]:S.chars.filter(visible);if(!chars[0]){toast('先添加一个角色');return}
-    sheet(`<h3>${to?'送'+esc(dn(chars[0]))+'一张亲属卡':'TA给我的亲属卡'}</h3>${to?'':`<select id="cdC" aria-label="谁给的">${chars.map(c=>`<option value="${c.id}">${esc(dn(c))}</option>`).join('')}</select>`}<input type="number" id="cdL" placeholder="每月额度" inputmode="decimal" aria-label="额度"><button class="btn" data-a="cardGo" data-to="${to||''}">开通</button>${CANCEL}`)},
+    sheet(`<h3>${to?'送'+esc(dn(chars[0]))+'一张亲属卡':'TA给我的亲属卡'}</h3>${to?'':`<select id="cdC" aria-label="谁给的">${chars.map(c=>`<option value="${c.id}">${esc(dn(c))}</option>`).join('')}</select>`}<input type="number" id="cdL" inputmode="decimal" aria-label="额度"><button class="btn" data-a="cardGo" data-to="${to||''}">开通</button>${CANCEL}`)},
   cardGo(el){const to=el.dataset.to,c=charById(to||$('#cdC').value),l=Math.max(0,Math.round((+$('#cdL').value||0)*100)/100);if(!c)return;
     giveCard(c,to?'out':'in',l,'');closeSheet();if(to)refreshChat();else render(true)},
   cardEdit(el){const k=S.cards.find(x=>x.id===el.dataset.id);if(!k)return;
-    sheet(`<h3>${esc(k.name||'亲属卡')}</h3><input type="text" id="cdN" value="${esc(k.name||'')}" placeholder="卡的名字" aria-label="名字"><input type="number" id="cdL" value="${k.limit||''}" placeholder="每月额度" inputmode="decimal" aria-label="额度"><input type="number" id="cdU" value="${k.used}" placeholder="本月已用" inputmode="decimal" aria-label="已用"><button class="btn" data-a="cardSave" data-id="${k.id}">保存</button><button class="opt red" data-a="cardDel" data-id="${k.id}">解绑</button>${CANCEL}`)},
+    sheet(`<h3>${esc(k.name||'亲属卡')}</h3><input type="text" id="cdN" value="${esc(k.name||'')}" aria-label="名字"><input type="number" id="cdL" value="${k.limit||''}" inputmode="decimal" aria-label="额度"><input type="number" id="cdU" value="${k.used}" inputmode="decimal" aria-label="已用"><button class="btn" data-a="cardSave" data-id="${k.id}">保存</button><button class="opt red" data-a="cardDel" data-id="${k.id}">解绑</button>${CANCEL}`)},
   cardSave(el){const k=S.cards.find(x=>x.id===el.dataset.id);k.name=$('#cdN').value.trim();k.limit=Math.max(0,+$('#cdL').value||0);k.used=Math.max(0,+$('#cdU').value||0);save();closeSheet();render(true)},
   cardDel(el){confirmTap(el,()=>{S.cards=S.cards.filter(k=>k.id!==el.dataset.id);save();closeSheet();render(true)})},
   walletDel(el){const id=el.dataset.id;for(const x of S.threads.flatMap(t=>t.msgs))if(x.id===id)x.wh=1;save();render(true)},
   walletClr(el){confirmTap(el,()=>{for(const x of S.threads.flatMap(t=>t.msgs))if(x.from==='me'||x.kind)x.wh=1;save();render(true)})},
-  topUp(){sheet(`<h3>充值</h3><div class="chips" style="justify-content:center">${[50,100,200,500,1000,5000].map(n=>`<button data-a="topUpGo" data-v="${n}">${n}</button>`).join('')}</div><input type="number" id="topIn" placeholder="别的数" step="0.01" min="0" aria-label="充值金额"><button class="btn" data-a="topUpGo">充值</button>${CANCEL}`)},
+  topUp(){sheet(`<h3>充值</h3><div class="chips" style="justify-content:center">${[50,100,200,500,1000,5000].map(n=>`<button data-a="topUpGo" data-v="${n}">${n}</button>`).join('')}</div><input type="number" id="topIn" step="0.01" min="0" aria-label="充值金额"><button class="btn" data-a="topUpGo">充值</button>${CANCEL}`)},
   topUpGo(el){const a=Math.round((+(el?.dataset?.v||$('#topIn')?.value)||0)*100)/100;if(!(a>0)){toast('填个金额');return}S.wallet=Math.round(((+S.wallet||0)+a)*100)/100;save();closeSheet();render(true);toast('充了 '+money(a))},
   charMenu(){sheet(`<h3>添加</h3><button class="opt" data-a="newChar">新角色</button><button class="opt" data-a="newMask">新面具</button>${CANCEL}`)},
   newChar(){const c={id:uid(),name:'',remark:'',handle:'',avatar:'',persona:'',books:[]};S.chars.push(c);save();closeSheet();go({v:'charEdit',id:c.id})},
@@ -2711,7 +2711,7 @@ const A={
   charHold(el){const c=charById(el.dataset.id);if(!c)return;sheet(`<h3>${esc(dn(c))}</h3><button class="opt red" data-a="delChar" data-id="${c.id}">删除</button>${CANCEL}`)},
   bookMenu(){sheet(`<h3>世界书</h3><button class="opt" data-a="newBook">新建</button><button class="opt" data-a="importBookSheet">导入</button>${CANCEL}`)},
   newCharBook(el){const c=charById(el?.dataset.c);if(!c)return;const b={id:uid(),name:dn(c)+'的世界书',scope:'local',entries:[]};S.books.push(b);(c.books||=[]).push(b.id);save();go({v:'bookEdit',id:b.id})},
-  newBook(){const b={id:uid(),name:'新世界书',scope:cur()?.v==='books'&&cur().tab==='local'?'local':'global',entries:[]};S.books.push(b);save();closeSheet();go({v:'bookEdit',id:b.id})},
+  newBook(){const b={id:uid(),name:'',scope:cur()?.v==='books'&&cur().tab==='local'?'local':'global',entries:[]};S.books.push(b);save();closeSheet();go({v:'bookEdit',id:b.id})},
   importBookSheet(){fileSheet('导入世界书','*/*','impBook','')},
   impBookGo(){const ta=$('#impBookTa'),t=ta.value.trim();let d=null;try{d=JSON.parse(t)}catch(e){}try{const b=d&&typeof d==='object'?toBook(d,ta.dataset.name):textBook(t,ta.dataset.name);if(cur()?.v==='books')b.scope=cur().tab==='local'?'local':'global';S.books.push(b);save();closeSheet();go({v:'bookEdit',id:b.id});toast('导入了 '+b.entries.length+' 条')}catch(e){toast(e.message||'不是有效的 JSON')}},
   editBook(el){const b=S.books.find(x=>x.id===el.dataset.id);if(b)bkSnap(b);go({v:'bookEdit',id:el.dataset.id})},
@@ -2734,7 +2734,7 @@ const A={
   perDel(el){confirmTap(el,()=>{const d=cur().d;S.cal.per=S.cal.per.filter(p=>!(p.s<=d&&d<=p.e));save();render(true)})},
   perSet(){const C=S.cal;sheet(`<h3>周期</h3><label class="f">多少天来一次<input type="number" id="pcIn" inputmode="numeric" min="15" max="60" value="${C.cyc||''}"></label><label class="f">一次几天<input type="number" id="plIn" inputmode="numeric" min="1" max="14" value="${C.len||''}"></label><button class="btn" data-a="perSetGo">好</button>${CANCEL}`)},
   perSetGo(){const C=S.cal,c=Math.round(+$('#pcIn').value),l=Math.round(+$('#plIn').value);if(c>=15&&c<=60)C.cyc=c;else delete C.cyc;if(l>=1&&l<=14)C.len=l;else delete C.len;save();closeSheet();render(true)},
-  newRx(){const r={id:uid(),name:'新正则',find:'',rep:'',who:'ai',at:'show',on:true};S.regex.push(r);save();closeSheet();go({v:'regexEdit',id:r.id})},
+  newRx(){const r={id:uid(),name:'',find:'',rep:'',who:'ai',at:'show',on:true};S.regex.push(r);save();closeSheet();go({v:'regexEdit',id:r.id})},
   editRx(el){go({v:'regexEdit',id:el.dataset.id})},
   delRx(el){confirmTap(el,()=>{const id=cur().id;S.regex=S.regex.filter(r=>r.id!==id);save();back()})},
   exportRx(){copy(JSON.stringify(S.regex.find(x=>x.id===cur().id)),'复制好了')},
@@ -2749,7 +2749,7 @@ const A={
   usePreset(){S.activePreset=cur().id;save();render(true);toast('当前预设：'+preset().name)},
   delPreset(el){confirmTap(el,()=>{const id=cur().id;S.presets=S.presets.filter(p=>p.id!==id);if(S.activePreset===id)S.activePreset=S.presets[0].id;save();back()})},
   exportPreset(){copy(JSON.stringify(presetById(cur().id)),'复制好了')},
-  newItem(){const p=presetById(cur().id);const it={id:uid(),name:'新提示词',role:'system',mode:'both',on:true,content:''};p.items.push(it);save();go({v:'itemEdit',id:p.id,iid:it.id})},
+  newItem(){const p=presetById(cur().id);const it={id:uid(),name:'',role:'system',mode:'both',on:true,content:''};p.items.push(it);save();go({v:'itemEdit',id:p.id,iid:it.id})},
   editItem(el){go({v:'itemEdit',id:cur().id,iid:el.dataset.id})},
   moveItem(el){const p=presetById(cur().id),i=p.items.findIndex(x=>x.id===el.dataset.id),j=i+(+el.dataset.d);if(j<0||j>=p.items.length)return;[p.items[i],p.items[j]]=[p.items[j],p.items[i]];save();render(true)},
   itemPos(el){const v=cur(),it=presetById(v.id)?.items.find(x=>x.id===v.iid);if(!it)return;if(el.dataset.v){if(!inChat(it))it.depth=0}else delete it.depth;save();render(true)},
@@ -2766,7 +2766,7 @@ const A={
   renameGroup(){const g=S.stickers.groups.find(x=>x.id===cur().gid);sheet(`<h3>改名</h3><input type="text" id="gRen" value="${esc(g.name)}" aria-label="分组名"><button class="btn" data-a="renameGroupGo">保存</button>`)},
   renameGroupGo(){const g=S.stickers.groups.find(x=>x.id===cur().gid);g.name=$('#gRen').value.trim()||g.name;save();closeSheet();render(true)},
   delGroup(el){confirmTap(el,()=>{S.stickers.groups=S.stickers.groups.filter(g=>g.id!==cur().gid);cur().gid=null;save();render(true)})},
-  stkLinks(){sheet(`<h3>用链接添加</h3><textarea id="stkTa" class="tall" aria-label="表情链接" placeholder="名字：链接（一行一个）"></textarea><button class="btn" data-a="stkLinksGo">添加</button>`)},
+  stkLinks(){sheet(`<h3>用链接添加</h3><textarea id="stkTa" class="tall" aria-label="表情链接"></textarea><button class="btn" data-a="stkLinksGo">添加</button>`)},
   stkLinksGo(){const g=S.stickers.groups.find(x=>x.id===cur().gid);let n=0;
     for(const x of stkLines($('#stkTa').value)){g.items.push({id:uid(),name:stkName(x.name)||'表情'+(allStickers().length+1),src:x.src});n++}
     save();closeSheet();render(true);toast('加了 '+n+' 个')},
@@ -2780,7 +2780,7 @@ const A={
   stkSave(el){allStickers().find(x=>x.id===el.dataset.id).name=$('#sRen').value.trim()||'表情';save();closeSheet();render(true)},
   stkDel(el){S.stickers.groups.forEach(g=>g.items=g.items.filter(s=>s.id!==el.dataset.id));save();closeSheet();render(true)},
 
-  newApi(){const p={id:uid(),name:'新接口',key:'',base:'',model:'',temp:1,topP:null,topK:null,maxTokens:32000,stream:true};S.api.profiles.push(p);save();go({v:'apiEdit',id:p.id})},
+  newApi(){const p={id:uid(),name:'',key:'',base:'',model:'',temp:1,topP:null,topK:null,maxTokens:32000,stream:true};S.api.profiles.push(p);save();go({v:'apiEdit',id:p.id})},
   apiMore(){const v=stack[stack.length-1];v.more=!v.more;render(true)},
   editApi(el){go({v:'apiEdit',id:el.dataset.id})},
   setStream(el){apiById(cur().id).stream=!!el.dataset.v;save();render(true)},
@@ -2831,7 +2831,7 @@ function scopeObj(s){const v=cur()||{};
 function bind(e){const el=e.target;if(!el.dataset||!el.dataset.k)return;const o=scopeObj(el.dataset.s);if(!o)return;
   const val=el.type==='checkbox'?el.checked:(el.type==='range'||el.type==='number')?(el.value===''&&el.dataset.null?null:+el.value):el.value;
   if(el.dataset.k==='persona'&&o.id){const k=o.id;if(!txOn.has(k)){txOn.add(k);txSnap(k,o.persona)}clearTimeout(txT[k]);txT[k]=setTimeout(()=>{txT[k]=0;txSnap(k,o.persona,1)},e.type==='change'?0:5000)}
-  o[el.dataset.k]=val;if(el.dataset.s==='api'&&el.dataset.k==='effort'&&o.fix){delete o.fix.noEff;delete o.fix.eff}save();const out=el.parentElement.querySelector('output');if(out)out.textContent=val}
+  o[el.dataset.k]=el.dataset.s==='mask'&&el.dataset.k==='name'&&!String(val).trim()?'user':val;if(el.dataset.s==='api'&&el.dataset.k==='effort'&&o.fix){delete o.fix.noEff;delete o.fix.eff}save();const out=el.parentElement.querySelector('output');if(out)out.textContent=val}
 document.addEventListener('input',e=>{if(e.target.id==='mRange'){mSeek(+e.target.value/1000);return}
   bind(e)});
 document.addEventListener('error',e=>{const el=e.target;if(!el||el.tagName!=='IMG'||!/^https?:/.test(el.getAttribute('src')||''))return;const b=el.closest('.pmsg'),f=el.closest('.mo-pic');
