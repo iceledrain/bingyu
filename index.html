@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.26.16';</script>
+<script>window.BYJ_VER='2026.11.26.17';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -101,11 +101,6 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .inline{display:flex;align-items:center;gap:10px}
 .inline input[type=range]{flex:1;min-width:0}
 .inline output{font-size:13px;min-width:2.5em;flex:none;text-align:right;color:var(--ink);font-variant-numeric:tabular-nums}
-.pf .panel{gap:11px}.pav{position:relative;align-self:center;display:block;margin:6px 0 4px;padding:0;border:0;background:none;cursor:pointer}.pav .av{border-radius:20%}.pav img{pointer-events:none}.pav>i{position:absolute;inset:0;display:grid;place-items:center;font:200 28px/1 var(--body);color:var(--muted)}
-.fx{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--muted)}.fx>span{flex:none}.fx input,.fx textarea{flex:1;min-width:0}.fx.t{align-items:flex-start}.fx.t>span{padding-top:11px}
-textarea.bare{min-height:104px;font-size:15.5px;line-height:1.75;resize:none;overflow:hidden}.pf h2{font-size:15px}.pf h2 .tb{padding:4px 0 4px 12px;font-size:13px;color:var(--muted)}
-.bind{display:flex;flex-wrap:wrap;gap:8px}.bind label{display:flex;align-items:center;gap:7px;padding:4px 12px 4px 4px;border:1px solid var(--line);border-radius:999px;background:var(--bg2);font-size:13.5px;color:var(--deep);cursor:pointer}.bind label:has(:checked){background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}.bind small{font-size:11px;opacity:.7}
-.quiet{align-self:center;display:flex;gap:4px;border-radius:999px}.quiet .tb{font-size:13px;color:var(--muted);padding:6px 14px}html.wp .quiet{background:var(--panel);-webkit-backdrop-filter:var(--frost);backdrop-filter:var(--frost)}.br .pill{align-self:center;margin-right:8px}
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:999px;padding:9px 18px;font-size:14px;font-weight:600;white-space:nowrap}
@@ -997,7 +992,7 @@ function render(keep){$('#mpop')?.remove();
   <main class="content ${r.cls||''}" id="content">${r.body}</main>${r.foot?`<footer class="foot ${r.footCls||''}">${r.foot}</footer>`:''}`;
   if(wall._wp!==wp){wall._wp=wp;wall.style.removeProperty('background');if(wp)wall.style.setProperty('background',`url("${String(wp).replace(/"/g,'%22')}") center/cover no-repeat`,'important')}appEl.prepend(wall);
   for(const id in kept){const x=document.getElementById(id);if(x)x.value=kept[id]}
-  grow();if(keep)$('#content').scrollTop=sc;r.after&&r.after();paintCanvas();fillPics();
+  if(keep)$('#content').scrollTop=sc;r.after&&r.after();paintCanvas();fillPics();
 }
 let painted;
 function paintCanvas(){const foot=isOpen()&&!!appEl.querySelector('.foot:not(.tabbar)');if(painted===foot)return;painted=foot;document.documentElement.style.backgroundColor=foot?'#fafafa':''}
@@ -1157,12 +1152,6 @@ const loreOf=(books,scan,part)=>loreHit(books,scan).filter(e=>!part||(part==='fi
 const loreBlock=(L,f)=>L.length?'【世界书】\n'+L.map(f).join('\n---\n'):'';
 const charLore=(c,scan)=>{const f=x=>macOf(x,c),L=loreHit(booksFor([c]),String(scan||'')+' '+c.name),top=e=>loreFix(e)&&e.pos!=='depth',a=loreBlock(L.filter(top).map(loreTx),f),b=loreBlock(L.filter(e=>!top(e)).map(loreTx),f);return a||b?a+'\u0002'+b+'\u0001':''};
 const sentText=x=>[x.system,...x.msgs.map(m=>(m.role==='assistant'?'他：':'我：')+(typeof m.content==='string'?m.content:''))].filter(Boolean).join('\n\n');
-const grow=()=>{const c=$('#content'),t=c.scrollTop;c.querySelectorAll('textarea.bare').forEach(x=>{x.style.height='auto';x.style.height=x.scrollHeight+x.offsetHeight-x.clientHeight+'px'});c.scrollTop=t};
-addEventListener('resize',()=>$('.bare')&&grow());
-const card=(o,k,more='')=>{const p=k[0],a=av(o,88);
-  return`<div class="panel">${o.avatar?`<button class="pav" data-a="avMenu" data-k="${k}" aria-label="头像">${a}</button>`:`<label class="pav">${a}<i>+</i><input type="file" accept="image/*" data-img="${k}" class="vh" aria-label="头像"></label>`}
-    <label class="fx"><span>名字</span><input type="text" id="${p}-name" data-s="${k}" data-k="name" value="${esc(k==='mask'&&o.name==='user'?'':o.name)}"></label>${more}
-    <label class="fx t"><span>人设</span><textarea class="bare" id="${p}-persona" data-s="${k}" data-k="persona">${esc(o.persona)}</textarea></label></div>`};
 const HBS={new:'还没收',got:'已收下',back:'已退回'};
 const RXW={ai:'他说的',me:'我说的',both:'都'},RXAT={in:'直接改掉',show:'只改显示',send:'只改发给模型的'},rxC=new Map();
 const rxRe=f=>{if(!rxC.has(f)){let re=null;try{const m=String(f||'').match(/^\/([\s\S]+)\/([a-z]*)$/);re=f?m?new RegExp(m[1],m[2]):new RegExp(f,'g'):null}catch(e){}rxC.set(f,re)}return rxC.get(f)};
@@ -2201,20 +2190,24 @@ post(v){
 },
 charEdit(v){
   const c=charById(v.id);if(!c)return{title:'不见了',body:''};
-  return{title:'角色',cls:'pf',right:`<button class="tb" data-a="messageChar" data-id="${c.id}">发消息</button>`,body:`
-  ${card(c,'char',`<label class="fx"><span>备注</span><input type="text" id="c-remark" data-s="char" data-k="remark" value="${esc(c.remark)}"></label>`)}
-  <div class="panel"><h2>声音<span><button class="tb" data-a="fetchVoices" data-c="${c.id}">拉取</button><button class="tb" data-a="tryVoice">试听</button></span></h2>
-    <label class="fx"><span>音色</span><input type="text" id="c-vid" data-s="cvoice" data-k="vid" value="${esc(c.voice?.vid||'')}" autocomplete="off"></label>
-    <label class="fx"><span>语速</span><input type="number" id="c-vrate" data-s="cvoice" data-k="rate" value="${esc(c.voice?.rate||'')}" min="0.5" max="2" step="0.1"></label>
-    <label class="fx"><span>语言</span><input type="text" id="c-vlang" data-s="cvoice" data-k="lang" value="${esc(c.voice?.lang||'')}" autocomplete="off"></label></div>
-  <div class="quiet"><button class="tb" data-a="txHist" data-id="${c.id}">历史</button><button class="tb" data-a="exportChar">导出</button>${rel(c).youBlocked?`<button class="tb" data-a="unblockC" data-id="${c.id}">解除拉黑</button>`:''}<button class="tb" data-a="delChar">删除</button></div>`};
+  return{title:c.remark||c.name||'',sub:'角色',body:`
+  <div class="panel"><div class="inline">${av(c,76)}<div class="btns">${fileBtn('换头像','accept="image/*" data-img="char"')}${c.avatarOld!==undefined?'<button class="btn o" data-a="charAvBack">换回</button>':''}${c.avatar?'<button class="btn o" data-a="clearCharAv">去掉</button>':''}</div></div>
+    <div class="grid2"><label class="f">名字<input type="text" id="c-name" data-s="char" data-k="name" value="${esc(c.name)}"></label><label class="f">备注<input type="text" id="c-remark" data-s="char" data-k="remark" value="${esc(c.remark)}"></label></div>
+    <label class="f">人设<textarea class="tall" id="c-persona" data-s="char" data-k="persona" aria-label="人设">${esc(c.persona)}</textarea></label><button class="tb" data-a="txHist" data-id="${c.id}" style="align-self:flex-start">人设历史</button></div>
+  <div class="panel"><h2>声音</h2><div class="grid3"><label class="f">音色<input type="text" id="c-vid" data-s="cvoice" data-k="vid" value="${esc(c.voice?.vid||'')}" autocomplete="off"><button class="tb" data-a="fetchVoices" data-c="${c.id}" style="align-self:flex-start;padding:4px 0">拉取音色</button></label>
+    <label class="f">语速<input type="number" id="c-vrate" data-s="cvoice" data-k="rate" value="${esc(c.voice?.rate||'')}" min="0.5" max="2" step="0.1"></label>
+    <label class="f">语言<input type="text" id="c-vlang" data-s="cvoice" data-k="lang" value="${esc(c.voice?.lang||'')}" autocomplete="off"></label></div>
+    <button class="btn o" data-a="tryVoice" style="align-self:flex-start">试听</button></div>
+  <div class="btns"><button class="btn" data-a="messageChar" data-id="${c.id}">发消息</button><button class="btn o" data-a="exportChar">导出</button>${rel(c).youBlocked?`<button class="btn o" data-a="unblockC" data-id="${c.id}">解除拉黑</button>`:''}<button class="btn red" data-a="delChar">删除</button></div>`};
 },
 maskEdit(v){
-  const m=maskById(v.id);if(!m)return{title:'不见了',body:''};const n=S.masks.length>1;
-  return{title:'面具',cls:'pf',right:!n?'':m.id===S.activeMask?'<span class="pill fill">戴着</span>':`<button class="tb" data-a="useMask" data-id="${m.id}">戴上</button>`,body:`
-  ${card(m,'mask','')}
-  ${n&&S.chars.length?`<div class="panel"><h2>绑定的角色</h2><div class="bind">${S.chars.map(c=>{const o=c.mask&&c.mask!==m.id?maskById(c.mask):null;return`<label>${av(c,26)}<input type="checkbox" class="vh" data-a2="maskChar" data-id="${c.id}" ${c.mask===m.id?'checked':''}>${esc(dn(c))}${o?`<small>${esc(o.name)}</small>`:''}</label>`}).join('')}</div></div>`:''}
-  <div class="quiet"><button class="tb" data-a="txHist" data-id="${m.id}">历史</button>${n?'<button class="tb" data-a="delMask">删除</button>':''}</div>`};
+  const m=maskById(v.id);if(!m)return{title:'不见了',body:''};
+  return{title:m.name==='user'?'':m.name,sub:'面具',body:`<div class="panel"><div class="inline">${av(m,76)}${fileBtn('换头像','accept="image/*" data-img="mask"')}</div>
+    <div class="grid2"><label class="f">名字<input type="text" id="m-name" data-s="mask" data-k="name" value="${esc(m.name==='user'?'':m.name)}"></label><label class="f">生日<input type="text" id="m-bday" data-s="mask" data-k="bday" value="${esc(m.bday||'')}"></label></div>
+    <label class="f">人设<textarea class="tall" id="m-persona" data-s="mask" data-k="persona">${esc(m.persona)}</textarea></label><button class="tb" data-a="txHist" data-id="${m.id}" style="align-self:flex-start">人设历史</button></div>
+  <div class="panel"><h2>绑定的角色</h2>
+    ${S.chars.length?S.chars.map(c=>{const o=c.mask&&c.mask!==m.id?maskById(c.mask):null;return`<label class="ck"><input type="checkbox" data-a2="maskChar" data-id="${c.id}" ${c.mask===m.id?'checked':''}>${esc(dn(c))}${o?`<small class="sec"> 现在绑着「${esc(o.name)}」</small>`:''}</label>`}).join(''):'<p class="hint">还没有角色</p>'}</div>
+    <div class="btns">${m.id===S.activeMask?'<span class="pill fill">正戴着</span>':`<button class="btn" data-a="useMask" data-id="${m.id}">戴上</button>`}${S.masks.length>1?'<button class="btn red" data-a="delMask">删除</button>':''}</div>`};
 },
 presets(){
   return{title:'预设',right:`<button class="tb" data-a="presetMenu">添加</button>`,body:
@@ -2711,9 +2704,8 @@ const A={
   personaTplDel(el){confirmTap(el,()=>{S.personaTpls=S.personaTpls.filter(x=>x.id!==el.dataset.id);save();A.personaTpl(el)})},
   personaTplSave(el){const ta=$(el.dataset.k==='char'?'#c-persona':'#m-persona'),t=(ta?.value||'').trim();if(!t){toast('人设是空的');return}
     S.personaTpls.push({id:uid(),name:t.split('\n')[0].slice(0,16)||'模板',text:t});save();A.personaTpl(el);toast('存好了')},
-  avMenu(el){const k=el.dataset.k,o=scopeObj(k);sheet(`<label class="opt">换一张<input type="file" accept="image/*" data-img="${k}" class="vh" aria-label="换一张"></label>${o.avatarOld!==undefined?'<button class="opt" data-a="charAvBack">换回</button>':''}<button class="opt" data-a="clearAv" data-k="${k}">去掉</button>${CANCEL}`)},
-  clearAv(el){const o=scopeObj(el.dataset.k);o.avatar='';delete o.avatarOld;save();closeSheet();render(true)},
-  charAvBack(){const c=charById(cur().id);c.avatar=c.avatarOld||'';delete c.avatarOld;save();closeSheet();render(true)},
+  clearCharAv(){const c=charById(cur().id);c.avatar='';delete c.avatarOld;save();render(true)},
+  charAvBack(){const c=charById(cur().id);c.avatar=c.avatarOld||'';delete c.avatarOld;save();render(true)},
   messageChar(el){const t=dmFor(el.dataset.id);go({v:'chat',id:t.id})},
   delChar(el){confirmTap(el,()=>purgeChar(el.dataset.id||cur().id))},
   charHold(el){const c=charById(el.dataset.id);if(!c)return;sheet(`<h3>${esc(dn(c))}</h3><button class="opt red" data-a="delChar" data-id="${c.id}">删除</button>${CANCEL}`)},
@@ -2840,7 +2832,7 @@ function bind(e){const el=e.target;if(!el.dataset||!el.dataset.k)return;const o=
   const val=el.type==='checkbox'?el.checked:(el.type==='range'||el.type==='number')?(el.value===''&&el.dataset.null?null:+el.value):el.value;
   if(el.dataset.k==='persona'&&o.id){const k=o.id;if(!txOn.has(k)){txOn.add(k);txSnap(k,o.persona)}clearTimeout(txT[k]);txT[k]=setTimeout(()=>{txT[k]=0;txSnap(k,o.persona,1)},e.type==='change'?0:5000)}
   o[el.dataset.k]=el.dataset.s==='mask'&&el.dataset.k==='name'&&!String(val).trim()?'user':val;if(el.dataset.s==='api'&&el.dataset.k==='effort'&&o.fix){delete o.fix.noEff;delete o.fix.eff}save();const out=el.parentElement.querySelector('output');if(out)out.textContent=val}
-document.addEventListener('input',e=>{if(e.target.id==='mRange'){mSeek(+e.target.value/1000);return}if(e.target.classList.contains('bare'))grow();
+document.addEventListener('input',e=>{if(e.target.id==='mRange'){mSeek(+e.target.value/1000);return}
   bind(e)});
 document.addEventListener('error',e=>{const el=e.target;if(!el||el.tagName!=='IMG'||!/^https?:/.test(el.getAttribute('src')||''))return;const b=el.closest('.pmsg'),f=el.closest('.mo-pic');
   if(b&&b.nextElementSibling?.classList.contains('pcap')){b.nextElementSibling.remove();b.outerHTML=`<button class="tphoto" data-a="msg" data-i="${esc(b.dataset.i)}">${ICONS.camera}<span>${esc(el.alt)}</span></button>`}
@@ -2858,7 +2850,7 @@ document.addEventListener('change',async e=>{const el=e.target;bind(e);
   if(el.dataset.img){const f=el.files?.[0];if(!f)return;const k=el.dataset.img;
     const max={gav:320,wall:1600,photo:600,char:320,mask:320,mocover:1400,chatimg:960}[k]||400;
     readImg(f,max,url=>{if(k==='chatimg'){closeSheet();pushMine(thread(cur().id),{type:'img',img:url,content:''});return}
-      if(k==='gav')thread(cur().id).avatar=url;else if(k==='mocover')(cur()?.v==='maskEdit'&&maskById(cur().id)||mask()).mocover=url;else if(k==='char'||k==='mask'){const o=scopeObj(k);o.avatar=url;delete o.avatarOld;closeSheet()}else if(k==='wall')S.look.wallpaper=url;else if(k==='photo')S.look.photo=url;
+      if(k==='gav')thread(cur().id).avatar=url;else if(k==='mocover')(cur()?.v==='maskEdit'&&maskById(cur().id)||mask()).mocover=url;else if(k==='char'){const c=charById(cur().id);c.avatar=url;delete c.avatarOld}else if(k==='mask')maskById(cur().id).avatar=url;else if(k==='wall')S.look.wallpaper=url;else if(k==='photo')S.look.photo=url;
       save();applyLook();if(appEl.classList.contains('open'))render(true);else renderHome()})}
   if(el.dataset.stk){const g=S.stickers.groups.find(x=>x.id===cur().gid);let n=0;
     const img=f=>new Promise(ok=>readImg(f,240,url=>{g.items.push({id:uid(),name:base_(f.name).slice(0,24)||'表情',src:url});n++;ok()},'image/png',ok)),isImg=/\.(png|jpe?g|gif|webp|bmp|avif|heic)$/i;
