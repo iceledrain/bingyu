@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.26.18';</script>
+<script>window.BYJ_VER='2026.11.26.19';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -621,29 +621,20 @@ const DB={db:null,rev:0,q:Promise.resolve(),
     try{const t=this.db.transaction('kv','readwrite'),o=t.objectStore('kv'),fast=!force&&this.sure&&!document.hidden;let n=this.rev+1,old=0;
       const put=()=>{o.put(v,'st');o.put(n,'rev');if(this.leg)o.delete('state')},g=o.get('rev');if(fast)put();
       g.onsuccess=()=>{const c=+g.result||0;if(c>this.rev&&!force){old=1;t.abort();return}if(fast)return;n=Math.max(c,this.rev)+1;
-        if(force===1)o.get('st').onsuccess=e=>{if(e.target.result)o.put(e.target.result,'sv:pre');put()};else put()};
-      t.oncomplete=()=>{this.rev=n;this.leg=0;this.sure=1;if(!this.ok){this.ok=1;try{localStorage.setItem('byj_idb','1')}catch(e){}}snap(v);r(1)};
-      t.onabort=()=>{this.sure=0;if(old)stale();else{toast('保存失败');if(t.error?.name==='QuotaExceededError')snapCut()}r()}}
+        put()};
+      t.oncomplete=()=>{this.rev=n;this.leg=0;this.sure=1;if(!this.ok){this.ok=1;try{localStorage.setItem('byj_idb','1')}catch(e){}}r(1)};
+      t.onabort=()=>{this.sure=0;if(old)stale();else toast('保存失败');r()}}
     catch(e){if(re){toast('保存失败');r()}else this.open(2).then(()=>this.w(v,force,1)).then(r)}})},
   get(k){return new Promise(r=>{if(!this.db){try{r(localStorage.getItem(k))}catch(e){r(null)}return}try{const q=this.db.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>r(q.result??null);q.onerror=()=>{this.bad=1;r(null)}}catch(e){this.bad=1;r(null)}})},
   set(k,v){return new Promise(r=>{if(!this.db){try{localStorage.setItem(k,v)}catch(e){toast('存储满了，换小一点的图片试试')}return r()}try{const t=this.db.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=()=>r();t.onabort=()=>{toast('保存失败');r()}}catch(e){toast('保存失败');r()}})},
   del(k){return new Promise(r=>{if(!this.db)return r();try{const t=this.db.transaction('kv','readwrite');t.objectStore('kv').delete(k);t.oncomplete=()=>r();t.onerror=()=>r()}catch(e){r()}})},
-  put(k,v){return new Promise(r=>{if(!this.db)return r(false);try{const t=this.db.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=()=>r(true);t.onerror=t.onabort=()=>r(false)}catch(e){r(false)}})},
   blob(k){return new Promise(r=>{if(!this.db)return r();try{const q=this.db.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>r(q.result??null);q.onerror=()=>r()}catch(e){r()}})},
   keys(){return new Promise(r=>{if(!this.db)return r([]);try{const q=this.db.transaction('kv').objectStore('kv').getAllKeys();q.onsuccess=()=>r(q.result||[]);q.onerror=()=>r([])}catch(e){r([])}})}};
-let saveT,ready=0,seen=0,force=0,gone=0,lostDb=0,snapDay='';
+let saveT,ready=0,seen=0,force=0,gone=0,lostDb=0;
 const flush=()=>{clearTimeout(saveT);if(!ready||!seen)return 0;const f=force;force=0;return DB.save(JSON.stringify(S),f)};
 const stale=()=>{gone=1;ready=0;clearTimeout(saveT);if(document.hidden||$('#old'))return;const b=document.createElement('button');b.id='old';b.textContent='这页旧了，点一下刷新';
   b.style.cssText='position:fixed;inset:0;z-index:999;border:0;background:rgba(var(--panel-rgb),.97);color:var(--ink);font:inherit;font-size:16px';b.onclick=()=>location.reload();document.body.appendChild(b)};
 const fresh=async()=>{if(gone){location.reload();return 0}if(!DB.db||!ready)return 1;await DB.q;const r=await DB.get('rev');await DB.q;if(r==null||+r<=DB.rev)return 1;gone=1;ready=0;location.reload();return 0};
-async function snap(v){const d=new Date(),k='sv:'+d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());if(!DB.db||snapDay===k)return;snapDay=k;
-  const ks=(await DB.keys()).filter(x=>/^sv:\d/.test(x)).sort();if(!ks.includes(k)&&await DB.put(k,v))ks.push(k);ks.slice(0,-2).forEach(x=>DB.del(x))}
-const snapCut=async()=>{const ks=(await DB.keys()).filter(x=>/^sv:\d/.test(x)).sort();[...ks.slice(0,-1),'sv:pre','sv:old','sv:upd'].forEach(x=>DB.del(x))};
-const txList=async k=>{if(!DB.db)return[];try{const L=JSON.parse(await DB.get('tx:'+k)||'[]');return Array.isArray(L)?L:[]}catch(e){return[]}};
-const txOn=new Set(),txT={};let txQ=Promise.resolve();
-const txSnap=(k,s,e)=>txQ=txQ.then(async()=>{s=String(s||'');if(!DB.db||!s.trim())return;const L=await txList(k),o=L[0];if(o?.s===s)return;let p=0;if(o)while(p<o.s.length&&o.s[p]===s[p])p++;
-  if(e&&o?.e&&Date.now()-o.t<6e5&&p*2>=o.s.length)L[0]={t:Date.now(),s,e:1};else L.unshift({t:Date.now(),s,...(e?{e:1}:{})});
-  const E=L.filter(x=>x.e).slice(0,1),B=L.filter(x=>!x.e).slice(0,1);await DB.set('tx:'+k,JSON.stringify(L.filter(x=>E.includes(x)||B.includes(x))))});
 function save(){clearTimeout(saveT);if(ready)saveT=setTimeout(flush,1200)}
 try{navigator.storage?.persisted?.().then(p=>{if(!p)navigator.storage.persist?.().catch(()=>{})}).catch(()=>{})}catch(e){}
 addEventListener('pagehide',flush);addEventListener('pageshow',e=>{if(e.persisted)fresh()});addEventListener('focus',()=>fresh());
@@ -2059,8 +2050,6 @@ async function savePic(u){let b=null;const id=picId(u);try{b=id?await DB.blob('i
 async function picGC(){const ks=await DB.keys(),used=new Set();S.threads.forEach(t=>t.msgs.forEach(m=>{const id=picId(m.img);if(id)used.add(id)}));S.feed.forEach(p=>postPics(p).forEach(x=>{const id=picId(x.img);if(id)used.add(id)}));
   for(const k of ks){if(typeof k!=='string'||!k.startsWith('img:'))continue;const id=k.slice(4);if(used.has(id))continue;DB.del(k)}}
 
-const bkList=async b=>{if(!DB.db)return[];try{const L=JSON.parse(await DB.get('bk:'+b.id)||'[]');return Array.isArray(L)?L:[]}catch(e){return[]}};
-async function bkSnap(b){if(!DB.db)return;const j=JSON.stringify({name:b.name,entries:b.entries}),L=await bkList(b);if(L[0]?.j===j)return;L.unshift({t:Date.now(),n:b.entries.length,j});await DB.set('bk:'+b.id,JSON.stringify(L.slice(0,10)))}
 function toBook(d,fallback){
   if(Array.isArray(d))d={entries:d};
   const src=d.data?.character_book||d.character_book||d;
@@ -2193,7 +2182,7 @@ charEdit(v){
   return{title:c.remark||c.name||'',sub:'角色',body:`
   <div class="panel"><div class="inline">${av(c,76)}<div class="btns">${fileBtn('换头像','accept="image/*" data-img="char"')}${c.avatarOld!==undefined?'<button class="btn o" data-a="charAvBack">换回</button>':''}${c.avatar?'<button class="btn o" data-a="clearCharAv">去掉</button>':''}</div></div>
     <div class="grid2"><label class="f">名字<input type="text" id="c-name" data-s="char" data-k="name" value="${esc(c.name)}"></label><label class="f">备注<input type="text" id="c-remark" data-s="char" data-k="remark" value="${esc(c.remark)}"></label></div>
-    <label class="f">人设<textarea class="tall" id="c-persona" data-s="char" data-k="persona" aria-label="人设">${esc(c.persona)}</textarea></label><button class="tb" data-a="txHist" data-id="${c.id}" style="align-self:flex-start">人设历史</button></div>
+    <label class="f">人设<textarea class="tall" id="c-persona" data-s="char" data-k="persona" aria-label="人设">${esc(c.persona)}</textarea></label></div>
   <div class="panel"><h2>声音</h2><div class="grid3"><label class="f">音色<input type="text" id="c-vid" data-s="cvoice" data-k="vid" value="${esc(c.voice?.vid||'')}" autocomplete="off"><button class="tb" data-a="fetchVoices" data-c="${c.id}" style="align-self:flex-start;padding:4px 0">拉取音色</button></label>
     <label class="f">语速<input type="number" id="c-vrate" data-s="cvoice" data-k="rate" value="${esc(c.voice?.rate||'')}" min="0.5" max="2" step="0.1"></label>
     <label class="f">语言<input type="text" id="c-vlang" data-s="cvoice" data-k="lang" value="${esc(c.voice?.lang||'')}" autocomplete="off"></label></div>
@@ -2204,7 +2193,7 @@ maskEdit(v){
   const m=maskById(v.id);if(!m)return{title:'不见了',body:''};
   return{title:m.name==='user'?'':m.name,sub:'面具',body:`<div class="panel"><div class="inline">${av(m,76)}${fileBtn('换头像','accept="image/*" data-img="mask"')}</div>
     <div class="grid2"><label class="f">名字<input type="text" id="m-name" data-s="mask" data-k="name" value="${esc(m.name==='user'?'':m.name)}"></label><label class="f">生日<input type="text" id="m-bday" data-s="mask" data-k="bday" value="${esc(m.bday||'')}"></label></div>
-    <label class="f">人设<textarea class="tall" id="m-persona" data-s="mask" data-k="persona">${esc(m.persona)}</textarea></label><button class="tb" data-a="txHist" data-id="${m.id}" style="align-self:flex-start">人设历史</button></div>
+    <label class="f">人设<textarea class="tall" id="m-persona" data-s="mask" data-k="persona">${esc(m.persona)}</textarea></label></div>
   <div class="panel"><h2>绑定的角色</h2>
     ${S.chars.length?S.chars.map(c=>{const o=c.mask&&c.mask!==m.id?maskById(c.mask):null;return`<label class="ck"><input type="checkbox" data-a2="maskChar" data-id="${c.id}" ${c.mask===m.id?'checked':''}>${esc(dn(c))}${o?`<small class="sec"> 现在绑着「${esc(o.name)}」</small>`:''}</label>`}).join(''):'<p class="hint">还没有角色</p>'}</div>
     <div class="btns">${m.id===S.activeMask?'<span class="pill fill">正戴着</span>':`<button class="btn" data-a="useMask" data-id="${m.id}">戴上</button>`}${S.masks.length>1?'<button class="btn red" data-a="delMask">删除</button>':''}</div>`};
@@ -2252,7 +2241,7 @@ bookEdit(v){
     <label class="f">给谁用<select data-a2="bookOwner">${(o=>`<option value="" ${b.scope==='global'?'selected':''}>所有角色（全局）</option>`+(b.scope!=='global'&&!o?`<option value="-" selected>${bookUse(b.id)?'只当见面文风':'还没选给谁'}</option>`:'')+S.chars.map(c=>`<option value="${c.id}" ${b.scope!=='global'&&o===c.id?'selected':''}>只给 ${esc(dn(c))}（局部）</option>`).join(''))(S.chars.find(c=>(c.books||[]).includes(b.id))?.id)}</select></label></div>`+
   (E.length?`<p class="hint">${E.length} 条 · 常亮约 ${E.filter(loreFix).reduce((n,e)=>n+tokEst(e.content),0)} token</p>`:'')+
   E.map(e=>`<button class="row" data-a="editEntry" data-id="${e.id}"><span class="light ${esc(e.light)}"></span><span class="meta"><b>${esc(e.title||'')}</b><small>${e.light==='green'?'常亮':e.light==='red'?'关闭':esc(e.keys||'⚠ 没填关键词')}${(e.prob??100)<100?' · '+esc(e.prob)+'%':''}${e.pos==='depth'?' · 深度 '+(+e.depth||0):''} · 约 ${tokEst(e.content)} token</small></span><span class="side">#${esc(e.order||0)}</span></button>`).join('')+
-  `<div class="btns"><button class="btn o" data-a="exportBook">复制</button><button class="btn o" data-a="dlBook">下载</button><button class="btn o" data-a="bookHist">历史</button><button class="btn red" data-a="delBook">删除</button></div>`};
+  `<div class="btns"><button class="btn o" data-a="exportBook">复制</button><button class="btn o" data-a="dlBook">下载</button><button class="btn red" data-a="delBook">删除</button></div>`};
 },
 entryEdit(v){
   const b=S.books.find(x=>x.id===v.id),e=b?.entries.find(x=>x.id===v.eid);if(!e)return{title:'不见了',body:''};
@@ -2365,7 +2354,7 @@ settings(v){
   const D=VIEWS.data(v);
   return{title:'设置',body:head+D.body+`
     <div class="panel"><h2>恢复</h2>
-      <div class="btns">${fileBtn('恢复数据','accept=".json,application/json,text/plain" id="impFile"')}<button class="btn o" data-a="snaps">存档点</button></div></div>
+      <div class="btns">${fileBtn('恢复数据','accept=".json,application/json,text/plain" id="impFile"')}</div></div>
     <div class="panel"><h2>清空</h2><button class="btn red" data-a="resetAll" style="align-self:flex-start">清空全部数据</button></div>`,after:D.after};
 },
 chatPrefs(v){const C=S.chat,T=v?.tid&&thread(v.tid),cs=T?T.chars.map(charById).filter(Boolean):[];
@@ -2714,16 +2703,12 @@ const A={
   newBook(){const b={id:uid(),name:'',scope:cur()?.v==='books'&&cur().tab==='local'?'local':'global',entries:[]};S.books.push(b);save();closeSheet();go({v:'bookEdit',id:b.id})},
   importBookSheet(){fileSheet('导入世界书','*/*','impBook','')},
   impBookGo(){const ta=$('#impBookTa'),t=ta.value.trim();let d=null;try{d=JSON.parse(t)}catch(e){}try{const b=d&&typeof d==='object'?toBook(d,ta.dataset.name):textBook(t,ta.dataset.name);if(cur()?.v==='books')b.scope=cur().tab==='local'?'local':'global';S.books.push(b);save();closeSheet();go({v:'bookEdit',id:b.id});toast('导入了 '+b.entries.length+' 条')}catch(e){toast(e.message||'不是有效的 JSON')}},
-  editBook(el){const b=S.books.find(x=>x.id===el.dataset.id);if(b)bkSnap(b);go({v:'bookEdit',id:el.dataset.id})},
-  async bookHist(){const b=S.books.find(x=>x.id===cur().id);if(!b)return;const L=await bkList(b);
-    sheet(`<h3>历史版本</h3>`+(L.map((x,i)=>`<button class="opt" data-a="bookBack" data-i="${i}">${dayLabel(x.t)} ${hm(x.t)} · ${x.n} 条</button>`).join('')||`<p class="hint">还没有</p>`)+CANCEL)},
-  bookBack(el){confirmTap(el,async()=>{const b=S.books.find(x=>x.id===cur().id);if(!b)return;const x=(await bkList(b))[+el.dataset.i];if(!x)return;await bkSnap(b);const d=JSON.parse(x.j);
-    Object.assign(b,{name:d.name,entries:d.entries});save();closeSheet();render(true);toast('恢复了')})},
+  editBook(el){go({v:'bookEdit',id:el.dataset.id})},
   newEntry(){const b=S.books.find(x=>x.id===cur().id);const e={id:uid(),title:'',keys:'',content:'',light:'green',prob:100,order:Math.max(-1,...b.entries.map(x=>+x.order||0))+1};b.entries.push(e);save();go({v:'entryEdit',id:b.id,eid:e.id})},
   editEntry(el){go({v:'entryEdit',id:cur().id,eid:el.dataset.id})},
   light(el){const v=cur(),e=S.books.find(b=>b.id===v.id).entries.find(e=>e.id===v.eid);e.light=el.dataset.l;save();render(true)},
   delEntry(el){confirmTap(el,()=>{const v=cur(),b=S.books.find(x=>x.id===v.id);b.entries=b.entries.filter(e=>e.id!==v.eid);save();back()})},
-  delBook(el){confirmTap(el,()=>{const id=cur().id;S.books=S.books.filter(b=>b.id!==id);S.chars.forEach(c=>c.books=(c.books||[]).filter(x=>x!==id));[S.offline,...S.threads.map(t=>t.offline)].forEach(o=>{if(o?.books)o.books=o.books.filter(x=>x!==id)});DB.del('bk:'+id);save();back()})},
+  delBook(el){confirmTap(el,()=>{const id=cur().id;S.books=S.books.filter(b=>b.id!==id);S.chars.forEach(c=>c.books=(c.books||[]).filter(x=>x!==id));[S.offline,...S.threads.map(t=>t.offline)].forEach(o=>{if(o?.books)o.books=o.books.filter(x=>x!==id)});save();back()})},
   exportBook(){copy(JSON.stringify(S.books.find(x=>x.id===cur().id)),'复制好了')},
   rxMenu(){sheet(`<h3>正则</h3><button class="opt" data-a="newRx">新建</button><button class="opt" data-a="importRxSheet">导入</button>${CANCEL}`)},
   calDay(el){const v=cur(),d=el.dataset.d;v.d=d;v.m=d.slice(0,7);render(true)},
@@ -2803,18 +2788,10 @@ const A={
   tokClr(el){confirmTap(el,()=>{S.tok=def().tok;save();render(true)})},
   async reloadNew(el){el.disabled=true;el.textContent='刷新中…';await flush();
     try{await fetch(location.href.split('#')[0],{cache:'reload'})}catch(e){}location.reload()},
-  imp(el,txt,pure){const t=String(txt??$('#impTa')?.value??'').trim();if(!t){toast('先选备份文件');return}if(lostDb){toast('存档库没连上，刷新再试');return}
+  imp(el,txt){const t=String(txt??$('#impTa')?.value??'').trim();if(!t){toast('先选备份文件');return}if(lostDb){toast('存档库没连上，刷新再试');return}
     {
-    try{const d=JSON.parse(t);if(![2,3,4].includes(d.v))throw 0;const old=S;S=mergeState(d);if(!pure){for(const K of['evWipe','memWipe']){const w={...(S[K]||{})};for(const[k,v]of Object.entries(old[K]||{}))w[k]=Math.max(w[k]||0,v);S[K]=w}S.evGone=[...new Set([...(S.evGone||[]),...(old.evGone||[])])].slice(-3000);evWipeApply(S)}S.api.profiles.forEach(p=>{if(!p.key){const o=old.api.profiles.find(x=>x.key&&x.base===p.base&&x.id===p.id)||old.api.profiles.find(x=>x.key&&x.base===p.base);if(o)p.key=o.key}});gone=0;ready=seen=force=1;save();applyLook();toRoot();toast('恢复好了')}catch(e){toast('这不是冰雨机的备份')}}},
-  async snaps(){const ks=(await DB.keys()).filter(x=>/^sv:(\d|pre$)/.test(x)).sort().reverse();if(ks[0]==='sv:pre')ks.push(ks.shift());
-    const L=await Promise.all(ks.map(async k=>{let n='';try{const d=JSON.parse(await DB.get(k));n=` · ${d.chars.length} 角色 · ${d.threads.reduce((n,t)=>n+t.msgs.length,0)} 条 · ${(d.books||[]).length} 本书`}catch(e){}
-      return`<button class="opt" data-a="snapBack" data-k="${k}">${k==='sv:pre'?'撤销恢复':k.slice(3)}${n}</button>`}));
-    sheet(`<h3>存档点</h3>`+(L.join('')||`<p class="hint">还没有</p>`)+CANCEL)},
-  snapBack(el){confirmTap(el,async()=>{const k=el.dataset.k;let raw=null;try{raw=await DB.get(k)}catch(e){}if(!raw)return;closeSheet();A.imp(null,raw,1)})},
-  async txHist(el){const k=el.dataset.id,o=charById(k)||maskById(k);if(o&&txT[k]){clearTimeout(txT[k]);txT[k]=0;await txSnap(k,o.persona,1)}const L=await txList(k);
-    sheet(`<h3>人设历史</h3>`+(L.map(x=>`<button class="opt" data-a="txBack" data-id="${k}" data-t="${x.t}">${dayLabel(x.t)} ${hm(x.t)} · ${x.s.length} 字</button>`).join('')||`<p class="hint">还没有</p>`)+CANCEL)},
-  txBack(el){confirmTap(el,async()=>{const k=el.dataset.id,o=charById(k)||maskById(k),x=(await txList(k)).find(x=>x.t==el.dataset.t);if(!o||!x)return;clearTimeout(txT[k]);txT[k]=0;await txSnap(k,o.persona);o.persona=x.s;save();closeSheet();render(true);toast('恢复了')})},
-  resetAll(el){if(lostDb){toast('存档库没连上，刷新再试');return}confirmTap(el,()=>{S=def();gone=0;ready=seen=1;force=2;save();DB.keys().then(ks=>ks.filter(k=>/^(sv|tx|bk):/.test(k)).forEach(k=>DB.del(k)));picGC();applyLook();toRoot();toast('清空了')})}
+    try{const d=JSON.parse(t);if(![2,3,4].includes(d.v))throw 0;const old=S;S=mergeState(d);{for(const K of['evWipe','memWipe']){const w={...(S[K]||{})};for(const[k,v]of Object.entries(old[K]||{}))w[k]=Math.max(w[k]||0,v);S[K]=w}S.evGone=[...new Set([...(S.evGone||[]),...(old.evGone||[])])].slice(-3000);evWipeApply(S)}S.api.profiles.forEach(p=>{if(!p.key){const o=old.api.profiles.find(x=>x.key&&x.base===p.base&&x.id===p.id)||old.api.profiles.find(x=>x.key&&x.base===p.base);if(o)p.key=o.key}});gone=0;ready=seen=force=1;save();applyLook();toRoot();toast('恢复好了')}catch(e){toast('这不是冰雨机的备份')}}},
+  resetAll(el){if(lostDb){toast('存档库没连上，刷新再试');return}confirmTap(el,()=>{S=def();gone=0;ready=seen=1;force=2;save();picGC();applyLook();toRoot();toast('清空了')})}
 };
 document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el||el.disabled)return;const f=A[el.dataset.a];if(f){e.preventDefault();f(el)}});
 document.addEventListener('keydown',e=>{const id=e.target.id;if(id==='mQ'&&e.key==='Enter'&&!e.isComposing){e.preventDefault();A.mFind();return}if(id==='callIn'&&e.key==='Enter'&&!e.isComposing){e.preventDefault();A.callSend();return}
@@ -2830,7 +2807,6 @@ function scopeObj(s){const v=cur()||{};
     case'api':return apiById(v.id);case'thread':return thread(v.id);case'off':{const t=thread(v.id);return t&&(t.offline||(t.offline={...S.offline}))}}}
 function bind(e){const el=e.target;if(!el.dataset||!el.dataset.k)return;const o=scopeObj(el.dataset.s);if(!o)return;
   const val=el.type==='checkbox'?el.checked:(el.type==='range'||el.type==='number')?(el.value===''&&el.dataset.null?null:+el.value):el.value;
-  if(el.dataset.k==='persona'&&o.id){const k=o.id;if(!txOn.has(k)){txOn.add(k);txSnap(k,o.persona)}clearTimeout(txT[k]);txT[k]=setTimeout(()=>{txT[k]=0;txSnap(k,o.persona,1)},e.type==='change'?0:5000)}
   o[el.dataset.k]=el.dataset.s==='mask'&&el.dataset.k==='name'&&!String(val).trim()?'user':val;if(el.dataset.s==='api'&&el.dataset.k==='effort'&&o.fix){delete o.fix.noEff;delete o.fix.eff}save();const out=el.parentElement.querySelector('output');if(out)out.textContent=val}
 document.addEventListener('input',e=>{if(e.target.id==='mRange'){mSeek(+e.target.value/1000);return}
   bind(e)});
@@ -2882,7 +2858,7 @@ function setTouchIcon(){try{let l=document.getElementById('touchIcon');if(!l){l=
     s.threads=Object.entries(old.chats||{}).filter(([id])=>s.chars.some(c=>c.id===id)).map(([id,ms])=>({id:uid(),type:'dm',chars:[id],title:'',mode:'online',unread:0,t:Date.now(),msgs:ms.map(m=>({id:uid(),from:m.role==='user'?'me':id,type:'text',content:m.content,t:m.t||Date.now()}))}));
     raw=JSON.stringify(s)}}catch(e){}}
   let loaded=false,bad=DB.bad||lost;try{const d=raw?JSON.parse(raw):null;S=mergeState(d);if(raw&&![2,3,4].includes(d?.v))bad=1;loaded=!!raw&&!bad}catch(e){S=def();if(raw)bad=1}
-  ready=!bad;lostDb=lost;seen=seen||!document.hidden;if(bad)toast('读档没成功，原来的存档没动。先别清数据，刷新再试',6e5);DB.leg=leg&&loaded;if(loaded){snap(raw);if(DB.db&&!leg)['state','sv:old','sv:upd'].forEach(x=>DB.del(x))}flush();
+  ready=!bad;lostDb=lost;seen=seen||!document.hidden;if(bad)toast('读档没成功，原来的存档没动。先别清数据，刷新再试',6e5);DB.leg=leg&&loaded;if(loaded&&DB.db){if(!leg)DB.del('state');DB.keys().then(ks=>ks.filter(k=>/^(sv|tx|bk):/.test(k)).forEach(k=>DB.del(k)))}flush();
   applyLook();renderHome();ensureHolidays();if(loaded)setTimeout(picGC,4000);
   setTouchIcon();
   try{localStorage.removeItem('byj_try');localStorage.removeItem('byj_ver');DB.del('appHtml')}catch(e){}
