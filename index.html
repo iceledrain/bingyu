@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.26.6';</script>
+<script>window.BYJ_VER='2026.11.26.7';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2224,7 +2224,7 @@ cal(v){const td=ds(locNow());v.d||=td;v.m||=v.d.slice(0,7);const I=perInfo(),M=p
     cells+=`<button class="cd${d.startsWith(v.m)?'':' out'}${x.per?' per':x.pre?' pre':''}${x.fer&&!x.per?' fer':''}${x.ov&&!x.per?' ov':''}${d===td?' td':''}${d===v.d?' sel':''}" data-a="calDay" data-d="${d}"><b>${+d.slice(8)}</b><small>${esc(calTag(dOf(d)))}</small></button>`}
   const x=M[v.d]||{},p=I.P.find(p=>p.s<=v.d&&v.d<=p.e),near=!p&&I.P.filter(p=>p.s<v.d&&dGap(p.s,v.d)<=13).pop(),sd=dOf(v.d);
   const tag=p?`经期第 ${dGap(p.s,v.d)+1} 天`:x.ov?'排卵日':x.fer?'易孕期':x.pre?'大概会来':'';
-  const pb=v.d>td?'':p?`${v.d<p.e?'<button class="btn o" data-a="perEnd">这天走的</button>':''}<button class="btn o" data-a="perDel">没来</button>`:near?'<button class="btn o" data-a="perEnd">这天走的</button>':'<button class="btn o" data-a="perOn">来了</button>';
+  const pb=v.d>td?'':p?`${v.d<p.e?'<button class="btn o" data-a="perEnd">结束</button>':''}<button class="btn o" data-a="perDel">没来</button>`:near?'<button class="btn o" data-a="perEnd">结束</button>':'<button class="btn o" data-a="perOn">来了</button>';
   return{title:'日历',cls:'cal',right:v.d===td&&v.m===td.slice(0,7)?'':'<button class="tb" data-a="calNow">今天</button>',body:`<div class="panel">
     <div class="cal-h"><button data-a="calNav" data-n="-1" aria-label="上个月">‹</button><b>${m0.getFullYear()}年${m0.getMonth()+1}月</b><button data-a="calNav" data-n="1" aria-label="下个月">›</button></div>
     <div class="cal-g">${[...WK].map(w=>`<span>${w}</span>`).join('')}${cells}</div>
