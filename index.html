@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.26.13';</script>
+<script>window.BYJ_VER='2026.11.26.14';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -101,7 +101,10 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .inline{display:flex;align-items:center;gap:10px}
 .inline input[type=range]{flex:1;min-width:0}
 .inline output{font-size:13px;min-width:2.5em;flex:none;text-align:right;color:var(--ink);font-variant-numeric:tabular-nums}
-.fi{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}.fi>span{flex:none;width:2.4em}.fi input{flex:1;min-width:0;padding:6px 10px!important}.fi .tb{flex:none;padding:4px 0}.fi input.n{flex:none;width:64px}
+.frs{display:flex;flex-direction:column}.fr{display:flex;align-items:center;gap:14px;min-height:46px;font-size:15px}.fr+.fr{border-top:1px solid var(--line)}.fr>span{flex:none;color:var(--muted)}
+.fr input{flex:1;min-width:0;border:0;background:none;padding:0;border-radius:0;text-align:right;font-size:15px;outline:0}.fr .tb{flex:none;padding:4px 0 4px 4px;font-size:13px}
+textarea.bare{border:0;background:none;padding:0;border-radius:0;outline:0;min-height:168px;font-size:15px;line-height:1.7;resize:none;overflow:hidden}.panel h2 .tb.e{padding-right:0}
+.avp{position:relative;align-self:center;cursor:pointer}.avl{display:flex;justify-content:center;gap:18px;margin-top:-6px}.avl .tb{padding:0;font-size:12.5px;color:var(--muted)}
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:999px;padding:9px 18px;font-size:14px;font-weight:600;white-space:nowrap}
@@ -1153,6 +1156,7 @@ const loreOf=(books,scan,part)=>loreHit(books,scan).filter(e=>!part||(part==='fi
 const loreBlock=(L,f)=>L.length?'【世界书】\n'+L.map(f).join('\n---\n'):'';
 const charLore=(c,scan)=>{const f=x=>macOf(x,c),L=loreHit(booksFor([c]),String(scan||'')+' '+c.name),top=e=>loreFix(e)&&e.pos!=='depth',a=loreBlock(L.filter(top).map(loreTx),f),b=loreBlock(L.filter(e=>!top(e)).map(loreTx),f);return a||b?a+'\u0002'+b+'\u0001':''};
 const sentText=x=>[x.system,...x.msgs.map(m=>(m.role==='assistant'?'他：':'我：')+(typeof m.content==='string'?m.content:''))].filter(Boolean).join('\n\n');
+const grow=()=>document.querySelectorAll('textarea.bare').forEach(x=>{x.style.height='auto';x.style.height=x.scrollHeight+'px'});
 const HBS={new:'还没收',got:'已收下',back:'已退回'};
 const RXW={ai:'他说的',me:'我说的',both:'都'},RXAT={in:'直接改掉',show:'只改显示',send:'只改发给模型的'},rxC=new Map();
 const rxRe=f=>{if(!rxC.has(f)){let re=null;try{const m=String(f||'').match(/^\/([\s\S]+)\/([a-z]*)$/);re=f?m?new RegExp(m[1],m[2]):new RegExp(f,'g'):null}catch(e){}rxC.set(f,re)}return rxC.get(f)};
@@ -2191,20 +2195,22 @@ post(v){
 },
 charEdit(v){
   const c=charById(v.id);if(!c)return{title:'不见了',body:''};
-  return{title:c.remark||c.name||'',sub:'角色',body:`
-  <div class="panel"><div class="inline">${av(c,76)}<div class="btns">${fileBtn('换头像','accept="image/*" data-img="char"')}${c.avatarOld!==undefined?'<button class="btn o" data-a="charAvBack">换回</button>':''}${c.avatar?'<button class="btn o" data-a="clearCharAv">去掉</button>':''}</div></div>
-    <label class="fi"><span>名字</span><input type="text" id="c-name" data-s="char" data-k="name" value="${esc(c.name)}"></label><label class="fi"><span>备注</span><input type="text" id="c-remark" data-s="char" data-k="remark" value="${esc(c.remark)}"></label>
-    <label class="f">人设<textarea class="tall" id="c-persona" data-s="char" data-k="persona" aria-label="人设">${esc(c.persona)}</textarea></label><button class="tb" data-a="txHist" data-id="${c.id}" style="align-self:flex-start">人设历史</button></div>
-  <div class="panel"><h2>声音</h2><div class="fi"><span>音色</span><input type="text" id="c-vid" data-s="cvoice" data-k="vid" value="${esc(c.voice?.vid||'')}" autocomplete="off" aria-label="音色"><button class="tb" data-a="fetchVoices" data-c="${c.id}">拉取</button></div>
-    <div class="fi"><span>语速</span><input type="number" class="n" id="c-vrate" data-s="cvoice" data-k="rate" value="${esc(c.voice?.rate||'')}" min="0.5" max="2" step="0.1" aria-label="语速"><span>语言</span><input type="text" id="c-vlang" data-s="cvoice" data-k="lang" value="${esc(c.voice?.lang||'')}" autocomplete="off" aria-label="语言"></div>
-    <button class="btn o" data-a="tryVoice" style="align-self:flex-start">试听</button></div>
-  <div class="btns"><button class="btn" data-a="messageChar" data-id="${c.id}">发消息</button><button class="btn o" data-a="exportChar">导出</button>${rel(c).youBlocked?`<button class="btn o" data-a="unblockC" data-id="${c.id}">解除拉黑</button>`:''}<button class="btn red" data-a="delChar">删除</button></div>`};
+  const nm=c.remark||c.name;
+  return{title:nm||'角色',sub:nm?'角色':'',body:`
+  <div class="panel"><label class="avp">${av(c,84)}<input type="file" accept="image/*" data-img="char" class="vh" aria-label="换头像"></label>${c.avatarOld!==undefined||c.avatar?`<div class="avl">${c.avatarOld!==undefined?'<button class="tb" data-a="charAvBack">换回</button>':''}${c.avatar?'<button class="tb" data-a="clearCharAv">去掉</button>':''}</div>`:''}
+    <div class="frs"><label class="fr"><span>名字</span><input type="text" id="c-name" data-s="char" data-k="name" value="${esc(c.name)}"></label><label class="fr"><span>备注</span><input type="text" id="c-remark" data-s="char" data-k="remark" value="${esc(c.remark)}"></label></div></div>
+  <div class="panel"><h2>人设<button class="tb e" data-a="txHist" data-id="${c.id}">历史</button></h2><textarea class="bare" id="c-persona" data-s="char" data-k="persona" aria-label="人设">${esc(c.persona)}</textarea></div>
+  <div class="panel"><h2>声音<button class="tb e" data-a="tryVoice">试听</button></h2>
+    <div class="frs"><div class="fr"><span>音色</span><input type="text" id="c-vid" data-s="cvoice" data-k="vid" value="${esc(c.voice?.vid||'')}" autocomplete="off" aria-label="音色"><button class="tb" data-a="fetchVoices" data-c="${c.id}">拉取</button></div>
+    <label class="fr"><span>语速</span><input type="number" id="c-vrate" data-s="cvoice" data-k="rate" value="${esc(c.voice?.rate||'')}" min="0.5" max="2" step="0.1"></label>
+    <label class="fr"><span>语言</span><input type="text" id="c-vlang" data-s="cvoice" data-k="lang" value="${esc(c.voice?.lang||'')}" autocomplete="off"></label></div></div>
+  <div class="btns"><button class="btn" data-a="messageChar" data-id="${c.id}">发消息</button><button class="btn o" data-a="exportChar">导出</button>${rel(c).youBlocked?`<button class="btn o" data-a="unblockC" data-id="${c.id}">解除拉黑</button>`:''}<button class="btn red" data-a="delChar">删除</button></div>`,after:grow};
 },
 maskEdit(v){
   const m=maskById(v.id);if(!m)return{title:'不见了',body:''};
-  return{title:m.name==='user'?'':m.name,sub:'面具',body:`<div class="panel"><div class="inline">${av(m,76)}${fileBtn('换头像','accept="image/*" data-img="mask"')}</div>
-    <div class="grid2"><label class="f">名字<input type="text" id="m-name" data-s="mask" data-k="name" value="${esc(m.name==='user'?'':m.name)}"></label><label class="f">生日<input type="text" id="m-bday" data-s="mask" data-k="bday" value="${esc(m.bday||'')}"></label></div>
-    <label class="f">人设<textarea class="tall" id="m-persona" data-s="mask" data-k="persona">${esc(m.persona)}</textarea></label><button class="tb" data-a="txHist" data-id="${m.id}" style="align-self:flex-start">人设历史</button></div>
+  return{title:m.name==='user'?'面具':m.name,sub:m.name==='user'?'':'面具',after:grow,body:`<div class="panel"><label class="avp">${av(m,84)}<input type="file" accept="image/*" data-img="mask" class="vh" aria-label="换头像"></label>
+    <div class="frs"><label class="fr"><span>名字</span><input type="text" id="m-name" data-s="mask" data-k="name" value="${esc(m.name==='user'?'':m.name)}"></label><label class="fr"><span>生日</span><input type="text" id="m-bday" data-s="mask" data-k="bday" value="${esc(m.bday||'')}"></label></div></div>
+  <div class="panel"><h2>人设<button class="tb e" data-a="txHist" data-id="${m.id}">历史</button></h2><textarea class="bare" id="m-persona" data-s="mask" data-k="persona" aria-label="人设">${esc(m.persona)}</textarea></div>
   <div class="panel"><h2>绑定的角色</h2>
     ${S.chars.length?S.chars.map(c=>{const o=c.mask&&c.mask!==m.id?maskById(c.mask):null;return`<label class="ck"><input type="checkbox" data-a2="maskChar" data-id="${c.id}" ${c.mask===m.id?'checked':''}>${esc(dn(c))}${o?`<small class="sec"> 现在绑着「${esc(o.name)}」</small>`:''}</label>`}).join(''):'<p class="hint">还没有角色</p>'}</div>
     <div class="btns">${m.id===S.activeMask?'<span class="pill fill">正戴着</span>':`<button class="btn" data-a="useMask" data-id="${m.id}">戴上</button>`}${S.masks.length>1?'<button class="btn red" data-a="delMask">删除</button>':''}</div>`};
@@ -2832,7 +2838,7 @@ function bind(e){const el=e.target;if(!el.dataset||!el.dataset.k)return;const o=
   const val=el.type==='checkbox'?el.checked:(el.type==='range'||el.type==='number')?(el.value===''&&el.dataset.null?null:+el.value):el.value;
   if(el.dataset.k==='persona'&&o.id){const k=o.id;if(!txOn.has(k)){txOn.add(k);txSnap(k,o.persona)}clearTimeout(txT[k]);txT[k]=setTimeout(()=>{txT[k]=0;txSnap(k,o.persona,1)},e.type==='change'?0:5000)}
   o[el.dataset.k]=el.dataset.s==='mask'&&el.dataset.k==='name'&&!String(val).trim()?'user':val;if(el.dataset.s==='api'&&el.dataset.k==='effort'&&o.fix){delete o.fix.noEff;delete o.fix.eff}save();const out=el.parentElement.querySelector('output');if(out)out.textContent=val}
-document.addEventListener('input',e=>{if(e.target.id==='mRange'){mSeek(+e.target.value/1000);return}
+document.addEventListener('input',e=>{if(e.target.id==='mRange'){mSeek(+e.target.value/1000);return}if(e.target.classList.contains('bare'))grow();
   bind(e)});
 document.addEventListener('error',e=>{const el=e.target;if(!el||el.tagName!=='IMG'||!/^https?:/.test(el.getAttribute('src')||''))return;const b=el.closest('.pmsg'),f=el.closest('.mo-pic');
   if(b&&b.nextElementSibling?.classList.contains('pcap')){b.nextElementSibling.remove();b.outerHTML=`<button class="tphoto" data-a="msg" data-i="${esc(b.dataset.i)}">${ICONS.camera}<span>${esc(el.alt)}</span></button>`}
