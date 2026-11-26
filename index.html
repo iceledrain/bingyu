@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.26.9';</script>
+<script>window.BYJ_VER='2026.11.26.10';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2194,9 +2194,9 @@ charEdit(v){
   <div class="panel"><div class="inline">${av(c,76)}<div class="btns">${fileBtn('换头像','accept="image/*" data-img="char"')}${c.avatarOld!==undefined?'<button class="btn o" data-a="charAvBack">换回</button>':''}${c.avatar?'<button class="btn o" data-a="clearCharAv">去掉</button>':''}</div></div>
     <div class="grid2"><label class="f">名字<input type="text" id="c-name" data-s="char" data-k="name" value="${esc(c.name)}"></label><label class="f">备注<input type="text" id="c-remark" data-s="char" data-k="remark" value="${esc(c.remark)}"></label></div>
     <label class="f">人设<textarea class="tall" id="c-persona" data-s="char" data-k="persona" aria-label="人设">${esc(c.persona)}</textarea></label><button class="tb" data-a="txHist" data-id="${c.id}" style="align-self:flex-start">人设历史</button></div>
-  <div class="panel"><h2>声音</h2><label class="f">音色<input type="text" id="c-vid" data-s="cvoice" data-k="vid" value="${esc(c.voice?.vid||'')}" placeholder="${esc(S.media.tts.voice||'跟设置里的一样')}" autocomplete="off"><button class="tb" data-a="fetchVoices" data-c="${c.id}" style="align-self:flex-start;padding:4px 0">拉取音色</button></label>
-    <div class="grid2"><label class="f">语速<input type="number" id="c-vrate" data-s="cvoice" data-k="rate" value="${esc(c.voice?.rate||'')}" placeholder="1" min="0.5" max="2" step="0.1"></label>
-    <label class="f">语言<input type="text" id="c-vlang" data-s="cvoice" data-k="lang" value="${esc(c.voice?.lang||'')}" placeholder="照人设" autocomplete="off"></label></div>
+  <div class="panel"><h2>声音</h2><label class="f">音色<input type="text" id="c-vid" data-s="cvoice" data-k="vid" value="${esc(c.voice?.vid||'')}" autocomplete="off"><button class="tb" data-a="fetchVoices" data-c="${c.id}" style="align-self:flex-start;padding:4px 0">拉取音色</button></label>
+    <div class="grid2"><label class="f">语速<input type="number" id="c-vrate" data-s="cvoice" data-k="rate" value="${esc(c.voice?.rate||'')}" min="0.5" max="2" step="0.1"></label>
+    <label class="f">语言<input type="text" id="c-vlang" data-s="cvoice" data-k="lang" value="${esc(c.voice?.lang||'')}" autocomplete="off"></label></div>
     <label class="ck"><input type="checkbox" data-s="cvoice" data-k="off" ${c.voice?.off?'checked':''}>不放TA的声音</label>
     <button class="btn o" data-a="tryVoice" style="align-self:flex-start">试听</button></div>
   <div class="btns"><button class="btn" data-a="messageChar" data-id="${c.id}">发消息</button><button class="btn o" data-a="exportChar">导出</button>${rel(c).youBlocked?`<button class="btn o" data-a="unblockC" data-id="${c.id}">解除拉黑</button>`:''}<button class="btn red" data-a="delChar">删除</button></div>`};
@@ -2733,7 +2733,7 @@ const A={
   perOn(){const d=cur().d,I=perInfo(),nx=I.P.find(p=>p.s>d);if(nx&&dGap(d,nx.s)<=13)nx.s=d;else S.cal.per.push({s:d,e:nx&&dGap(d,nx.s)<=I.len?dAdd(nx.s,-1):dAdd(d,I.len-1)});save();render(true)},
   perEnd(){const d=cur().d,p=perInfo().P.filter(p=>p.s<=d).pop();if(p){p.e=d;save();render(true)}},
   perDel(el){confirmTap(el,()=>{const d=cur().d;S.cal.per=S.cal.per.filter(p=>!(p.s<=d&&d<=p.e));save();render(true)})},
-  perSet(){const C=S.cal;sheet(`<h3>周期</h3><label class="f">多少天来一次<input type="number" id="pcIn" inputmode="numeric" min="15" max="60" value="${C.cyc||''}" placeholder="按记录算"></label><label class="f">一次几天<input type="number" id="plIn" inputmode="numeric" min="1" max="14" value="${C.len||''}" placeholder="按记录算"></label><button class="btn" data-a="perSetGo">好</button>${CANCEL}`)},
+  perSet(){const C=S.cal;sheet(`<h3>周期</h3><label class="f">多少天来一次<input type="number" id="pcIn" inputmode="numeric" min="15" max="60" value="${C.cyc||''}"></label><label class="f">一次几天<input type="number" id="plIn" inputmode="numeric" min="1" max="14" value="${C.len||''}"></label><button class="btn" data-a="perSetGo">好</button>${CANCEL}`)},
   perSetGo(){const C=S.cal,c=Math.round(+$('#pcIn').value),l=Math.round(+$('#plIn').value);if(c>=15&&c<=60)C.cyc=c;else delete C.cyc;if(l>=1&&l<=14)C.len=l;else delete C.len;save();closeSheet();render(true)},
   newRx(){const r={id:uid(),name:'新正则',find:'',rep:'',who:'ai',at:'show',on:true};S.regex.push(r);save();closeSheet();go({v:'regexEdit',id:r.id})},
   editRx(el){go({v:'regexEdit',id:el.dataset.id})},
