@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.27.2';</script>
+<script>window.BYJ_VER='2026.11.27.3';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1291,7 +1291,6 @@ function buildCtx(t,o={}){
   }else{
     rules.push(group?`这是手机群聊，只写${cname}发的。大家都看得见彼此的话，会接话、叫人、搭腔拌嘴，谁有话谁开口。熟不熟看人设和世界书，没写的就是在这个群里才认识。待不下去写 名字：[退群]；想拉人写 名字：[邀请:名字]${(o=>o.length?'（能拉：'+o.join('、')+'）':'')(S.chars.filter(c=>visible(c)&&!chars.some(y=>y.id===c.id)).map(c=>c.name))}。`
       :`你在手机上跟${me.name}发消息，一行一个气泡。说什么、热不热情，看你的性子和此刻对${me.name}的感觉。${me.name}发来的你都会回。想了就说，问在哪、在干嘛，发语音、拍照片、打电话都行。人设和世界书没写异地，就是同城。`);
-    if(!group&&chars[0])rules.push(`你这会儿在某个地方做着某件事，会顺口提一句；过一阵做完了，换下一件。你说了自己在做什么，那就是你在做；${me.name}那边在做什么，听${me.name}说。${me.name}找你，先顾${me.name}。`);
     rules.push('回复1-6句，每句1-10个字，遇到逗号就分行，长句分为多条消息发送，单字单字母单标点符号均可发，还可发emoji/颜文字/表情包');
     if(group)rules.push('群聊：每条前面写发的人的名字加冒号');
     if(!group&&chars[0]&&mode==='online'){const lg=leftGroups(chars[0]);if(lg.length)ctxs.push(`【退过的群】你退了${lg.map(g=>'「'+threadTitle(g)+'」').join('、')}，想回去就写 [回群]。`)}
@@ -1318,7 +1317,7 @@ function buildCtx(t,o={}){
   rules.push(`${group?cname+'的':''}心情跟着眼前的事走，也会因为${me.name}一句话就变。闹别扭只在嘴上，${me.name}一哄就软。`);
   {const md=chars.filter(c=>c.mood).map(c=>`${c.name}：${c.mood}`);if(md.length)tail.push('【心情】\n'+md.join('\n'))}
   if(mode!=='call')rules.push(`${chars.some(c=>String(c.persona||'').trim())?`人设写的就是${group?cname:'你'}。`:''}和${me.name}之间只提真发生过的事。`);
-  if(!group&&mode!=='call')rules.push(mode==='offline'?'开头先写一行 <think>…</think>：此刻你心里怎么想、接下来想做什么，一句话，8字以内，你自己的口气':`开头先写一行 <think>…</think>：看到${me.name}这几条，你心里怎么想、接下来想怎么做，一句话，8字以内，你自己的口气`);
+  if(!group&&mode!=='call')rules.push(mode==='offline'?'开头先写一行 <think>…</think>：此刻你心里怎么想、接下来想做什么，一句话，你自己的口气':`开头先写一行 <think>…</think>：你接下来想怎么做，一句话，你自己的口气`);
   if(!group&&mode!=='call')rules.push('末尾另起一行写此刻的心情 [心情:词]，词从这些里挑一个：'+MOODS.join('、'));
   if(!group&&mode==='online')rules.push('再另起一行写此刻没说出口的心里话 [心声:内容]，8字以内，句子、词语、单字、一个符号都行');
   const pre=items.filter(i=>i.role!=='system'&&!inChat(i)).map(i=>({role:i.role,content:mac(i.content)}));
@@ -1469,8 +1468,8 @@ const meetBusy=new Set();
 async function meetSum(t){let i=t.msgs.length-1;while(i>=0&&!(isMark(t.msgs[i])&&/见面|线下$/.test(t.msgs[i].content||'')))i--;if(i<0)return;
   const mk=t.msgs[i],ns=t.msgs.slice(i+1).filter(m=>m.type==='narr');if(!ns.length||(mk.sum&&mk.sumN===ns.length)||meetBusy.has(mk.id))return;meetBusy.add(mk.id);
   const me=mask(t),c=t.type==='dm'?charById(t.chars[0]):null,log=ns.map(m=>(m.from==='me'?me.name:charById(m.from)?.name||'?')+'：'+String(m.content||'').trim()).join('\n').slice(-20000);
-  try{const txt=String(await callAI(c?sysFor(c,''):'你在整理一段群聊的记录。',[{role:'user',content:`见面的经过：\n${log}\n\n把这次见面写成一段记忆，${c?`用${c.name}自己的口吻、第一人称「我」写`:'用旁白的口吻写'}：在哪、做了什么、说过的要紧话、约好还没做的。一两句话，60字内，只输出这段。`}],{max:1024,temp:.4,side:true})).replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
-    if(txt&&t.msgs.includes(mk)){mk.sum=wholeText(txt,100);mk.sumN=ns.length;save()}}catch(e){}finally{meetBusy.delete(mk.id)}}
+  try{const txt=String(await callAI(c?sysFor(c,''):'你在整理一段群聊的记录。',[{role:'user',content:`见面的经过：\n${log}\n\n把这次见面写成一段记忆，${c?`用${c.name}自己的口吻、第一人称「我」写`:'用旁白的口吻写'}：在哪、做了什么、说过的要紧话、约好还没做的。一两句话，只输出这段。`}],{max:1024,temp:.4,side:true})).replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
+    if(txt&&t.msgs.includes(mk)){mk.sum=wholeText(txt,200);mk.sumN=ns.length;save()}}catch(e){}finally{meetBusy.delete(mk.id)}}
 const cardsNow=()=>{const mon=new Date().toISOString().slice(0,7);S.cards.forEach(k=>{if(k.mon!==mon){k.mon=mon;k.used=0}});return S.cards};
 function giveCard(c,dir,l,name){const out=dir==='out';S.cards.push({id:uid(),charId:c.id,dir,name:name||'',limit:l,used:0,mon:new Date().toISOString().slice(0,7)});
   const t=dmFor(c.id),q=l?`每月额度 ${money(l)}`:'不限额度';sysMsg(t,out?`你给 ${dn(c)} 开通了亲属卡，${q}`:`${dn(c)} 给你开通了亲属卡，${q}`);t.t=Date.now();
