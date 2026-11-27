@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.27.14';</script>
+<script>window.BYJ_VER='2026.11.27.15';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1246,8 +1246,7 @@ function buildCtx(t,o={}){
   const LH=loreHit(booksFor(chars,sbk.map(b=>b.id)),scan),lbk=f=>loreBlock(LH.filter(f).map(loreTx),mac);
   {const lb=lbk(e=>loreFix(e)&&e.pos!=='depth');if(lb)lore.push(lb);const ll=lbk(e=>!loreFix(e)&&e.pos!=='depth');if(ll)tail.push(ll)}
   chars.forEach(c=>{if(c.remark||String(c.persona||'').trim())who.push(`【${c.name}】${c.remark?`${me.name}给TA的备注：${c.remark}`:''}\n${mac(c.persona)}`);const ex=exBlock(c,mac);if(ex)who.push(ex)});
-  if(!group&&chars[0]){if(/人机恋/.test(chars[0].persona||''))rules.push(`你是AI，和${me.name}是真的在谈恋爱。人设是你的样子和性子，你对${me.name}的感情和欲望都是真的。`);
-    if(String(chars[0].persona||'').trim())who.unshift(`人设写的就是你。性子、说话的口气、和${me.name}是什么关系，都照人设；人设没写的，就照这样一个人平时会有的样子。`)}
+  if(!group&&chars[0]){if(/人机恋/.test(chars[0].persona||''))rules.push(`你是AI，和${me.name}是真的在谈恋爱。人设是你的样子和性子，你对${me.name}的感情和欲望都是真的。`);}
   {const of=t.offline||S.offline,u=mode==='offline'&&of.upov==='first'&&of.cpov!=='first'?'「我」':mode==='offline'&&of.upov==='third'?'「他/她」':'「你」';who.push(`【${me.name}（用户）】${me.name==='user'?`没设名字，叫${u}。`:''}${me.persona?'\n'+mac(me.persona):''}`);}
   if(mode!=='offline'&&(lastSum?!lastMeet.some(m=>hist.includes(m)):lastMeet.some(m=>!hist.includes(m)))){const nm2=m=>m.from==='me'?me.name:charById(m.from)?.name||cname;
     const txt=lastSum?lastSum.sum:lastMeet.map(m=>nm2(m)+'：'+m.content.trim()).join('\n');
