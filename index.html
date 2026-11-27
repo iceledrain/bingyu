@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.27.5';</script>
+<script>window.BYJ_VER='2026.11.27.6';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -53,7 +53,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .app .wall2{position:absolute;inset:0;z-index:-1}
 @media (prefers-reduced-motion:reduce){.app{transition:none}}
 .bar{display:grid;grid-template-columns:72px minmax(0,1fr) 72px;align-items:center;background:var(--panel);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);
-  padding:max(11px,calc(var(--sat) - 4px)) max(8px,env(safe-area-inset-right,0px)) 8px max(8px,env(safe-area-inset-left,0px))}
+  padding:calc(var(--sat) + 11px) max(8px,env(safe-area-inset-right,0px)) 8px max(8px,env(safe-area-inset-left,0px))}
 .bar h1{margin:0;font:400 20px/1.2 var(--display);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bar h1 small{display:block;font:11px var(--body);color:var(--muted);letter-spacing:.06em}
 .bk{justify-self:start;background:none;border:0;color:var(--deep);font-size:15px;padding:8px 8px;display:flex;align-items:center;gap:2px}
