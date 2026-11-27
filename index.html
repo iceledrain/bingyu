@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.27.3';</script>
+<script>window.BYJ_VER='2026.11.27.4';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2830,7 +2830,7 @@ document.addEventListener('change',async e=>{const el=e.target;bind(e);
   if(el.dataset.img==='post'){const fs=[...(el.files||[])].slice(0,Math.max(0,9-postDraft.pics.length));let left=fs.length;el.value='';const done=()=>{if(--left<=0)render(true)};
     fs.forEach(f=>readImg(f,960,url=>{if(postDraft.pics.length<9)postDraft.pics.push(url);done()},'image/jpeg',done));return}
   if(el.dataset.img){const f=el.files?.[0];if(!f)return;const k=el.dataset.img;
-    const max={gav:320,wall:1600,photo:600,char:320,mask:320,mocover:1400,chatimg:960}[k]||400;
+    const max={gav:320,wall:1600,photo:600,char:320,mask:320,mocover:1400,chatimg:1600}[k]||400;
     readImg(f,max,url=>{if(k==='chatimg'){closeSheet();pushMine(thread(cur().id),{type:'img',img:url,content:''});return}
       if(k==='gav')thread(cur().id).avatar=url;else if(k==='mocover')(cur()?.v==='maskEdit'&&maskById(cur().id)||mask()).mocover=url;else if(k==='char'){const c=charById(cur().id);c.avatar=url;delete c.avatarOld}else if(k==='mask')maskById(cur().id).avatar=url;else if(k==='wall')S.look.wallpaper=url;else if(k==='photo')S.look.photo=url;
       save();applyLook();if(appEl.classList.contains('open'))render(true);else renderHome()})}
