@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.26.19';</script>
+<script>window.BYJ_VER='2026.11.27.1';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -214,8 +214,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 @keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .pmsg{border:0;padding:0;background:none;border-radius:6px;overflow:hidden;display:block}
 .pmsg img{display:block;max-width:190px;max-height:240px;border-radius:6px}.pmsg img[data-idb]{background:var(--accent-soft)}
-.tphoto{width:160px;height:160px;box-sizing:border-box;border:0;border-radius:6px;padding:12px;background:linear-gradient(160deg,#e4e4e4,#f3f3f3 60%,#eaeaea);display:flex;flex-direction:column;justify-content:flex-end;gap:6px;text-align:left;font:13px/1.5 var(--display);color:#565656;overflow:hidden;cursor:pointer}
-.tphoto svg{width:18px;height:18px;opacity:.6;flex:none}.tphoto span{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.tphoto{max-width:220px;box-sizing:border-box;border:0;border-radius:6px;padding:10px 12px;background:linear-gradient(160deg,#e4e4e4,#f3f3f3 60%,#eaeaea);display:block;text-align:left;font:13px/1.5 var(--display);color:#565656;white-space:pre-wrap;word-break:break-word;cursor:pointer}
 .voice{display:flex;flex-direction:column;gap:2px;min-width:96px}
 .vrow{display:flex;align-items:center;gap:8px}
 .vrow svg{width:22px;height:22px}
@@ -1494,7 +1493,7 @@ function richBody(t,m,i,mine,c){const tap=`data-a="msg" data-i="${i}"`;
   switch(m.type){
     case'img':return`<button class="pmsg" ${tap}><img ${picAttr(m.img)} alt="照片"></button>${m.content?`<button class="bub" ${tap}>${esc(m.content)}</button>`:''}`;
     case'pic':return m.img?`<button class="pmsg" ${tap}><img ${picAttr(m.img)} alt="${esc(m.content)}"${picBox(m)}></button><span class="pcap">${esc(m.content)}</span>`
-      :`<button class="tphoto" ${tap}>${ICONS.camera}<span>${esc(m.content)}</span></button>`;
+      :`<button class="tphoto" ${tap}>${esc(m.content)}</button>`;
     case'loc':return`<button class="locc" ${tap}><b>${esc(m.content)}</b>${m.sub?`<small>${esc(m.sub)}</small>`:''}<span class="lmap">${ICONS.pin}</span></button>`;
     case'order':{const left=Math.max(1,Math.round((m.eta-Date.now())/60e3));return`<button class="order ${m.state==='done'?'done':''}" ${tap}><small>${ICONS.bowl}外卖 · ${mine?'送给TA':'TA给你点的'}</small><b>${esc(m.content)}</b><span class="os">¥${(+m.amt).toFixed(2)} · ${m.state==='done'?'已送达':'约'+left+'分钟到'}</span></button>`}
     case'parcel':return`<button class="order ${m.state==='done'?'done':''}" ${tap}><small>${ICONS.shop}网购 · ${mine?'寄给TA':'TA寄给你的'}</small><b>${esc(m.content)}</b><span class="os">¥${(+m.amt).toFixed(2)} · ${parcelStage(m)}</span></button>`;
@@ -2811,7 +2810,7 @@ function bind(e){const el=e.target;if(!el.dataset||!el.dataset.k)return;const o=
 document.addEventListener('input',e=>{if(e.target.id==='mRange'){mSeek(+e.target.value/1000);return}
   bind(e)});
 document.addEventListener('error',e=>{const el=e.target;if(!el||el.tagName!=='IMG'||!/^https?:/.test(el.getAttribute('src')||''))return;const b=el.closest('.pmsg'),f=el.closest('.mo-pic');
-  if(b&&b.nextElementSibling?.classList.contains('pcap')){b.nextElementSibling.remove();b.outerHTML=`<button class="tphoto" data-a="msg" data-i="${esc(b.dataset.i)}">${ICONS.camera}<span>${esc(el.alt)}</span></button>`}
+  if(b&&b.nextElementSibling?.classList.contains('pcap')){b.nextElementSibling.remove();b.outerHTML=`<button class="tphoto" data-a="msg" data-i="${esc(b.dataset.i)}">${esc(el.alt)}</button>`}
   else if(f){f.classList.add('tp');f.innerHTML=ICONS.camera+`<span>${esc(el.alt)}</span>`}},true);
 document.addEventListener('change',async e=>{const el=e.target;bind(e);
   if(el.id==='e-pos'){render(true);return}
