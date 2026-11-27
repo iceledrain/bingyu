@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.27.8';</script>
+<script>window.BYJ_VER='2026.11.27.9';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1240,7 +1240,7 @@ function buildCtx(t,o={}){
   const sumOf=i=>{const k=meetOf[i];return k&&k.sum&&k.sumN===meetN.get(k)?k:null},lastSum=meetAt>=0&&lastMeet.length?sumOf(t.msgs.indexOf(lastMeet[0])):null;
   const scan=hist.slice(-Math.max(1,num(C.scan)||8)).map(m=>m.content).join('\n')+'\n'+chars.map(c=>c.name).join(' ');
   const items=P.items.filter(i=>i.on&&(i.mode==='both'||i.mode===im));
-  let roll=null;const tail=[];
+  let roll=null,perSaid=0;const tail=[];
   const lore=[],rules=[],who=[],ctxs=[],late=[];
   const off=t.offline||S.offline,sbk=mode==='offline'?(off.books||[]).map(id=>S.books.find(b=>b.id===id)).filter(Boolean):[];
   const LH=loreHit(booksFor(chars,sbk.map(b=>b.id)),scan),lbk=f=>loreBlock(LH.filter(f).map(loreTx),mac);
@@ -1257,7 +1257,7 @@ function buildCtx(t,o={}){
     let j=ms.length-1;while(j>0&&ms[j].from==='me')j--;const dd=ms[j]?dayDiff(ms[j].t):0;
     tail.push('【现在】'+nowText()+(ms.length>1?(g<60e3?'，上一条是刚刚发的':`，距上一条${gapText(g)}`):'')+(dd>0?(Date.now()-ms[j].t<4*3600e3?`\n刚过零点，日期变成${dayLabel(Date.now())}了。你们一直在聊没断过，接着刚才的话说。`:`\n上次聊是${dayWord(dd)}（${dayLabel(ms[j].t)}），已经是新的一天。记录里的「今天」「明天」是按那天说的；现在的今天是${dayLabel(Date.now())}。`):''));
     const wd=worldFor(chars);if(wd)tail.push(wd);
-    if(!group){const pn=perNote(me.name);if(pn)tail.push(pn)}
+    if(!group){const pn=perNote(me.name);if(pn&&t.perAt!==ds(locNow())){tail.push(pn);perSaid=1}}
     linksOf(t).forEach(u=>{const x=LINK.get(u);if(x)tail.push(`【链接】${me.name}发的 ${u} 你点开看了：\n${x}`)});
     const d0=new Date().setHours(0,0,0,0);if(myDays(me).some(x=>x.in===0&&chars.some(c=>c.id===x.who))&&t.msgs.some(m=>m.from==='me'&&m.t>=d0&&/生日快乐|happy birthday/i.test(m.content||'')))tail.push(`【生日】${me.name}今天说过生日快乐了。`);
     if(!group&&chars[0]){const c=chars[0],gone=saidGone(c,t);
@@ -1347,7 +1347,7 @@ function buildCtx(t,o={}){
     for(const k of['lore','who'])if(!sysI.some(i=>i.mk===k))add({mk:k});sysI.forEach(add)}
   const s1=[...tx(head),...rules].join('\n\n'),s2=[s1,...ctxs,...late].join('\n\n'),sum=sumBlock(t),sys=sum?s2+'\n\n'+sum:s2;
   SYSCUT.set(sys,[cut,s2.length]);if(SYSCUT.size>60)SYSCUT.delete(SYSCUT.keys().next().value);
-  return{system:whoTag(sys,t.id),msgs,chars,group,mode,t,roll};
+  return{system:whoTag(sys,t.id),msgs,chars,group,mode,t,roll,perSaid};
 }
 const STKP=new Map();
 function describeSticker(s){if(!s||s.desc!=null||!/^data:image\/(png|jpe?g|webp)/.test(s.src||''))return;s.desc='';
@@ -1591,6 +1591,7 @@ async function reply(t,extra,stamps){
     }
     if(ex.hs&&posted.length&&!ctx.group&&ctx.mode==='online'){posted[posted.length-1].hs=ex.hs;save()}
     busy.delete(t.id);onThreadUpdate(t);
+    if(ctx.perSaid){t.perAt=ds(locNow());save()}
     if(t.type==='dm'&&ctx.mode!=='offline'&&ctx.chars[0]){const c=ctx.chars[0];c.said=[...(c.said||[]).filter(x=>Date.now()-x.t<36*3600e3),...posted.filter(m=>(m.type==='text'||m.type==='voice')&&m.content).map(m=>({t:m.t,s:String(m.content).slice(0,60)}))].slice(-30);save()}
     if(t.type==='dm'&&cur()?.id===t.id&&cur().v==='chat')render(true);
     if(!isOpen())renderHome();
