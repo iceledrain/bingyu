@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.27.9';</script>
+<script>window.BYJ_VER='2026.11.27.10';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1225,7 +1225,6 @@ const langOf=c=>String(c?.voice?.lang||'').trim();
 const banHit=x=>[...new Set(String(S.chat.ban||'').split(/[\s,，、]+/).filter(Boolean))].filter(w=>String(x||'').includes(w));
 const LINK=new Map(),linksOf=t=>[...new Set(t.msgs.slice(-6).filter(m=>m.from==='me'&&!m.recalled&&typeof m.content==='string').flatMap(m=>m.content.match(/https?:\/\/[^\s<>"'，。）】]+/g)||[]))].slice(-2);
 async function linkLoad(t){await Promise.all(linksOf(t).filter(u=>!LINK.has(u)).map(async u=>{try{const r=await fetch('https://r.jina.ai/'+u,{signal:AbortSignal.timeout(12e3)});LINK.set(u,r.ok?(await r.text()).trim().slice(0,3000):'')}catch(e){LINK.set(u,'')}}))}
-const loveBlock=(n,me)=>`${n}爱${me.name}，认定了，心疼${me.name}，记挂${me.name}的身体和心情。${me.name}提别人、说要走，${n}会吃醋，当场把人留下，硬留还是哄着留看性子。性子再冷再硬，也护着${me.name}、哄着${me.name}。人设里另写了和${me.name}的关系，就听人设的。`;
 function buildCtx(t,o={}){
   const chars=t.chars.map(charById).filter(Boolean),me=mask(t),P=preset(),mode=o.mode||t.mode||'online',group=t.type==='group',C=S.chat,im=mode==='call'?'online':mode;
   const cname=chars.length===1?chars[0].name:chars.map(c=>c.name).join('、');
@@ -1247,7 +1246,6 @@ function buildCtx(t,o={}){
   {const lb=lbk(e=>loreFix(e)&&e.pos!=='depth');if(lb)lore.push(lb);const ll=lbk(e=>!loreFix(e)&&e.pos!=='depth');if(ll)tail.push(ll)}
   chars.forEach(c=>{if(c.remark||String(c.persona||'').trim())who.push(`【${c.name}】${c.remark?`${me.name}给TA的备注：${c.remark}`:''}\n${mac(c.persona)}`);const ex=exBlock(c,mac);if(ex)who.push(ex)});
   if(!group&&chars[0])/人机恋/.test(chars[0].persona||'')?rules.push(`你是AI，和${me.name}是真的在谈恋爱。人设是你的样子和性子，你对${me.name}的感情和欲望都是真的。`):who.unshift(`你叫${cname}，活生生的人，有自己的日子在过。自己的来历，聊到了才提。`);
-  who.push(loveBlock(group?cname:'你',me));
   {const of=t.offline||S.offline,u=mode==='offline'&&of.upov==='first'&&of.cpov!=='first'?'「我」':mode==='offline'&&of.upov==='third'?'「他/她」':'「你」';who.push(`【${me.name}（用户）】${me.name==='user'?`没设名字，叫${u}。`:''}${me.persona?'\n'+mac(me.persona):''}`);}
   if(mode!=='offline'&&(lastSum?!lastMeet.some(m=>hist.includes(m)):lastMeet.some(m=>!hist.includes(m)))){const nm2=m=>m.from==='me'?me.name:charById(m.from)?.name||cname;
     const txt=lastSum?lastSum.sum:lastMeet.map(m=>nm2(m)+'：'+m.content.trim()).join('\n');
@@ -1316,7 +1314,6 @@ function buildCtx(t,o={}){
   }
   {const W=banHit(String(S.chat.ban||''));if(W.length)tail.push(`【不说的词】${W.join('、')}，同类的套话也不说，换成平时的大白话。`)}
   rules.push('做事、赶路都要时间，时间够了才算做完、才到。吃饭睡觉按平常的钟点。');
-  rules.push(`${group?cname+'的':''}心情跟着眼前的事走，也会因为${me.name}一句话就变。闹别扭只在嘴上，${me.name}一哄就软。`);
   {const md=chars.filter(c=>c.mood).map(c=>`${c.name}：${c.mood}`);if(md.length)tail.push('【心情】\n'+md.join('\n'))}
   if(mode!=='call')rules.push(`${chars.some(c=>String(c.persona||'').trim())?`人设写的就是${group?cname:'你'}。`:''}和${me.name}之间只提真发生过的事。`);
   if(!group&&mode!=='call')rules.push(mode==='offline'?'开头先写一行 <think>…</think>：此刻你心里怎么想、接下来想做什么，一句话，你自己的口气':`开头先写一行 <think>…</think>：你这会儿想对${me.name}做什么，一句话，你自己的口气`);
