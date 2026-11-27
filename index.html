@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.27.15';</script>
+<script>window.BYJ_VER='2026.11.27.16';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -863,7 +863,7 @@ function worldFor(chars){const me=mask(chars.length===1?chars[0]:null),L=[];
   const more=x=>[x.next&&'接下来'+x.next,x.wind>=30&&'风很大',x.hum>=90&&!/雨|雪|雾/.test(x.desc)&&'很闷',x.uv>=7&&'紫外线强'].filter(Boolean).join('，');
   const w=wxNow(S.loc);if(w)L.push(`${me.name}在${S.loc.alias||S.loc.name}：现在${w.desc}，${w.temp}°C（体感${w.feel}°C），今天${w.min}~${w.max}°C${more(w)?'，'+more(w):''}${w.tm?`；明天${w.tm} ${w.tmin}~${w.tmax}°C`:''}`);
   chars.forEach(c=>{if(!c.loc)return;if(S.loc&&wxKey(c.loc)===wxKey(S.loc)){L.push(`${c.name}也在${S.loc.alias||c.loc.name}`);return}const x=wxNow(c.loc);L.push(x?`${c.name}在${c.loc.name}${locTime(c.loc)}：现在${x.desc}，${x.temp}°C，今天${x.min}~${x.max}°C${more(x)?'，'+more(x):''}`:`${c.name}在${c.loc.name}${locTime(c.loc)}`)});
-  if(w||chars.some(c=>c.loc&&wxNow(c.loc)))L.push('（天气和日子只是背景，大多数时候不用提。真碰上下雨、降温、特别热或者节假日，偶尔顺口带一句就好，像随手关心，不要专门聊天气）');
+  if(w||chars.some(c=>c.loc&&wxNow(c.loc)))L.push('（天气只是背景）');
   for(let i=1;i<=7;i++){const d=new Date();d.setDate(d.getDate()+i);const o=dayOff(d),pv=new Date(d);pv.setDate(pv.getDate()-1);const po=dayOff(pv),w=i===1?'明天':i===2?'后天':i+'天后';
     if(o?.off&&!po?.off)L.push(`${w}开始放假${o.name?'（'+o.name+'）':''}`);else if(o&&!o.off)L.push(`${w}要补班`)}
   upcomingFest(7).forEach(f=>L.push(f.in===0?`今天是${f.name}`:`${f.in===1?'明天':f.in===2?'后天':f.in+'天后'}是${f.name}`));
@@ -1170,7 +1170,7 @@ function bodyText(m){switch(m.type){
   case'order':return`[外卖:${m.content}:${m.amt}]`;
   case'parcel':return`[网购:${m.content}:${m.amt}]`;
   case'call':return`[${m.kind==='video'?'视频':'语音'}通话 ${fmt(m.dur||0)}]\n${m.content}`;
-  case'share':return`[分享了一${m.kind==='song'?'首歌':'条朋友圈'}]《${m.title}》${m.sub?'（'+m.sub+'）':''}${m.text?'\n'+m.text:''}${m.from==='me'?'\n（自然地接一句，像真的看了/听了，不用每次都夸）':''}`;
+  case'share':return`[分享了一${m.kind==='song'?'首歌':'条朋友圈'}]《${m.title}》${m.sub?'（'+m.sub+'）':''}${m.text?'\n'+m.text:''}`;
   case'roll':return m.k==='rps'?`[猜拳:${m.content}]`:`[骰子:${m.content}点]`;
   case'narr':return'[线下] '+m.content;
   default:return(m.q?`[引用 ${m.q.who}：${m.q.text}] `:'')+m.content}}
@@ -1291,7 +1291,7 @@ function buildCtx(t,o={}){
       if(ph.length)late.push((old?`【这次见面之前】（按先后排：之前的见面已经结束，后来在手机上聊，现在是新的一次见面。只是背景）\n`:`【见面前在手机上聊的】（只是背景）\n`)+ph.map(line).filter(Boolean).join('\n'))}
   }else{
     rules.push(group?`这是手机群聊，只写${cname}发的。大家都看得见彼此的话，会接话、叫人、搭腔拌嘴，谁有话谁开口。熟不熟看人设和世界书，没写的就是在这个群里才认识。待不下去写 名字：[退群]；想拉人写 名字：[邀请:名字]${(o=>o.length?'（能拉：'+o.join('、')+'）':'')(S.chars.filter(c=>visible(c)&&!chars.some(y=>y.id===c.id)).map(c=>c.name))}。`
-      :`你在手机上跟${me.name}发消息，一行一个气泡，${me.name}发来的你都回。人设和世界书没写异地，就是同城。`);
+      :`你在手机上跟${me.name}发消息，一行一个气泡。人设和世界书没写异地，就是同城。`);
     rules.push('回复1-6句，每句1-10个字，遇到逗号就分行，长句分为多条消息发送，单字单字母单标点符号均可发，还可发emoji/颜文字/表情包');
     if(group)rules.push('群聊：每条前面写发的人的名字加冒号');
     if(!group&&chars[0]&&mode==='online'){const lg=leftGroups(chars[0]);if(lg.length)ctxs.push(`【退过的群】你退了${lg.map(g=>'「'+threadTitle(g)+'」').join('、')}，想回去就写 [回群]。`)}
@@ -1686,7 +1686,7 @@ async function buzzMine(p){const me=mask(),pool=S.chars.filter(visible).sort(()=
   const cs=p.replies.filter(r=>r.author!=='me'&&r.author!=='x');
   if(cs.length>=2&&Math.random()<.6){const r=cs[cs.length-1],a=charById(r.author),b=charById(cs[0].author);if(a&&b&&a.id!==b.id&&visible(b)){await sleep(3000+Math.random()*5000);await charReply(p,b,r.text,r.id,a.name);ref()}}
   const c=who[0],t=c&&S.threads.find(x=>x.type==='dm'&&x.chars[0]===c.id);
-  if(t&&Math.random()<.35&&(t.mode||'online')==='online'){await sleep(8000+Math.random()*25000);if(!busy.has(t.id)&&!call)reply(t,`（你刚在朋友圈刷到${me.name}发的：「${postDesc(p)}」，也在下面评论过了。想就这条私聊TA几句，像真的刷到了一样自然。）`)}}
+  if(t&&Math.random()<.35&&(t.mode||'online')==='online'){await sleep(8000+Math.random()*25000);if(!busy.has(t.id)&&!call)reply(t,`（你刚在朋友圈刷到${me.name}发的：「${postDesc(p)}」，也在下面评论过了。想就这条私聊TA几句。）`)}}
 async function npcReply(p,nick,mine){const c=charById(p.author),me=mask(c);
   const thr=(p.replies||[]).slice(-8).map(r=>authorOf(r.author,r).name+'：'+r.text).join('\n');
   const out=await callAI(c?sysFor(c,charLore(c,postDesc(p))+`现在你替你生活里的「${nick}」说话。`):'你在模拟朋友圈里的熟人。',[{role:'user',content:`${authorOf(p.author,p).name}的朋友圈：「${postDesc(p)}」\n评论区：\n${thr}\n\n${me.name}刚回复了「${nick}」：「${mine.text}」。写「${nick}」回复${me.name}的一句话，25字以内，口语。只输出这句话。`}],{max:512,side:true});
@@ -1955,8 +1955,8 @@ function lifeTick(mins){const now=Date.now();{const d=new Date();ensureHolidays(
       if(!t.chase||t.chase.me!==lastMe)t.chase={me:lastMe,n:0,j:Math.random()};const ch=t.chase;
       if(ch.n<2&&gap>=(ch.n?10+10*ch.j:3+3*ch.j)*60e3){ch.n++;ch.j=Math.random();save();
         reply(t,ch.n===1
-          ?`（现在是${nowText()}。你上一条消息${me}还没回，过了${gapText(gap)}。按你的性子追发1到2条。接着刚才聊的那件事往下说，或者问TA在干嘛；不突然扯别的，也不把上一条换个说法再说一遍。）`
-          :`（${me}还是没回。最后追1条，和前面发的不一样，之后等TA。）`);return}
+          ?`（现在是${nowText()}。你上一条消息${me}还没回，过了${gapText(gap)}。按你的性子追发1到2条。）`
+          :`（${me}还是没回。最后追1条，之后等TA。）`);return}
       continue}
     if(gap<3600e3||(t.proAt&&t.proAt>lastMe&&now-t.proAt<6*3600e3))continue;
     if(Math.random()>1-Math.pow(1-.04,mins))continue;
@@ -1989,7 +1989,7 @@ function awayCatch(from,now){
 function whyReach(c){const me=mask(c).name,L=[];
   {const w=wxNow(S.loc);if(w&&/雨|雪|雷|雾|冻/.test(w.desc))L.push(`${me}那边现在${w.desc}`);if(w&&(w.max>=33||w.min<=2))L.push(`${me}那边今天${w.min}~${w.max}°C`);
     upcomingFest(1).forEach(f=>L.push((f.in?'明天是':'今天是')+f.name));myDays(mask(c)).filter(x=>x.in<=1&&(x.who===null||x.who===c.id)).forEach(x=>L.push((x.in?'明天是':'今天是')+x.name))}
-  return(L.length?L.join('；')+'。':'')+'像真人拿起手机那样发，别和之前发过的重样。'}
+  return L.length?L.join('；')+'。':''}
 const bkJSON=()=>JSON.stringify(S,(k,v)=>k==='key'&&!S.bkKey?'':v);
 function dlJSON(o,name){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(o,null,1)],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();a.remove()}
 function extraFor(c){const e=elsewhere(c);return(e.length?'\n\n【最近在别处发生的事】\n'+e.join('\n'):'')+'\n\n【现在】'+nowText()}
