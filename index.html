@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.27.7';</script>
+<script>window.BYJ_VER='2026.11.27.8';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -686,6 +686,7 @@ function mergeState(d){
   if(!s.stickers||!Array.isArray(s.stickers.groups))s.stickers=def().stickers;
   s.media={tts:Object.assign(def().media.tts,d.media?.tts||{})};delete s.imgV;[...s.chars,...s.masks].forEach(x=>delete x.lookAuto);if(s.tok)delete s.tok.img;delete s.media.tts.group;
   s.cal=s.cal&&typeof s.cal==='object'?s.cal:{};if(!Array.isArray(s.cal.per))s.cal.per=[];delete s.cal.bills;
+  if(!s.cal.oV){s.cal.oV=1;const t=ds(new Date());s.cal.per.forEach(p=>{if(p.s<=t&&p.e>t)p.o=1})}
   s.wx=s.wx&&typeof s.wx==='object'?s.wx:{};s.hol=s.hol&&typeof s.hol==='object'?s.hol:{};
   if(!Array.isArray(s.cards))s.cards=[];if(!Array.isArray(s.offStyles))s.offStyles=[];if(!Array.isArray(s.personaTpls))s.personaTpls=def().personaTpls;s.books=s.books.filter(b=>b.id!=='bk-yan'&&b.id!=='bk-live');delete s.liveV;s.chars.forEach(c=>{if(Array.isArray(c.books))c.books=c.books.filter(x=>x!=='bk-yan')});s.personaTpls=s.personaTpls.filter(x=>x.id!=='pt2');delete s.yanV;delete s.tplV;delete s.notes;delete s.caps;delete s.health;
   {const seen=new Set();(s.chars||[]).forEach(c=>{c.books=(c.books||[]).filter(id=>{const b=(s.books||[]).find(x=>x.id===id);if(!b||b.scope==='global'||seen.has(id))return false;seen.add(id);return true})})}
@@ -881,7 +882,8 @@ function festOf(d){const y=d.getFullYear(),m=d.getMonth()+1,dd=d.getDate(),out=[
 const ds=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
 const dOf=s=>{const p=String(s).split('-');return new Date(+p[0],p[1]-1,+p[2]||1)},dAdd=(s,n)=>{const d=dOf(s);d.setDate(d.getDate()+n);return ds(d)},dGap=(a,b)=>Math.round((dOf(b)-dOf(a))/864e5),mdText=s=>{const d=dOf(s);return`${d.getMonth()+1}月${d.getDate()}日`};
 function perInfo(){const C=S.cal,P=[...C.per].sort((a,b)=>a.s<b.s?-1:1),avg=(L,d)=>L.length?Math.round(L.reduce((a,b)=>a+b,0)/L.length):d;
-  const cyc=+C.cyc||avg(P.slice(1).map((p,i)=>dGap(P[i].s,p.s)).filter(g=>g>=15&&g<=60).slice(-6),28),len=+C.len||avg(P.slice(-6).map(p=>dGap(p.s,p.e)+1),5),next=[];
+  const cyc=+C.cyc||avg(P.slice(1).map((p,i)=>dGap(P[i].s,p.s)).filter(g=>g>=15&&g<=60).slice(-6),28),len=+C.len||avg(P.filter(p=>!p.o).slice(-6).map(p=>dGap(p.s,p.e)+1),5),next=[];
+  {const t=ds(locNow());P.forEach(p=>{if(!p.o)return;const g=dGap(p.s,t);if(g>13){p.e=dAdd(p.s,len-1);delete p.o}else p.e=g>0?t:p.s})}
   if(P.length)for(let i=1;i<=6;i++)next.push(dAdd(P[P.length-1].s,cyc*i));
   return{P,cyc,len,next}}
 function perMap(I=perInfo()){const M={},put=(d,k)=>{(M[d]||={})[k]=1};
@@ -2213,7 +2215,7 @@ cal(v){const td=ds(locNow());v.d||=td;v.m||=v.d.slice(0,7);const I=perInfo(),M=p
     cells+=`<button class="cd${d.startsWith(v.m)?'':' out'}${x.per?' per':x.pre?' pre':''}${x.fer&&!x.per?' fer':''}${x.ov&&!x.per?' ov':''}${d===td?' td':''}${d===v.d?' sel':''}" data-a="calDay" data-d="${d}"><b>${+d.slice(8)}</b><small>${esc(calTag(dOf(d)))}</small></button>`}
   const x=M[v.d]||{},p=I.P.find(p=>p.s<=v.d&&v.d<=p.e),near=!p&&I.P.filter(p=>p.s<v.d&&dGap(p.s,v.d)<=13).pop(),sd=dOf(v.d);
   const tag=p?`经期第 ${dGap(p.s,v.d)+1} 天`:x.ov?'排卵日':x.fer?'易孕期':x.pre?'大概会来':'';
-  const pb=v.d>td?'':p?`${v.d<p.e?'<button class="btn o" data-a="perEnd">结束</button>':''}<button class="btn o" data-a="perDel">没来</button>`:near?'<button class="btn o" data-a="perEnd">结束</button>':'<button class="btn o" data-a="perOn">来了</button>';
+  const pb=v.d>td?'':p?`${v.d<p.e||p.o?'<button class="btn o" data-a="perEnd">结束</button>':''}<button class="btn o" data-a="perDel">没来</button>`:near?'<button class="btn o" data-a="perEnd">结束</button>':'<button class="btn o" data-a="perOn">来了</button>';
   return{title:'日历',cls:'cal',right:v.d===td&&v.m===td.slice(0,7)?'':'<button class="tb" data-a="calNow">今天</button>',body:`<div class="panel">
     <div class="cal-h"><button data-a="calNav" data-n="-1" aria-label="上个月">‹</button><b>${m0.getFullYear()}年${m0.getMonth()+1}月</b><button data-a="calNav" data-n="1" aria-label="下个月">›</button></div>
     <div class="cal-g">${[...WK].map(w=>`<span>${w}</span>`).join('')}${cells}</div>
@@ -2720,8 +2722,8 @@ const A={
   calDay(el){const v=cur(),d=el.dataset.d;v.d=d;v.m=d.slice(0,7);render(true)},
   calNav(el){const v=cur(),d=dOf(v.m+'-01');d.setMonth(d.getMonth()+ +el.dataset.n);v.m=ds(d).slice(0,7);render(true)},
   calNow(){const v=cur();v.d=ds(locNow());v.m=v.d.slice(0,7);render(true)},
-  perOn(){const d=cur().d,I=perInfo(),nx=I.P.find(p=>p.s>d);if(nx&&dGap(d,nx.s)<=13)nx.s=d;else S.cal.per.push({s:d,e:nx&&dGap(d,nx.s)<=I.len?dAdd(nx.s,-1):dAdd(d,I.len-1)});save();render(true)},
-  perEnd(){const d=cur().d,p=perInfo().P.filter(p=>p.s<=d).pop();if(p){p.e=d;save();render(true)}},
+  perOn(){const d=cur().d,I=perInfo(),nx=I.P.find(p=>p.s>d);if(nx&&dGap(d,nx.s)<=13)nx.s=d;else S.cal.per.push(!nx&&dGap(d,ds(locNow()))<=13?{s:d,e:d,o:1}:{s:d,e:nx&&dGap(d,nx.s)<=I.len?dAdd(nx.s,-1):dAdd(d,I.len-1)});save();render(true)},
+  perEnd(){const d=cur().d,p=perInfo().P.filter(p=>p.s<=d).pop();if(p){p.e=d;delete p.o;save();render(true)}},
   perDel(el){confirmTap(el,()=>{const d=cur().d;S.cal.per=S.cal.per.filter(p=>!(p.s<=d&&d<=p.e));save();render(true)})},
   perSet(){const C=S.cal;sheet(`<h3>周期</h3><label class="f">多少天来一次<input type="number" id="pcIn" inputmode="numeric" min="15" max="60" value="${C.cyc||''}"></label><label class="f">一次几天<input type="number" id="plIn" inputmode="numeric" min="1" max="14" value="${C.len||''}"></label><button class="btn" data-a="perSetGo">好</button>${CANCEL}`)},
   perSetGo(){const C=S.cal,c=Math.round(+$('#pcIn').value),l=Math.round(+$('#plIn').value);if(c>=15&&c<=60)C.cyc=c;else delete C.cyc;if(l>=1&&l<=14)C.len=l;else delete C.len;save();closeSheet();render(true)},
