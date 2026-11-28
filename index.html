@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.28.13';</script>
+<script>window.BYJ_VER='2026.11.28.14';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -622,7 +622,7 @@ try{navigator.storage?.persisted?.().then(p=>{if(!p)navigator.storage.persist?.(
 addEventListener('pagehide',flush);addEventListener('pageshow',e=>{if(e.persisted)fresh()});addEventListener('focus',()=>fresh());
 ['pointerdown','keydown'].forEach(k=>addEventListener(k,()=>{seen=1},{capture:true,passive:true}));
 
-const BAN_OLD='撩 试试 欠收拾 小没良心的 小白眼狼 皮痒了',BAN_DEF='撩 欠收拾 小没良心的 小白眼狼 皮痒了';
+const BAN_OLD='撩 试试 欠收拾 小没良心的 小白眼狼 皮痒了',BAN_ADD=['喝热水','喝点热水','暖宝宝','红糖'],BAN_DEF='撩 欠收拾 小没良心的 小白眼狼 皮痒了 '+BAN_ADD.join(' ');
 const SYS_ITEM=(name,content)=>({id:uid(),name,role:'system',mode:'both',on:true,content});
 const OLD_ITEM=i=>!i.mk&&(['陪着','亲密','不重复','记得','你','称呼'].includes(i.name)||/^(【(陪着|亲密|记得|你|称呼|怎么演|接住|聊不聊|病娇)】|你是\{\{char\}\}。完全保持|这是手机聊天。像真人发消息|这是面对面的场景。|用\{\{user\}\}使用的语言回复|说\{\{char\}\}设定里|每轮换开头和句式|说话像真人平时说话|不写套话|\{\{char\}\}是正常的成年男人)/.test(String(i.content||'')));
 const MK={lore:'世界书',who:'人设'},MK_ITEM=k=>({...SYS_ITEM(MK[k],''),mk:k}),withMk=p=>{p.items=(p.items||[]).filter(i=>!i.mk||i.mk in MK);for(const k of['who','lore'])if(!p.items.some(i=>i.mk===k))p.items.unshift(MK_ITEM(k));p.items.forEach(i=>{if(i.mk){i.on=true;i.role='system';i.mode='both';i.content='';delete i.depth}});return p};
@@ -655,7 +655,7 @@ function mergeState(d){
   const b=def();if(!d||typeof d!=='object'||![2,3,4].includes(d.v))return b;
   const s=Object.assign(b,d);
   s.look=Object.assign(def().look,d.look||{});for(const k of['alpha','clear','clV','font','customFont','appWalls','dark','icons','homeIcon','order','caption','v5'])delete s.look[k];
-  s.chat=Object.assign(CHAT_DEF(),d.chat||{});if(s.chat.ban===BAN_OLD)s.chat.ban=BAN_DEF;if(!s.ctxV){if(+s.chat.ctx===40)s.chat.ctx=80;s.ctxV=1}if(!s.sumV){if(+s.chat.sumEvery===30)s.chat.sumEvery=60;s.sumV=1}if(!s.ctxV2){if(+s.chat.ctx===80)s.chat.ctx=40;if(+s.chat.sumEvery===60)s.chat.sumEvery=30;s.ctxV2=1}
+  s.chat=Object.assign(CHAT_DEF(),d.chat||{});if(s.chat.ban===BAN_OLD)s.chat.ban=BAN_DEF;if(!s.banV){s.banV=1;const L=String(s.chat.ban||'').split(/[\s,，、]+/).filter(Boolean);s.chat.ban=[...L,...BAN_ADD.filter(w=>!L.includes(w))].join(' ')}if(!s.ctxV){if(+s.chat.ctx===40)s.chat.ctx=80;s.ctxV=1}if(!s.sumV){if(+s.chat.sumEvery===30)s.chat.sumEvery=60;s.sumV=1}if(!s.ctxV2){if(+s.chat.ctx===80)s.chat.ctx=40;if(+s.chat.sumEvery===60)s.chat.sumEvery=30;s.ctxV2=1}
   s.api=d.api&&Array.isArray(d.api.profiles)&&d.api.profiles.length?d.api:def().api;
   s.offline=Object.assign(def().offline,d.offline||{});
   for(const k of ['chars','books','presets','masks','threads','feed','events','orders','days'])if(!Array.isArray(s[k]))s[k]=def()[k];
