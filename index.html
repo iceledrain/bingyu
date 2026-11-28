@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.29.5';</script>
+<script>window.BYJ_VER='2026.11.29.6';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1339,14 +1339,15 @@ function stripPlan(out){const me=mask().name,lines=out.split('\n');
     if(!(who.test(l)&&PLAN_CUE.test(l)&&mulls(l))&&mulls(l)<3)break;lines.shift()}
   return lines.join('\n').trim()||out}
 function extractExtras(out,chat=true,keep=false){
-  let think='';const tk=x=>{x=String(x||'').replace(/<\/?[a-z]{1,10}>/gi,' ').split('\n').map(l=>l.trim()).filter(Boolean).join('\n');if(x)think+=(think?'\n':'')+x;return''};
+  let think='',hs='';const hp=x=>{x=noTail([...noTail(x)].slice(0,8).join(''));if(x)hs=x;return''};
+  out=String(out).replace(/<心声>([\s\S]*?)<\/心声>|<心声>([^<\n]*)|[\[【(（]\s*心声\s*[:：]\s*([^\]】)）\n]*)[\]】)）]|^[ \t]*心声\s*[:：][ \t]*(.+)$/gm,(_,a,b,c,d)=>hp(a??b??c??d));
+  const tk=x=>{x=String(x||'').replace(/<\/?[a-z]{1,10}>/gi,' ').split('\n').map(l=>l.trim()).filter(Boolean).join('\n');if(x)think+=(think?'\n':'')+x;return''};
   out=String(out).replace(/<\/t>/gi,'</think>').replace(new RegExp(`<(${THINK_TAG})>([\\s\\S]*?)<\\/\\1>`,'gi'),(_,t,x)=>tk(x)).replace(new RegExp(`^([\\s\\S]*?)<\\/(?:${THINK_TAG})>`,'i'),(_,x)=>tk(x));
   out=out.replace(new RegExp(`^\\s*<(?:${THINK_TAG})>([\\s\\S]*)$`,'i'),(_,x)=>{const f=stripForeign(x,keep);if(f.plan){tk(f.plan);return f.out}const j=x.indexOf('\n');if(j<0||(chat&&[...x].length>200)){tk(x);return''}tk(x.slice(0,j));return x.slice(j+1)});
-  out=out.replace(/<(inner|心声|now|todo|待办|profile)>[\s\S]*?<\/\1>/gi,'').replace(/<(inner|心声)>[\s\S]*?(?=<tide>|$)/i,'').replace(/<\/?reply>/gi,'');
+  out=out.replace(/<(inner|now|todo|待办|profile)>[\s\S]*?<\/\1>/gi,'').replace(/<inner>[\s\S]*?(?=<tide>|$)/i,'').replace(/<\/?reply>/gi,'');
   out=stripForeign(out,keep).out;if(chat)out=stripPlan(out);
   const mood=[],acts=[],cards=[];
   out=out.replace(/<tide>([\s\S]*?)<\/tide>|\[心情[:：]\s*([^\]\n]*)\]/gi,(_,a,b)=>{mood.push((a??b).trim());return''});
-  let hs='';out=out.replace(/\[心声[:：]\s*([^\]\n]*)\]/g,(_,x)=>{hs=noTail([...noTail(x)].slice(0,8).join(''))||hs;return''});
   out=out.replace(/\[送亲属卡[:：]\s*([\d.]*)[^\]]*\]/g,(_,a)=>{cards.push({give:1,amt:Math.max(0,+a||0)});return''}).replace(/\[刷亲属卡[:：]([^:：\]]+)[:：]\s*([\d.]+)[^\]]*\]/g,(_,w,a)=>{cards.push({what:w.trim(),amt:+a||0});return''});
   out=out.replace(/\[已读不回\]/g,'[沉默]').replace(/\[(拉黑|解除拉黑|删除好友|沉默|收下|退回|代付|不付|语音通话|视频通话|拒接|挂断|查手机|回群)\]/g,(_,x)=>{acts.push(x);return''});
   return{text:out.trim(),mood,acts,cards,hs,think:thinkCut(think)};
