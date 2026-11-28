@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.28.24';</script>
+<script>window.BYJ_VER='2026.11.28.25';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1120,7 +1120,7 @@ function loreHit(books,scan){const low=String(scan).toLowerCase(),sp=x=>String(x
 const loreOf=(books,scan,part)=>loreHit(books,scan).filter(e=>!part||(part==='fixed')===loreFix(e)).map(loreTx);
 const loreBlock=(L,f)=>L.length?'【世界书】\n'+L.map(f).join('\n---\n'):'';
 const charLore=(c,scan)=>{const f=x=>macOf(x,c),L=loreHit(booksFor([c]),String(scan||'')+' '+c.name),top=e=>loreFix(e)&&e.pos!=='depth',a=loreBlock(L.filter(top).map(loreTx),f),b=loreBlock(L.filter(e=>!top(e)).map(loreTx),f);return a||b?a+'\u0002'+b+'\u0001':''};
-const sentText=x=>[x.system,...x.msgs.map(m=>(m.role==='assistant'?'他：':'我：')+(typeof m.content==='string'?m.content:''))].filter(Boolean).join('\n\n');
+const sentText=x=>[x.system,...x.msgs.map(m=>(m.role==='assistant'?(x.chars||[]).map(c=>c.name).join('、')||'他':mask(x.t).name)+'：'+(typeof m.content==='string'?m.content:''))].filter(Boolean).join('\n\n');
 const HBS={new:'还没收',got:'已收下',back:'已退回'};
 function bodyText(m){switch(m.type){
   case'sticker':{const s=findSticker(m.content);return`[表情:${m.content}${s?.desc?'（'+s.desc+'）':''}]`}
@@ -1233,7 +1233,7 @@ function buildCtx(t,o={}){
   }else if(mode==='offline'){
     const sf=loreOf(sbk,scan,'fixed').map(mac),sl=loreOf(sbk,scan,'live').map(mac),own=String(off.style||'').trim();
     const ost=mac(own);
-    rules.push(`旁白里${cname}用名字或第三人称，${me.name}用「你」。`,`${group?cname:'你'}和${me.name}现在面对面。`,`接下来做什么，${group?cname:'你'}自己拿主意。`);
+    rules.push(`旁白里${cname}用名字或第三人称，${me.name}用「你」。`,`${cname}和${me.name}现在面对面。`,`接下来做什么，${cname}自己拿主意。`);
     if(group)rules.push(`${cname}都在场，各说各的话，各做各的事。`);
     {      const ln=curNarr[curNarr.length-1];if(ln&&ln.from!=='me')tail.push(`【接着写】${me.name}这轮没写，接着往后写。`)}
     {const st=[ost,...sf].filter(Boolean);if(st.length)rules.push('【文风】'+st.join('\n'))}
@@ -1270,7 +1270,7 @@ function buildCtx(t,o={}){
     if(pend)tail.push(`【没收的钱】${me.name}发来${pend.type==='hb'?'红包':'转账'}¥${pend.amt}${pend.content?'：'+pend.content:''}，写 [收下] 或 [退回]。`);
   }
   {const md=chars.filter(c=>c.mood).map(c=>`${c.name}：${c.mood}`);if(md.length)tail.push('【心情】\n'+md.join('\n'))}
-  if(!group&&mode!=='call')rules.push(mode==='offline'?'开头先写一行 <think>…</think>：此刻你心里怎么想、接下来想做什么，一句话，你自己的口气':`开头先写一行 <think>…</think>：${me.name}是什么意思，你想对${me.name}做什么，一句话，你自己的口气`);
+  if(!group&&mode!=='call')rules.push(mode==='offline'?`开头先写一行 <think>…</think>：此刻${cname}心里怎么想、接下来想做什么，一句话，${cname}自己的口气`:`开头先写一行 <think>…</think>：${me.name}是什么意思，你想对${me.name}做什么，一句话，你自己的口气`);
   if(!group&&mode!=='call')rules.push('末尾另起一行写此刻的心情 [心情:词]，词从这些里挑一个：'+MOODS.join('、'));
   if(!group&&mode==='online')rules.push('再另起一行写此刻没说出口的心里话 [心声:内容]，8字以内，句子、词语、单字、一个符号都行');
   const pre=items.filter(i=>i.role!=='system'&&!inChat(i)).map(i=>({role:i.role,content:mac(i.content)}));
@@ -1290,7 +1290,7 @@ function buildCtx(t,o={}){
       .forEach(({i,d},k)=>msgs.splice(Math.max(pre.length,la,end-d)+k,0,{role:i.role==='assistant'?'assistant':'user',content:mac(i.content),...(i.dep?{dep:1}:{})}))}
   {const L=chars.filter(langOf);if(L.length)rules.push(`语言：${L.map(c=>`${c.name}开口只说${langOf(c)}`).join('，')}，方括号里的标签名照写`)}
   if(tail.length){let k=msgs.length;while(k>0&&msgs[k-1].role==='user'&&k>pre.length)k--;const last=msgs.slice(k).some(x=>!x.dep);
-    msgs.splice(k,0,{role:'user',content:`（此刻的情况，系统告诉你的）\n`+tail.join('\n\n')+(last?`\n\n（下面是${me.name}${mode==='online'?group?'刚发的；前面的已经接过了，群里接着往下聊':'刚发的，主要回这几条；前面的已经回过了':'发的'}）`:'')})}
+    msgs.splice(k,0,{role:'user',content:`（此刻的情况，系统告诉${mode==='offline'?cname:'你'}的）\n`+tail.join('\n\n')+(last?`\n\n（下面是${me.name}${mode==='online'?group?'刚发的；前面的已经接过了，群里接着往下聊':'刚发的，主要回这几条；前面的已经回过了':'发的'}）`:'')})}
   if(mode==='offline'){const w=num(off.words)||1000,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字）`,last=msgs[msgs.length-1];
     if(last&&last.role==='user')last.content+='\n\n'+note;else msgs.push({role:'user',content:note})}
   const tx=a=>a.map(o=>o.x).filter(Boolean);
