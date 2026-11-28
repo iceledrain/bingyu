@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.29.2';</script>
+<script>window.BYJ_VER='2026.11.29.3';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1514,6 +1514,7 @@ async function reply(t,extra,stamps){
   try{
     await Promise.all([...STKP.values(),ensureWx(S.loc),...t.chars.map(id=>ensureWx(charById(id)?.loc))].map(p=>p.catch(()=>{})));
     if(stamps&&[...t.msgs].reverse().find(m=>m.type!=='sys')?.from==='me')return;
+    if(t.mode!=='offline')await meetSum(t);
     await linkLoad(t);const ctx=buildCtx(t,{ev:1,pro:!!extra}),at=t.msgs.length,tg=extra?{tag:'auto'}:{};if(extra)ctx.msgs.push({role:'user',content:extra});
     const offMax=ctx.mode==='offline'?{max:Math.max((num(api()?.maxTokens)||2048)-4096,Math.round((num((t.offline||S.offline).words)||1000)*3)+2000)}:{};
     let r=await callAI(ctx.system,ctx.msgs,{thoughts:true,...tg,...offMax});
