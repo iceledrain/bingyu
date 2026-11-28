@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.28.15';</script>
+<script>window.BYJ_VER='2026.11.28.16';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1268,7 +1268,6 @@ function buildCtx(t,o={}){
     {const q=!group&&[...t.msgs].reverse().find(m=>m.from==='me'&&m.type==='pay'&&m.state==='new');if(q)tail.push(`【代付】${me.name}想让你替TA付 ¥${q.amt}：${q.content}，写 [代付] 或 [不付]。`)}
     if(pend)tail.push(`【没收的钱】${me.name}发来${pend.type==='hb'?'红包':'转账'}¥${pend.amt}${pend.content?'：'+pend.content:''}，写 [收下] 或 [退回]。`);
   }
-  rules.push(`${group?cname+'各':'你'}有自己的日子在过。做事、赶路都要时间。`);
   {const md=chars.filter(c=>c.mood).map(c=>`${c.name}：${c.mood}`);if(md.length)tail.push('【心情】\n'+md.join('\n'))}
   if(!group&&mode!=='call')rules.push(mode==='offline'?'开头先写一行 <think>…</think>：此刻你心里怎么想、接下来想做什么，一句话，你自己的口气':`开头先写一行 <think>…</think>：${me.name}是什么意思，你想对${me.name}做什么，一句话，你自己的口气`);
   if(!group&&mode!=='call')rules.push('末尾另起一行写此刻的心情 [心情:词]，词从这些里挑一个：'+MOODS.join('、'));
