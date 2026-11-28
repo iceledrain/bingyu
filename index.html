@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.28.5';</script>
+<script>window.BYJ_VER='2026.11.28.6';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -696,7 +696,7 @@ for(const K of['evWipe','memWipe'])if(!s[K]||typeof s[K]!=='object')s[K]={};if(!
     if(A.profiles.some(isOldExample)){A.profiles=A.profiles.filter(p=>!isOldExample(p));if(!A.profiles.length)A.profiles=[API_BLANK(uid())];if(!A.profiles.some(p=>p.id===A.active))A.active=A.profiles[0].id}
     if(!A.capV){A.capV=1;A.profiles.forEach(p=>{if(/anthropic\.com|generativelanguage/.test(p.base||'')&&(+p.maxTokens||0)<=8192)p.maxTokens=64000;if(/anthropic\.com/.test(p.base||''))p.stream=true})}}
   s.feed.forEach(p=>(Array.isArray(p.pics)?p.pics:[]).forEach(x=>delete x.dev));s.chars.forEach(c=>{if(c.mood)c.mood=softMood(c.mood);delete c.tide;delete c.tideLog;if(c.rel)for(const k of['theyBlocked','theyDeleted','at'])delete c.rel[k]});delete s.api.side;s.threads.forEach(t=>{delete t.clock;delete t.pc;delete t.pendWhy});s.books.forEach(b=>{delete b.scan;delete b.maxTok;delete b.maxN;(b.entries||[]).forEach(e=>{delete e.noRec;delete e.stopRec;delete e.was;if(e.pos==='after')delete e.pos})});
-  s.chars.forEach(c=>{if(c.voice)delete c.voice.off;delete c.routine;delete c.sched;delete c.sign;delete c.today;delete c.past;delete c.phone;delete c.pphoto});s.masks.forEach(m=>{delete m.handle;delete m.bio;delete m.follow;delete m.fans;delete m.likes});
+  s.chars.forEach(c=>{if(c.voice)delete c.voice.off;delete c.postAt;delete c.postNext;delete c.routine;delete c.sched;delete c.sign;delete c.today;delete c.past;delete c.phone;delete c.pphoto});s.masks.forEach(m=>{delete m.handle;delete m.bio;delete m.follow;delete m.fans;delete m.likes});
   s.stickers.groups.forEach(g=>(g.items||[]).forEach(x=>{x.name=stkName(x.name)||x.name}));
   delete s.lock;delete s.bubble;delete s.cycle;s.v=4;
   return s;
@@ -1625,19 +1625,18 @@ async function charReply(p,c,toWhat,toId,toName){
   if(!(p.likes||[]).includes(c.id)&&p.author!==c.id&&Math.random()<.8)(p.likes||=[]).push(c.id);
   logEvent(c.id,`${c.name}在${p.author==='me'?me.name:p.author===c.id?'自己':a.name}的朋友圈下${toId?'回复'+who:'评论'}：${line}`);save();
 }
-const postGap=()=>(2+28*Math.random()**2)*864e5;
 async function charPost(c){
   const me=mask(c),t=S.threads.find(x=>x.type==='dm'&&x.chars[0]===c.id);
   const recent=t?t.msgs.slice(-12).map(m=>(m.from==='me'?me.name:c.name)+'：'+pv(m)).join('\n'):'';
   const before=S.feed.filter(p=>p.author===c.id).slice(-4).map(postDesc);
   const st=statusOf(c),wd=worldFor([c]);
   const txt=await callAI(sysFor(c,charLore(c,recent)+'你在发微信朋友圈。'+extraFor(c)+(st==='sleep'?'':`，${c.name}${STATUS_TXT[st]}`)+(wd?'\n\n'+wd:'')),[{role:'user',content:(recent?`最近和${me.name}的聊天（只是背景）：\n${recent}\n\n`:'')+(before.length?`你最近发过的朋友圈（别重复）：\n${before.join('\n')}\n\n`:'')+
-    `以${c.name}的身份发一条朋友圈。朋友圈是发给所有好友看的，写${c.name}自己的生活：这会儿在做的、看到的、想到的都行，不用和${me.name}有关。发什么、配不配图你自己定。和${me.name}之间的事只说真发生过的。\n格式：正文直接写（没有就不写），每张照片单独一行写 [图片:照片里拍的是什么]。最后一行写 [下次:天数]，按${c.name}的性子，隔多少天再发（1到30）。只输出这些。`}],{max:1024,side:true,temp:1.05});
+    `以${c.name}的身份发一条朋友圈。朋友圈是发给所有好友看的，写${c.name}自己的生活：这会儿在做的、看到的、想到的都行，不用和${me.name}有关。发什么、配不配图你自己定。和${me.name}之间的事只说真发生过的。\n格式：正文直接写（没有就不写），每张照片单独一行写 [图片:照片里拍的是什么]。只输出这些。`}],{max:1024,side:true,temp:1.05});
   const pics=[],lines=[];
-  let nx=0;for(const l of String(txt).split('\n')){let rest=l;{const m=l.match(/\[下次[:：]\s*(\d+(?:\.\d+)?)/);if(m){nx=Math.max(1,Math.min(30,+m[1]));rest=rest.replace(/\[下次[^\]]*\]/,'')}}for(const m of l.matchAll(/\[(?:图片|照片|图)[:：]\s*([^\]]+)\]/g)){pics.push({desc:m[1].trim()});rest=rest.replace(m[0],'')}rest=rest.trim();if(rest)lines.push(rest)}
+  for(const l of String(txt).split('\n')){let rest=l;for(const m of l.matchAll(/\[(?:图片|照片|图)[:：]\s*([^\]]+)\]/g)){pics.push({desc:m[1].trim()});rest=rest.replace(m[0],'')}rest=rest.trim();if(rest)lines.push(rest)}
   const text=lines.join('\n').replace(/^["“「]|["”」]$/g,'').trim().slice(0,300);
   if(!text&&!pics.length)throw new Error('TA没想好发什么，再试一次');
-  const p={id:uid(),author:c.id,text,pics:pics.slice(0,9),t:Date.now(),likes:[],replies:[]};S.feed.push(p);c.postAt=Date.now();c.postNext=c.postAt+(nx?nx*864e5*(.8+.4*Math.random()):postGap());logEvent(c.id,`${c.name}发了朋友圈：「${postDesc(p)}」`);save();
+  const p={id:uid(),author:c.id,text,pics:pics.slice(0,9),t:Date.now(),likes:[],replies:[]};S.feed.push(p);c.postDay=ds(locNow());logEvent(c.id,`${c.name}发了朋友圈：「${postDesc(p)}」`);save();
   buzzChar(p,c).catch(()=>{});
   return p}
 async function buzzChar(p,c){const ref=()=>{if(onFeed()||cur()?.id===p.id)render(true)};
@@ -1904,8 +1903,8 @@ function lifeTick(mins){const now=Date.now();{const d=new Date();ensureHolidays(
     sysMsg(t,m.from==='me'?`外卖送到${dn(c)}那里了`:`${dn(c)}给你点的外卖到了`);t.t=now;save();onThreadUpdate(t);
     if(m.from==='me'){if(!busy.has(t.id)&&!call)reply(t,'（你刚刚收到了'+mask(t).name+'给你点的外卖：'+m.content+'。）')}else{if(!viewing(t)){t.unread=(t.unread||0)+1}}}
   for(const t of S.threads){if(t.pending&&now>=t.pending&&!busy.has(t.id)&&!call){const g=now-(t.msgs.filter(m=>m.from==='me').slice(-1)[0]?.t||now);const why=g>90e3?`（你刚才在忙，过了${gapText(g)}才看到消息。）`:'';t.pending=0;save();reply(t,why);return}}
-  if(api()?.key&&!document.hidden&&!postBusy){const c=S.chars.filter(visible).find(c=>{const t=S.threads.find(x=>x.type==='dm'&&x.chars[0]===c.id),f=t?.msgs?.[0]?.t||now;if(!c.postNext)c.postNext=(c.postAt||now)+postGap();return now>c.postNext&&now-f>12*3600e3});
-    if(c){postBusy=true;c.postAt=now;charPost(c).then(()=>{if(onFeed())render(true)}).catch(()=>{c.postNext=Date.now()+3600e3}).finally(()=>postBusy=false)}}
+  if(api()?.key&&!document.hidden&&!postBusy){const d=ds(locNow()),c=S.chars.filter(visible).find(c=>{const t=S.threads.find(x=>x.type==='dm'&&x.chars[0]===c.id);return c.postDay!==d&&now>(c.postWait||0)&&now-(t?.msgs?.[0]?.t||now)>12*3600e3});
+    if(c){postBusy=true;charPost(c).then(()=>{if(onFeed())render(true)}).catch(()=>{c.postWait=Date.now()+3600e3}).finally(()=>postBusy=false)}}
   if(api()?.key&&!busy.size&&!call&&!document.hidden&&!peekBusy){const t=S.threads.find(t=>{const c=charById(t.chars[0]);return t.type==='dm'&&visible(c)&&now-(c.peekAt||0)>1.5*3600e3&&now-t.t<2*864e5&&t.msgs.some(m=>m.from==='me')});
     if(t&&Math.random()<1-Math.pow(1-1/90,mins)){autoPeek(t,charById(t.chars[0]),'sneak');return}}
   if(busy.size||call||document.hidden||!api()?.key)return;
