@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.28.21';</script>
+<script>window.BYJ_VER='2026.11.28.22';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -512,8 +512,7 @@ html:not(.dark) .mo-cover:not(.img) b{color:var(--ink);text-shadow:0 1px 2px rgb
 html.dark .mo-pic.tp{background:linear-gradient(150deg,#303030,#212121 60%,#292929);color:#d1d1d1}
 .mo-g.one .mo-pic.tp{aspect-ratio:auto;font-size:13px;padding:10px}
 .mo-pic.tp svg{width:16px;height:16px;opacity:.55;flex:none}
-.mo-pic.tp span{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.mo-g.one .mo-pic.tp span{display:block}
+.mo-pic.tp span{display:block;word-break:break-all}
 .mo-pic.tp small{opacity:.6;font-size:10.5px}
 .mo-f{display:flex;align-items:center;gap:12px;font-size:12.5px;color:var(--muted)}
 .mo-f i{flex:1}
@@ -961,8 +960,9 @@ function render(keep){$('#mpop')?.remove();
   <main class="content ${r.cls||''}" id="content">${r.body}</main>${r.foot?`<footer class="foot ${r.footCls||''}">${r.foot}</footer>`:''}`;
   if(wall._wp!==wp){wall._wp=wp;wall.style.removeProperty('background');if(wp)wall.style.setProperty('background',`url("${String(wp).replace(/"/g,'%22')}") center/cover no-repeat`,'important')}appEl.prepend(wall);
   for(const id in kept){const x=document.getElementById(id);if(x)x.value=kept[id]}
-  if(keep)$('#content').scrollTop=sc;r.after&&r.after();paintCanvas();fillPics();
+  if(keep)$('#content').scrollTop=sc;r.after&&r.after();paintCanvas();fillPics();fitTp();
 }
+function fitTp(r=appEl){for(const b of r.querySelectorAll('.mo-g:not(.one) .mo-pic.tp')){const s=b.querySelector('span');if(!s)continue;let f=11;b.style.fontSize='';const room=()=>b.clientHeight-14-20;while(f>6&&s.offsetHeight>room()){f-=.5;b.style.fontSize=f+'px'}}}
 let painted;
 function paintCanvas(){const foot=isOpen()&&!!appEl.querySelector('.foot:not(.tabbar)');if(painted===foot)return;painted=foot;document.documentElement.style.backgroundColor=foot?'#fafafa':''}
 const tabs=(list,on,act='tab')=>`<div class="tabs" role="tablist">${list.map(([k,l])=>`<button class="${k===on?'on':''}" data-a="${act}" data-t="${k}">${l}</button>`).join('')}</div>`;
