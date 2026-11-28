@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.28.10';</script>
+<script>window.BYJ_VER='2026.11.28.11';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -631,7 +631,7 @@ const BACK_OLD=['【陪着】{{user}}来找你就放下手里的事陪着聊，�
 const BACK_ALL=[['陪着','{{user}}来找你，就放下手里的事陪着，聊多久都陪。'],['不重复','说大白话，句子短，讲具体的事。每次的开头和句式换着来。'],['记得','{{user}}说过的话、你们约好的事，都记得。'],['你','你有自己的想法和脾气。只写你自己说的，{{user}}的话和感受留给{{user}}。'],['称呼','叫{{user}}用情侣之间真会叫出口的称呼，气急了才连名带姓。']],BACK=[['不重复','说大白话，句子短，讲具体的事，每句都是新的话。'],['记得','{{user}}说过的、你自己说过的，都记得，前后对得上。你们之间只提真发生过的事。']],YOU_GONE=[BACK_ALL[3][1],'只写你自己说的。{{user}}的话和感受留给{{user}}。','轮到{{user}}拿主意，就停下等{{user}}。'],BACK_ITEMS=()=>BACK.map(([n,c])=>SYS_ITEM(n,c)),REL_GONE=[INTIM,BACK_ALL[0][1],BACK_ALL[4][1],BACK_OLD[0],BACK_OLD[4]];
 const DEFAULT_ITEMS=()=>[MK_ITEM('lore'),MK_ITEM('who'),...BACK_ITEMS()];
 const inChat=i=>i.depth!=null&&i.depth!==''&&isFinite(+i.depth);
-const OFF_STYLE_OLD='细腻，有画面感',OFF_STYLE_DEF='清爽干净';
+const OFF_STYLE_GONE=['细腻，有画面感','清爽干净'];
 const CHAT_DEF=()=>({ban:BAN_DEF,ctx:40,sumEvery:30,scan:8});
 const API_BLANK=id=>({id,name:'接口',key:'',base:'',model:'',temp:1,topP:null,topK:null,maxTokens:32000,stream:true});
 const isOldExample=p=>p&&p.name==='Claude'&&!String(p.key||'').trim()&&/anthropic\.com/.test(p.base||'')&&/^claude-/.test(p.model||'');
@@ -643,7 +643,7 @@ const def=()=>({v:4,loc:null,wx:{},
   masks:[{id:'m1',name:'user',avatar:'',bday:'',persona:''}],activeMask:'m1',wallet:520,
   chars:[],books:[],
   presets:[{id:'p1',name:'默认',items:DEFAULT_ITEMS()}],activePreset:'p1',loreV:1,coreV:1,
-  offline:{style:OFF_STYLE_DEF,words:1000,evRate:10,books:[]},
+  offline:{style:'',words:1000,evRate:10,books:[]},
   offStyles:[],cards:[],
   threads:[],feed:[],orders:[],shop:{food:[],goods:[]},days:[],cal:{per:[]},
   music:{songs:[],cur:null,with:null,mode:'all'},
@@ -682,7 +682,7 @@ function mergeState(d){
   if(!s.evV2){s.evV2=1;for(const o of [s.offline,...s.threads.map(t=>t.offline).filter(Boolean)])if(+o.evRate===30)o.evRate=10}
 for(const K of['evWipe','memWipe'])if(!s[K]||typeof s[K]!=='object')s[K]={};if(!Array.isArray(s.evGone))s.evGone=[];evWipeApply(s);
   const w6=!s.offW6;s.offW6=1;delete s.offW5;
-  for(const o of [s.offline,...s.threads.map(t=>t.offline).filter(Boolean)]){if(o.style===OFF_STYLE_OLD)o.style=OFF_STYLE_DEF;if(!(+o.words)||(w6&&+o.words===500))o.words=1000;
+  for(const o of [s.offline,...s.threads.map(t=>t.offline).filter(Boolean)]){if(OFF_STYLE_GONE.includes(o.style))o.style='';if(!(+o.words)||(w6&&+o.words===500))o.words=1000;
     for(const k of['pov','cpov','upov','lead'])delete o[k];o.books=Array.isArray(o.books)?o.books.filter(id=>s.books.some(b=>b.id===id)):[]}
   {const T=s.media.tts;delete T.provider;if(!T.ttsV){if(T.model==='speech-02-hd')T.model='';if(T.voice==='female-shaonv')T.voice='';T.ttsV=1}}
   s.chars.forEach(c=>{delete c.heart;delete c.nowDoing;if(c.rel)delete c.rel.soft;const x=String(c.lore||'').trim();if(x){const b={id:uid(),name:(c.name||'角色')+'的设定',scope:'local',entries:[{id:uid(),title:'设定',keys:'',content:x,light:'green',order:0,prob:100}]};s.books.push(b);(c.books||=[]).push(b.id)}delete c.lore});
@@ -1230,7 +1230,7 @@ function buildCtx(t,o={}){
       :`语音电话，只写你说出口的话，一两句，一句一行。要挂就最后一行写 [挂断]。`);
   }else if(mode==='offline'){
     const sf=loreOf(sbk,scan,'fixed').map(mac),sl=loreOf(sbk,scan,'live').map(mac),own=String(off.style||'').trim();
-    const ost=mac(own&&own!==OFF_STYLE_DEF?own:sf.length||sl.length?'':OFF_STYLE_DEF);
+    const ost=mac(own);
     rules.push(`${group?cname:'你'}和${me.name}现在面对面。`,`接下来做什么，${group?cname:'你'}自己拿主意。`);
     if(group)rules.push(`${cname}都在场，各说各的话，各做各的事。`);
     {      const ln=curNarr[curNarr.length-1];if(ln&&ln.from!=='me')tail.push(`【接着写】${me.name}这轮没写，接着往后写。`)}
@@ -2086,7 +2086,7 @@ offline(v){
   const t=thread(v.id);t.offline=t.offline||{...S.offline};const o=t.offline;
   return{title:'见面设置',sub:threadTitle(t),body:`<div class="panel">
     <label class="f">字数<span class="inline"><input type="range" id="o-words" min="200" max="5000" step="100" data-s="off" data-k="words" value="${o.words}"><output>${o.words}</output></span></label>
-    <label class="f">文风<textarea id="o-style" data-s="off" data-k="style" style="min-height:70px">${esc(o.style===OFF_STYLE_DEF?'':o.style||'')}</textarea></label>
+    <label class="f">文风<textarea id="o-style" data-s="off" data-k="style" style="min-height:70px">${esc(o.style||'')}</textarea></label>
     <div class="chips">${S.offStyles.map(x=>`<button class="${x.text===(o.style||'')?'on':''}" data-a="offStylePick" data-id="${x.id}">${esc(x.name)}</button>`).join('')}<button data-a="offStyleSave">＋ 存下来</button>${S.offStyles.some(x=>x.text===(o.style||''))?`<button data-a="offStyleDel">删掉</button>`:''}</div>
     <div class="f">世界书<div class="chips">${S.books.map(b=>`<button class="${(o.books||[]).includes(b.id)?'on':''}" data-a="offBook" data-id="${b.id}">${esc(b.name||'')}</button>`).join('')}<button data-a="offBookNew">＋ 新建</button></div></div>
     <button class="tb" data-a="offStyleDef" style="align-self:flex-start">恢复默认</button>
