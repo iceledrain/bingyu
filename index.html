@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.28.16';</script>
+<script>window.BYJ_VER='2026.11.28.17';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1172,6 +1172,7 @@ const OFF_EV={
   good:['天突然放晴了，或者天边出了很好看的晚霞','一只很亲人的猫或狗凑过来蹭腿，赖着不走','路边有人在弹唱，唱的正好是一首很应景的歌','路过的小店在搞活动，白送了一样小东西','老板看两人顺眼，多送了一份','误打误撞发现一家很好吃、没什么人知道的小店','有陌生人把两人当成一对，说了句好听的话','从口袋里摸到一张早就忘了的钱或者票','刚好赶上了最后一班车，或者最后一份','随手一拍，拍到一张特别好看的照片','收到一个好消息（工作、学业或者朋友那边的）','排了很久的队突然轮到了，或者有人让了个座','远处有人放烟花，或者看见了很亮的星星','抽奖、刮刮乐或者夹娃娃中了'],
   bad:['突然下起雨来，谁都没带伞','手机快没电了，或者突然没信号','鞋磨脚，或者鞋带断了','被路过的车溅了一身水','想去的店今天关门了，或者排着巨长的队','撞见一个不太想见的熟人（前任、同事或者亲戚）','不小心撞到人，手里的东西洒了','钥匙或者钱包一下子找不着了（后面可以找到）','一阵冷风吹过来，有人打了好几个喷嚏，好像要感冒','点的东西上错了，或者特别难吃','路上堵得动不了，或者走错路迷路了','突然停电，或者电梯坏了','一通电话打进来，有急事打断了正在做的事','一点小磕碰：崴了脚、划破手指之类','饮料或者咖啡洒在了衣服上','被突然窜出来的狗或者虫子吓了一跳'],
   odd:['碰到一个认识其中一个人的人，说漏了一件事','有小孩跑过来问路或者搭话','某样东西勾起了一段很久以前的回忆','旁边一桌或者路人在吵架，动静很大','自己想一件谁都没料到的小意外，可好可坏']};
+const HOT=/吻|舔|吮|含住|呻吟|喘息|娇喘|做爱|高潮|爱抚|缠绵|交缠|内裤|内衣|腿间|腿根|耳垂|赤裸|裸|抽插|抽送|顶弄|挺入|乳[尖头房肉晕]|双乳|奶头|性器|阴[茎道蒂唇]|小穴|下体|射精|内射|(?<![父母双乡相可])亲[了上她他你吻嘴下着住]|操[她他你我]|(解开|脱|扯|剥|褪).{0,6}(扣|衣|裤|裙|带)|压在.{0,6}(床|沙发|墙|身下|桌)|(进入|顶进|插进|插入).{0,4}(她|他|你|体内|身体|里)/;
 function offEvent(t,off){const p=num(off.evRate)??10;t.evGap=(t.evGap||0)+1;
   if(p<=0||t.evGap<4||Math.random()*100>=p)return'';
   const r=Math.random(),k=r<.42?'good':r<.84?'bad':'odd',L=OFF_EV[k],last=t.evLast||[];
@@ -1238,7 +1239,7 @@ function buildCtx(t,o={}){
     {const st=[ost,...sf].filter(Boolean);if(st.length)rules.push('【文风】'+st.join('\n'))}
     rules.push('写成小说。');
     if(sl.length)tail.push('【文风】'+sl.join('\n'));
-    if(o.ev){const e=offEvent(t,off);if(e)tail.push(e)}
+    if(o.ev&&!HOT.test(curNarr.slice(-3).map(m=>m.content).join('\n'))){const e=offEvent(t,off);if(e)tail.push(e)}
     {const phAll=t.msgs.filter((m,i)=>!m.recalled&&!isMark(m)&&(m.type!=='narr'||i<=curAt));let ph=phAll.filter(m=>hist.includes(m));if(ph.length<30)ph=phAll.slice(-30);
       const old=ph.some(m=>m.type==='narr'),who1=m=>m.from==='me'?me.name:charById(m.from)?.name||'?';let seg='';
       const seen=new Set(),line=m=>{const sk=m.type==='narr'?sumOf(t.msgs.indexOf(m)):null;if(sk&&seen.has(sk))return'';const k=m.type==='narr'?'之前见面时，已经结束':'手机上',h=old&&k!==seg?`（—— ${k} ——）\n`:'';seg=k;if(sk){seen.add(sk);return h+sk.sum}return h+(m.type==='narr'?who1(m)+'：'+wholeText(m.content,800):line1(m))};
