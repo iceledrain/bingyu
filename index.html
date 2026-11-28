@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.28.26';</script>
+<script>window.BYJ_VER='2026.11.29.1';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1321,7 +1321,7 @@ function splitStickers(line){const out=[];let rest=line;const re=/\[(sticker|表
     else{const p=v.split(/[:：]/),a=Math.round((parseFloat(String(p[0]).replace(/[^\d.]/g,''))||5.2)*100)/100;out.push({type:k==='红包'?'hb':'tf',amt:Math.max(.01,a),content:p.slice(1).join('：').trim()||(k==='红包'?'恭喜发财':''),state:'new'})}
     rest=rest.slice(m.index+m[0].length)}
   rest=hit?cl(rest):rest.trim();if(rest)out.push({type:'text',content:rest});return out}
-const thinkCut=x=>{const s=(String(x).match(/[^。！？!?…\n]+[。！？!?…]*/g)||[]).map(y=>y.trim()).filter(Boolean).slice(0,1).join('');return[...s].slice(0,40).join('')};
+const thinkCut=x=>{const s=(String(x).match(/[^。！？!?…\n]+[。！？!?…]*/g)||[]).map(y=>y.trim()).filter(Boolean).slice(0,1).join('');return s};
 const THINK_TAG='think|thinking|thought|thoughts|reasoning|analysis|思考|思维链|盘算';
 function stripForeign(out,keep){if(keep)return{out,plan:''};const cjk=x=>(x.match(/[\u3400-\u9fff]/g)||[]).length,lat=x=>(x.match(/[A-Za-z]/g)||[]).length;
   const lines=out.split('\n');let k=0,n=0;
