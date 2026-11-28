@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.28.7';</script>
+<script>window.BYJ_VER='2026.11.28.8';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1587,7 +1587,7 @@ function postHTML(p,full){const a=authorOf(p.author,p),liked=(p.likes||[]).inclu
   return`<article class="mo-p">${av(a,42)}<div class="mo-b"><b class="mo-n">${esc(a.name)}</b>${p.text?`<div class="mo-t">${esc(p.text)}</div>`:''}${pics}
   <div class="mo-f"><span>${ago(p.t)}</span>${p.only?`<span>仅${esc(dn(charById(p.only)))}可见</span>`:''}<button data-a="delPost" data-id="${p.id}">删除</button><i></i><button class="${liked?'lk':''}" data-a="like" data-id="${p.id}">${XI.like}${liked?'取消':'赞'}</button><button data-a="moRq" data-id="${p.id}">${XI.reply}评论</button></div>${box}</div></article>`}
 const feedNew=()=>S.feed.some(p=>p.author==='me'?(p.replies||[]).some(r=>r.author!=='me'&&r.t>(S.feedSeen||0)):p.t>(S.feedSeen||0)&&visible(charById(p.author)));
-const aboutMe=me=>(me.name==='user'?'和你聊天的人（user）还没设名字，称呼TA时直接用「你」。':'')+(me.persona?`关于${me.name}：${me.persona}`:me.name==='user'?'':`和你聊天的人叫${me.name}。`)+(me.name==='user'?'':`提到TA的时候，用你按人设会用的亲昵称呼。`);
+const aboutMe=me=>(me.name==='user'?'和你聊天的人（user）还没设名字，称呼TA时直接用「你」。':'')+(me.persona?`关于${me.name}：${me.persona}`:me.name==='user'?'':`和你聊天的人叫${me.name}。`);
 const macOf=(s,c)=>String(s||'').replaceAll('{{char}}',c?.name||'TA').replaceAll('{{user}}',mask(c).name);
 
 const exBlock=(c,mac,n)=>{const x=String(c?.ex||'').replace(/^[ \t]*<START>[ \t]*$/gim,'').replace(/\n{3,}/g,'\n\n').trim();
