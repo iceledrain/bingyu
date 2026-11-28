@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.28.1';</script>
+<script>window.BYJ_VER='2026.11.28.2';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1249,7 +1249,7 @@ function buildCtx(t,o={}){
     const pov=`人称：${cp==='first'?`${cname}是「我」`:`${cname}用第三人称（名字或他/她），叙述里不用「我」指${cname}`}；${me.name}是${uq==='second'?'「你」':uq==='first'?'「我」（叙述跟着我的视角）':'名字或他/她'}。全篇不换人称。只管旁白；引号里的台词照常说话：自称「我」，对谁说就叫「你」。`;
     const sf=loreOf(sbk,scan,'fixed').map(mac),sl=loreOf(sbk,scan,'live').map(mac),own=String(off.style||'').trim();
     const ost=mac(own&&own!==OFF_STYLE_DEF?own:sf.length||sl.length?'':OFF_STYLE_DEF);
-    rules.push(pov,`${group?cname:'你'}和${me.name}现在面对面，在同一个地方，看得见碰得到。旁边该有的人也写出来。`,`接下来做什么、配不配合，${group?cname:'你'}自己拿主意。${me.name}的话、动作和心思留给${me.name}写。`);
+    rules.push(pov,`${group?cname:'你'}和${me.name}现在面对面，在同一个地方，看得见碰得到。旁边该有的人也写出来。`,`接下来做什么、配不配合，${group?cname:'你'}自己拿主意。`);
     if(group)rules.push(`${cname}都在场，各说各的话，各做各的事。`);
     {      const ln=curNarr[curNarr.length-1];if(ln&&ln.from!=='me')tail.push(`【接着写】${me.name}这轮没写，接着往后写。`)}
     {const st=[ost,...sf].filter(Boolean);if(st.length)rules.push('【文风】'+st.join('\n'))}
