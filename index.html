@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.28.9';</script>
+<script>window.BYJ_VER='2026.11.28.10';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -643,7 +643,7 @@ const def=()=>({v:4,loc:null,wx:{},
   masks:[{id:'m1',name:'user',avatar:'',bday:'',persona:''}],activeMask:'m1',wallet:520,
   chars:[],books:[],
   presets:[{id:'p1',name:'默认',items:DEFAULT_ITEMS()}],activePreset:'p1',loreV:1,coreV:1,
-  offline:{style:OFF_STYLE_DEF,words:1000,cpov:'third',upov:'second',evRate:10,lead:'char',books:[]},
+  offline:{style:OFF_STYLE_DEF,words:1000,evRate:10,books:[]},
   offStyles:[],cards:[],
   threads:[],feed:[],orders:[],shop:{food:[],goods:[]},days:[],cal:{per:[]},
   music:{songs:[],cur:null,with:null,mode:'all'},
@@ -683,7 +683,7 @@ function mergeState(d){
 for(const K of['evWipe','memWipe'])if(!s[K]||typeof s[K]!=='object')s[K]={};if(!Array.isArray(s.evGone))s.evGone=[];evWipeApply(s);
   const w6=!s.offW6;s.offW6=1;delete s.offW5;
   for(const o of [s.offline,...s.threads.map(t=>t.offline).filter(Boolean)]){if(o.style===OFF_STYLE_OLD)o.style=OFF_STYLE_DEF;if(!(+o.words)||(w6&&+o.words===500))o.words=1000;
-    if(!o.cpov){const v=o.pov;o.cpov=v==='first'?'first':'third';o.upov='second'}delete o.pov;if(o.cpov==='first'&&o.upov==='first')o.upov='second';o.books=Array.isArray(o.books)?o.books.filter(id=>s.books.some(b=>b.id===id)):[]}
+    for(const k of['pov','cpov','upov','lead'])delete o[k];o.books=Array.isArray(o.books)?o.books.filter(id=>s.books.some(b=>b.id===id)):[]}
   {const T=s.media.tts;delete T.provider;if(!T.ttsV){if(T.model==='speech-02-hd')T.model='';if(T.voice==='female-shaonv')T.voice='';T.ttsV=1}}
   s.chars.forEach(c=>{delete c.heart;delete c.nowDoing;if(c.rel)delete c.rel.soft;const x=String(c.lore||'').trim();if(x){const b={id:uid(),name:(c.name||'角色')+'的设定',scope:'local',entries:[{id:uid(),title:'设定',keys:'',content:x,light:'green',order:0,prob:100}]};s.books.push(b);(c.books||=[]).push(b.id)}delete c.lore});
   for(const x of s.music.songs)if(x?.local){DB.del('song:'+x.id);x.local=false}
@@ -1171,12 +1171,12 @@ const OFF_EV={
   good:['天突然放晴了，或者天边出了很好看的晚霞','一只很亲人的猫或狗凑过来蹭腿，赖着不走','路边有人在弹唱，唱的正好是一首很应景的歌','路过的小店在搞活动，白送了一样小东西','老板看两人顺眼，多送了一份','误打误撞发现一家很好吃、没什么人知道的小店','有陌生人把两人当成一对，说了句好听的话','从口袋里摸到一张早就忘了的钱或者票','刚好赶上了最后一班车，或者最后一份','随手一拍，拍到一张特别好看的照片','收到一个好消息（工作、学业或者朋友那边的）','排了很久的队突然轮到了，或者有人让了个座','远处有人放烟花，或者看见了很亮的星星','抽奖、刮刮乐或者夹娃娃中了'],
   bad:['突然下起雨来，谁都没带伞','手机快没电了，或者突然没信号','鞋磨脚，或者鞋带断了','被路过的车溅了一身水','想去的店今天关门了，或者排着巨长的队','撞见一个不太想见的熟人（前任、同事或者亲戚）','不小心撞到人，手里的东西洒了','钥匙或者钱包一下子找不着了（后面可以找到）','一阵冷风吹过来，有人打了好几个喷嚏，好像要感冒','点的东西上错了，或者特别难吃','路上堵得动不了，或者走错路迷路了','突然停电，或者电梯坏了','一通电话打进来，有急事打断了正在做的事','一点小磕碰：崴了脚、划破手指之类','饮料或者咖啡洒在了衣服上','被突然窜出来的狗或者虫子吓了一跳'],
   odd:['碰到一个认识其中一个人的人，说漏了一件事','有小孩跑过来问路或者搭话','某样东西勾起了一段很久以前的回忆','旁边一桌或者路人在吵架，动静很大','自己想一件谁都没料到的小意外，可好可坏']};
-function offEvent(t,off,me){const p=num(off.evRate)??10;t.evGap=(t.evGap||0)+1;
+function offEvent(t,off){const p=num(off.evRate)??10;t.evGap=(t.evGap||0)+1;
   if(p<=0||t.evGap<4||Math.random()*100>=p)return'';
   const r=Math.random(),k=r<.42?'good':r<.84?'bad':'odd',L=OFF_EV[k],last=t.evLast||[];
   let i,n=0;do i=Math.floor(Math.random()*L.length);while(last.includes(k+i)&&++n<9);
   t.evGap=0;t.evLast=[...last,k+i].slice(-10);
-  return`【意外】这一段里发生一件${{good:'好事',bad:'不太顺的事',odd:'意想不到的事'}[k]}：${L[i]}。按现在的地点、时间改成合适的样子，放不进当前场景就换一件差不多的。正在亲热的话，多半当没这条；偶尔写也只当添点情趣的小插曲，同一段里就接回去，接着做，不拿它当停下的理由。自然地写进情节，别突兀，也别一笔带过；是小事，不是大灾难。`}
+  return`【意外】这一段里发生一件${{good:'好事',bad:'不太顺的事',odd:'意想不到的事'}[k]}：${L[i]}。是件小事，正在亲热就当没这条。`}
 const boughtRecently=t=>{const L=t.msgs.filter(m=>m.from!=='me'&&(m.type==='order'||m.type==='parcel')&&Date.now()-m.t<24*3600e3);return L.length>=5||L.some(m=>Date.now()-m.t<2*3600e3)};
 const saidGone=(c,t)=>(c.said||[]).filter(x=>Date.now()-x.t<36*3600e3&&!(t&&t.msgs.some(m=>m.from===c.id&&String(m.content||'').slice(0,60)===x.s)));
 const langOf=c=>String(c?.voice?.lang||'').trim();
@@ -1204,7 +1204,7 @@ function buildCtx(t,o={}){
   {const lb=lbk(e=>loreFix(e)&&e.pos!=='depth');if(lb)lore.push(lb);const ll=lbk(e=>!loreFix(e)&&e.pos!=='depth');if(ll)tail.push(ll)}
   chars.forEach(c=>{if(c.remark||String(c.persona||'').trim())who.push(`【${c.name}】${c.remark?`${me.name}给TA的备注：${c.remark}`:''}\n${mac(c.persona)}`);const ex=exBlock(c,mac);if(ex)who.push(ex)});
   if(!group&&chars[0]){if(/人机恋/.test(chars[0].persona||''))rules.push(`你是AI，和${me.name}是真的在谈恋爱。人设是你的样子和性子，你对${me.name}的感情和欲望都是真的。`);}
-  {const of=t.offline||S.offline,u=mode==='offline'&&of.upov==='first'&&of.cpov!=='first'?'「我」':mode==='offline'&&of.upov==='third'?'「他/她」':'「你」';who.push(`【${me.name}（用户）】${me.name==='user'?`没设名字，叫${u}。`:''}${me.persona?'\n'+mac(me.persona):''}`);}
+  who.push(`【${me.name}（用户）】${me.name==='user'?'没设名字，叫「你」。':''}${me.persona?'\n'+mac(me.persona):''}`);
   if(mode!=='offline'&&(lastSum?!lastMeet.some(m=>hist.includes(m)):lastMeet.some(m=>!hist.includes(m)))){const nm2=m=>m.from==='me'?me.name:charById(m.from)?.name||cname;
     const txt=lastSum?lastSum.sum:lastMeet.map(m=>nm2(m)+'：'+m.content.trim()).join('\n');
     const md=new Date(lastMeet[0].t);
@@ -1229,25 +1229,23 @@ function buildCtx(t,o={}){
       ?`视频电话，${me.name}看得见你。第一行用（）写镜头里你此刻的样子，20到50字，每次不一样；下面写你说的话，一两句，一句一行。要挂就最后一行写 [挂断]。`
       :`语音电话，只写你说出口的话，一两句，一句一行。要挂就最后一行写 [挂断]。`);
   }else if(mode==='offline'){
-    const cp=off.cpov==='first'?'first':'third',up=['first','second','third'].includes(off.upov)?off.upov:'second',uq=cp==='first'&&up==='first'?'second':up;
-    const pov=`人称：${cp==='first'?`${cname}是「我」`:`${cname}用第三人称（名字或他/她），叙述里不用「我」指${cname}`}；${me.name}是${uq==='second'?'「你」':uq==='first'?'「我」（叙述跟着我的视角）':'名字或他/她'}。全篇不换人称。只管旁白；引号里的台词照常说话：自称「我」，对谁说就叫「你」。`;
     const sf=loreOf(sbk,scan,'fixed').map(mac),sl=loreOf(sbk,scan,'live').map(mac),own=String(off.style||'').trim();
     const ost=mac(own&&own!==OFF_STYLE_DEF?own:sf.length||sl.length?'':OFF_STYLE_DEF);
-    rules.push(pov,`${group?cname:'你'}和${me.name}现在面对面，在同一个地方，看得见碰得到。旁边该有的人也写出来。`,`接下来做什么、配不配合，${group?cname:'你'}自己拿主意。`);
+    rules.push(`${group?cname:'你'}和${me.name}现在面对面。`,`接下来做什么，${group?cname:'你'}自己拿主意。`);
     if(group)rules.push(`${cname}都在场，各说各的话，各做各的事。`);
     {      const ln=curNarr[curNarr.length-1];if(ln&&ln.from!=='me')tail.push(`【接着写】${me.name}这轮没写，接着往后写。`)}
     {const st=[ost,...sf].filter(Boolean);if(st.length)rules.push('【文风】'+st.join('\n'))}
-    rules.push(`写成小说段落，旁白加「」里的对白。`);
+    rules.push('写成小说。');
     if(sl.length)tail.push('【文风】'+sl.join('\n'));
-    if(o.ev){const e=offEvent(t,off,me);if(e)tail.push(e)}
+    if(o.ev){const e=offEvent(t,off);if(e)tail.push(e)}
     {const phAll=t.msgs.filter((m,i)=>!m.recalled&&!isMark(m)&&(m.type!=='narr'||i<=curAt));let ph=phAll.filter(m=>hist.includes(m));if(ph.length<30)ph=phAll.slice(-30);
       const old=ph.some(m=>m.type==='narr'),who1=m=>m.from==='me'?me.name:charById(m.from)?.name||'?';let seg='';
       const seen=new Set(),line=m=>{const sk=m.type==='narr'?sumOf(t.msgs.indexOf(m)):null;if(sk&&seen.has(sk))return'';const k=m.type==='narr'?'之前见面时，已经结束':'手机上',h=old&&k!==seg?`（—— ${k} ——）\n`:'';seg=k;if(sk){seen.add(sk);return h+sk.sum}return h+(m.type==='narr'?who1(m)+'：'+wholeText(m.content,800):line1(m))};
       const line1=m=>m.type==='sys'?`（${sysAI(m.content,me.name)}）`:(m.from==='me'?me.name:charById(m.from)?.name||'?')+'：'+(m.type==='call'?`[${m.kind==='video'?'视频':'语音'}通话] ${String(m.content||'').replace(/\n/g,' / ')}`:pv(m));
-      const lastBg=ph[ph.length-1];if(lastBg&&lastBg.type!=='narr'&&!curNarr.some(m=>m.from!=='me'))tail.push(`【刚见面】刚才在手机上聊，现在见面了，从手机上最后聊到的地方接着往下写。${old?'之前那次见面早就结束了，这是新的一次。':''}`);
+      const lastBg=ph[ph.length-1];if(lastBg&&lastBg.type!=='narr'&&!curNarr.some(m=>m.from!=='me'))tail.push(`【刚见面】接着手机上聊到的地方往下写。${old?'这是新的一次见面。':''}`);
       if(ph.length)late.push((old?`【这次见面之前】（按先后排：之前的见面已经结束，后来在手机上聊，现在是新的一次见面。只是背景）\n`:`【见面前在手机上聊的】（只是背景）\n`)+ph.map(line).filter(Boolean).join('\n'))}
   }else{
-    rules.push(group?`这是手机群聊，只写${cname}发的。大家都看得见彼此的话，会接话、叫人、搭腔拌嘴，谁有话谁开口。熟不熟看人设和世界书，没写的就是在这个群里才认识。待不下去写 名字：[退群]；想拉人写 名字：[邀请:名字]${(o=>o.length?'（能拉：'+o.join('、')+'）':'')(S.chars.filter(c=>visible(c)&&!chars.some(y=>y.id===c.id)).map(c=>c.name))}。`
+    rules.push(group?`这是手机群聊，只写${cname}发的，谁有话谁开口。待不下去写 名字：[退群]；想拉人写 名字：[邀请:名字]${(o=>o.length?'（能拉：'+o.join('、')+'）':'')(S.chars.filter(c=>visible(c)&&!chars.some(y=>y.id===c.id)).map(c=>c.name))}。`
       :`你在手机上跟${me.name}发消息，一行一个气泡。人设和世界书没写异地，就是同城。`);
     rules.push('回复1-6句，每句1-10个字，遇到逗号就分行，长句分为多条消息发送，单字单字母单标点符号均可发，还可发emoji/颜文字/表情包');
     if(group)rules.push('群聊：每条前面写发的人的名字加冒号');
@@ -1270,9 +1268,8 @@ function buildCtx(t,o={}){
     if(pend)tail.push(`【没收的钱】${me.name}发来${pend.type==='hb'?'红包':'转账'}¥${pend.amt}${pend.content?'：'+pend.content:''}，写 [收下] 或 [退回]。`);
   }
   {const W=banHit(String(S.chat.ban||''));if(W.length)tail.push(`【不说的词】${W.join('、')}，同类的套话也不说，换成平时的大白话。`)}
-  rules.push(group?'做事、赶路都要时间，时间够了才算做完、才到。吃饭睡觉按平常的钟点。':'你有自己的日子在过。做事、赶路都要时间。');
+  rules.push(`${group?cname+'各':'你'}有自己的日子在过。做事、赶路都要时间。`);
   {const md=chars.filter(c=>c.mood).map(c=>`${c.name}：${c.mood}`);if(md.length)tail.push('【心情】\n'+md.join('\n'))}
-  if(group&&mode!=='call')rules.push(`${chars.some(c=>String(c.persona||'').trim())?`人设写的就是${cname}。`:''}和${me.name}之间只提真发生过的事。`);
   if(!group&&mode!=='call')rules.push(mode==='offline'?'开头先写一行 <think>…</think>：此刻你心里怎么想、接下来想做什么，一句话，你自己的口气':`开头先写一行 <think>…</think>：${me.name}是什么意思，你想对${me.name}做什么，一句话，你自己的口气`);
   if(!group&&mode!=='call')rules.push('末尾另起一行写此刻的心情 [心情:词]，词从这些里挑一个：'+MOODS.join('、'));
   if(!group&&mode==='online')rules.push('再另起一行写此刻没说出口的心里话 [心声:内容]，8字以内，句子、词语、单字、一个符号都行');
@@ -1294,7 +1291,7 @@ function buildCtx(t,o={}){
   {const L=chars.filter(langOf);if(L.length)rules.push(`语言：${L.map(c=>`${c.name}开口只说${langOf(c)}`).join('，')}，方括号里的标签名照写`)}
   if(tail.length){let k=msgs.length;while(k>0&&msgs[k-1].role==='user'&&k>pre.length)k--;const last=msgs.slice(k).some(x=>!x.dep);
     msgs.splice(k,0,{role:'user',content:`（此刻的情况，系统告诉你的）\n`+tail.join('\n\n')+(last?`\n\n（下面是${me.name}${mode==='online'?group?'刚发的；前面的已经接过了，群里接着往下聊':'刚发的，主要回这几条；前面的已经回过了':'发的'}）`:'')})}
-  if(mode==='offline'){const w=num(off.words)||1000,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字${(off.upov||'second')==='second'?`；叙述里称呼${me.name}只用「你」`:''}）`,last=msgs[msgs.length-1];
+  if(mode==='offline'){const w=num(off.words)||1000,note=`（${Math.round(w*.8)}到${Math.round(w*1.2)}字）`,last=msgs[msgs.length-1];
     if(last&&last.role==='user')last.content+='\n\n'+note;else msgs.push({role:'user',content:note})}
   const tx=a=>a.map(o=>o.x).filter(Boolean);
   const head=[];let cut=0;{const sysI=items.filter(i=>i.role==='system'&&!inChat(i)),add=i=>{if(i.mk==='lore')head.push(...lore.map(x=>({s:'世界书',x})));else if(i.mk==='who')head.push(...who.map(x=>({s:'人设',x})));else head.push({s:'预设',x:mac(i.content)});if(i.mk)cut=tx(head).join('\n\n').length};
@@ -2089,8 +2086,6 @@ offline(v){
   const t=thread(v.id);t.offline=t.offline||{...S.offline};const o=t.offline;
   return{title:'见面设置',sub:threadTitle(t),body:`<div class="panel">
     <label class="f">字数<span class="inline"><input type="range" id="o-words" min="200" max="5000" step="100" data-s="off" data-k="words" value="${o.words}"><output>${o.words}</output></span></label>
-    <div class="grid2"><label class="f">角色人称<select id="o-cpov" data-s="off" data-k="cpov">${[['third','第三人称（他/她）'],['first','第一人称（我）']].map(([k,l])=>`<option value="${k}" ${(o.cpov||'third')===k?'selected':''}>${l}</option>`).join('')}</select></label>
-    <label class="f">我的人称<select id="o-upov" data-s="off" data-k="upov">${[['second','第二人称（你）'],['first','第一人称（我）'],['third','第三人称（名字）']].filter(([k])=>!(o.cpov==='first'&&k==='first')).map(([k,l])=>`<option value="${k}" ${(o.upov||'second')===k?'selected':''}>${l}</option>`).join('')}</select></label></div>
     <label class="f">文风<textarea id="o-style" data-s="off" data-k="style" style="min-height:70px">${esc(o.style===OFF_STYLE_DEF?'':o.style||'')}</textarea></label>
     <div class="chips">${S.offStyles.map(x=>`<button class="${x.text===(o.style||'')?'on':''}" data-a="offStylePick" data-id="${x.id}">${esc(x.name)}</button>`).join('')}<button data-a="offStyleSave">＋ 存下来</button>${S.offStyles.some(x=>x.text===(o.style||''))?`<button data-a="offStyleDel">删掉</button>`:''}</div>
     <div class="f">世界书<div class="chips">${S.books.map(b=>`<button class="${(o.books||[]).includes(b.id)?'on':''}" data-a="offBook" data-id="${b.id}">${esc(b.name||'')}</button>`).join('')}<button data-a="offBookNew">＋ 新建</button></div></div>
