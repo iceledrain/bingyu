@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.28.8';</script>
+<script>window.BYJ_VER='2026.11.28.9';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1600,7 +1600,7 @@ async function charReply(p,c,toWhat,toId,toName){
   const me=mask(c),a=authorOf(p.author,p),who=toName||me.name;
   const thr=(p.replies||[]).slice(-10).map(r=>authorOf(r.author,r).name+'：'+r.text).join('\n');
   const imgs=postPics(p).filter(x=>!x.desc&&/^data:image/.test(x.img||'')).slice(0,3).map(x=>x.img);
-  const ask=`${p.author===c.id?'你自己':a.name}发的朋友圈：「${postDesc(p)}」${imgs.length?'（照片附在后面）':''}\n${thr?'评论区：\n'+thr+'\n':''}${toId?`${who}的评论：「${toWhat}」\n写${c.name}回复${who}的一句话`:`${toWhat?`${who}刚刚评论：「${toWhat}」\n`:''}写${c.name}的一条评论`}，一句话，30字以内，像熟人随手评论：可以调侃、关心、吃醋、接梗、互损，别客套。只输出内容。`;
+  const ask=`${p.author===c.id?'你自己':a.name}发的朋友圈：「${postDesc(p)}」${imgs.length?'（照片附在后面）':''}\n${thr?'评论区：\n'+thr+'\n':''}${toId?`${who}的评论：「${toWhat}」\n写${c.name}回复${who}的评论`:`${toWhat?`${who}刚刚评论：「${toWhat}」\n`:''}写${c.name}的一条评论`}。只输出内容。`;
   const sys=sysFor(c,charLore(c,postDesc(p)+'\n'+thr+'\n'+(toWhat||''))+'你在刷微信朋友圈。'+extraFor(c));
   let txt;try{txt=await callAI(sys,[{role:'user',content:ask,...(imgs.length?{imgs}:{})}],{max:1024,side:true})}catch(e){if(!imgs.length)throw e;txt=await callAI(sys,[{role:'user',content:ask}],{max:1024,side:true})}
   const line=(String(txt).split('\n').map(s=>s.trim()).filter(Boolean)[0]||'').replace(new RegExp('^'+c.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\s*[:：]\\s*'),'').replace(/^["“「]|["”」]$/g,'');if(!line)return;
