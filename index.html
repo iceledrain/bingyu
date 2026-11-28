@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.28.11';</script>
+<script>window.BYJ_VER='2026.11.28.12';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1231,7 +1231,7 @@ function buildCtx(t,o={}){
   }else if(mode==='offline'){
     const sf=loreOf(sbk,scan,'fixed').map(mac),sl=loreOf(sbk,scan,'live').map(mac),own=String(off.style||'').trim();
     const ost=mac(own);
-    rules.push(`${group?cname:'你'}和${me.name}现在面对面。`,`接下来做什么，${group?cname:'你'}自己拿主意。`);
+    rules.push(`旁白里${cname}用名字或第三人称，${me.name}用「你」。`,`${group?cname:'你'}和${me.name}现在面对面。`,`接下来做什么，${group?cname:'你'}自己拿主意。`);
     if(group)rules.push(`${cname}都在场，各说各的话，各做各的事。`);
     {      const ln=curNarr[curNarr.length-1];if(ln&&ln.from!=='me')tail.push(`【接着写】${me.name}这轮没写，接着往后写。`)}
     {const st=[ost,...sf].filter(Boolean);if(st.length)rules.push('【文风】'+st.join('\n'))}
