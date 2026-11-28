@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="eco">
 <head>
 <meta charset="utf-8">
-<script>window.BYJ_VER='2026.11.29.3';</script>
+<script>window.BYJ_VER='2026.11.29.4';</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -628,7 +628,7 @@ const OLD_ITEM=i=>!i.mk&&(['陪着','亲密','不重复','记得','你','称呼'
 const MK={lore:'世界书',who:'人设'},MK_ITEM=k=>({...SYS_ITEM(MK[k],''),mk:k}),withMk=p=>{p.items=(p.items||[]).filter(i=>!i.mk||i.mk in MK);for(const k of['who','lore'])if(!p.items.some(i=>i.mk===k))p.items.unshift(MK_ITEM(k));p.items.forEach(i=>{if(i.mk){i.on=true;i.role='system';i.mode='both';i.content='';delete i.depth}});return p};
 const INTIM='{{char}}对{{user}}有欲望，会主动要，不止一次，狠狠疼爱{{user}}。';
 const BACK_OLD=['【陪着】{{user}}来找你就放下手里的事陪着聊，认真回，TA想聊多久就陪多久。','说话像真人平时说话：口语，大白话，句子短，说具体的事和东西，是什么就直接说。每轮的开头和句式都换。','【记得】记得{{user}}说过的话和你们约好的事。','【你】你是{{char}}，对面是{{user}}，有自己的想法和脾气。只写你自己的话，TA的话和感受留给TA。','【称呼】用现实里情侣真会叫出口的亲昵称呼叫{{user}}，气急了才连名带姓。'];
-const BACK_ALL=[['陪着','{{user}}来找你，就放下手里的事陪着，聊多久都陪。'],['不重复','说大白话，句子短，讲具体的事。每次的开头和句式换着来。'],['记得','{{user}}说过的话、你们约好的事，都记得。'],['你','你有自己的想法和脾气。只写你自己说的，{{user}}的话和感受留给{{user}}。'],['称呼','叫{{user}}用情侣之间真会叫出口的称呼，气急了才连名带姓。']],BACK=[['不重复','说大白话，句子短，讲具体的事，每句都是新的话。'],['记得','你们之间只提真发生过的事。']],KEEP_OLD='{{user}}说过的、你自己说过的，都记得，前后对得上。你们之间只提真发生过的事。',YOU_GONE=[BACK_ALL[3][1],'只写你自己说的。{{user}}的话和感受留给{{user}}。','轮到{{user}}拿主意，就停下等{{user}}。'],BACK_ITEMS=()=>BACK.map(([n,c])=>SYS_ITEM(n,c)),REL_GONE=[INTIM,BACK_ALL[0][1],BACK_ALL[4][1],BACK_OLD[0],BACK_OLD[4]];
+const BACK_ALL=[['陪着','{{user}}来找你，就放下手里的事陪着，聊多久都陪。'],['不重复','说大白话，句子短，讲具体的事。每次的开头和句式换着来。'],['记得','{{user}}说过的话、你们约好的事，都记得。'],['你','你有自己的想法和脾气。只写你自己说的，{{user}}的话和感受留给{{user}}。'],['称呼','叫{{user}}用情侣之间真会叫出口的称呼，气急了才连名带姓。']],RECALL='你们之间只提真发生过的事。',BACK=[['不重复','说大白话，句子短，讲具体的事，每句都是新的话。']],KEEP_OLD='{{user}}说过的、你自己说过的，都记得，前后对得上。你们之间只提真发生过的事。',YOU_GONE=[BACK_ALL[3][1],'只写你自己说的。{{user}}的话和感受留给{{user}}。','轮到{{user}}拿主意，就停下等{{user}}。'],BACK_ITEMS=()=>BACK.map(([n,c])=>SYS_ITEM(n,c)),REL_GONE=[INTIM,BACK_ALL[0][1],BACK_ALL[4][1],BACK_OLD[0],BACK_OLD[4]];
 const DEFAULT_ITEMS=()=>[MK_ITEM('lore'),MK_ITEM('who'),...BACK_ITEMS()];
 const inChat=i=>i.depth!=null&&i.depth!==''&&isFinite(+i.depth);
 const OFF_STYLE_GONE=['细腻，有画面感','清爽干净'];
@@ -675,9 +675,10 @@ function mergeState(d){
   delete s.chat.thinkSrc;delete s.chat.deep;for(const k of['casual','love','chase','away','autoPost'])delete s.chat[k];delete s.chat.web;delete s.look.shell;delete s.look.night;delete s.look.hide;for(const k of['effort','think','inner','thinkName','thinkStyle','innerName','innerStyle','innerOpen','onMax','onLen','lean'])delete s.chat[k];s.chars.forEach(c=>{delete c.innerStyle;delete c.now});
   if(!d.coreV){s.coreV=1;s.presets.forEach(p=>{p.items=(p.items||[]).filter(i=>!OLD_ITEM(i));for(const k of['ov','ord','gone','core'])delete p[k]})}for(const k of['presetV','catchV','thinkOnV'])delete s[k];
   if(!(s.backV>=2)){s.backV=2;s.presets.forEach(p=>{(p.items||=[]).forEach(i=>{const k=BACK_OLD.indexOf(i.content);if(k>=0)i.content=BACK_ALL[k][1]});BACK_ITEMS().forEach(i=>{if(!p.items.some(x=>x.content===i.content||x.name===i.name))p.items.push(i)})})}
-  if(!(s.backV>=3)){s.backV=3;s.presets.forEach(p=>(p.items||[]).forEach(i=>{const k=[1,2].findIndex(n=>BACK_ALL[n][1]===i.content);if(k>=0)i.content=BACK[k][1]}))}
+  if(!(s.backV>=3)){s.backV=3;s.presets.forEach(p=>(p.items||[]).forEach(i=>{const k=[1,2].findIndex(n=>BACK_ALL[n][1]===i.content);if(k>=0)i.content=[BACK[0][1],RECALL][k]}))}
   if(!(s.backV>=6)){s.backV=6;s.presets.forEach(p=>{p.items=(p.items||[]).filter(i=>!YOU_GONE.includes(i.content))})}
-  if(!(s.backV>=7)){s.backV=7;s.presets.forEach(p=>(p.items||[]).forEach(i=>{if(i.content===KEEP_OLD)i.content=BACK[1][1]}))}
+  if(!(s.backV>=7)){s.backV=7;s.presets.forEach(p=>(p.items||[]).forEach(i=>{if(i.content===KEEP_OLD)i.content=RECALL}))}
+  if(!(s.backV>=8)){s.backV=8;s.presets.forEach(p=>{p.items=(p.items||[]).filter(i=>![RECALL,KEEP_OLD,BACK_ALL[2][1]].includes(i.content))})}
   if(s.relV!==3){s.relV=3;delete s.intimV;s.presets.forEach(p=>{p.items=(p.items||[]).filter(i=>!REL_GONE.includes(i.content));BACK_ITEMS().forEach(i=>{if(!p.items.some(x=>x.content===i.content||x.name===i.name))p.items.push(i)})})}
   s.threads.forEach(t=>{delete t.face});delete s.chat.face;delete s.chat.faceLen;delete s.chat.faceStyle;
   if(!s.evV2){s.evV2=1;for(const o of [s.offline,...s.threads.map(t=>t.offline).filter(Boolean)])if(+o.evRate===30)o.evRate=10}
